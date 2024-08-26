@@ -1,8 +1,7 @@
 
 
-#  Web WMS(Warehouse Management System) Project : FitBox 
+#  cashierless store Project :  
 
-![readme_mockup2](/READMEfile/main.png )
 
 ---
 
@@ -22,16 +21,16 @@
 
 <br>
 
-- 배포 URL : https://i11a508.p.ssafy.io
-- Test ID : ssafytest@naver.com
-- Test PW : ssafy123!
+- 배포 URL : 
+- Test ID : 
+- Test PW : 
 
 
 <br>
 
-# 📦 물류 도메인 소개
+# 📦 무인매장 도메인 소개
 
-물류 도메인은 상품, 서비스, 정보, 자원의 물리적 이동을 계획하고 실행하며 관리하는 시스템을 포함합니다. 공급망의 중요한 부분으로, 다양한 산업에서 핵심적인 역할을 합니다.
+
 
 ## 주요 요소
 
