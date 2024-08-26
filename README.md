@@ -22,8 +22,8 @@
 <br>
 
 - 배포 URL : 
-- Test ID : 
-- Test PW : 
+- Test ID :
+- Test PW :
 
 
 <br>
