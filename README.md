@@ -96,7 +96,7 @@
   <tr>
     <tr align="center">
         <td style="min-width: 250px;">
-            <a href="https://it-whale.tistory.com">
+            <a href="https://github.com/yuseok01">
               <b>김유석</b>
             </a>
         </td>
@@ -136,7 +136,7 @@
   <tr>
     <tr align="center">
         <td style="min-width: 250px;">
-            <img src="/READMEfile/kimseoyung.jpg" width="100">
+           <a href="https://github.com/seoyoung059">
               <b>김서영</b>
             </a>
         </td>
@@ -146,20 +146,20 @@
             </a>
         </td>
         <td style="min-width: 250px;">
-            <img src="/READMEfile/moon.jpg" width="100">
+           <a href="https://github.com/whereisawedhii">
               <b>문재성</b>
             </a> 
         </td>
     </tr>
     <tr align="center">
         <td style="min-width: 250px;">
-              <img src="/READMEfile/dongyeol.jpg" width="100">
+              <img src="/READMEfile/kimseoyung.jpg" width="100">
         </td>
         <td style="min-width: 250px;">
               <img src="/READMEfile/junhyeok.png" width="100">
         </td>
         <td style="min-width: 250px;">
-              <img src="/READMEfile/kyunil.jpg" width="100">
+               <img src="/READMEfile/moon.jpg" width="100">
         </td>
     </tr>
     <tr align="center">
@@ -289,7 +289,7 @@
 
 <br>
     
-### 이동열
+### 김서영
 
 
 <br>
@@ -301,7 +301,7 @@
 
 <br>
 
-### 신권일
+### 문재성
 
 
 <br>
