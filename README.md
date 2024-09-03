@@ -22,7 +22,7 @@
 
 <br>
 
-- 배포 URL : 
+- 배포 URL :   
 - Test ID :
 - Test PW :
 
