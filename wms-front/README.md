@@ -15,6 +15,9 @@
 		현재 Next 12 version, 이를 14 version으로 Upgrade
 
 
+통신 방식에 대해서 고민할 것
+
+
 ```
 wms-front
 ├─ .github
