@@ -143,7 +143,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     });
 
   // 로딩 Loading
-  const [loading, setLoading] = useState(true); // Overall loading state
+  const [loading, setLoading] = useState(false); // 수정필수 : 여기를 true 바꿔야 한다.
 
   // 창고 배열을 저장하기 위한 초기 세팅
   const initialContainer = Array.from({ length: CANVAS_SIZE }, () =>
@@ -681,7 +681,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
   // 상대적 위치를 보여주는 Pointer에 대한 수정
   const Pointer = (event) => {
-    const { x, y } = event.target.getStage().getPointerPosition();
+    let { x, y } = event.target.getStage().getPointerPosition();
     var stageAttrs = event.target.getStage().attrs;
 
     if (!stageAttrs.x) {
@@ -928,7 +928,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   };
 
   /**
-   *  useEffect Part
+   *  동적 작용 파트(유즈 이팩트)
    */
 
   useEffect(() => {
@@ -1155,20 +1155,20 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     };
   }, [line, startPos, currentSetting, hoveredAnchor]);
 
-  // 최초 한번 실행된다.
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true); // Start loading
-        await getWarehouseAPI(warehouseId);
-      } catch (error) {
-        //에러
-      } finally {
-        setLoading(false); // End loading
-      }
-    };
-    fetchData();
-  }, []);
+  // // 최초 한번 실행된다.
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       setLoading(true); // Start loading
+  //       await getWarehouseAPI(warehouseId);
+  //     } catch (error) {
+  //       //에러
+  //     } finally {
+  //       setLoading(false); // End loading
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
 
   // 중앙에서 시작하기 위함
   useEffect(() => {

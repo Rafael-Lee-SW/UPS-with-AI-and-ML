@@ -1,3 +1,4 @@
+// [id].jsx
 import React, { useEffect, useState } from "react";
 import classNames from "classnames";
 import Link from "next/link";
@@ -6,7 +7,7 @@ import Header from "/components/Header/UserHeader.jsx";
 import HeaderLinks from "/components/Header/UserHeaderLinks.js";
 import Button from "/components/CustomButtons/Button.js";
 import dynamic from "next/dynamic";
-import styles from "/styles/jss/nextjs-material-kit/pages/users.js";
+import styles from "/styles/jss/nextjs-material-kit/pages/users.js"; // Import styles from users.js
 import "aos/dist/aos.css";
 import { useRouter } from "next/router";
 
@@ -23,197 +24,44 @@ const DynamicMyContainerProduct = dynamic(
   { ssr: false }
 );
 
-const useStyles = makeStyles((theme) => ({
-  ...styles,
-  sidebar: {
-    width: "90px",
-    height: "100vh",
-    position: "fixed",
-    top: 0,
-    left: 0,
-    backgroundColor: "#f7f7f7",
-    padding: "5px 5px 15px 5px",
-    boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    zIndex: 1200,
-  },
-  content: {
-    padding: "20px",
-  },
-  currentWarehouseIndex: {
-    paddingTop: '25px',
-    fontSize: "15px",
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#7D4A1A'
-  },
-  currentWarehouse: {
-    marginBottom: "20px",
-    fontWeight: "bold",
-  },
-  mainContent: {
-    marginLeft: "90px",
-    // height: "100vh",
-    overflow: "none",
-  },
-  warehouseDropdown: {
-    margin: "10px 0",
-    paddingBottom: '10px'
-  },
-  warehouseSelect: {
-    width: "100%",
-    padding: "5px",
-    fontSize: "12px",
-    fontWeight: "bold",
-    borderRadius: "4px",
-    textAlign: 'center',
-    border: "1px solid #986c58",
-    backgroundColor: "transparent",
-    cursor: "pointer",
-    appearance: "none",
-    whiteSpace: "normal",
-  },
-  warehouseOption: {
-    fontSize: "12px",
-    fontWeight: "bold",
-    lineHeight: "1.2",
-    whiteSpace: "normal",
-    overflow: "hidden",
-    padding: "10px",
-  },
-  button: {
-    border: 'none',
-    backgroundColor: 'transparent',
-    paddingTop: '10px',
-    paddingLeft: '20px'
-  },
-  buttonStyle: {
-    width: '100px',
-    color: 'white',
-    marginLeft: '10px',
-    height: "30px",
-    borderRadius: '4px',
-    '&:hover': {
-      transform: 'scale(1.05)',
-      backgroundColor: '#7D4A1A',
-      color: 'white',
-    },
-  },
-}
-));
+const useStyles = makeStyles(styles);
 
-export default function Components(props) {
+export default function Components({ initialCards, initialUserData, initialBusinessData }) {
   const classes = useStyles();
-  const { ...rest } = props;
   const router = useRouter();
   const { id } = router.query;
 
-  const [cards, setCards] = useState([]);
-  const [userData, setUserData] = useState(null);
-  const [businessData, setBusinessData] = useState(null);
+  const [cards, setCards] = useState(initialCards || []);
+  const [userData, setUserData] = useState(initialUserData || null);
+  const [businessData, setBusinessData] = useState(initialBusinessData || null);
   const [selectedWarehouse, setSelectedWarehouse] = useState(id || "");
   const [selectedWarehouseTitle, setSelectedWarehouseTitle] = useState(""); // State to store the selected warehouse title
-
-
-  const getAllWarehouseInfoAPI = async (businessId) => {
-    try {
-      const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/warehouses?businessId=${businessId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const apiConnection = await response.json();
-        const warehouses = apiConnection.result;
-
-        const warehouseCards = warehouses.map((warehouse) => ({
-          id: warehouse.id,
-          title: warehouse.name,
-        }));
-
-        setCards(warehouseCards);
-
-      } else {
-        router.push('/404');
-      }
-    } catch (error) {
-      router.push('/404');
-    }
-  };
-
-  const fetchBusinessData = async (userId) => {
-    try {
-      const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/users/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const userData = await response.json();
-        const businessInfo = userData.result;
-        setBusinessData(businessInfo);
-
-        getAllWarehouseInfoAPI(businessInfo.businessId);
-      } else {
-        router.push('/404');
-      }
-    } catch (error) {
-      router.push('/404');
-    }
-  };
-
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-
-    if (user) {
-      try {
-        const parsedUser = JSON.parse(user);
-        setUserData(parsedUser);
-
-        fetchBusinessData(parsedUser.id);
-      } catch (error) {
-        router.push('/404');
-      }
-    }
-  }, []);
-
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const componentsArray = userData
-    ? [
-      <DynamicMyContainerMap
-        key={`map-${selectedWarehouse}`}
-        warehouseId={selectedWarehouse}
-        businessId={userData.businessId}
-      />,
-      <DynamicMyContainerNavigation
-        key={`nav-${selectedWarehouse}`}
-        WHId={selectedWarehouse}
-        businessId={userData.businessId}
-        warehouses={cards}
-      />,
-      <DynamicMyContainerProduct
-        key={`product-${selectedWarehouse}`}
-        WHId={selectedWarehouse}
-        businessId={userData.businessId}
-        warehouses={cards}
-        warehouseTitle={selectedWarehouseTitle}
-      />,
-    ]
-    : [];
+  // Dynamic component array
+  const componentsArray = [
+    <DynamicMyContainerMap
+      key={`map-${selectedWarehouse}`}
+      warehouseId={selectedWarehouse}
+      businessId={userData?.businessId}
+    />,
+    <DynamicMyContainerNavigation
+      key={`nav-${selectedWarehouse}`}
+      WHId={selectedWarehouse}
+      businessId={userData?.businessId}
+      warehouses={cards}
+    />,
+    <DynamicMyContainerProduct
+      key={`product-${selectedWarehouse}`}
+      WHId={selectedWarehouse}
+      businessId={userData?.businessId}
+      warehouses={cards}
+      warehouseTitle={selectedWarehouseTitle}
+    />,
+    <div>
+      <h2>방범 페이지 입니다.</h2>
+    </div>,
+  ];
 
   const handleNextComponent = (index) => {
     setCurrentIndex(index);
@@ -223,9 +71,7 @@ export default function Components(props) {
     const warehouseId = event.target.value;
     setSelectedWarehouse(warehouseId);
     router.push(`/user/${warehouseId}`, undefined, { shallow: true });
-    
   };
-
 
   useEffect(() => {
     if (router.query.component) {
@@ -239,6 +85,9 @@ export default function Components(props) {
         case "product":
           setCurrentIndex(2);
           break;
+        case "protect":
+          setCurrentIndex(3);
+          break;
         default:
           setCurrentIndex(0);
       }
@@ -250,8 +99,7 @@ export default function Components(props) {
       <Header
         rightLinks={<HeaderLinks />}
         fixed
-        color="rgba(237, 237, 237, 0.8)"
-        {...rest}
+        color="transparentWhite" // Custom color here
       />
       <div className={classes.sidebar}>
         <button className={classes.button}>
@@ -285,14 +133,37 @@ export default function Components(props) {
             ))}
           </select>
         </div>
-        <Button className={classes.buttonStyle} style={{ backgroundColor: "#4E4544" }} round onClick={() => handleNextComponent(0)}>
+        <Button
+          className={classes.buttonStyle}
+          style={{ backgroundColor: "#4E4544" }}
+          round
+          onClick={() => handleNextComponent(0)}
+        >
           창고 관리
         </Button>
-        <Button className={classes.buttonStyle} style={{ backgroundColor: "#ADAAA5" }} round onClick={() => handleNextComponent(1)}>
+        <Button
+          className={classes.buttonStyle}
+          style={{ backgroundColor: "#ADAAA5" }}
+          round
+          onClick={() => handleNextComponent(1)}
+        >
           재고 현황
         </Button>
-        <Button className={classes.buttonStyle} style={{ backgroundColor: "#C2B6A1" }} round onClick={() => handleNextComponent(2)}>
+        <Button
+          className={classes.buttonStyle}
+          style={{ backgroundColor: "#C2B6A1" }}
+          round
+          onClick={() => handleNextComponent(2)}
+        >
           재고 관리
+        </Button>
+        <Button
+          className={classes.buttonStyle}
+          style={{ backgroundColor: "#A99987" }}
+          round
+          onClick={() => handleNextComponent(3)}
+        >
+          방범 관리
         </Button>
       </div>
 
@@ -305,4 +176,36 @@ export default function Components(props) {
       </div>
     </div>
   );
+}
+
+// Use getServerSideProps to fetch data
+export async function getServerSideProps(context) {
+  const { id } = context.params;
+
+  try {
+    // Fetch user data and warehouse data
+    const userResponse = await fetch(`https://i11a508.p.ssafy.io/api/users/${id}`);
+    const userData = await userResponse.json();
+
+    const warehouseResponse = await fetch(
+      `https://i11a508.p.ssafy.io/api/warehouses?businessId=${userData.result.businessId}`
+    );
+    const warehouseData = await warehouseResponse.json();
+
+    return {
+      props: {
+        initialCards: warehouseData.result || [],
+        initialUserData: userData.result || null,
+        initialBusinessData: userData.result?.businessId || null,
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        initialCards: [],
+        initialUserData: null,
+        initialBusinessData: null,
+      },
+    };
+  }
 }

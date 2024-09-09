@@ -403,19 +403,19 @@ const Select = (props) => {
     }
   };
 
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      try {
-        const parsedUser = JSON.parse(user);
-        setUserData(parsedUser);
+  // useEffect(() => {
+  //   const user = localStorage.getItem("user");
+  //   if (user) {
+  //     try {
+  //       const parsedUser = JSON.parse(user);
+  //       setUserData(parsedUser);
 
-        fetchBusinessData(parsedUser.id);
-      } catch (error) {
-        router.push('/404');
-      }
-    }
-  }, []);
+  //       fetchBusinessData(parsedUser.id);
+  //     } catch (error) {
+  //       router.push('/404');
+  //     }
+  //   }
+  // }, []);
 
   const fetchCounts = async (warehouseId) => {
     try {

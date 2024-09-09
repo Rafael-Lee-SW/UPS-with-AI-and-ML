@@ -100,7 +100,7 @@ const useStyles = makeStyles(styles);
 const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
   const classes = makeStyles();
   // 로딩 Loading
-  const [loading, setLoading] = useState(true); // Overall loading state
+  const [loading, setLoading] = useState(false); // 수정필수 : true로 바꿀 것
 
   /**
    * 창고 관련 const 들 모음
@@ -432,7 +432,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
 
   // 상대적 위치를 보여주는 Pointer에 대한 수정
   const Pointer = (event) => {
-    const { x, y } = event.target.getStage().getPointerPosition();
+    let { x, y } = event.target.getStage().getPointerPosition();
     var stageAttrs = event.target.getStage().attrs;
 
     if (!stageAttrs.x) {

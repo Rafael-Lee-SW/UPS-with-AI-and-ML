@@ -14,10 +14,10 @@ export default function HeaderLinks(props) {
   const router = useRouter();  // useRouter 훅 초기화
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, []);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   setIsLoggedIn(!!token);
+  // }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -25,32 +25,33 @@ export default function HeaderLinks(props) {
   };
 
   const handleWarehouseManagement = async () => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      const userInfo = JSON.parse(user);
-      const userId = userInfo.id;
+    router.push("/user/select");
+    // const user = localStorage.getItem("user");
+    // if (user) {
+    //   const userInfo = JSON.parse(user);
+    //   const userId = userInfo.id;
 
-      try {
-        const response = await axios.get(`https://i11a508.p.ssafy.io/api/users/${userId}`);
-        const userData = response.data.result;
+    //   try {
+    //     const response = await axios.get(`https://i11a508.p.ssafy.io/api/users/${userId}`);
+    //     const userData = response.data.result;
 
-        if (userData.roleTypeEnum === "GENERAL") {
-          alert("사업자 등록 후 이용해 주세요")
-          router.push({
-            pathname: "/mypage",
-            query: { component: "license" },
-          });
-        } else {
-          router.push("/user/select");
-        }
-      } catch (error) {
-        router.push('/404');
-        alert("사용자 정보를 불러오는 중 오류가 발생했습니다.");
-      }
-    } else {
-      alert("로그인이 필요합니다.");
-      router.push("/signIn");
-    }
+    //     if (userData.roleTypeEnum === "GENERAL") {
+    //       alert("사업자 등록 후 이용해 주세요")
+    //       router.push({
+    //         pathname: "/mypage",
+    //         query: { component: "license" },
+    //       });
+    //     } else {
+    //       router.push("/user/select");
+    //     }
+    //   } catch (error) {
+    //     router.push('/404');
+    //     alert("사용자 정보를 불러오는 중 오류가 발생했습니다.");
+    //   }
+    // } else {
+    //   alert("로그인이 필요합니다.");
+    //   router.push("/signIn");
+    // }
   };
 
   // 현재 경로가 /mypage인지 확인

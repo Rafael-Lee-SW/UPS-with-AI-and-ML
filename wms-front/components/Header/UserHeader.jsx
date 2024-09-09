@@ -7,7 +7,14 @@ import PropTypes from "prop-types";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 
-import { AppBar, Toolbar, IconButton, Drawer, Button, Box } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Drawer,
+  Button,
+  Box,
+} from "@mui/material";
 // @material-ui/icons
 import Menu from "@material-ui/icons/Menu";
 // core components
@@ -66,13 +73,10 @@ export default function Header(props) {
 
   return (
     <AppBar className={appBarClasses}>
-      <Toolbar className={classes.container} style={{ marginRight: '10px' }}>
-        <div className={classes.flex}>
-        </div>
-        <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-          {rightLinks}
-        </Box>
-        <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+      <Toolbar className={classes.container} style={{ marginRight: "10px" }}>
+        <div className={classes.flex}></div>
+        <Box sx={{ display: { xs: "none", sm: "block" } }}>{rightLinks}</Box>
+        <Box sx={{ display: { xs: "block", md: "none" } }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -82,7 +86,7 @@ export default function Header(props) {
           </IconButton>
         </Box>
       </Toolbar>
-      <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+      <Box sx={{ display: { xs: "block", md: "none" } }}>
         <Drawer
           variant="temporary"
           anchor={"right"}
@@ -113,6 +117,7 @@ Header.propTypes = {
     "white",
     "rose",
     "dark",
+    "transparentWhite",
   ]),
   rightLinks: PropTypes.node,
   leftLinks: PropTypes.node,
@@ -130,6 +135,7 @@ Header.propTypes = {
       "white",
       "rose",
       "dark",
+      "transparentWhite",
     ]).isRequired,
   }),
 };
