@@ -32,20 +32,20 @@ const Components = (props) => {
   const classes = useStyles();
   const { ...rest } = props;
   
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   useEffect(() => {
     AOS.init({
       duration: 1200,
     });
 
-    // Check for token in local storage
-    const token = localStorage.getItem("token");
-    if (token) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
+    // // Check for token in local storage
+    // const token = localStorage.getItem("token");
+    // if (token) {
+    //   setIsLoggedIn(true);
+    // } else {
+    //   setIsLoggedIn(false);
+    // }
   }, []);
 
   // 캐러셀 설정

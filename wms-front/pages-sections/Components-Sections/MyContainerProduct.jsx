@@ -245,7 +245,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   const [flowByDateData, setFlowByDateData] = useState(null);
 
   // Loading states
-  const [loading, setLoading] = useState(true); // Overall loading state
+  const [loading, setLoading] = useState(false); // 수정필수 : true 바꿀 것
   const [notificationsFetched, setNotificationsFetched] = useState(false);
   const [analyticsFetched, setAnalyticsFetched] = useState(false);
 
