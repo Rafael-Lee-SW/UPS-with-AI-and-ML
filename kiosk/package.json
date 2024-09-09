@@ -1,0 +1,28 @@
+{
+  "name": "kiosk",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "package": "electron-packager . kiosk --platform=win32 --arch=x64 --out=dist --overwrite"
+  },
+  "dependencies": {
+    "next": "14.2.7",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "electron": "^32.0.2",
+    "electron-packager": "^17.1.2",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.7",
+    "typescript": "^5"
+  }
+}
