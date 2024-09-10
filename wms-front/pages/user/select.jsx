@@ -549,16 +549,14 @@ const Select = (props) => {
                 <Link href={`/user/${card.id}`} passHref>
                   <CardSelect
                     component="a"
-                    className={`${classes.cardLink} ${classes.imageCard}`}
+                    className={classes.cardLink}
                   >
-                    <div className={classes.cardSelect}>
                       <div
                         className={classes.cardHeader}
                         style={{
                           backgroundColor: getBackgroundColor(
                             card.warehouseColor
                           ),
-                          position: "relative",
                         }}
                       >
                         <img
@@ -617,12 +615,11 @@ const Select = (props) => {
                           </div>
                         </div>
                       </div>
-                    </div>
                   </CardSelect>
                 </Link>
               </GridItem>
             ))}
-            <GridItem xs={12} sm={4} md={4} className={classes.plusCard}>
+            <GridItem xs={12} sm={4} md={4} className={classes.plusCardGrid}>
               <div className={classes.buttonCard} onClick={handleOpen}>
                 <AddCircleOutline className={classes.plusButton} />
               </div>

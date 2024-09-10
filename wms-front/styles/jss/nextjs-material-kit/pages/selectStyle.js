@@ -21,17 +21,29 @@ const selectStyle = (theme) => ({
     textAlign: "center",
   },
   // 카드 grid 속성을 정하는 거시기
-  cardGrid:{
-    margin : "0 0 0 0",
-    height : "230px",
-  },
-  imageCard: {
+  cardGrid: {
+    margin: "5px 0 5px 0",
+    padding: "0",
     width: "150px", // Adjusted from the original size
+    height: "230px",
+    // border : "2px solid",
     borderRadius: "20px",
     marginRight: theme.spacing(2),
-    "&:hover": {
-      cursor: "pointer", // Cursor changes to pointer on hover
-    },
+    display: "flex",
+    flexDirection: "column",
+  },
+  cardSelect: {},
+  cardLink: {
+    width: "100%",
+    margin: "0 0 0 0",
+  },
+  cardHeader: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "50px", // Height set to 1/3 of the card
+    position: "relative", // 이미지 포지셔닝을 위해 설정
+    borderRadius: "20px 20px 0 0",
   },
   cardImage: {
     position: "absolute",
@@ -42,43 +54,6 @@ const selectStyle = (theme) => ({
     borderRight: "4px solid #000", // 오른쪽 테두리
     borderTop: "4px solid #000", // 위쪽 테두리
     borderBottom: "none", // 아래쪽 테두리는 없음
-  },
-  plusCard: {
-    width: "30%", // Same size as the image card
-    marginRight: theme.spacing(2),
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  plusButton: {
-    fontSize: "3rem", // Slightly larger for visibility
-    cursor: "pointer", // Cursor is pointer for the plus button too
-  },
-  buttonCard: {
-    height: "450px",
-    border: "2px solid #ccc",
-    width: "100%",
-    borderRadius: "20px",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  cardSelect: {
-    display: "flex",
-    flexDirection: "column",
-    height: "200px", // Total height of the card
-    width: "150px",
-    border: "1px solid #ccc",
-    borderRadius: "20px",
-  },
-  cardHeader: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "33.33%", // Height set to 1/3 of the card
-    backgroundColor: "rgb(27, 177, 231)", // 기본 배경 색상은 JSX에서 동적으로 설정
-    position: "relative", // 이미지 포지셔닝을 위해 설정
-    borderRadius: "20px 20px 0 0",
   },
   warehouseImage: {
     position: "absolute",
@@ -140,7 +115,7 @@ const selectStyle = (theme) => ({
     justifyContent: "center", // 요소를 가운데 정렬하여 간격 줄임
     alignItems: "center", // 수직 정렬
     gap: "15px", // pcsContainer와 locationContainer 사이 간격
-    height: "33.33%", // 카드의 1/3 높이
+    height: "100%", // 맨 아래에 위치
     position: "relative", // ::before 가상 요소 위치를 위해 필요
     "&::before": {
       content: '""', // 내용 없음
@@ -158,14 +133,14 @@ const selectStyle = (theme) => ({
     flexDirection: "column", // 이미지와 텍스트를 세로로 정렬
     alignItems: "center", // 중앙 정렬
     gap: "5px", // 이미지와 텍스트 사이의 간격
-    marginTop:"10px",
+    marginTop: "10px",
   },
   locationContainer: {
     display: "flex",
     flexDirection: "column", // 이미지와 텍스트를 세로로 정렬
     alignItems: "center", // 중앙 정렬
     gap: "5px", // 이미지와 텍스트 사이의 간격
-    marginTop:"10px",
+    marginTop: "10px",
   },
   containerImage: {
     width: "30px",
@@ -185,6 +160,28 @@ const selectStyle = (theme) => ({
   activeDelete: {
     display: "block", // 토글 상태에 따라 Delete 버튼을 보이게 함
     cursor: "pointer", // 커서가 포인터 모양으로 바뀜
+  },
+  // 새 창고 생성하기 파트
+  plusCardGrid: {
+    width: "160px", // Same size as the image card
+    marginRight: theme.spacing(2),
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "5px 10px 0 0",
+  },
+  buttonCard: {
+    height: "230px",
+    border: "2px solid #ccc",
+    width: "100%",
+    borderRadius: "20px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  plusButton: {
+    fontSize: "3rem", // Slightly larger for visibility
+    cursor: "pointer", // Cursor is pointer for the plus button too
   },
   // 새 창고 정보
   modal: {
@@ -208,13 +205,13 @@ const selectStyle = (theme) => ({
     marginBottom: theme.spacing(2),
   },
 
-  //PC 환경
+  // PC 환경
   "@media (min-width: 960px)": {
     section: {
       padding: "70px 0",
     },
     selectContainer: {
-      margin: "15px 0 0 0",
+      margin: "30px 0 0 0",
       fontWeight: "bold",
       fontSize: "24px",
     },
@@ -229,13 +226,31 @@ const selectStyle = (theme) => ({
       alignItems: "center",
       textAlign: "center",
     },
-    //카드들
-    cardGrid:{
-      margin : "0 0 0 0",
-      height : "500px",
+    // 카드 grid 속성을 정하는 거시기
+    cardGrid: {
+      margin: "30px 0 250px 0",
+      padding: "0",
+      borderRadius: "20px",
+      marginRight: theme.spacing(20),
+      display: "flex",
+      flexDirection: "column",
+    },
+    cardSelect: {
+
+    },
+    cardLink: {
+      display: "flex",
+      flexDirection: "column",
+      height: "450px", // Total height of the card
+      width: "300px",
+      border: "1px solid #ccc",
+      borderRadius: "8px",
+    },
+    cardSelect: {
     },
     imageCard: {
       width: "300px", // Adjusted from the original size
+      border: "2px solid",
       borderRadius: "20px",
       marginRight: theme.spacing(2),
       "&:hover": {
@@ -252,16 +267,21 @@ const selectStyle = (theme) => ({
       borderTop: "4px solid #000", // 위쪽 테두리
       borderBottom: "none", // 아래쪽 테두리는 없음
     },
-    plusCard: {
+    cardHeader: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "33.33%", // Height set to 1/3 of the card
+      backgroundColor: "rgb(27, 177, 231)", // 기본 배경 색상은 JSX에서 동적으로 설정
+      position: "relative", // 이미지 포지셔닝을 위해 설정
+    },
+    plusCardGrid: {
       width: "30%", // Same size as the image card
       marginRight: theme.spacing(2),
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-    },
-    plusButton: {
-      fontSize: "3rem", // Slightly larger for visibility
-      cursor: "pointer", // Cursor is pointer for the plus button too
+      padding : "0",
     },
     buttonCard: {
       height: "450px",
@@ -272,21 +292,9 @@ const selectStyle = (theme) => ({
       justifyContent: "center",
       alignItems: "center",
     },
-    cardSelect: {
-      display: "flex",
-      flexDirection: "column",
-      height: "450px", // Total height of the card
-      width: "300px",
-      border: "1px solid #ccc",
-      borderRadius: "8px",
-    },
-    cardHeader: {
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "33.33%", // Height set to 1/3 of the card
-      backgroundColor: "rgb(27, 177, 231)", // 기본 배경 색상은 JSX에서 동적으로 설정
-      position: "relative", // 이미지 포지셔닝을 위해 설정
+    plusButton: {
+      fontSize: "3rem", // Slightly larger for visibility
+      cursor: "pointer", // Cursor is pointer for the plus button too
     },
     warehouseImage: {
       position: "absolute",
