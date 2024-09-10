@@ -1,30 +1,50 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
+const { verifyToken } = require('./api/kiosk');  // API 모듈 가져오기
 
-// Electron 창을 생성하고, Next.js 서버에 연결하는 함수
+let mainWindow;
+const productFilePath = path.join(app.getPath('userData'), 'products.json');  // 상품 정보 저장 경로
+
 function createWindow() {
-  const win = new BrowserWindow({
-    width: 800,  // 창의 가로 크기
-    height: 600, // 창의 세로 크기
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'), // preload.js 파일을 통해 Electron과 Next.js가 통신
+      preload: path.join(__dirname, 'preload.js'),  // preload.js 로드
     },
   });
 
-  win.loadURL('http://localhost:3000'); // Next.js 서버가 실행 중인 URL로 창을 띄움
+  mainWindow.loadFile('index.html');  // 토큰 입력 폼 로드
 }
 
-// Electron 애플리케이션이 준비되면 창을 생성
-app.whenReady().then(() => {
-  createWindow();
+app.whenReady().then(createWindow);
 
-  // 모든 창이 닫혔을 때 다시 창을 활성화하는 로직 (macOS에서는 필요)
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
+// 파일 시스템에 상품 정보 저장
+ipcMain.on('save-products', (event, products) => {
+  fs.writeFileSync(productFilePath, JSON.stringify(products));  // 상품 정보 저장
 });
 
-// 모든 창이 닫히면 애플리케이션을 종료
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit(); // macOS 외의 시스템에서는 모든 창을 닫으면 앱 종료
+// 파일 시스템에서 상품 정보 불러오기
+ipcMain.handle('load-products', () => {
+  if (fs.existsSync(productFilePath)) {
+    const data = fs.readFileSync(productFilePath);
+    return JSON.parse(data);
+  } else {
+    return [];
+  }
+});
+
+// 토큰 검증 및 응답 처리
+ipcMain.handle('verify-token', async (event, token) => {
+  const result = await verifyToken(token);  // API 모듈 사용
+  if (result.valid) {
+    event.sender.send('save-products', result.products);  // 성공 시 상품 정보 저장
+  }
+  return result.valid;
+});
+
+// 애플리케이션 실행
+ipcMain.on('start-app', () => {
+  mainWindow.loadURL('http://localhost:3000');  // Next.js 애플리케이션 로드
 });

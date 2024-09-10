@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Token Verification</title>
+  </head>
+  <body>
+    <h1>Please enter your token</h1>
+    <form id="tokenForm">
+      <input type="text" id="tokenInput" placeholder="Enter token" required />
+      <button type="submit">Submit</button>
+    </form>
+    <p id="errorMessage" style="color: red; display: none;">Invalid token. Please try again.</p>
+    <script>
+      const form = document.getElementById('tokenForm');
+      const errorMessage = document.getElementById('errorMessage');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = document.getElementById('tokenInput').value;
+
+        const result = await window.electron.verifyToken(token);  // 토큰 검증
+        if (result) {
+          window.electron.startApp();  // 애플리케이션 실행
+        } else {
+          errorMessage.style.display = 'block';  // 에러 메시지 표시
+        }
+      });
+    </script>
+  </body>
+</html>
