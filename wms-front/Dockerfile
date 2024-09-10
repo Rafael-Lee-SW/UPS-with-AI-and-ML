@@ -1,5 +1,5 @@
 # Step 1: Use the official Node.js 16 image as the base image
-FROM node:16-alpine
+FROM node:20-alpine
 
 # Step 2: Install necessary packages for building native modules
 RUN apk add --no-cache --virtual .gyp \
