@@ -15,7 +15,7 @@
       "type": "image/png"
     }
   ],
-  "orientation": "any",
+  "orientation": "landscape",
   "display": "standalone",
   "dir": "auto",
   "lang": "ko-KR",

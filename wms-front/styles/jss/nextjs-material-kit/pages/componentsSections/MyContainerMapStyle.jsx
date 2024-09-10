@@ -131,7 +131,8 @@ const basicsStyle = {
     justifyContent: "center",
     width: "100%",
   },
-  paper: { // 새로운 창고 생성시 자동으로 상자 생성할 때 필요한 것
+  paper: {
+    // 새로운 창고 생성시 자동으로 상자 생성할 때 필요한 것
     backgroundColor: "white",
     border: "2px solid #000",
     boxShadow: "5",
@@ -141,6 +142,12 @@ const basicsStyle = {
     outline: "none",
     borderRadius: "8px",
     margin: "auto",
+  },
+
+  settingObject: {
+    textAlign: "center",
+    fontWeight: "bold",
+    paddingTop: "10px",
   },
 
   ...customCheckboxRadioSwitch,

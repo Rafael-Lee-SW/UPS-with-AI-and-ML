@@ -1283,11 +1283,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             <Typography
               variant="h6"
               gutterBottom
-              style={{
-                textAlign: "center",
-                fontWeight: "bold",
-                paddingTop: "10px",
-              }}
+              className={classes.settingObject}
             >
               {currentSetting === "location" ? "로케이션" : "입구-출구"} 설정
             </Typography>

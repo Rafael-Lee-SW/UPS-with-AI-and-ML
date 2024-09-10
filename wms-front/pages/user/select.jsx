@@ -20,7 +20,7 @@ import {
   FormLabel,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import styles from "/styles/jss/nextjs-material-kit/pages/componentsSections/selectStyle.js";
+import styles from "/styles/jss/nextjs-material-kit/pages/selectStyle.js";
 
 const useStyles = makeStyles(styles);
 
@@ -43,7 +43,33 @@ const Select = (props) => {
   const [facilityType, setFacilityType] = useState("STORE");
   const [priority, setPriority] = useState(1);
 
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState([
+    //CSS 테스트 데이터
+    {
+      id : 1,
+      title : "김득구",
+      pcsCount : 100,
+      locationCount : 50,
+    },
+    {
+      id : 2,
+      title : "김정구",
+      pcsCount : 100,
+      locationCount : 50,
+    },
+    {
+      id : 3,
+      title : "김방구",
+      pcsCount : 100,
+      locationCount : 50,
+    },
+    {
+      id : 4,
+      title : "김덩구",
+      pcsCount : 100,
+      locationCount : 50,
+    },
+  ]);
   const [userData, setUserData] = useState(null);
   const [businessData, setBusinessData] = useState(null);
   const [businessId, setBusinessId] = useState(null);
@@ -514,51 +540,34 @@ const Select = (props) => {
 
       <div className={classes.section}>
         <div className={classes.container}>
-          <h3>
+          <div className={classes.selectContainer}>
             창고를 선택하세요. ({currentWarehouseCount}/{allowedWarehouseCount})
-          </h3>
+          </div>
           <GridContainer>
             {cards.map((card) => (
-              <GridItem key={card.id} xs={12} sm={12} md={4}>
+              <GridItem key={card.id} xs={12} sm={4} md={4} className={classes.cardGrid}>
                 <Link href={`/user/${card.id}`} passHref>
                   <CardSelect
                     component="a"
-                    className={`${classes.cardLink} ${classes.imageCard}`}
+                    className={classes.cardLink}
                   >
-                    <div className={classes.cardSelect}>
                       <div
                         className={classes.cardHeader}
                         style={{
                           backgroundColor: getBackgroundColor(
                             card.warehouseColor
                           ),
-                          position: "relative",
                         }}
                       >
                         <img
                           src={getWarehouseImage(card.warehouseColor)}
                           alt="warehouse"
-                          style={{
-                            position: "absolute",
-                            bottom: 0,
-                            width: "30%", // 이미지 너비를 30%로 조정
-                            height: "auto", // 높이를 자동으로 조정하여 비율 유지
-                            borderLeft: "4px solid #000", // 왼쪽 테두리
-                            borderRight: "4px solid #000", // 오른쪽 테두리
-                            borderTop: "4px solid #000", // 위쪽 테두리
-                            borderBottom: "none", // 아래쪽 테두리는 없음
-                          }}
+                          className={classes.cardImage}
                         />
                         <img
                           src="/img/delete.png"
                           alt="delete"
-                          style={{
-                            position: "absolute",
-                            top: 10,
-                            right: 10,
-                            width: "20px",
-                            height: "20px",
-                          }}
+                          className={classes.deleteButton}
                           onClick={(e) => {
                             e.preventDefault(); // 링크 이동 방지
                             handleDelete(card.id);
@@ -568,28 +577,15 @@ const Select = (props) => {
                       <div className={classes.cardBody}>
                         <h3>{card.title}</h3>
                         <div
-                          style={{
-                            width: "80%",
-                            height: "30px",
-                            backgroundColor: "lightgray",
-                            borderRadius: "20px",
-                            overflow: "hidden",
-                            marginTop: "10px",
-                            border: "2px solid #ccc",
-                          }}
+                          className={classes.cardMain}
                         >
                           <div
+                            className={classes.cardProgress}
                             style={{
                               width: `${card.usagePercent}%`,
-                              height: "100%",
                               backgroundColor: getBackgroundColor(
                                 card.warehouseColor
                               ),
-                              display: "flex", // 플렉스 박스를 사용하여 중앙 정렬
-                              justifyContent: "center", // 수평 중앙 정렬
-                              alignItems: "center", // 수직 중앙 정렬
-                              color: "white", // 텍스트 색상 (배경과 대비되도록 설정)
-                              fontWeight: "bold", // 텍스트 굵게
                             }}
                           >
                             {" "}
@@ -619,12 +615,11 @@ const Select = (props) => {
                           </div>
                         </div>
                       </div>
-                    </div>
                   </CardSelect>
                 </Link>
               </GridItem>
             ))}
-            <GridItem xs={12} sm={12} md={4} className={classes.plusCard}>
+            <GridItem xs={12} sm={4} md={4} className={classes.plusCardGrid}>
               <div className={classes.buttonCard} onClick={handleOpen}>
                 <AddCircleOutline className={classes.plusButton} />
               </div>
