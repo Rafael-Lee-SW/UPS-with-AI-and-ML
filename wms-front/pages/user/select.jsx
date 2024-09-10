@@ -48,6 +48,26 @@ const Select = (props) => {
     {
       id : 1,
       title : "김득구",
+      pcsCount : 100,
+      locationCount : 50,
+    },
+    {
+      id : 2,
+      title : "김정구",
+      pcsCount : 100,
+      locationCount : 50,
+    },
+    {
+      id : 3,
+      title : "김방구",
+      pcsCount : 100,
+      locationCount : 50,
+    },
+    {
+      id : 4,
+      title : "김덩구",
+      pcsCount : 100,
+      locationCount : 50,
     },
   ]);
   const [userData, setUserData] = useState(null);
@@ -520,12 +540,12 @@ const Select = (props) => {
 
       <div className={classes.section}>
         <div className={classes.container}>
-          <h3>
+          <div className={classes.selectContainer}>
             창고를 선택하세요. ({currentWarehouseCount}/{allowedWarehouseCount})
-          </h3>
+          </div>
           <GridContainer>
             {cards.map((card) => (
-              <GridItem key={card.id} xs={12} sm={12} md={4}>
+              <GridItem key={card.id} xs={12} sm={4} md={4} className={classes.cardGrid}>
                 <Link href={`/user/${card.id}`} passHref>
                   <CardSelect
                     component="a"
@@ -602,7 +622,7 @@ const Select = (props) => {
                 </Link>
               </GridItem>
             ))}
-            <GridItem xs={12} sm={12} md={4} className={classes.plusCard}>
+            <GridItem xs={12} sm={4} md={4} className={classes.plusCard}>
               <div className={classes.buttonCard} onClick={handleOpen}>
                 <AddCircleOutline className={classes.plusButton} />
               </div>

@@ -1,8 +1,13 @@
 import { container } from "/styles/jss/nextjs-material-kit.js";
 
 const selectStyle = (theme) => ({
+  //모바일 환경
   section: {
-    padding: "70px 0",
+    padding: "30px 0 0 0",
+  },
+  selectContainer: {
+    margin: "15px 0 0 0",
+    fontWeight: "bold",
   },
   container,
   marginAuto: {
@@ -15,8 +20,13 @@ const selectStyle = (theme) => ({
     alignItems: "center",
     textAlign: "center",
   },
+  // 카드 grid 속성을 정하는 거시기
+  cardGrid:{
+    margin : "0 0 0 0",
+    height : "230px",
+  },
   imageCard: {
-    width: "90%", // Adjusted from the original size
+    width: "150px", // Adjusted from the original size
     borderRadius: "20px",
     marginRight: theme.spacing(2),
     "&:hover": {
@@ -53,32 +63,13 @@ const selectStyle = (theme) => ({
     justifyContent: "center",
     alignItems: "center",
   },
-  modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-  },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: "2px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-    outline: "none",
-    borderRadius: "8px",
-    width: "80%", // Width of the modal content
-    maxWidth: "500px", // Maximum width of the modal
-    margin: "auto",
-  },
-  formControl: {
-    marginBottom: theme.spacing(2),
-  },
   cardSelect: {
     display: "flex",
     flexDirection: "column",
-    height: "450px", // Total height of the card
+    height: "200px", // Total height of the card
+    width: "150px",
     border: "1px solid #ccc",
-    borderRadius: "8px",
+    borderRadius: "20px",
   },
   cardHeader: {
     display: "flex",
@@ -87,6 +78,7 @@ const selectStyle = (theme) => ({
     height: "33.33%", // Height set to 1/3 of the card
     backgroundColor: "rgb(27, 177, 231)", // 기본 배경 색상은 JSX에서 동적으로 설정
     position: "relative", // 이미지 포지셔닝을 위해 설정
+    borderRadius: "20px 20px 0 0",
   },
   warehouseImage: {
     position: "absolute",
@@ -147,7 +139,7 @@ const selectStyle = (theme) => ({
     display: "flex",
     justifyContent: "center", // 요소를 가운데 정렬하여 간격 줄임
     alignItems: "center", // 수직 정렬
-    gap: "100px", // pcsContainer와 locationContainer 사이 간격
+    gap: "15px", // pcsContainer와 locationContainer 사이 간격
     height: "33.33%", // 카드의 1/3 높이
     position: "relative", // ::before 가상 요소 위치를 위해 필요
     "&::before": {
@@ -166,16 +158,18 @@ const selectStyle = (theme) => ({
     flexDirection: "column", // 이미지와 텍스트를 세로로 정렬
     alignItems: "center", // 중앙 정렬
     gap: "5px", // 이미지와 텍스트 사이의 간격
+    marginTop:"10px",
   },
   locationContainer: {
     display: "flex",
     flexDirection: "column", // 이미지와 텍스트를 세로로 정렬
     alignItems: "center", // 중앙 정렬
     gap: "5px", // 이미지와 텍스트 사이의 간격
+    marginTop:"10px",
   },
   containerImage: {
-    width: "40px",
-    height: "auto",
+    width: "30px",
+    height: "30px",
   },
   gradientLine: {
     height: "2px",
@@ -192,11 +186,37 @@ const selectStyle = (theme) => ({
     display: "block", // 토글 상태에 따라 Delete 버튼을 보이게 함
     cursor: "pointer", // 커서가 포인터 모양으로 바뀜
   },
+  // 새 창고 정보
+  modal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+  },
+  paper: {
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+    outline: "none",
+    borderRadius: "8px",
+    width: "80%", // Width of the modal content
+    maxWidth: "500px", // Maximum width of the modal
+    margin: "auto",
+  },
+  formControl: {
+    marginBottom: theme.spacing(2),
+  },
 
   //PC 환경
-  "@media (min-width: 916px)": {
+  "@media (min-width: 960px)": {
     section: {
       padding: "70px 0",
+    },
+    selectContainer: {
+      margin: "15px 0 0 0",
+      fontWeight: "bold",
+      fontSize: "24px",
     },
     container,
     marginAuto: {
@@ -209,8 +229,13 @@ const selectStyle = (theme) => ({
       alignItems: "center",
       textAlign: "center",
     },
+    //카드들
+    cardGrid:{
+      margin : "0 0 0 0",
+      height : "500px",
+    },
     imageCard: {
-      width: "90%", // Adjusted from the original size
+      width: "300px", // Adjusted from the original size
       borderRadius: "20px",
       marginRight: theme.spacing(2),
       "&:hover": {
@@ -247,30 +272,11 @@ const selectStyle = (theme) => ({
       justifyContent: "center",
       alignItems: "center",
     },
-    modal: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      width: "100%",
-    },
-    paper: {
-      backgroundColor: theme.palette.background.paper,
-      border: "2px solid #000",
-      boxShadow: theme.shadows[5],
-      padding: theme.spacing(2, 4, 3),
-      outline: "none",
-      borderRadius: "8px",
-      width: "80%", // Width of the modal content
-      maxWidth: "500px", // Maximum width of the modal
-      margin: "auto",
-    },
-    formControl: {
-      marginBottom: theme.spacing(2),
-    },
     cardSelect: {
       display: "flex",
       flexDirection: "column",
       height: "450px", // Total height of the card
+      width: "300px",
       border: "1px solid #ccc",
       borderRadius: "8px",
     },
@@ -386,6 +392,27 @@ const selectStyle = (theme) => ({
     activeDelete: {
       display: "block", // 토글 상태에 따라 Delete 버튼을 보이게 함
       cursor: "pointer", // 커서가 포인터 모양으로 바뀜
+    },
+    // 새 창고 정보
+    modal: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "100%",
+    },
+    paper: {
+      backgroundColor: theme.palette.background.paper,
+      border: "2px solid #000",
+      boxShadow: theme.shadows[5],
+      padding: theme.spacing(2, 4, 3),
+      outline: "none",
+      borderRadius: "8px",
+      width: "80%", // Width of the modal content
+      maxWidth: "500px", // Maximum width of the modal
+      margin: "auto",
+    },
+    formControl: {
+      marginBottom: theme.spacing(2),
     },
   },
 });
