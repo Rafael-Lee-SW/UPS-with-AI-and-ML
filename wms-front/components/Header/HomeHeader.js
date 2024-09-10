@@ -1,24 +1,16 @@
 import React from "react";
 import Link from "next/link";
-// nodejs library that concatenates classes
 import classNames from "classnames";
-// nodejs library to set properties for components
 import PropTypes from "prop-types";
-
-// @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-
-import { AppBar, Toolbar, IconButton, Drawer, Button} from "@mui/material";
-
-// @material-ui/icons
+import { AppBar, Toolbar, IconButton, Drawer, Button } from "@mui/material";
 import Menu from "@material-ui/icons/Menu";
-// core components
 import styles from "/styles/jss/nextjs-material-kit/components/headerStyle.js";
 
 const useStyles = makeStyles(styles);
 
 export default function Header({
-  color = "white", // Default value for color
+  color = "white", 
   rightLinks,
   leftLinks,
   brand,
@@ -61,12 +53,19 @@ export default function Header({
     [classes.appBar]: true,
     [classes[color]]: color,
     [classes.absolute]: absolute,
-    [classes.fixed]: fixed
+    [classes.fixed]: fixed,
   });
 
   const brandComponent = (
-    <Link href="/components" as="/components">
-      <Button className={classes.title}><img style={{ height: "30px" , width: "60px", paddingRight: "15px" }} src="/img/logo1.png" alt="logo"/>{brand}</Button>
+    <Link href="/">
+      <Button className={classes.title}>
+        <img
+          style={{ height: "30px", width: "60px", paddingRight: "15px" }}
+          src="/img/logo1.png"
+          alt="logo"
+        />
+        {brand}
+      </Button>
     </Link>
   );
 
@@ -81,7 +80,9 @@ export default function Header({
             brandComponent
           )}
         </div>
+        {/* Hide rightLinks in mobile view */}
         <div className={classes.hiddenSmDown}>{rightLinks}</div>
+        {/* Show only in mobile */}
         <div className={classes.hiddenMdUp}>
           <IconButton
             color="#986C58"
@@ -92,13 +93,14 @@ export default function Header({
           </IconButton>
         </div>
       </Toolbar>
+      {/* Drawer only visible on mobile */}
       <div className={classes.hiddenMdUp}>
         <Drawer
           variant="temporary"
           anchor={"right"}
           open={mobileOpen}
           classes={{
-            paper: classes.drawerPaper
+            paper: classes.drawerPaper,
           }}
           onClose={handleDrawerToggle}
         >
@@ -122,7 +124,7 @@ Header.propTypes = {
     "transparent",
     "white",
     "rose",
-    "dark"
+    "dark",
   ]),
   rightLinks: PropTypes.node,
   leftLinks: PropTypes.node,
@@ -139,7 +141,7 @@ Header.propTypes = {
       "transparent",
       "white",
       "rose",
-      "dark"
-    ]).isRequired
-  })
+      "dark",
+    ]).isRequired,
+  }),
 };

@@ -13,7 +13,7 @@ import {
   drawerWidth
 } from "/styles/jss/nextjs-material-kit.js";
 
-const headerStyle = {
+const headerStyle = (theme) => ({
   appBar: {
     display: "flex",
     border: "0",
@@ -68,6 +68,17 @@ const headerStyle = {
   },
   appResponsive: {
     margin: "20px 10px"
+  },
+  // 모바일 - 데스크탑을 크기에 따라 구분하기 위함
+  hiddenMdUp: {
+    [theme.breakpoints.up("md")]: {
+      display: "none !important",
+    },
+  },
+  hiddenSmDown: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none !important",
+    },
   },
   primary: {
     backgroundColor: primaryColor,
@@ -167,7 +178,25 @@ const headerStyle = {
     paddingRight: "0px",
     paddingLeft: "0",
     ...transition
-  }
-};
+  },
+  // Media query for mobile view
+  '@media (max-width: 960px)': {
+    appBar: {
+      padding: "0.3rem 0", // Smaller padding for mobile
+      maxHeight: "40px", // Reduce the header height for mobile
+    },
+    container: {
+      minHeight: "40px", // Reduce the container height in mobile
+      padding: "0 20px", // Smaller padding for mobile
+    },
+    title: {
+      fontSize: "16px", // Smaller font size for the brand title on mobile
+      lineHeight: "20px", // Adjust line height for mobile
+    },
+    drawerPaper: {
+      width: "240px", // Reduce the drawer width on mobile
+    },
+  },
+});
 
 export default headerStyle;
