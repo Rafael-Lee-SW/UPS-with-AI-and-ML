@@ -12,8 +12,7 @@ RUN apk add --no-cache --virtual .gyp \
     pango-dev \
     giflib-dev \
     libjpeg-turbo-dev \
-    freetype-dev \
-    && npm config set python /usr/bin/python3
+    freetype-dev 
 
 # Step 3: Set the working directory
 WORKDIR /app
