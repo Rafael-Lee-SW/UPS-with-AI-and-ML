@@ -181,11 +181,11 @@ export default function Payment() {
   // 결제 요청 전송
   const requestPay = () => {
 
-    if (!isLoggedIn) {
-      alert('로그인이 필요합니다.');
-      router.push('/signIn');
-      return;
-    } else {
+    // if (!isLoggedIn) {
+    //   alert('로그인이 필요합니다.');
+    //   router.push('/signIn');
+    //   return;
+    // } else {
       const IMP = window.IMP;
       IMP.request_pay(
         {
@@ -194,8 +194,8 @@ export default function Payment() {
           merchant_uid: `mid_${new Date().getTime()}`,
           name: '창고',
           amount: quantity * 100, // 총 결제 금액 반영
-          buyer_email: user.email,
-          buyer_name: user.name,
+          // buyer_email: user.email,
+          // buyer_name: user.name,
           buyer_tel: '010-1111-1111',
           buyer_addr: '서울시 강남구 테헤란로',
           buyer_postcode: '12345',
@@ -203,13 +203,14 @@ export default function Payment() {
         },
         (rsp) => {
           if (rsp.success) {
+            console.log(rsp);
             handleSuccess();
           } else {
             router.push('/components');
           }
         }
       );
-    }
+    // }
   };
 
   return (
