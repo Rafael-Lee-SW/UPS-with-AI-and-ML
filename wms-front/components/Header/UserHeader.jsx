@@ -6,14 +6,12 @@ import classNames from "classnames";
 import PropTypes from "prop-types";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-
 import {
   AppBar,
   Toolbar,
   IconButton,
   Drawer,
   Button,
-  Box,
 } from "@mui/material";
 // @material-ui/icons
 import Menu from "@material-ui/icons/Menu";
@@ -74,19 +72,23 @@ export default function Header(props) {
   return (
     <AppBar className={appBarClasses}>
       <Toolbar className={classes.container} style={{ marginRight: "10px" }}>
-        <div className={classes.flex}></div>
-        <Box sx={{ display: { xs: "none", sm: "block" } }}>{rightLinks}</Box>
-        <Box sx={{ display: { xs: "block", md: "none" } }}>
+        <div className={classes.flex}>
+          {/* 본래는 우측 홈 로고가 있을 자리 */}
+        </div>
+        {/* Hide rightLinks in mobile view */}
+        <div className={classes.hiddenSmDown}>{rightLinks}</div>
+        <div className={classes.hiddenMdUp}>
           <IconButton
-            color="inherit"
+            color="#986C58"
             aria-label="open drawer"
             onClick={handleDrawerToggle}
           >
             <Menu />
           </IconButton>
-        </Box>
+        </div>
       </Toolbar>
-      <Box sx={{ display: { xs: "block", md: "none" } }}>
+      {/* Drawer only visible on mobile */}
+      <div className={classes.hiddenMdUp}>
         <Drawer
           variant="temporary"
           anchor={"right"}
@@ -101,7 +103,7 @@ export default function Header(props) {
             {rightLinks}
           </div>
         </Drawer>
-      </Box>
+      </div>
     </AppBar>
   );
 }

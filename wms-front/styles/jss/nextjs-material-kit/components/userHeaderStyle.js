@@ -10,10 +10,10 @@ import {
   roseColor,
   transition,
   boxShadow,
-  drawerWidth
+  drawerWidth,
 } from "/styles/jss/nextjs-material-kit.js";
 
-const headerStyle = {
+const headerStyle = (theme) => ({
   appBar: {
     display: "flex",
     border: "0",
@@ -30,15 +30,15 @@ const headerStyle = {
     justifyContent: "flex-start",
     position: "relative",
     zIndex: "unset",
-    height:"3rem",
+    height: "3rem",
   },
   absolute: {
     position: "absolute",
-    zIndex: "1100"
+    zIndex: "1100",
   },
   fixed: {
     position: "fixed",
-    zIndex: "1100"
+    zIndex: "1100",
   },
   container: {
     ...container,
@@ -47,10 +47,10 @@ const headerStyle = {
     alignItems: "center",
     justifyContent: "space-between",
     display: "flex",
-    flexWrap: "nowrap"
+    flexWrap: "nowrap",
   },
   flex: {
-    flex: 1
+    flex: 1,
   },
   title: {
     ...defaultFont,
@@ -65,10 +65,21 @@ const headerStyle = {
       color: "inherit",
       background: "transparent",
       fontWeight: "bold",
-    }
+    },
   },
   appResponsive: {
-    margin: "20px 10px"
+    margin: "20px 10px",
+  },
+  // 모바일 - 데스크탑을 크기에 따라 구분하기 위함
+  hiddenMdUp: {
+    [theme.breakpoints.up("md")]: {
+      display: "none !important",
+    },
+  },
+  hiddenSmDown: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none !important",
+    },
   },
   primary: {
     backgroundColor: primaryColor,
@@ -77,7 +88,7 @@ const headerStyle = {
     boxShadow: `0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 12px -5px ${hexToRGBAlpha(
       primaryColor,
       0.46
-    )}`
+    )}`,
   },
   info: {
     backgroundColor: infoColor,
@@ -86,7 +97,7 @@ const headerStyle = {
     boxShadow: `0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 12px -5px ${hexToRGBAlpha(
       infoColor,
       0.46
-    )}`
+    )}`,
   },
   success: {
     backgroundColor: successColor,
@@ -95,7 +106,7 @@ const headerStyle = {
     boxShadow: `0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 12px -5px ${hexToRGBAlpha(
       successColor,
       0.46
-    )}`
+    )}`,
   },
   warning: {
     backgroundColor: warningColor,
@@ -104,7 +115,7 @@ const headerStyle = {
     boxShadow: `0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 12px -5px ${hexToRGBAlpha(
       warningColor,
       0.46
-    )}`
+    )}`,
   },
   danger: {
     backgroundColor: dangerColor,
@@ -113,7 +124,7 @@ const headerStyle = {
     boxShadow: `0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 12px -5px ${hexToRGBAlpha(
       dangerColor,
       0.46
-    )}`
+    )}`,
   },
   rose: {
     backgroundColor: roseColor,
@@ -122,20 +133,20 @@ const headerStyle = {
     boxShadow: `0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 12px -5px ${hexToRGBAlpha(
       roseColor,
       0.46
-    )}`
+    )}`,
   },
   transparent: {
     backgroundColor: "transparent !important",
     boxShadow: "none",
     paddingTop: "25px",
-    color: "#FFFFFF"
+    color: "#FFFFFF",
   },
   dark: {
     color: "#FFFFFF",
     // backgroundColor: "#fff",
     backgroundColor: "#212121 !important",
     boxShadow:
-      "0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 12px -5px rgba(33, 33, 33, 0.46)"
+      "0 4px 20px 0px rgba(0, 0, 0, 0.14), 0 7px 12px -5px rgba(33, 33, 33, 0.46)",
   },
   white: {
     border: "0",
@@ -144,7 +155,7 @@ const headerStyle = {
     color: "#555",
     backgroundColor: "#fff !important",
     boxShadow:
-      "0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15)"
+      "0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15)",
   },
   transparentWhite: {
     border: "0",
@@ -153,7 +164,7 @@ const headerStyle = {
     color: "#555",
     backgroundColor: "rgba(237, 237, 237, 0.8) !important",
     boxShadow:
-      "0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15)"
+      "0 4px 18px 0px rgba(0, 0, 0, 0.12), 0 7px 10px -5px rgba(0, 0, 0, 0.15)",
   },
   drawerPaper: {
     border: "none",
@@ -175,8 +186,28 @@ const headerStyle = {
     textAlign: "left",
     paddingRight: "0px",
     paddingLeft: "0",
-    ...transition
-  }
-};
+    ...transition,
+  },
+
+  // Media query for mobile view
+  "@media (max-width: 960px)": {
+    appBar: {
+      padding: "0.3rem 0", // Smaller padding for mobile
+      height : "2rem",
+      maxHeight: "40px", // Reduce the header height for mobile
+    },
+    container: {
+      maxHeight: "40px", // Reduce the container height in mobile
+      padding: "0 20px", // Smaller padding for mobile
+    },
+    title: {
+      fontSize: "16px", // Smaller font size for the brand title on mobile
+      lineHeight: "20px", // Adjust line height for mobile
+    },
+    drawerPaper: {
+      width: "240px", // Reduce the drawer width on mobile
+    },
+  },
+});
 
 export default headerStyle;

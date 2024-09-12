@@ -7,7 +7,7 @@ import Header from "/components/Header/UserHeader.jsx";
 import HeaderLinks from "/components/Header/UserHeaderLinks.js";
 import Button from "/components/CustomButtons/Button.js";
 import dynamic from "next/dynamic";
-import styles from "/styles/jss/nextjs-material-kit/pages/users.js"; // Import styles from users.js
+import styles from "/styles/jss/nextjs-material-kit/pages/users.js"; // Let's make a media query for mobile
 import "aos/dist/aos.css";
 import { useRouter } from "next/router";
 
