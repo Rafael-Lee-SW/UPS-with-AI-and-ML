@@ -2,7 +2,7 @@
 FROM openjdk:17-jdk-alpine
 
 # Add Maintainer Info
-LABEL maintainer="ddongyul"
+LABEL maintainer="seoyoung059"
 
 # Add a volume pointing to /tmp
 VOLUME /tmp
