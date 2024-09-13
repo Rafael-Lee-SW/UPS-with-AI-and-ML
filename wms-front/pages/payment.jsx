@@ -181,11 +181,11 @@ export default function Payment() {
   // 결제 요청 전송
   const requestPay = () => {
 
-    // if (!isLoggedIn) {
-    //   alert('로그인이 필요합니다.');
-    //   router.push('/signIn');
-    //   return;
-    // } else {
+    if (!isLoggedIn) {
+      alert('로그인이 필요합니다.');
+      router.push('/signIn');
+      return;
+    } else {
       const IMP = window.IMP;
       IMP.request_pay(
         {
@@ -210,7 +210,7 @@ export default function Payment() {
           }
         }
       );
-    // }
+    }
   };
 
   return (
