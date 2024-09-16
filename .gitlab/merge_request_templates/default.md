@@ -4,6 +4,7 @@
 - [ ] Frontend - user
 - [ ] Frontend - kiosk
 - [ ] AI
+- [ ] Documents
 
 ## :link: 해당 MR과 연결된 JIRA의 태스크는 무엇인가요?
 
