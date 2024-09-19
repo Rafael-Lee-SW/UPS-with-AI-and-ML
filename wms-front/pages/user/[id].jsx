@@ -105,7 +105,7 @@ export default function Components({ initialCards, initialUserData, initialBusin
         <button className={classes.homeButton}>
           <Link href="/components" as="/components">
             <img
-              style={{ height: "30px", width: "60px", paddingRight: "15px" }}
+              className={classes.homeImg}
               src="/img/logo1.png"
               alt="logo"
             />

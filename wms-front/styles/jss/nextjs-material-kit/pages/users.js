@@ -2,7 +2,6 @@
 import { container } from "/styles/jss/nextjs-material-kit.js";
 
 const componentsStyle = {
-  
   // Default : PC 환경
 
   // i don't know its nessesary for style.
@@ -33,6 +32,11 @@ const componentsStyle = {
     backgroundColor: "transparent",
     paddingTop: "10px",
     paddingLeft: "20px",
+  },
+  homeImg: {
+    height: "30px",
+    width: "60px",
+    paddingRight: "15px",
   },
   // 창고 선택 파트
   currentWarehouseIndex: {
@@ -76,12 +80,12 @@ const componentsStyle = {
     borderRadius: "4px",
     "&:hover": {
       transform: "scale(1.05)",
-      backgroundColor: "#7D4A1A",
+      backgroundColor: "#00B4D8",
       color: "white",
     },
   },
   selectedButton: {
-    backgroundColor: "#7D4A1A !important", // Custom color for the selected button
+    backgroundColor: "#00B4D8 !important", // Custom color for the selected button
     transform: "scale(1.05)", // Optional effect
   },
   button1: {
@@ -108,34 +112,41 @@ const componentsStyle = {
       position: "fixed",
       top: 0,
       backgroundColor: "transparent",
+      boxShadow: "none",
       padding: "5px 5px 15px 5px",
       display: "flex",
       flexDirection: "row",
-      alignItems: "center",
+      alignItems: "flex-start",
       zIndex: 1200,
     },
     // 홈버튼
     homeButton: {
       border: "none",
       backgroundColor: "transparent",
-      paddingTop: "10px",
-      paddingLeft: "20px",
+      paddingTop: "1px",
+      paddingLeft: "5px",
+    },
+    homeImg: {
+      height: "20px",
+      width: "40px",
+      paddingRight: "10px",
     },
     // 창고 선택 파트
     currentWarehouseIndex: {
-      paddingTop: "25px",
-      fontSize: "15px",
+      padding: "1px 10px 0 0",
+      fontSize: "12px",
       fontWeight: "bold",
       textAlign: "center",
       color: "#7D4A1A",
+      whiteSpace: "nowrap", // 자동 줄바꿈을 방지한다.
     },
     warehouseDropdown: {
-      margin: "10px 0",
+      margin: "1px 5px 0 0",
       paddingBottom: "10px",
     },
     warehouseSelect: {
-      width: "100%",
-      padding: "5px",
+      width: "80px",
+      padding: "5px 5px 0 0",
       fontSize: "12px",
       fontWeight: "bold",
       borderRadius: "4px",
@@ -156,19 +167,21 @@ const componentsStyle = {
     },
     // 각 component로 이동하는 버튼
     buttonStyle: {
-      width: "100px",
+      fontSize: "10px",
+      width: "70px",
       color: "white",
-      marginLeft: "10px",
-      height: "30px",
+      margin: "1px 0 0 10px",
+      padding: "11px",
+      height: "12px",
       borderRadius: "4px",
       "&:hover": {
         transform: "scale(1.05)",
-        backgroundColor: "#7D4A1A",
+        backgroundColor: "#00B4D8",
         color: "white",
       },
     },
     selectedButton: {
-      backgroundColor: "#7D4A1A !important", // Custom color for the selected button
+      backgroundColor: "#00B4D8 !important", // Custom color for the selected button
       transform: "scale(1.05)", // Optional effect
     },
     button1: {
@@ -184,7 +197,7 @@ const componentsStyle = {
       backgroundColor: "#A99987",
     },
     mainContent: {
-      marginLeft: "90px",
+      marginLeft: "0px",
       overflow: "none",
     },
   },
