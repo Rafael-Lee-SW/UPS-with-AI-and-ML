@@ -134,32 +134,36 @@ export default function Components({ initialCards, initialUserData, initialBusin
           </select>
         </div>
         <Button
-          className={classes.buttonStyle}
-          style={{ backgroundColor: "#4E4544" }}
+          className={classNames(classes.buttonStyle,
+            classes.button1,
+            {[classes.selectedButton] : currentIndex === 0})}
           round
           onClick={() => handleNextComponent(0)}
         >
           창고 관리
         </Button>
         <Button
-          className={classes.buttonStyle}
-          style={{ backgroundColor: "#ADAAA5" }}
+          className={classNames(classes.buttonStyle,
+            classes.button2,
+            {[classes.selectedButton] : currentIndex === 1})}
           round
           onClick={() => handleNextComponent(1)}
         >
           재고 현황
         </Button>
         <Button
-          className={classes.buttonStyle}
-          style={{ backgroundColor: "#C2B6A1" }}
+          className={classNames(classes.buttonStyle,
+            classes.button3,
+            {[classes.selectedButton] : currentIndex === 2})}
           round
           onClick={() => handleNextComponent(2)}
         >
           재고 관리
         </Button>
         <Button
-          className={classes.buttonStyle}
-          style={{ backgroundColor: "#A99987" }}
+          className={classNames(classes.buttonStyle,
+            classes.button4,
+            {[classes.selectedButton] : currentIndex === 3})}
           round
           onClick={() => handleNextComponent(3)}
         >
@@ -178,6 +182,8 @@ export default function Components({ initialCards, initialUserData, initialBusin
   );
 }
 
+// getInitialProps를 _app.js에서 사용하지 않음에 따라
+// serverSide Rendering이 필요한 곳마다 아래 함수를 사용한다.
 // Use getServerSideProps to fetch data
 export async function getServerSideProps(context) {
   const { id } = context.params;

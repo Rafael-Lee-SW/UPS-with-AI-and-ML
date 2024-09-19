@@ -2,71 +2,11 @@
 import { container } from "/styles/jss/nextjs-material-kit.js";
 
 const componentsStyle = {
+  // i don't know its nessesary for style.
   container,
-  brand: {
-    color: "#FFFFFF",
-    textAlign: "left",
-  },
-  title: {
-    fontSize: "4.0rem",
-    fontWeight: "600",
-    display: "inline-block",
-    position: "relative",
-    color: "yellow",
-    textShadow: `
-      -2px -2px 0 #000,  
-       2px -2px 0 #000,
-      -2px  2px 0 #000,
-       2px  2px 0 #000
-    `,
-  },
-  subtitle: {
-    fontSize: "1.313rem",
-    maxWidth: "510px",
-    margin: "10px 0 0",
-    color: "yellow",
-    textShadow: `
-      -2px -2px 0 #000,  
-       2px -2px 0 #000,
-      -2px  2px 0 #000,
-       2px  2px 0 #000
-    `,
-  },
-  main: {
-    background: "#FFFFFF",
-    position: "relative",
-    zIndex: "3",
-  },
-  mainRaised: {
-    margin: "-60px 30px 0px",
-    borderRadius: "6px",
-    boxShadow:
-      "0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2)",
-    "@media (max-width: 830px)": {
-      marginLeft: "10px",
-      marginRight: "10px",
-    },
-  },
   link: {
     textDecoration: "none",
   },
-  textCenter: {
-    textAlign: "center",
-  },
-  flexContainer: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  buttonsContainer: {
-    display: "flex",
-    gap: "10px",
-  },
-  currentWarehouse: {
-    fontSize: "1.8rem",
-    fontWeight: "bold",
-  },
-
   // Styles from [id].jsx
   sidebar: {
     width: "90px",
@@ -83,8 +23,11 @@ const componentsStyle = {
     justifyContent: "flex-start",
     zIndex: 1200,
   },
-  content: {
-    padding: "20px",
+  button: {
+    border: "none",
+    backgroundColor: "transparent",
+    paddingTop: "10px",
+    paddingLeft: "20px",
   },
   currentWarehouseIndex: {
     paddingTop: "25px",
@@ -92,10 +35,6 @@ const componentsStyle = {
     fontWeight: "bold",
     textAlign: "center",
     color: "#7D4A1A",
-  },
-  mainContent: {
-    marginLeft: "90px",
-    overflow: "none",
   },
   warehouseDropdown: {
     margin: "10px 0",
@@ -122,12 +61,6 @@ const componentsStyle = {
     overflow: "hidden",
     padding: "10px",
   },
-  button: {
-    border: "none",
-    backgroundColor: "transparent",
-    paddingTop: "10px",
-    paddingLeft: "20px",
-  },
   buttonStyle: {
     width: "100px",
     color: "white",
@@ -140,6 +73,28 @@ const componentsStyle = {
       color: "white",
     },
   },
+  selectedButton: {
+    backgroundColor: "#7D4A1A !important" , // Custom color for the selected button
+    transform: "scale(1.05)", // Optional effect
+  },
+  button1:{
+    backgroundColor: "#4E4544"
+  },
+  button2:{
+    backgroundColor: "#ADAAA5"
+  },
+  button3:{
+    backgroundColor: "#C2B6A1"
+  },
+  button4:{
+    backgroundColor: "#A99987"
+  },
+  mainContent: {
+    marginLeft: "90px",
+    overflow: "none",
+  },
+  //Mobile 환경
+  "@media (max-width: 960px)": {},
 };
 
 export default componentsStyle;
