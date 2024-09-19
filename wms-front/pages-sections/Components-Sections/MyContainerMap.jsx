@@ -1289,7 +1289,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             </Typography>
 
             <Typography
-              style={{ textAlign: "center" }}
+              className={classes.settingSizeAndFloor}
               variant="body2"
               color="textSecondary"
               gutterBottom
@@ -1297,62 +1297,47 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
               단수와 크기를 정하세요
             </Typography>
 
-            <Box mb={2} style={{ paddingTop: "20px", marginLeft:"5px" }}>
-              <Typography gutterBottom style={{ textAlign: "center" }}>
+            <Box mb={2} className={classes.showTheFloorLevel}>
+              <Typography gutterBottom>
                 단수(층): {newLocationZIndex}단/층
               </Typography>
               <Slider
+                className={classes.settingSlider}
                 value={newLocationZIndex}
-                style={{
-                  color: "#4E4544",
-                  width: "140px", // Set the width of the slider
-                  margin: "0 auto", // Center the slider
-                  alignItems: "center", // Centers the content horizontally
-                }}
                 onChange={(e, newValue) => setNewLocationZIndex(newValue)}
                 aria-labelledby="z-index-slider"
                 color="#4E4544"
                 valueLabelDisplay="auto"
-                step={1}
                 marks
+                step={1}
                 min={1}
                 max={10}
               />
             </Box>
-            <Box mb={2} style={{ marginLeft:"5px" }}>
+            <Box mb={2} className={classes.showTheWidthAndHeight}>
               <Typography gutterBottom>가로: {newLocationWidth}cm</Typography>
               <Slider
+                className={classes.settingSlider}
                 value={newLocationWidth}
-                style={{
-                  color: "#4E4544",
-                  width: "140px", // Set the width of the slider
-                  margin: "0 auto", // Center the slider
-                  alignItems: "center", // Centers the content horizontally
-                }}
                 onChange={(e, newValue) => setNewLocationWidth(newValue)}
                 aria-labelledby="width-slider"
                 valueLabelDisplay="auto"
-                step={10}
                 marks
+                step={10}
                 min={10}
                 max={500}
               />
             </Box>
-            <Box mb={2} style={{ marginLeft:"5px" }}>
+            <Box mb={2} className={classes.showTheWidthAndHeight}>
               <Typography gutterBottom>세로: {newLocationHeight}cm</Typography>
               <Slider
+                className={classes.settingSlider}
                 value={newLocationHeight}
-                style={{
-                  color: "#4E4544",
-                  width: "140px", // Set the width of the slider
-                  margin: "0 auto", // Center the slider
-                  alignItems: "center", // Centers the content horizontally
-                }}
                 onChange={(e, newValue) => setNewLocationHeight(newValue)}
                 aria-labelledby="height-slider"
                 valueLabelDisplay="auto"
-                step={10}
                 marks
+                step={10}
                 min={10}
                 max={500}
               />
@@ -1378,6 +1363,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             {/* name 입력 부분 - 텍스트 모드와 행/열 모드에 따라 다른 입력 필드 표시 */}
             {nameMode === "text" ? (
               <TextField
+                className={classes.nameTextField}
                 label="이름"
                 value={newLocationName}
                 onChange={(e) => setNewLocationName(e.target.value)}
@@ -1385,7 +1371,6 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
                 fullWidth
                 size="small"
                 margin="dense"
-                style={{ marginTop: "20px" }}
               />
             ) : (
               <Box display="flex" justifyContent="space-between">
@@ -1516,26 +1501,14 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
           </Stage>
         </div>
         {/* 줌 버튼 */}
-        <div
-          style={{
-            position: "absolute",
-            content: "center",
-            left: "45%",
-            top: "3rem",
-            display: "flex",
-            gap: "10px",
-          }}
-        >
+        <div className={classes.zoomControler}>
           <Button
             justIcon
             round
             style={{ backgroundColor: "#7D4A1A" }}
             onClick={handleZoomIn}
           >
-            <ZoomInIcon
-              style={{ width: "35px", height: "35px" }}
-              className={classes.icons}
-            />
+            <ZoomInIcon className={classes.zoomicons} />
           </Button>
           <Button
             justIcon
@@ -1543,10 +1516,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             style={{ backgroundColor: "#ADAAA5" }}
             onClick={handleZoomOut}
           >
-            <ZoomOutIcon
-              style={{ width: "35px", height: "35px" }}
-              className={classes.icons}
-            />
+            <ZoomOutIcon className={classes.zoomicons} />
           </Button>
           <Button
             justIcon
@@ -1554,10 +1524,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             style={{ backgroundColor: "#C2B6A1", marginRight: "40px" }}
             onClick={editContainerAPI}
           >
-            <SaveIcon
-              style={{ width: "35px", height: "35px" }}
-              className={classes.icons}
-            />
+            <SaveIcon className={classes.zoomicons} />
           </Button>
         </div>
       </div>
@@ -1566,19 +1533,8 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       <div className={classes.rightSidebar}>
         <h3>재고함 목록</h3>
         {locations.length !== 0 ? (
-          <div
-            style={{
-              width: "100%",
-            }}
-          >
-            <ul
-              style={{
-                height: "30vh",
-                overflowY: "auto",
-                listStyle: "none",
-                padding: 0,
-              }}
-            >
+          <div className={classes.listOfLocations}>
+            <ul className={classes.ulListStyle}>
               {locations
                 .filter(
                   (locations) =>
@@ -1586,21 +1542,17 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
                 )
                 .map((locations, index) => (
                   <li
+                    className={classes.liListStyle}
                     key={index}
                     onClick={() => {
                       setSelectedLocation(locations);
                       setSelectedLocationTransform(locations.id);
                     }}
                     style={{
-                      cursor: "pointer",
-                      padding: "5px",
-                      borderBottom: "1px solid #ccc",
-                      textAlign: "center",
                       backgroundColor:
                         selectedLocation && selectedLocation.id === locations.id
                           ? "#f0f0f0" // Highlight color for selected item
                           : "transparent", // Default color for unselected items
-                      transition: "background-color 0.3s", // Smooth transition effect
                     }}
                   >
                     {locations.name}
@@ -1611,6 +1563,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
         ) : (
           <p>현재 재고함이 없습니다.</p>
         )}
+
         <hr />
         <h3>선택된 재고함</h3>
         {selectedLocation ? (
@@ -1631,28 +1584,11 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
           <p>재고함이 선택되지 않았습니다.</p>
         )}
       </div>
-      <div
-        id="menu"
-        ref={menuRef}
-        style={{
-          display: "none",
-          position: "absolute",
-          width: "60px",
-          backgroundColor: "white",
-          boxShadow: "0 0 5px grey",
-          borderRadius: "3px",
-        }}
-      >
+      <div id="menu" className={classes.rightClickMenu} ref={menuRef}>
         <div>
           <button
             id="pulse-button"
-            style={{
-              width: "100%",
-              backgroundColor: "white",
-              border: "none",
-              margin: 0,
-              padding: "10px",
-            }}
+            className={classes.pulse}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
@@ -1660,13 +1596,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
           </button>
           <button
             id="delete-button"
-            style={{
-              width: "100%",
-              backgroundColor: "white",
-              border: "none",
-              margin: 0,
-              padding: "10px",
-            }}
+            className={classes.delete}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
@@ -1674,7 +1604,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
           </button>
         </div>
       </div>
-
+      {/* 창고 자동 생성을 위한 모달 파트 */}
       <Modal
         className={classes.modal}
         open={openContainerCreation}
@@ -1691,74 +1621,74 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             <h2>새 창고 정보 입력</h2>
             <form onSubmit={handleSubmit}>
               <TextField
+                className={classes.formControl}
                 name="containerName"
                 label="창고 이름"
                 fullWidth
                 variant="outlined"
-                className={classes.formControl}
                 value={formData.containerName}
                 onChange={handleChange}
               />
               <TextField
+                className={classes.formControl}
                 name="containerXSize"
                 label="창고 가로 크기"
                 fullWidth
                 variant="outlined"
-                className={classes.formControl}
                 value={formData.containerXSize}
                 onChange={handleChange}
               />
               <TextField
+                className={classes.formControl}
                 name="containerYSize"
                 label="창고 세로 크기"
                 fullWidth
                 variant="outlined"
-                className={classes.formControl}
                 value={formData.containerYSize}
                 onChange={handleChange}
               />
               <TextField
+                className={classes.formControl}
                 name="locationX"
                 label="Location(적재함) 가로 크기"
                 fullWidth
                 variant="outlined"
-                className={classes.formControl}
                 value={formData.locationX}
                 onChange={handleChange}
               />
               <TextField
+                className={classes.formControl}
                 name="locationY"
                 label="Location(적재함) 세로 크기"
                 fullWidth
                 variant="outlined"
-                className={classes.formControl}
                 value={formData.locationY}
                 onChange={handleChange}
               />
               <TextField
+                className={classes.formControl}
                 name="locationZ"
                 label="Location(적재함) 층수"
                 fullWidth
                 variant="outlined"
-                className={classes.formControl}
                 value={formData.locationZ}
                 onChange={handleChange}
               />
               <TextField
+                className={classes.formControl}
                 name="row"
                 label="행"
                 fullWidth
                 variant="outlined"
-                className={classes.formControl}
                 value={formData.row}
                 onChange={handleChange}
               />
               <TextField
+                className={classes.formControl}
                 name="column"
                 label="열"
                 fullWidth
                 variant="outlined"
-                className={classes.formControl}
                 value={formData.column}
                 onChange={handleChange}
               />
@@ -1776,20 +1706,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
         </Fade>
       </Modal>
       {loading && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 2000,
-          }}
-        >
+        <div className={classes.loading}>
           <CircularProgress />
         </div>
       )}
@@ -1797,7 +1714,10 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   );
 };
 
-// -----   상자 설정 변경기 영역   ------
+/**
+ * 상자 설정 변경기 영역
+ */
+
 const RectangleTransformer = ({
   shapeProps,
   isSelected,

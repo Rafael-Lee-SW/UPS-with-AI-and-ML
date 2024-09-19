@@ -4,12 +4,6 @@ import { container } from "/styles/jss/nextjs-material-kit.js";
 const componentsStyle = {
   // Default : PC 환경
 
-  // i don't know its nessesary for style.
-  container,
-  link: {
-    textDecoration: "none",
-  },
-
   // 사이드 바
   sidebar: {
     width: "90px",
