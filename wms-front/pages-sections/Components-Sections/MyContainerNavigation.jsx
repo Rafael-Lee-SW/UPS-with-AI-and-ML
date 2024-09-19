@@ -267,7 +267,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
   const getWarehouseAPI = async (WHId) => {
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/warehouses/${WHId}`,
+        `https://j11a302.p.ssafy.io/api/warehouses/${WHId}`,
         {
           method: "GET",
           headers: {
@@ -859,7 +859,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
   const productGetAPI = async (businessId) => {
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/products?businessId=${businessId}`,
+        `https://j11a302.p.ssafy.io/api/products?businessId=${businessId}`,
         {
           method: "GET",
           headers: {
@@ -938,7 +938,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
   const getNotificationsAPI = async (businessId) => {
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/products/notification?businessId=${businessId}`,
+        `https://j11a302.p.ssafy.io/api/products/notification?businessId=${businessId}`,
         {
           method: "GET",
           headers: {

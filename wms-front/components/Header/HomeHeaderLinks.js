@@ -32,7 +32,7 @@ export default function HeaderLinks(props) {
     //   const userId = userInfo.id;
 
     //   try {
-    //     const response = await axios.get(`https://i11a508.p.ssafy.io/api/users/${userId}`);
+    //     const response = await axios.get(`https://j11a302.p.ssafy.io/api/users/${userId}`);
     //     const userData = response.data.result;
 
     //     if (userData.roleTypeEnum === "GENERAL") {

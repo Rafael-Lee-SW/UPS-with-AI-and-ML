@@ -157,7 +157,7 @@ const Select = (props) => {
   const fetchWarehouseCounts = async (businessId) => {
     try {
       const warehouseCountResponse = await fetch(
-        `https://i11a508.p.ssafy.io/api/warehouses/cnt/${businessId}`,
+        `https://j11a302.p.ssafy.io/api/warehouses/cnt/${businessId}`,
         {
           method: "GET",
           headers: {
@@ -167,7 +167,7 @@ const Select = (props) => {
       );
 
       const subscriptionResponse = await fetch(
-        `https://i11a508.p.ssafy.io/api/subscriptions?businessId=${businessId}`,
+        `https://j11a302.p.ssafy.io/api/subscriptions?businessId=${businessId}`,
         {
           method: "GET",
           headers: {
@@ -253,7 +253,7 @@ const Select = (props) => {
 
     try {
       const response = await fetch(
-        "https://i11a508.p.ssafy.io/api/warehouses",
+        "https://j11a302.p.ssafy.io/api/warehouses",
         {
           method: "POST",
           headers: {
@@ -322,7 +322,7 @@ const Select = (props) => {
     const total = { requests, warehouseId };
 
     try {
-      const response = await fetch(`https://i11a508.p.ssafy.io/api/locations`, {
+      const response = await fetch(`https://j11a302.p.ssafy.io/api/locations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -344,7 +344,7 @@ const Select = (props) => {
 
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/warehouses/walls`,
+        `https://j11a302.p.ssafy.io/api/warehouses/walls`,
         {
           method: "POST",
           headers: {
@@ -366,7 +366,7 @@ const Select = (props) => {
   const getAllWarehouseInfoAPI = async (businessId) => {
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/warehouses?businessId=${businessId}`,
+        `https://j11a302.p.ssafy.io/api/warehouses?businessId=${businessId}`,
         {
           method: "GET",
           headers: {
@@ -403,7 +403,7 @@ const Select = (props) => {
   const fetchBusinessData = async (userId) => {
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/users/${userId}`,
+        `https://j11a302.p.ssafy.io/api/users/${userId}`,
         {
           method: "GET",
           headers: {
@@ -446,16 +446,16 @@ const Select = (props) => {
   const fetchCounts = async (warehouseId) => {
     try {
       const pcsResponse = await axios.get(
-        `https://i11a508.p.ssafy.io/api/warehouses/pcscnt/${warehouseId}`
+        `https://j11a302.p.ssafy.io/api/warehouses/pcscnt/${warehouseId}`
       );
       const locationResponse = await axios.get(
-        `https://i11a508.p.ssafy.io/api/warehouses/locationcnt/${warehouseId}`
+        `https://j11a302.p.ssafy.io/api/warehouses/locationcnt/${warehouseId}`
       );
       const usageResponse = await axios.get(
-        `https://i11a508.p.ssafy.io/api/warehouses/usage/${warehouseId}`
+        `https://j11a302.p.ssafy.io/api/warehouses/usage/${warehouseId}`
       );
       const warehouseTypeResponse = await axios.get(
-        `https://i11a508.p.ssafy.io/api/warehouses/purpose/${warehouseId}`
+        `https://j11a302.p.ssafy.io/api/warehouses/purpose/${warehouseId}`
       );
 
       const pcsCount = pcsResponse.data.result;
@@ -510,7 +510,7 @@ const Select = (props) => {
 
   const handleDelete = async (warehouseId) => {
     try {
-      await axios.patch(`https://i11a508.p.ssafy.io/api/warehouses/${warehouseId}`, {
+      await axios.patch(`https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}`, {
         isDeleted: true,
       });
 

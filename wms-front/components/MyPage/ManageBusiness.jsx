@@ -33,7 +33,7 @@ export default function ManageBusiness({ updateBusinessInfo, updateRoleType }) {
         const userId = storedUser ? storedUser.id : null;
         
         if (userId) {
-          const response = await axios.get(`https://i11a508.p.ssafy.io/api/users/${userId}`);
+          const response = await axios.get(`https://j11a302.p.ssafy.io/api/users/${userId}`);
           const userData = response.data.result;
           
           setRoleType(userData.roleTypeEnum);
@@ -41,7 +41,7 @@ export default function ManageBusiness({ updateBusinessInfo, updateRoleType }) {
           setBusinessAddDate(userData.businessAddDate);
 
           if (userData.roleTypeEnum === 'BUSINESS' && userData.businessId !== -1) {
-            const businessResponse = await axios.get(`https://i11a508.p.ssafy.io/api/businesses/${userData.businessId}`);
+            const businessResponse = await axios.get(`https://j11a302.p.ssafy.io/api/businesses/${userData.businessId}`);
             const businessData = businessResponse.data.result;
             setBusinessInfo({
               name: businessData.name,
@@ -49,7 +49,7 @@ export default function ManageBusiness({ updateBusinessInfo, updateRoleType }) {
             });
             setIsRegistered(true);
           } else if (userData.roleTypeEnum === 'EMPLOYEE' && userData.businessId !== -1) {
-            const businessResponse = await axios.get(`https://i11a508.p.ssafy.io/api/businesses/${userData.businessId}`);
+            const businessResponse = await axios.get(`https://j11a302.p.ssafy.io/api/businesses/${userData.businessId}`);
             setBusinessName(businessResponse.data.result.name);
           }
         } else {
@@ -83,7 +83,7 @@ export default function ManageBusiness({ updateBusinessInfo, updateRoleType }) {
 
       if (isRegistered) {
         // 수정 로직
-        await axios.put(`https://i11a508.p.ssafy.io/api/businesses/${businessId}`, data);
+        await axios.put(`https://j11a302.p.ssafy.io/api/businesses/${businessId}`, data);
         setModalMessage('사업체 정보 수정이 완료되었습니다.');
         setModalTitle('사업체 정보 수정')
         handleOpen();
@@ -96,7 +96,7 @@ export default function ManageBusiness({ updateBusinessInfo, updateRoleType }) {
 
         if (userId) {
           // axios로 POST 요청 보내기
-          const businessResponse = await axios.post(`https://i11a508.p.ssafy.io/api/businesses?userId=${userId}`, data);
+          const businessResponse = await axios.post(`https://j11a302.p.ssafy.io/api/businesses?userId=${userId}`, data);
           handleOpen()
           updateBusinessInfo(data);
           fetchUserData(data)
@@ -112,7 +112,7 @@ export default function ManageBusiness({ updateBusinessInfo, updateRoleType }) {
             warehouseCount: 1, // 기본값 설정
           };
 
-          await axios.post("https://i11a508.p.ssafy.io/api/subscriptions", subscriptionData);
+          await axios.post("https://j11a302.p.ssafy.io/api/subscriptions", subscriptionData);
           setModalMessage('창고 1개를 무료로 사용할 수 있습니다.');
           setModalTitle('사업자 등록 완료');
           handleOpen();
@@ -129,7 +129,7 @@ export default function ManageBusiness({ updateBusinessInfo, updateRoleType }) {
   const handleDelete = async () => {
     try {
       // 사업체 비활성화 로직
-      await axios.patch(`https://i11a508.p.ssafy.io/api/businesses/${businessId}`, { statusEnum: "INACTIVE" });
+      await axios.patch(`https://j11a302.p.ssafy.io/api/businesses/${businessId}`, { statusEnum: "INACTIVE" });
       setModalMessage('사업체 삭제가 완료되었습니다.');
       setModalTitle('사업체 삭제');
       handleOpen();

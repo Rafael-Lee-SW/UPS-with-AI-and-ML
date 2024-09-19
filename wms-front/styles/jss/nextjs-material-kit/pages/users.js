@@ -2,72 +2,16 @@
 import { container } from "/styles/jss/nextjs-material-kit.js";
 
 const componentsStyle = {
+  
+  // Default : PC 환경
+
+  // i don't know its nessesary for style.
   container,
-  brand: {
-    color: "#FFFFFF",
-    textAlign: "left",
-  },
-  title: {
-    fontSize: "4.0rem",
-    fontWeight: "600",
-    display: "inline-block",
-    position: "relative",
-    color: "yellow",
-    textShadow: `
-      -2px -2px 0 #000,  
-       2px -2px 0 #000,
-      -2px  2px 0 #000,
-       2px  2px 0 #000
-    `,
-  },
-  subtitle: {
-    fontSize: "1.313rem",
-    maxWidth: "510px",
-    margin: "10px 0 0",
-    color: "yellow",
-    textShadow: `
-      -2px -2px 0 #000,  
-       2px -2px 0 #000,
-      -2px  2px 0 #000,
-       2px  2px 0 #000
-    `,
-  },
-  main: {
-    background: "#FFFFFF",
-    position: "relative",
-    zIndex: "3",
-  },
-  mainRaised: {
-    margin: "-60px 30px 0px",
-    borderRadius: "6px",
-    boxShadow:
-      "0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2)",
-    "@media (max-width: 830px)": {
-      marginLeft: "10px",
-      marginRight: "10px",
-    },
-  },
   link: {
     textDecoration: "none",
   },
-  textCenter: {
-    textAlign: "center",
-  },
-  flexContainer: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  buttonsContainer: {
-    display: "flex",
-    gap: "10px",
-  },
-  currentWarehouse: {
-    fontSize: "1.8rem",
-    fontWeight: "bold",
-  },
 
-  // Styles from [id].jsx
+  // 사이드 바
   sidebar: {
     width: "90px",
     height: "100vh",
@@ -83,19 +27,20 @@ const componentsStyle = {
     justifyContent: "flex-start",
     zIndex: 1200,
   },
-  content: {
-    padding: "20px",
+  // 홈버튼
+  homeButton: {
+    border: "none",
+    backgroundColor: "transparent",
+    paddingTop: "10px",
+    paddingLeft: "20px",
   },
+  // 창고 선택 파트
   currentWarehouseIndex: {
     paddingTop: "25px",
     fontSize: "15px",
     fontWeight: "bold",
     textAlign: "center",
     color: "#7D4A1A",
-  },
-  mainContent: {
-    marginLeft: "90px",
-    overflow: "none",
   },
   warehouseDropdown: {
     margin: "10px 0",
@@ -122,12 +67,7 @@ const componentsStyle = {
     overflow: "hidden",
     padding: "10px",
   },
-  button: {
-    border: "none",
-    backgroundColor: "transparent",
-    paddingTop: "10px",
-    paddingLeft: "20px",
-  },
+  // 각 component로 이동하는 버튼
   buttonStyle: {
     width: "100px",
     color: "white",
@@ -138,6 +78,114 @@ const componentsStyle = {
       transform: "scale(1.05)",
       backgroundColor: "#7D4A1A",
       color: "white",
+    },
+  },
+  selectedButton: {
+    backgroundColor: "#7D4A1A !important", // Custom color for the selected button
+    transform: "scale(1.05)", // Optional effect
+  },
+  button1: {
+    backgroundColor: "#4E4544",
+  },
+  button2: {
+    backgroundColor: "#ADAAA5",
+  },
+  button3: {
+    backgroundColor: "#C2B6A1",
+  },
+  button4: {
+    backgroundColor: "#A99987",
+  },
+  mainContent: {
+    marginLeft: "90px",
+    overflow: "none",
+  },
+
+  //Mobile 환경
+  "@media (max-width: 960px)": {
+    // 사이드 바는 상단바로 바뀌어야 한다.
+    sidebar: {
+      position: "fixed",
+      top: 0,
+      backgroundColor: "transparent",
+      padding: "5px 5px 15px 5px",
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      zIndex: 1200,
+    },
+    // 홈버튼
+    homeButton: {
+      border: "none",
+      backgroundColor: "transparent",
+      paddingTop: "10px",
+      paddingLeft: "20px",
+    },
+    // 창고 선택 파트
+    currentWarehouseIndex: {
+      paddingTop: "25px",
+      fontSize: "15px",
+      fontWeight: "bold",
+      textAlign: "center",
+      color: "#7D4A1A",
+    },
+    warehouseDropdown: {
+      margin: "10px 0",
+      paddingBottom: "10px",
+    },
+    warehouseSelect: {
+      width: "100%",
+      padding: "5px",
+      fontSize: "12px",
+      fontWeight: "bold",
+      borderRadius: "4px",
+      textAlign: "center",
+      border: "1px solid #986c58",
+      backgroundColor: "transparent",
+      cursor: "pointer",
+      appearance: "none",
+      whiteSpace: "normal",
+    },
+    warehouseOption: {
+      fontSize: "12px",
+      fontWeight: "bold",
+      lineHeight: "1.2",
+      whiteSpace: "normal",
+      overflow: "hidden",
+      padding: "10px",
+    },
+    // 각 component로 이동하는 버튼
+    buttonStyle: {
+      width: "100px",
+      color: "white",
+      marginLeft: "10px",
+      height: "30px",
+      borderRadius: "4px",
+      "&:hover": {
+        transform: "scale(1.05)",
+        backgroundColor: "#7D4A1A",
+        color: "white",
+      },
+    },
+    selectedButton: {
+      backgroundColor: "#7D4A1A !important", // Custom color for the selected button
+      transform: "scale(1.05)", // Optional effect
+    },
+    button1: {
+      backgroundColor: "#4E4544",
+    },
+    button2: {
+      backgroundColor: "#ADAAA5",
+    },
+    button3: {
+      backgroundColor: "#C2B6A1",
+    },
+    button4: {
+      backgroundColor: "#A99987",
+    },
+    mainContent: {
+      marginLeft: "90px",
+      overflow: "none",
     },
   },
 };

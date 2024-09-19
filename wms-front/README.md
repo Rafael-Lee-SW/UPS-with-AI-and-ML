@@ -23,6 +23,7 @@ AutoML(from Vertex AI in Google Console)로 테스트 데이터를 통해 ML을 
 
 차라리 직접 Python으로 간단한 ML 모델을 구축하는 것이 더 빠르게 간편해보임.
 
+Many things done it right now, and now our steps are making a mobile environment.
 
 ```
 wms-front

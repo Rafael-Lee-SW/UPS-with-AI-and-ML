@@ -468,7 +468,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
       console.log(ImportArray)
 
       const response = await fetch(
-        "https://i11a508.p.ssafy.io/api/products/import",
+        "https://j11a302.p.ssafy.io/api/products/import",
         {
           method: "POST",
           headers: {
@@ -513,7 +513,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         data: postData,
       };
       const response = await fetch(
-        "https://i11a508.p.ssafy.io/api/products/export",
+        "https://j11a302.p.ssafy.io/api/products/export",
         {
           method: "POST",
           headers: {
@@ -578,7 +578,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   const productMoveAPI = async (moveDetails) => {
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/products/move`,
+        `https://j11a302.p.ssafy.io/api/products/move`,
         {
           method: "POST",
           headers: {
@@ -609,7 +609,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   const productGetAPI = async (businessId) => {
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/products?businessId=${businessId}`,
+        `https://j11a302.p.ssafy.io/api/products?businessId=${businessId}`,
         {
           method: "GET",
           headers: {
@@ -725,7 +725,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   const getNotificationsAPI = async (businessId) => {
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/products/notification?businessId=${businessId}`,
+        `https://j11a302.p.ssafy.io/api/products/notification?businessId=${businessId}`,
         {
           method: "GET",
           headers: {
@@ -957,7 +957,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
     setLoading(true)
     try {
 
-      const response = await fetch(`https://i11a508.p.ssafy.io/api/products`, {
+      const response = await fetch(`https://j11a302.p.ssafy.io/api/products`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -1461,7 +1461,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   const EncapsuleAPI = async () => {
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/products/compress?businessId=${businessId}&warehouseId=${WHId}`,
+        `https://j11a302.p.ssafy.io/api/products/compress?businessId=${businessId}&warehouseId=${WHId}`,
         {
           method: "GET",
           headers: {
@@ -1609,7 +1609,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   const getWarehouseAPI = async (warehouseId) => {
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/warehouses/${warehouseId}`,
+        `https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}`,
         {
           method: "GET",
           headers: {

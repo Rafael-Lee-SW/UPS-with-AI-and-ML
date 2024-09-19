@@ -197,7 +197,7 @@ export default function SignUp() {
 
   const handleEmailCheck = async () => {
     try {
-      const response = await axios.post('https://i11a508.p.ssafy.io/api/oauth/email-check', { email });
+      const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/email-check', { email });
       
       if (response.data.code === 'SU') { 
         setEmailCheckMessage('사용 가능한 이메일입니다.');
@@ -215,7 +215,7 @@ export default function SignUp() {
   const handleSendCertificationEmail = async () => {
     if (isEmailValid) {
       try {
-        const certificationResponse = await axios.post('https://i11a508.p.ssafy.io/api/oauth/email-certification', { email });
+        const certificationResponse = await axios.post('https://j11a302.p.ssafy.io/api/oauth/email-certification', { email });
         
         if (certificationResponse.data.code === 'SU') {
           setCertificationMessage('인증번호 발송에 성공하였습니다.');
@@ -235,7 +235,7 @@ export default function SignUp() {
   const handleCertification = async () => {
     if (isCertificationButtonEnabled) {
       try {
-        const response = await axios.post('https://i11a508.p.ssafy.io/api/oauth/check-certification', {
+        const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/check-certification', {
           email,
           certificationNumber,
         });
@@ -261,7 +261,7 @@ export default function SignUp() {
     e.preventDefault();
     if (isFormValid && isEmailValid) {
       try {
-        const response = await axios.post('https://i11a508.p.ssafy.io/api/oauth/sign-up', {
+        const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/sign-up', {
           email,
           password,
           certificationNumber,

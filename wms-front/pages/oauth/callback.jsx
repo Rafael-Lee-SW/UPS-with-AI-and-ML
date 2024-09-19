@@ -11,7 +11,7 @@ const OAuthCallback = () => {
   // 사용자 정보를 가져오는 비동기 함수
   const fetchUserInfo = async (token, userEmail) => {
     try {
-      const response = await axios.get(`https://i11a508.p.ssafy.io/api/oauth/social-sign-in`, {
+      const response = await axios.get(`https://j11a302.p.ssafy.io/api/oauth/social-sign-in`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
