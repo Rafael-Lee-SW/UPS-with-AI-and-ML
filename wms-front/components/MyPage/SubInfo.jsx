@@ -31,7 +31,7 @@ export default function SubInfo() {
 
       try {
         const userResponse = await fetch(
-          `https://i11a508.p.ssafy.io/api/users/${user.id}`
+          `https://j11a302.p.ssafy.io/api/users/${user.id}`
         );
         if (!userResponse.ok) {
           router.push('/404');
@@ -44,7 +44,7 @@ export default function SubInfo() {
         if (userData.result.roleTypeEnum === "BUSINESS") {
           const businessId = userData.result.businessId;
           const subscriptionResponse = await fetch(
-            `https://i11a508.p.ssafy.io/api/subscriptions?businessId=${businessId}`
+            `https://j11a302.p.ssafy.io/api/subscriptions?businessId=${businessId}`
           );
 
           if (!subscriptionResponse.ok) {

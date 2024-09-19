@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: 'https://i11a508.p.ssafy.io/api/',
+    baseURL: 'https://j11a302.p.ssafy.io/api/',
 });
 // 유저 조회
 function fetchUser(id) {

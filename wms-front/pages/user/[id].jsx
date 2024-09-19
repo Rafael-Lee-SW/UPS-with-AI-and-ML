@@ -102,7 +102,7 @@ export default function Components({ initialCards, initialUserData, initialBusin
         color="transparentWhite" // Custom color here
       />
       <div className={classes.sidebar}>
-        <button className={classes.button}>
+        <button className={classes.homeButton}>
           <Link href="/components" as="/components">
             <img
               style={{ height: "30px", width: "60px", paddingRight: "15px" }}
@@ -190,11 +190,11 @@ export async function getServerSideProps(context) {
 
   try {
     // Fetch user data and warehouse data
-    const userResponse = await fetch(`https://i11a508.p.ssafy.io/api/users/${id}`);
+    const userResponse = await fetch(`https://j11a302.p.ssafy.io/api/users/${id}`);
     const userData = await userResponse.json();
 
     const warehouseResponse = await fetch(
-      `https://i11a508.p.ssafy.io/api/warehouses?businessId=${userData.result.businessId}`
+      `https://j11a302.p.ssafy.io/api/warehouses?businessId=${userData.result.businessId}`
     );
     const warehouseData = await warehouseResponse.json();
 

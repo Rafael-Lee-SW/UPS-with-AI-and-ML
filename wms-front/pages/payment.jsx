@@ -128,18 +128,18 @@ export default function Payment() {
 
     try {
       // 유저 정보 요청
-      const userResponse = await axios.get(`https://i11a508.p.ssafy.io/api/users/${user.id}`);
+      const userResponse = await axios.get(`https://j11a302.p.ssafy.io/api/users/${user.id}`);
       const businessId = userResponse.data.result.businessId;
 
       // 현재 구독 정보 요청
-      const subscriptionResponse = await axios.get(`https://i11a508.p.ssafy.io/api/subscriptions?businessId=${businessId}`);
+      const subscriptionResponse = await axios.get(`https://j11a302.p.ssafy.io/api/subscriptions?businessId=${businessId}`);
       const subscription = subscriptionResponse.data.result[0];
       
       // 현재 창고 수와 결제한 창고 수 합산
       const newWarehouseCount = subscription.warehouseCount + quantity;
 
       // 구독 정보 업데이트
-      await axios.put(`https://i11a508.p.ssafy.io/api/subscriptions/${subscription.id}`, {
+      await axios.put(`https://j11a302.p.ssafy.io/api/subscriptions/${subscription.id}`, {
         subscriptionTypeId: 1,
         paidTypeEnum: "TOSSPAY",
         warehouseCount: newWarehouseCount

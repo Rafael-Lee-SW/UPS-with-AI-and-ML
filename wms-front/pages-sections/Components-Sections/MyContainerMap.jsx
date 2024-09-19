@@ -248,7 +248,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     const total = { requests, warehouseId };
 
     try {
-      const response = await fetch(`https://i11a508.p.ssafy.io/api/locations`, {
+      const response = await fetch(`https://j11a302.p.ssafy.io/api/locations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -315,7 +315,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/warehouses/${warehouseId}/locatons-and-walls`,
+        `https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}/locatons-and-walls`,
         {
           method: "PUT",
           headers: {
@@ -409,7 +409,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   const getWarehouseAPI = async (warehouseId) => {
     try {
       const response = await fetch(
-        `https://i11a508.p.ssafy.io/api/warehouses/${warehouseId}`,
+        `https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}`,
         {
           method: "GET",
           headers: {

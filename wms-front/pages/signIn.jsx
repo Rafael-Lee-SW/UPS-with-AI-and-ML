@@ -124,7 +124,7 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://i11a508.p.ssafy.io/api/oauth/sign-in', {
+      const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/sign-in', {
         email,
         password,
       });
@@ -156,8 +156,8 @@ export default function Login() {
 
   const signInWithProvider = (provider) => {
     const urls = {
-      kakao: 'https://i11a508.p.ssafy.io/api/oauth2/authorization/kakao',
-      naver: 'https://i11a508.p.ssafy.io/api/oauth2/authorization/naver',
+      kakao: 'https://j11a302.p.ssafy.io/api/oauth2/authorization/kakao',
+      naver: 'https://j11a302.p.ssafy.io/api/oauth2/authorization/naver',
     };
     window.location.href = urls[provider];
   };
