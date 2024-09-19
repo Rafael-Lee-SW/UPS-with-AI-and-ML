@@ -1,18 +1,24 @@
-const { contextBridge, ipcRenderer } = require('electron');
+// preload.js
+const { ipcRenderer, contextBridge } = require('electron');
 
-contextBridge.exposeInMainWorld('electron', {
-  sendToBackend: (channel, data) => ipcRenderer.send(channel, data),
-  onReceive: (channel, callback) => ipcRenderer.on(channel, (event, args) => callback(args)),
+contextBridge.exposeInMainWorld('electronAPI', {
+  login: (key) => ipcRenderer.invoke('login', key),
+  navigateToPage: () => ipcRenderer.invoke('navigateToPage')
+});
 
-  // 상품 정보 저장 및 불러오기
-  saveProducts: (products) => ipcRenderer.send('save-products', products),
-  loadProducts: () => ipcRenderer.invoke('load-products'),
+// main.js (Electron)
+ipcMain.handle('login', (event, key) => {
+  // 여기에 키 인증 로직을 넣습니다
+  if (key === 'your-secret-key') {
+    // 키가 유효한 경우 true 반환
+    return true;
+  } else {
+    // 키가 유효하지 않은 경우 false 반환
+    return false;
+  }
+});
 
-  // 토큰 검증
-  verifyToken: async (token) => {
-    return await ipcRenderer.invoke('verify-token', token);
-  },
-
-  // 애플리케이션 실행
-  startApp: () => ipcRenderer.send('start-app'),
+ipcMain.handle('navigateToPage', (event) => {
+  // 키 인증이 완료되면 해당 페이지로 이동
+  win.loadURL('http://localhost:3000');  // Next.js 앱으로 이동
 });

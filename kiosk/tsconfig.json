@@ -1,22 +1,53 @@
 {
   "compilerOptions": {
+    // DOM, 최신 ECMAScript 기능 및 Iterable 관련 라이브러리를 사용할 수 있게 설정
     "lib": ["dom", "dom.iterable", "esnext"],
+
+    // JavaScript 파일도 컴파일러가 처리할 수 있게 허용
     "allowJs": true,
+
+    // 외부 라이브러리의 타입 검사 생략 (컴파일 속도 향상)
     "skipLibCheck": true,
+
+    // 엄격한 타입 검사를 활성화
     "strict": true,
+
+    // 컴파일된 JavaScript 파일을 생성하지 않음 (타입 검사만 수행)
     "noEmit": true,
+
+    // 최신 ECMAScript 모듈을 사용
     "esModuleInterop": true,
+
+    // ECMAScript 모듈 시스템을 사용 (ESNext 모듈)
     "module": "esnext",
+
+    // 번들러가 모듈을 해석할 수 있도록 모듈 해석 방식 설정
     "moduleResolution": "bundler",
+
+    // JSON 파일을 모듈로 가져올 수 있게 설정
     "resolveJsonModule": true,
+
+    // 각 파일을 독립적인 모듈로 취급하여 컴파일
     "isolatedModules": true,
+
+    // React에서 JSX 문법을 사용하기 위한 설정
     "jsx": "preserve",
+
+    // 증분 컴파일을 활성화하여 컴파일 속도 향상
     "incremental": true,
+
+    // 모듈 별칭 설정, '@/경로'를 통해 'src' 폴더에 있는 파일을 참조할 수 있도록 함
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node", "electron"]  // 타입 정의 파일 이름만 지정
+
+    // 사용할 타입 정의 파일을 명시적으로 지정 (Node.js, Electron, Axios)
+    "types": ["node", "electron", "axios"]
   },
+  
+  // 프로젝트에 포함할 파일들 (TypeScript 및 Next.js 설정 파일)
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+
+  // 컴파일에서 제외할 폴더 (node_modules는 제외)
   "exclude": ["node_modules"]
 }

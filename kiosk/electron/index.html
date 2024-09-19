@@ -1,30 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Token Verification</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiosk Token Verification</title>
   </head>
   <body>
-    <h1>Please enter your token</h1>
-    <form id="tokenForm">
-      <input type="text" id="tokenInput" placeholder="Enter token" required />
-      <button type="submit">Submit</button>
-    </form>
-    <p id="errorMessage" style="color: red; display: none;">Invalid token. Please try again.</p>
+    <h1>토큰 입력</h1>
+    <input type="text" id="tokenInput" placeholder="토큰 입력">
+    <button id="verifyButton">검증</button>
+    
     <script>
-      const form = document.getElementById('tokenForm');
-      const errorMessage = document.getElementById('errorMessage');
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+      document.getElementById('verifyButton').addEventListener('click', async () => {
         const token = document.getElementById('tokenInput').value;
-
-        const result = await window.electron.verifyToken(token);  // 토큰 검증
-        if (result) {
-          window.electron.startApp();  // 애플리케이션 실행
+        const isValid = await window.electronAPI.verifyToken(token);
+        
+        if (isValid) {
+          window.electronAPI.startApp();  // 토큰이 유효할 경우 Next.js 애플리케이션 시작
         } else {
-          errorMessage.style.display = 'block';  // 에러 메시지 표시
+          alert('토큰이 유효하지 않습니다.');
         }
       });
     </script>
