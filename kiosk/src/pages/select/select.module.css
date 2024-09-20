@@ -1,0 +1,128 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f0f0f0;  /* 전체 페이지에 밝은 그레이 배경색 적용 */
+  }
+  
+  .topSection {
+    flex: 8;  /* 상단 영역 8/10 */
+    background-image: url('/poster1.jpg');
+    background-size: cover;  /* 화면의 너비에 꽉 차게 설정 */
+    background-position: center;
+    background-repeat: no-repeat;  /* 이미지 반복 방지 */
+  }
+  
+  .bottomSection {
+    flex: 2;  /* 하단 영역 2/10 */
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .buttonGroup {
+    display: flex;
+    gap: 2vw; /* 화면 너비의 백분율로 버튼 간격 조정 */
+    margin-bottom: 2vh; /* 화면 높이의 백분율로 하단 간격 조정 */
+  }
+  
+  .circleButton {
+    width: 15vw;  /* 너비를 뷰포트 너비(vw)로 설정해 화면에 맞추기 */
+    height: 15vw; /* 높이도 뷰포트 너비(vw)로 설정 */
+    border-radius: 50%;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    font-size: 1.5vw;  /* 폰트 크기를 화면 너비 기준으로 조정 */
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .circleButton img {
+    width: 5vw;  /* 이미지 크기를 화면 너비 기준으로 설정 */
+    height: 5vw;
+    margin-bottom: 10px;
+  }
+  
+  .circleButton:hover {
+    transform: scale(1.05);
+  }
+  
+  .languageSelector {
+    display: flex;
+    justify-content: center;
+    gap: 1vw;
+    margin-top: 10px;
+  }
+  
+  .languageIcon {
+    width: 5vw;  /* 언어 아이콘 크기를 화면 너비에 맞추기 */
+    height: 5vw;
+    cursor: pointer;
+  }
+  
+  /* 미디어 쿼리 사용: 큰 화면 (1800x1920 이상) 스타일 조정 */
+  @media (min-width: 1800px) {
+    .circleButton {
+      width: 10vw;
+      height: 10vw;
+      font-size: 1.2vw;
+    }
+  
+    .circleButton img {
+      width: 4vw;
+      height: 4vw;
+    }
+  
+    .languageIcon {
+      width: 4vw;
+      height: 4vw;
+    }
+  }
+  
+  /* 미디어 쿼리 사용: 화면이 작을 때 (모바일 화면) 스타일 변경 */
+  @media (max-width: 768px) {
+    .circleButton {
+      width: 20vw;
+      height: 20vw;
+      font-size: 3vw;
+    }
+  
+    .circleButton img {
+      width: 8vw;
+      height: 8vw;
+    }
+  
+    .languageIcon {
+      width: 8vw;
+      height: 8vw;
+    }
+  }
+  
+  /* 미디어 쿼리 사용: 화면이 더 작을 때 */
+  @media (max-width: 480px) {
+    .circleButton {
+      width: 30vw;
+      height: 30vw;
+      font-size: 4vw;
+    }
+  
+    .circleButton img {
+      width: 10vw;
+      height: 10vw;
+    }
+  
+    .languageIcon {
+      width: 10vw;
+      height: 10vw;
+    }
+  }
+  
