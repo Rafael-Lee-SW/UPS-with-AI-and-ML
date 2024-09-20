@@ -1132,27 +1132,13 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
     useState("");
 
   const PrintableTable = ({ title, columns, data }) => (
-    <div className="printable-content" style={{ padding: "20px" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>{title}</h1>
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          marginBottom: "20px",
-        }}
-      >
+    <div className={`printable-content ${classes.printTableContent}`}>
+      <h1 className={classes.printTableTitle}>{title}</h1>
+      <table className={classes.printTableTitle}>
         <thead>
           <tr>
             {columns.map((column, index) => (
-              <th
-                key={index}
-                style={{
-                  border: "1px solid #ddd",
-                  padding: "8px",
-                  textAlign: "left",
-                  backgroundColor: "#f2f2f2",
-                }}
-              >
+              <th key={index} className={classes.thPrintTable}>
                 {typeof column === "string" ? column : column.label}
               </th>
             ))}
@@ -1162,14 +1148,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
           {data.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.map((cell, cellIndex) => (
-                <td
-                  key={cellIndex}
-                  style={{
-                    border: "1px solid #ddd",
-                    padding: "8px",
-                    textAlign: "left",
-                  }}
-                >
+                <td key={cellIndex} className={classes.thPrintTable}>
                   {cell}
                 </td>
               ))}
@@ -1187,7 +1166,6 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
             margin: 0;
             padding: 0;
           }
-
           /* Ensure the printed page is filled with white background */
           html,
           body {
@@ -1537,25 +1515,11 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                             </span>
                           </td>
                           {/* Quantity */}
-                          <td
-                            style={{
-                              padding: "10px",
-                              textAlign: "center",
-                              fontSize: "16px",
-                              verticalAlign: "middle",
-                            }}
-                          >
+                          <td className={classes.tdQuantityNotificationTable}>
                             {item.quantity} 개
                           </td>
                           {/* Location based on type */}
-                          <td
-                            style={{
-                              padding: "10px",
-                              textAlign: "center",
-                              fontSize: "16px",
-                              verticalAlign: "middle",
-                            }}
-                          >
+                          <td className={classes.tdLocationNotificationTable}>
                             {/* Show different content based on type */}
                             {selectedType === "IMPORT" && (
                               <span>{item.warehouseTitle}</span>
@@ -1566,13 +1530,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                                   {item.currentLocationName}{" "}
                                   {item.currentFloorLevel}층
                                 </span>
-                                <span
-                                  style={{
-                                    display: "block",
-                                    fontSize: "12px",
-                                    color: "#666",
-                                  }}
-                                >
+                                <span className={classes.exportStoreTitle}>
                                   창고 : {item.warehouseTitle}
                                 </span>
                               </div>
@@ -1584,13 +1542,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                                   {" - "}
                                   {item.currentFloorLevel}층
                                 </span>
-                                <span
-                                  style={{
-                                    display: "block",
-                                    fontSize: "12px",
-                                    color: "#666",
-                                  }}
-                                >
+                                <span className={classes.exportStoreTitle}>
                                   창고 : {item.warehouseTitle}
                                 </span>
                               </div>
@@ -1610,20 +1562,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
       )}
       {/* 로딩 Part */}
       {loading && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 2000,
-          }}
-        >
+        <div className={classes.loading}>
           <CircularProgress />
         </div>
       )}

@@ -226,6 +226,60 @@ const basicsStyle = {
     fontSize: "12px",
     color: "#666",
   },
+  tdQuantityNotificationTable: {
+    padding: "10px",
+    textAlign: "center",
+    fontSize: "16px",
+    verticalAlign: "middle",
+  },
+  tdLocationNotificationTable: {
+    padding: "10px",
+    textAlign: "center",
+    fontSize: "16px",
+    verticalAlign: "middle",
+  },
+  StoreTitle: {
+    display: "block",
+    fontSize: "12px",
+    color: "#666",
+  },
+  //로딩 스타일
+  loading: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2000,
+  },
+  //프린트 테이블 컨텐츠
+  printTableContent: {
+    padding: "20px",
+  },
+  printTableTitle: {
+    textAlign: "center",
+    marginBottom: "20px",
+  },
+  printTable: {
+    width: "100%",
+    borderCollapse: "collapse",
+    marginBottom: "20px",
+  },
+  thPrintTable: {
+    border: "1px solid #ddd",
+    padding: "8px",
+    textAlign: "left",
+    backgroundColor: "#f2f2f2",
+  },
+  thPrintTable: {
+    border: "1px solid #ddd",
+    padding: "8px",
+    textAlign: "left",
+  },
 
   ...customCheckboxRadioSwitch,
 };
