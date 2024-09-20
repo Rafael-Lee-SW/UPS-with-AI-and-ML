@@ -84,7 +84,7 @@ import {
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 
-import styles from "/styles/jss/nextjs-material-kit/pages/componentsSections/MyContainerStyle.jsx";
+import styles from "/styles/jss/nextjs-material-kit/pages/componentsSections/MyContainerNavStyle.jsx";
 
 // 창고 상수 설정
 const GRID_SIZE = 100;
@@ -98,7 +98,7 @@ const useStyles = makeStyles(styles);
 
 // 복합체 시작
 const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
-  const classes = makeStyles();
+  const classes = useStyles();
   // 로딩 Loading
   const [loading, setLoading] = useState(false); // 수정필수 : true로 바꿀 것
 
@@ -231,8 +231,8 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
       return commonData; // Fallback if type doesn't match
     });
 
-    console.log("선별데이터")
-    console.log(filteredData)
+    console.log("선별데이터");
+    console.log(filteredData);
 
     // Extract the location names and warehouse IDs from the filtered data
     const locationNames = filteredData
@@ -1132,27 +1132,13 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
     useState("");
 
   const PrintableTable = ({ title, columns, data }) => (
-    <div className="printable-content" style={{ padding: "20px" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>{title}</h1>
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          marginBottom: "20px",
-        }}
-      >
+    <div className={`printable-content ${classes.printTableContent}`}>
+      <h1 className={classes.printTableTitle}>{title}</h1>
+      <table className={classes.printTableTitle}>
         <thead>
           <tr>
             {columns.map((column, index) => (
-              <th
-                key={index}
-                style={{
-                  border: "1px solid #ddd",
-                  padding: "8px",
-                  textAlign: "left",
-                  backgroundColor: "#f2f2f2",
-                }}
-              >
+              <th key={index} className={classes.thPrintTable}>
                 {typeof column === "string" ? column : column.label}
               </th>
             ))}
@@ -1162,14 +1148,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
           {data.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.map((cell, cellIndex) => (
-                <td
-                  key={cellIndex}
-                  style={{
-                    border: "1px solid #ddd",
-                    padding: "8px",
-                    textAlign: "left",
-                  }}
-                >
+                <td key={cellIndex} className={classes.thPrintTable}>
                   {cell}
                 </td>
               ))}
@@ -1187,7 +1166,6 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
             margin: 0;
             padding: 0;
           }
-
           /* Ensure the printed page is filled with white background */
           html,
           body {
@@ -1246,15 +1224,9 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
   };
 
   return (
-    <div
-      style={{
-        position: "relative",
-        height: "100vh",
-        width: "100%",
-        overflow: "hidden",
-      }}
-    >
+    <div className={classes.navigationContainer}>
       <Stage
+        className={classes.basicCanvas}
         width={window.innerWidth}
         height={window.innerHeight}
         scaleX={scale}
@@ -1266,7 +1238,6 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
         onPointerMove={Pointer}
         onMouseDown={checkDeselect}
         onTouchStart={checkDeselect}
-        style={{ position: "absolute", top: 0, left: 0 }}
       >
         <Layer ref={layerRef}>
           {generateGridLines()}
@@ -1296,98 +1267,45 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
           ))}
         </Layer>
       </Stage>
-      <div
-        style={{
-          position: "absolute",
-          left: "45%",
-          top: "3rem",
-          display: "flex",
-          gap: "10px",
-        }}
-      >
-        <Button
-          round
-          onClick={handleZoomIn}
-          style={{ color: "#7D4A1A", fontWeight: "bold" }}
-        >
-          <ZoomInIcon
-            style={{ width: "35px", height: "35px" }}
-            className={classes.icons}
-          />
+      <div className={classes.buttonContainer}>
+        <Button round onClick={handleZoomIn} style={{ color: "#7D4A1A" }}>
+          <ZoomInIcon className={classes.icons} />
         </Button>
-        <Button
-          onClick={handleZoomOut}
-          style={{ color: "#7D4A1A", fontWeight: "bold" }}
-        >
-          <ZoomOutIcon
-            style={{ width: "35px", height: "35px" }}
-            className={classes.icons}
-          />
+        <Button onClick={handleZoomOut} style={{ color: "#7D4A1A" }}>
+          <ZoomOutIcon className={classes.icons} />
         </Button>
       </div>
-      <div
-        style={{
-          position: "absolute",
-          top: "10vh",
-          padding: "10px",
-          width: "200px",
-          height: "80vh",
-          overflowY: "auto",
-          backgroundColor: "rgba(247, 247, 247, 0.9)",
-          boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
-        }}
-      >
+      {/* left Sidebar */}
+      <div className={classes.leftSidebar}>
         <hr />
-        <div
-          style={{
-            marginBottom: "10px",
-            display: "flex",
-            justifyContent: "center",
-            flexDirection: "column",
-          }}
-        >
+        <div className={classes.leftSidebarContent}>
           <Button
+            className={classes.sidebarButton}
             onClick={() => setShowDetails(true)}
-            style={{
-              color: "#7D4A1A",
-              fontWeight: "bold",
-              textAlign: "center",
-            }}
           >
             재고함 상세보기
           </Button>
           <Button
-            style={{ color: "#7D4A1A", fontWeight: "bold" }}
+            className={classes.sidebarButton}
             onClick={() => {
               setShowDetails(false);
               showUniqueDates();
             }}
-            round
           >
             알림함
           </Button>
         </div>
         {showDetails ? (
-          <div>
-            <h3 style={{ textAlign: "center" }}>재고함 목록</h3>
+          <div className={classes.locations}>
+            <h3 className={classes.listTitle}>재고함 목록</h3>
             {locations.length !== 0 ? (
-              <div
-                style={{
-                  width: "100%",
-                }}
-              >
-                <ul
-                  style={{
-                    height: "50vh",
-                    overflowY: "auto",
-                    listStyle: "none",
-                    padding: 0,
-                  }}
-                >
+              <div className={classes.locationList}>
+                <ul className={classes.ulLocationList}>
                   {locations
                     .filter((locations) => locations.type === "location")
                     .map((locations, index) => (
                       <li
+                        className={classes.liLocationsList}
                         key={index}
                         onClick={() => {
                           setSelectedLocation(locations);
@@ -1396,10 +1314,6 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                           handleSelectedData(locations.name, selectedFloor);
                         }}
                         style={{
-                          cursor: "pointer",
-                          padding: "5px",
-                          borderBottom: "1px solid #ccc",
-                          textAlign: "center",
                           backgroundColor:
                             selectedLocation &&
                             selectedLocation.id === locations.id
@@ -1418,23 +1332,21 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
             )}
           </div>
         ) : (
-          <div className="notification" style={{ textAlign: "center" }}>
-            <h3 style={{ textAlign: "center" }}>알림함</h3>
-            <ul style={{ listStyle: "none", padding: 0 }}>
-              {notificationTableData.slice().reverse().map(({ date, type }, index) => (
-                <li
-                  key={index}
-                  onClick={() => handleCellClick(date, type)}
-                  style={{
-                    cursor: "pointer",
-                    padding: "5px",
-                    borderBottom: "1px solid #ccc",
-                    justifyContent: "center",
-                  }}
-                >
-                  {date.slice(0, -1)} / {mapTypeToKorean(type)}
-                </li>
-              ))}
+          <div className={classes.notification}>
+            <h3 className={classes.listTitle}>알림함</h3>
+            <ul className={classes.ulNotificationsList}>
+              {notificationTableData
+                .slice()
+                .reverse()
+                .map(({ date, type }, index) => (
+                  <li
+                    className={classes.liNotificationsList}
+                    key={index}
+                    onClick={() => handleCellClick(date, type)}
+                  >
+                    {date.slice(0, -1)} / {mapTypeToKorean(type)}
+                  </li>
+                ))}
             </ul>
           </div>
         )}
@@ -1443,22 +1355,10 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
       {(selectedLocation ||
         ModalTableData.length > 0 ||
         detailedNotificationData.length > 0) && (
-        <div
-          style={{
-            position: "absolute",
-            top: "10vh",
-            right: "10px",
-            padding: "10px",
-            border: "2px solid black",
-            borderRadius: "10px",
-            width: "36%",
-            height: "80vh",
-            overflowY: "auto",
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <div className={classes.rightSidebar}>
+          <div className={classes.closeButtonPart}>
             <Button
+              className={classes.closeButton}
               onClick={() => {
                 setSelectedLocation(null);
                 setModalTableData([]);
@@ -1466,7 +1366,6 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                 setSelectedType(null);
                 setHoveredLocations([]); // Reset hovered locations
               }}
-              style={{ color: "#7D4A1A" }}
             >
               Close
             </Button>
@@ -1474,22 +1373,8 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
           {showDetails && selectedLocation ? (
             <div>
               <div>
-                <div
-                  id="상자 정보"
-                  style={{
-                    display: "flex",
-                  }}
-                >
-                  <div
-                    id="상자 숫자 정보"
-                    style={{
-                      width: "45%",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
+                <div id="상자 정보" className={classes.infoBox}>
+                  <div id="상자 숫자 정보" className={classes.infoBoxNum}>
                     <h3 style={{ marginTop: 0 }}>
                       재고함 : {selectedLocation.name}
                     </h3>
@@ -1503,40 +1388,20 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                   </div>
                   <div
                     id="상자의 z Index를 시각화"
-                    style={{
-                      marginLeft: "10px",
-                      height: "200px",
-                      width: "65%",
-                      overflowY: "auto",
-                      border: "1px solid gray",
-                      borderRadius: "5px",
-                      padding: "5px",
-                      display: "flex",
-                      flexDirection: "column-reverse",
-                    }}
+                    className={classes.infoZindexBox}
                   >
                     {Array.from({ length: selectedLocation.z }).map(
                       (_, index) => (
                         <Button
+                          className={classes.floorBox}
                           key={index + 1}
                           style={{
-                            display: "flex",
-                            width: "90%",
-                            height: "30px",
                             backgroundColor:
                               selectedFloor === index + 1
                                 ? "#7D4A1A"
                                 : "transparent",
                             color:
                               selectedFloor === index + 1 ? "white" : "#7D4A1A",
-                            marginBottom: "5px",
-                            borderRadius: "5px",
-                            border: "1px solid black",
-                            textAlign: "center",
-                            lineHeight: "30px",
-                            marginLeft: "auto",
-                            marginRight: "auto",
-                            cursor: "pointer",
                           }}
                           onClick={() => {
                             setSelectedFloor(
@@ -1570,37 +1435,22 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                 </div>
                 <hr />
                 {ModalTableData.length > 0 && (
-                  <div style={{ marginTop: "20px" }}>
+                  <div className={classes.productList}>
                     <h3>재고 목록</h3>
-                    <table
-                      style={{ width: "100%", borderCollapse: "collapse" }}
-                    >
+                    <table className={classes.productListTable}>
                       <tbody>
                         {ModalTableData.map((item, index) => (
                           <tr
                             key={index}
-                            style={{ borderBottom: "1px solid #ccc" }}
+                            className={classes.trProductListTable}
                           >
-                            <td
-                              style={{
-                                padding: "10px",
-                                width: "70%",
-                                fontSize: "18px",
-                              }}
-                            >
+                            <td className={classes.tdMainProductListTable}>
                               <strong>{item.name}</strong>
-                              <div style={{ fontSize: "12px", color: "#666" }}>
+                              <div className={classes.productBarcode}>
                                 바코드 : {item.barcode}
                               </div>
                             </td>
-                            <td
-                              style={{
-                                padding: "10px",
-                                width: "30%",
-                                textAlign: "right",
-                                fontSize: "16px",
-                              }}
-                            >
+                            <td className={classes.tdSubProductListTable}>
                               {item.quantity} 개
                             </td>
                           </tr>
@@ -1613,21 +1463,15 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
             </div>
           ) : (
             <div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: "20px",
-                }}
-              >
+              <div className={classes.detailedNotifications}>
                 {/* Title showing the selected date and type */}
-                <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
+                <h3 className={classes.notificationTitle}>
                   {selectedNotificationTitle}
                 </h3>
                 {/* Print button */}
                 <Button
+                  className={classes.printButton}
                   onClick={() => setPrintModalOpen(true)}
-                  style={{ color: "#7D4A1A" }}
                 >
                   <PrintIcon /> 프린트
                 </Button>
@@ -1636,41 +1480,17 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
               {detailedNotificationData.length > 0 ? (
                 <div>
                   {/* Render Table Based on Notification Type */}
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <table className={classes.notificationTable}>
                     <thead>
                       {/* Conditional column headers based on the type */}
                       <tr>
-                        <th
-                          style={{
-                            borderBottom: "2px solid #ccc",
-                            padding: "10px",
-                            textAlign: "left",
-                            backgroundColor: "#f2f2f2",
-                            fontSize: "18px",
-                          }}
-                        >
+                        <th className={classes.thNameNotificationTable}>
                           상품
                         </th>
-                        <th
-                          style={{
-                            borderBottom: "2px solid #ccc",
-                            padding: "10px",
-                            textAlign: "center",
-                            backgroundColor: "#f2f2f2",
-                            fontSize: "18px",
-                          }}
-                        >
+                        <th className={classes.thQuantityNotificationTable}>
                           수량
                         </th>
-                        <th
-                          style={{
-                            borderBottom: "2px solid #ccc",
-                            padding: "10px",
-                            textAlign: "center",
-                            backgroundColor: "#f2f2f2",
-                            fontSize: "18px",
-                          }}
-                        >
+                        <th className={classes.thTypeNotificationTable}>
                           {/* Different headers based on type */}
                           {selectedType === "IMPORT"
                             ? "입고된 창고"
@@ -1683,52 +1503,23 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                     <tbody>
                       {detailedNotificationData.map((item, index) => (
                         <tr key={index}>
-                          {/* Product Name and Barcode in same cell */}
-                          <td
-                            style={{
-                              padding: "10px",
-                              verticalAlign: "top",
-                            }}
-                          >
-                            <strong
-                              style={{
-                                display: "block",
-                                fontSize: "16px",
-                                marginBottom: "5px",
-                              }}
-                            >
+                          {/* 상품명과 바코드를 하나의 셀에 표현한다. */}
+                          <td className={classes.tdProductNotificationTable}>
+                            <strong className={classes.tdNameNotificationTable}>
                               {item.name}
                             </strong>
                             <span
-                              style={{
-                                display: "block",
-                                fontSize: "12px",
-                                color: "#666",
-                              }}
+                              className={classes.tdBarcodeNotificationTable}
                             >
                               {item.barcode}
                             </span>
                           </td>
                           {/* Quantity */}
-                          <td
-                            style={{
-                              padding: "10px",
-                              textAlign: "center",
-                              fontSize: "16px",
-                              verticalAlign: "middle",
-                            }}
-                          >
+                          <td className={classes.tdQuantityNotificationTable}>
                             {item.quantity} 개
                           </td>
                           {/* Location based on type */}
-                          <td
-                            style={{
-                              padding: "10px",
-                              textAlign: "center",
-                              fontSize: "16px",
-                              verticalAlign: "middle",
-                            }}
-                          >
+                          <td className={classes.tdLocationNotificationTable}>
                             {/* Show different content based on type */}
                             {selectedType === "IMPORT" && (
                               <span>{item.warehouseTitle}</span>
@@ -1739,13 +1530,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                                   {item.currentLocationName}{" "}
                                   {item.currentFloorLevel}층
                                 </span>
-                                <span
-                                  style={{
-                                    display: "block",
-                                    fontSize: "12px",
-                                    color: "#666",
-                                  }}
-                                >
+                                <span className={classes.exportStoreTitle}>
                                   창고 : {item.warehouseTitle}
                                 </span>
                               </div>
@@ -1757,13 +1542,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                                   {" - "}
                                   {item.currentFloorLevel}층
                                 </span>
-                                <span
-                                  style={{
-                                    display: "block",
-                                    fontSize: "12px",
-                                    color: "#666",
-                                  }}
-                                >
+                                <span className={classes.exportStoreTitle}>
                                   창고 : {item.warehouseTitle}
                                 </span>
                               </div>
@@ -1783,20 +1562,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
       )}
       {/* 로딩 Part */}
       {loading && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 2000,
-          }}
-        >
+        <div className={classes.loading}>
           <CircularProgress />
         </div>
       )}
