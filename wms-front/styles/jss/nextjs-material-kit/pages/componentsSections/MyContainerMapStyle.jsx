@@ -110,13 +110,17 @@ const basicsStyle = {
     gap: "10px",
   },
   zoomicons: {
-    width: "17px",
-    height: "17px",
     color: "#FFFFFF",
     width: "35px",
     height: "35px",
   },
-
+  // 모바일 시에 나타나는 우측 사이드바 조절 버튼
+  toggleSidebarButton: {
+    "@media (max-width: 960px)": {
+      display: "flex", // Show button only on mobile
+    },
+    display: "none", // Hide on desktop
+  },
   // 우측 사이드바
   rightSidebar: {
     position: "absolute",
@@ -133,6 +137,13 @@ const basicsStyle = {
     padding: "10px 0",
     overflowY: "auto",
   },
+  //우측 사이드바의 크기에 따른 설정
+  // sidebarVisible: {
+  //   transform: "translateX(0)", // fully visible
+  // },
+  // sidebarHidden: {
+  //   transform: "translateX(100%)", // hidden offscreen
+  // },
   // 우측 사이드바 내의 재고함 목록
   listOfLocations: {
     width: "100%",
@@ -227,7 +238,7 @@ const basicsStyle = {
       height: "80vh",
       backgroundColor: "rgba(247, 247, 247, 0.9)",
       boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
-      display: "flex",
+      display: "none", // 안보이게
       flexDirection: "column",
       alignItems: "center",
       zIndex: 1100,
@@ -313,7 +324,7 @@ const basicsStyle = {
       right: "0px",
       display: "flex",
       gap: "10px",
-      justifyContent : "flex-end",
+      justifyContent: "flex-end",
     },
     zoomicons: {
       width: "17px",
@@ -329,15 +340,25 @@ const basicsStyle = {
       top: "10vh",
       right: 15,
       width: "220px",
-      height: "80vh",
+      height: "75vh",
       backgroundColor: "rgba(247, 247, 247, 0.9)",
       boxShadow: "-2px 0 5px rgba(0, 0, 0, 0.1)",
-      display: "flex",
+      display: "flex", // 모바일이니까
       flexDirection: "column",
       alignItems: "center",
       zIndex: 1100,
       padding: "10px 0",
       overflowY: "auto",
+      transition: "transform 0.3s ease-in-out", // Smooth slide transition
+      transform: "translateX(100%)", // Move out of view initially
+    },
+    sidebarVisible: {
+      // display: "flex !important", // 모바일이니까
+      transform: "translateX(0%)", // fully visible
+    },
+    sidebarHidden: {
+      // display: "none !important", // 모바일이니까
+      transform: "translateX(100%)", // hidden offscreen
     },
     // 우측 사이드바 내의 재고함 목록
     listOfLocations: {

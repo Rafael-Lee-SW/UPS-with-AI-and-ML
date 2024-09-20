@@ -19,6 +19,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import SaveIcon from "@mui/icons-material/Save";
+import MenuIcon from "@mui/icons-material/Menu";
 import CircularProgress from "@mui/material/CircularProgress";
 // core components
 import Button from "/components/CustomButtons/Button.js";
@@ -44,6 +45,14 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   const classes = useStyles();
   const stageRef = useRef(null);
   const layerRef = useRef(null);
+
+  // 모바일 화면에서 우측 사이드바를 토글 방식으로 크고/끄는 방식
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+
+  // 모바일 화면에서 우측 사이드바 토글 함수
+  const toggleSidebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
+  };
 
   const notify = (message) =>
     toast(message, {
@@ -1521,16 +1530,31 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
           <Button
             justIcon
             round
-            style={{ backgroundColor: "#C2B6A1", marginRight: "40px" }}
+            style={{ backgroundColor: "#C2B6A1" }}
             onClick={editContainerAPI}
           >
             <SaveIcon className={classes.zoomicons} />
+          </Button>
+          {/* This button will be appear at Mobile Screen to control the showing RightSidebar */}
+          <Button
+            justIcon
+            round
+            className={classes.toggleSidebarButton}
+            style={{ backgroundColor: "#999999", marginRight: "40px" }}
+            onClick={toggleSidebar}
+          >
+            <MenuIcon className={classes.zoomicons} />
           </Button>
         </div>
       </div>
 
       {/* Right Sidebar */}
-      <div className={classes.rightSidebar}>
+      {/* In Mobile Screen, its style change to toggle */}
+      <div
+        className={`${classes.rightSidebar} ${
+          isSidebarVisible ? classes.sidebarVisible : classes.sidebarHidden
+        }`}
+      >
         <h3>재고함 목록</h3>
         {locations.length !== 0 ? (
           <div className={classes.listOfLocations}>
