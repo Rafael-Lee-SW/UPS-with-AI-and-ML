@@ -1,24 +1,16 @@
-// preload.js
 const { ipcRenderer, contextBridge } = require('electron');
+const HID = require('node-hid');  // USB 장치 모듈
+
+// HID 장치 설정
+const devices = HID.devices();
+let rfidDevice = new HID.HID(devices[0].path);  // 첫 번째 장치로 설정 (RFID 리더기)
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  login: (key) => ipcRenderer.invoke('login', key),
+  onRFIDDetected: (callback) => {
+    rfidDevice.on('data', (data) => {
+      const rfidNumber = data.toString('hex');  // RFID 값을 16진수 문자열로 변환
+      callback(rfidNumber);  // RFID 값을 프론트엔드로 전달
+    });
+  },
   navigateToPage: () => ipcRenderer.invoke('navigateToPage')
-});
-
-// main.js (Electron)
-ipcMain.handle('login', (event, key) => {
-  // 여기에 키 인증 로직을 넣습니다
-  if (key === 'your-secret-key') {
-    // 키가 유효한 경우 true 반환
-    return true;
-  } else {
-    // 키가 유효하지 않은 경우 false 반환
-    return false;
-  }
-});
-
-ipcMain.handle('navigateToPage', (event) => {
-  // 키 인증이 완료되면 해당 페이지로 이동
-  win.loadURL('http://localhost:3000');  // Next.js 앱으로 이동
 });

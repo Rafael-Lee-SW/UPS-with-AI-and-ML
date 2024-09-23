@@ -25,3 +25,13 @@ export async function fetchProducts(): Promise<any[]> {
   }
 }
 
+// RFID로 상품 정보를 가져오는 함수 추가
+export async function fetchProductsByRFID(rfid: string): Promise<any[]> {
+  try {
+    const response = await axios.post(`${API_URL}/get-products-by-rfid`, { rfid });
+    return response.data;
+  } catch (error) {
+    console.error('RFID 상품 조회 실패:', error);
+    return [];
+  }
+}
