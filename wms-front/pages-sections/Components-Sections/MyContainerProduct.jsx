@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import { makeStyles } from "@material-ui/core/styles";
+import classNames from "classnames";
 // 알림창을 위한 import
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -242,7 +243,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   const [notificationsFetched, setNotificationsFetched] = useState(false);
   const [analyticsFetched, setAnalyticsFetched] = useState(false);
 
-  const [activeButton, setActiveButton] = useState(null);
+  const [activeButton, setActiveButton] = useState(0);
   const handleButtonClick = (index) => {
     setActiveButton(index);
   };
@@ -1705,7 +1706,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   return (
     <div className={classes.productContainer}>
       <div className={classes.leftsidebar}>
-        <div className={classes.buttonContainer}>
+        <div className={classes.topButtonContainer}>
           <Button
             variant="contained"
             onClick={() => {
@@ -1714,17 +1715,14 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               setShowProductInputSection(false);
               setShowProductExportSection(false);
             }}
-            style={{
-              width: "70%",
-              backgroundColor: activeButton === 0 ? "#7D4A1A" : "transparent",
-              color: activeButton === 0 ? "white" : "#7D4A1A",
-              outline: activeButton === 0 ? "none" : "1px solid #7D4A1A",
-            }}
+            className={classNames(classes.sidebarButton, {
+              [classes.activeButton]: activeButton === 0,
+            })}
           >
             제품 목록
           </Button>
         </div>
-        <div style={{ marginBottom: "10px", textAlign: "center" }}>
+        <div className={classes.buttonContainer}>
           <Button
             variant="contained"
             onClick={() => {
@@ -1733,17 +1731,14 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               setShowProductExportSection(false);
               handleNextComponent(6); // Close other sections
             }}
-            style={{
-              width: "70%",
-              backgroundColor: activeButton === 1 ? "#7D4A1A" : "transparent",
-              color: activeButton === 1 ? "white" : "#7D4A1A",
-              outline: activeButton === 1 ? "none" : "1px solid #7D4A1A",
-            }}
+            className={classNames(classes.sidebarButton, {
+              [classes.activeButton]: activeButton === 1,
+            })}
           >
             입고하기
           </Button>
         </div>
-        <div style={{ marginBottom: "10px", textAlign: "center" }}>
+        <div className={classes.buttonContainer}>
           <Button
             variant="contained"
             onClick={() => {
@@ -1752,17 +1747,14 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               setShowProductExportSection(true);
               handleNextComponent(6); // Close other sections
             }}
-            style={{
-              width: "70%",
-              backgroundColor: activeButton === 2 ? "#7D4A1A" : "transparent",
-              color: activeButton === 2 ? "white" : "#7D4A1A",
-              outline: activeButton === 2 ? "none" : "1px solid #7D4A1A",
-            }}
+            className={classNames(classes.sidebarButton, {
+              [classes.activeButton]: activeButton === 2,
+            })}
           >
             출고하기
           </Button>
         </div>
-        <div style={{ marginBottom: "10px", textAlign: "center" }}>
+        <div className={classes.buttonContainer}>
           <Button
             variant="contained"
             onClick={() => {
@@ -1772,17 +1764,14 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               setOpenEditModal(true);
               handleNextComponent(0);
             }}
-            style={{
-              width: "70%",
-              backgroundColor: activeButton === 3 ? "#7D4A1A" : "transparent",
-              color: activeButton === 3 ? "white" : "#7D4A1A",
-              outline: activeButton === 3 ? "none" : "1px solid #7D4A1A",
-            }}
+            className={classNames(classes.sidebarButton, {
+              [classes.activeButton]: activeButton === 3,
+            })}
           >
             수정하기
           </Button>
         </div>
-        <div style={{ marginBottom: "10px", textAlign: "center" }}>
+        <div className={classes.buttonContainer}>
           <Button
             variant="contained"
             onClick={() => {
@@ -1791,17 +1780,14 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               setShowProductInputSection(false);
               setShowProductExportSection(false);
             }}
-            style={{
-              width: "70%",
-              backgroundColor: activeButton === 4 ? "#7D4A1A" : "transparent",
-              color: activeButton === 4 ? "white" : "#7D4A1A",
-              outline: activeButton === 4 ? "none" : "1px solid #7D4A1A",
-            }}
+            className={classNames(classes.sidebarButton, {
+              [classes.activeButton]: activeButton === 4,
+            })}
           >
             이동하기
           </Button>
         </div>
-        <div style={{ marginBottom: "10px", textAlign: "center" }}>
+        <div className={classes.buttonContainer}>
           <Button
             variant="contained"
             onClick={() => {
@@ -1810,17 +1796,14 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               setShowProductInputSection(false);
               setShowProductExportSection(false);
             }}
-            style={{
-              width: "70%",
-              backgroundColor: activeButton === 5 ? "#7D4A1A" : "transparent",
-              color: activeButton === 5 ? "white" : "#7D4A1A",
-              outline: activeButton === 5 ? "none" : "1px solid #7D4A1A",
-            }}
+            className={classNames(classes.sidebarButton, {
+              [classes.activeButton]: activeButton === 5,
+            })}
           >
             변동내역
           </Button>
         </div>
-        <div style={{ marginBottom: "10px", textAlign: "center" }}>
+        <div className={classes.buttonContainer}>
           <Button
             variant="contained"
             onClick={() => {
@@ -1829,17 +1812,14 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               setShowProductInputSection(false);
               setShowProductExportSection(false);
             }}
-            style={{
-              width: "70%",
-              backgroundColor: activeButton === 6 ? "#7D4A1A" : "transparent",
-              color: activeButton === 6 ? "white" : "#7D4A1A",
-              outline: activeButton === 6 ? "none" : "1px solid #7D4A1A",
-            }}
+            className={classNames(classes.sidebarButton, {
+              [classes.activeButton]: activeButton === 6,
+            })}
           >
             분석
           </Button>
         </div>
-        <div style={{ marginBottom: "10px", textAlign: "center" }}>
+        <div className={classes.buttonContainer}>
           <Button
             variant="contained"
             onClick={() => {
@@ -1848,29 +1828,23 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               setShowProductInputSection(false);
               setShowProductExportSection(false);
             }}
-            style={{
-              width: "70%",
-              backgroundColor: activeButton === 7 ? "#7D4A1A" : "transparent",
-              color: activeButton === 7 ? "white" : "#7D4A1A",
-              outline: activeButton === 7 ? "none" : "1px solid #7D4A1A",
-            }}
+            className={classNames(classes.sidebarButton, {
+              [classes.activeButton]: activeButton === 7,
+            })}
           >
             알림함
           </Button>
         </div>
-        <div style={{ textAlign: "center" }}>
+        <div className={classes.buttonContainer}>
           <Button
             variant="contained"
             onClick={() => {
               handleButtonClick(8);
               handleEncapsulation();
             }}
-            style={{
-              width: "70%",
-              backgroundColor: activeButton === 8 ? "#7D4A1A" : "transparent",
-              color: activeButton === 8 ? "white" : "#7D4A1A",
-              outline: activeButton === 8 ? "none" : "1px solid #7D4A1A",
-            }}
+            className={classNames(classes.sidebarButton, {
+              [classes.activeButton]: activeButton === 8,
+            })}
           >
             압축하기
           </Button>
@@ -1907,14 +1881,14 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
           {columnSelectionStep === 3 && (
             <div>
               <Button
+                className={classes.importButton}
                 onClick={() => setColumnSelectionStep(4)}
-                style={{ color: "#7D4A1A" }}
               >
                 Yes
               </Button>
               <Button
+                className={classes.importButton}
                 onClick={() => setColumnSelectionStep(5)}
-                style={{ color: "#7D4A1A" }}
               >
                 No
               </Button>
@@ -1946,15 +1920,15 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         <DialogActions>
           {columnSelectionStep === 5 && (
             <Button
+              className={classes.importButton}
               onClick={finalizeSelectionImport}
-              style={{ color: "#7D4A1A" }}
             >
               네
             </Button>
           )}
           <Button
+            className={classes.importButton}
             onClick={() => setOpenModal(false)}
-            style={{ color: "#7D4A1A" }}
           >
             닫기
           </Button>
@@ -2006,15 +1980,15 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         <DialogActions>
           {columnExportSelectionStep === 2 && (
             <Button
+              className={classes.importButton}
               onClick={finalizeSelectionExport}
-              style={{ color: "#7D4A1A" }}
             >
               네
             </Button>
           )}
           <Button
+            className={classes.importButton}
             onClick={() => setOpenExportModal(false)}
-            style={{ color: "#7D4A1A" }}
           >
             닫기
           </Button>
@@ -2062,12 +2036,12 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleSaveEdits} style={{ color: "#7D4A1A" }}>
+          <Button className={classes.importButton} onClick={handleSaveEdits}>
             저장하기
           </Button>
           <Button
+            className={classes.importButton}
             onClick={() => setOpenEditModal(false)}
-            style={{ color: "#7D4A1A" }}
           >
             닫기
           </Button>
@@ -2160,7 +2134,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
             </>
           ) : (
             moveData.map((product, index) => (
-              <div key={product.productId} style={{ marginBottom: "20px" }}>
+              <div key={product.productId} className={classes.eachProductMove}>
                 <h3>
                   {product.name} (바코드: {product.barcode}) - 수량 :{" "}
                   {product.quantityNow}개
@@ -2258,30 +2232,30 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         <DialogActions>
           {isBulkMove ? (
             <Button
+              className={classes.movbeButton}
               onClick={handleFinalizeBulkMove}
-              style={{ color: "#7D4A1A" }}
               disabled={!isBulkMoveEnabled}
             >
               전부 옮기기
             </Button>
           ) : (
             <Button
+              className={classes.movbeButton}
               onClick={handleFinalizeDetailMove}
-              style={{ color: "#7D4A1A" }}
               disabled={!moveData.every((product) => product.floorLevel)}
             >
               각각 옮기기
             </Button>
           )}
           <Button
+            className={classes.movbeButton}
             onClick={() => setIsBulkMove(!isBulkMove)}
-            style={{ color: "#7D4A1A" }}
           >
             {isBulkMove ? "각각 옮기기 모드" : "전부 옮기기 모드"}
           </Button>
           <Button
+            className={classes.movbeButton}
             onClick={() => setOpenMoveModal(false)}
-            style={{ color: "#7D4A1A" }}
           >
             취소
           </Button>
@@ -2298,9 +2272,9 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         </DialogContent>
         <DialogActions>
           <Button
+            className={classes.printButton}
             onClick={() => setPrintModalOpen(false)}
             autoFocus
-            style={{ color: "#7D4A1A" }}
           >
             Close
           </Button>
@@ -2320,51 +2294,32 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         </DialogContent>
         <DialogActions>
           <Button
+            className={classes.printButton}
             onClick={() => setExportPrintModalOpen(false)}
             autoFocus
-            style={{ color: "#7D4A1A" }}
           >
             Close
           </Button>
         </DialogActions>
       </Dialog>
       {loading && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 2000,
-          }}
-        >
+        <div className={classes.loading}>
           <CircularProgress />
         </div>
       )}
-      <div
-        style={{
-          display: "flex",
-          width: "100%",
-          margin: "0 0 0 200px",
-          height: "85vh",
-        }}
-      >
+      {/* Section 시작 */}
+      <div className={classes.baseSection}>
         {/* 입고하기 Section */}
         {showProductInputSection && (
-          <div style={{ width: "100%", marginRight: "20px" }}>
-            <div style={{ padding: "1rem" }}>
+          <div className={classes.importSection}>
+            <div className={classes.importProduct}>
               <Typography variant="h6" gutterBottom>
                 제품 데이터 입력
               </Typography>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <table className={classes.importingTable}>
                 <tbody>
                   <tr>
-                    <td style={{ padding: "8px" }}>
+                    <td className={classes.tdImportingTable}>
                       <TextField
                         label="바코드"
                         value={newProductData.barcode}
@@ -2375,7 +2330,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                         margin="normal"
                       />
                     </td>
-                    <td style={{ padding: "8px" }}>
+                    <td className={classes.tdImportingTable}>
                       <TextField
                         label="상품명"
                         value={newProductData.name}
@@ -2386,7 +2341,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                         margin="normal"
                       />
                     </td>
-                    <td style={{ padding: "8px" }}>
+                    <td className={classes.tdImportingTable}>
                       <TextField
                         label="수량"
                         value={newProductData.quantity}
@@ -2400,7 +2355,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                         margin="normal"
                       />
                     </td>
-                    <td style={{ paddingTop: "51px" }}>
+                    <td className={classes.tdImportingTableExpire}>
                       {!noExpirationDate && (
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DateTimePicker
@@ -2434,7 +2389,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                         />
                       </div>
                     </td>
-                    <td style={{ padding: "8px", textAlign: "center" }}>
+                    <td className={classes.tdImportingTable}>
                       <Button
                         variant="contained"
                         onClick={handleAddNewProduct}
@@ -2445,7 +2400,8 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ padding: "8px" }} colSpan={5}>
+                    {/* colspan : 몇 개의 열을 하나로 보여줄 지 결정/ 5개의 열이 한개로 표현 */}
+                    <td className={classes.tdImportingTable} colSpan={5}>
                       <label htmlFor="upload-import">
                         <input
                           required
@@ -2456,16 +2412,11 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                           onChange={importExcel}
                         />
                         <Fab
+                          className={classes.importingButton}
                           size="small"
                           component="span"
                           aria-label="add"
                           variant="extended"
-                          style={{
-                            marginRight: "10px",
-                            height: "40px",
-                            textAlign: "center",
-                          }}
-                          className={classes.buttonStyle}
                         >
                           엑셀 업로드
                         </Fab>
@@ -2474,8 +2425,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                         variant="contained"
                         color="secondary"
                         onClick={handleFinalImport}
-                        className={classes.buttonStyle}
-                        style={{ height: "40px", textAlign: "center" }}
+                        className={classes.importingButton}
                       >
                         입고하기
                       </Button>
@@ -2485,259 +2435,37 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               </table>
             </div>
 
-            <div
-              style={{
-                width: "100%",
-                height: "75vh",
-                padding: "1rem",
-                overflow: "auto",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-              }}
-            >
+            <div className={classes.expectedImportList}>
               <Typography variant="h6">입고 예정 목록</Typography>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <table className={classes.expectedImportTable}>
                 <thead>
                   <tr>
-                    <th
-                      style={{
-                        borderBottom: "1px solid #ddd",
-                        padding: "8px",
-                        textAlign: "left",
-                      }}
-                    >
-                      이름
-                    </th>
-                    <th
-                      style={{
-                        borderBottom: "1px solid #ddd",
-                        padding: "8px",
-                        textAlign: "left",
-                      }}
-                    >
-                      바코드
-                    </th>
-                    <th
-                      style={{
-                        borderBottom: "1px solid #ddd",
-                        padding: "8px",
-                        textAlign: "left",
-                      }}
-                    >
-                      수량
-                    </th>
-                    <th
-                      style={{
-                        borderBottom: "1px solid #ddd",
-                        padding: "8px",
-                        textAlign: "left",
-                      }}
-                    >
-                      유통기한
-                    </th>
-                    <th
-                      style={{
-                        borderBottom: "1px solid #ddd",
-                        padding: "8px",
-                        textAlign: "left",
-                      }}
-                    >
-                      비고
-                    </th>
+                    <th className={classes.thExpectedImportTable}>이름</th>
+                    <th className={classes.thExpectedImportTable}>바코드</th>
+                    <th className={classes.thExpectedImportTable}>수량</th>
+                    <th className={classes.thExpectedImportTable}>유통기한</th>
+                    <th className={classes.thExpectedImportTable}>비고</th>
                   </tr>
                 </thead>
                 <tbody>
                   {expectedImportList.map((product, index) => (
                     <tr key={index}>
-                      <td style={{ padding: "8px" }}>{product.name}</td>
-                      <td style={{ padding: "8px" }}>{product.barcode}</td>
-                      <td style={{ padding: "8px" }}>{product.quantity}</td>
-                      <td style={{ padding: "8px" }}>
+                      <td className={classes.thExpectedImportTable}>
+                        {product.name}
+                      </td>
+                      <td className={classes.thExpectedImportTable}>
+                        {product.barcode}
+                      </td>
+                      <td className={classes.thExpectedImportTable}>
+                        {product.quantity}
+                      </td>
+                      <td className={classes.thExpectedImportTable}>
                         {product.expirationDateDisplay}
                       </td>
-                      <td style={{ padding: "8px" }}>
+                      <td className={classes.thExpectedImportTable}>
                         <IconButton
                           color="secondary"
                           onClick={() => handleDeleteImportProduct(index)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* 출고하기 Section */}
-        {showProductExportSection && (
-          <div style={{ width: "100%", marginRight: "20px" }}>
-            <div style={{ padding: "1rem" }}>
-              <Typography variant="h6" gutterBottom>
-                출고 데이터 입력
-              </Typography>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  marginTop: "31px",
-                }}
-              >
-                <tbody>
-                  <tr>
-                    <td style={{ padding: "8px" }}>
-                      <TextField
-                        label="바코드"
-                        value={newExportData.barcode}
-                        onChange={(e) =>
-                          handleNewExportInputChange("barcode", e.target.value)
-                        }
-                        fullWidth
-                        margin="normal"
-                      />
-                    </td>
-                    <td style={{ padding: "8px" }}>
-                      <TextField
-                        label="수량"
-                        value={newExportData.quantity}
-                        onChange={(e) =>
-                          handleNewExportInputChange("quantity", e.target.value)
-                        }
-                        fullWidth
-                        margin="normal"
-                      />
-                    </td>
-                    <td style={{ padding: "8px" }}>
-                      <TextField
-                        label="송장"
-                        value={newExportData.trackingNumber}
-                        onChange={(e) =>
-                          handleNewExportInputChange(
-                            "trackingNumber",
-                            e.target.value
-                          )
-                        }
-                        fullWidth
-                        margin="normal"
-                      />
-                    </td>
-                    <td style={{ padding: "8px", textAlign: "center" }}>
-                      <Button
-                        variant="contained"
-                        onClick={handleAddNewExport}
-                        className={classes.buttonStyle}
-                      >
-                        출고 추가
-                      </Button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      style={{ padding: "8px", paddingTop: "30px" }}
-                      colSpan={4}
-                    >
-                      <label htmlFor="upload-export">
-                        <input
-                          required
-                          style={{ display: "none" }}
-                          id="upload-export"
-                          name="upload-export"
-                          type="file"
-                          onChange={exportExcel}
-                        />
-                        <Fab
-                          color="primary"
-                          size="small"
-                          component="span"
-                          aria-label="add"
-                          variant="extended"
-                          style={{ marginRight: "10px", height: "40px" }}
-                          className={classes.buttonStyle}
-                        >
-                          엑셀 업로드
-                        </Fab>
-                      </label>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={handleFinalExport}
-                        className={classes.buttonStyle}
-                        style={{ height: "40px" }}
-                      >
-                        출고하기
-                      </Button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div
-              style={{
-                width: "100%",
-                height: "75vh",
-                padding: "1rem",
-                overflow: "auto",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-              }}
-            >
-              <Typography variant="h6">Expected Export List</Typography>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th
-                      style={{
-                        borderBottom: "1px solid #ddd",
-                        padding: "8px",
-                        textAlign: "left",
-                      }}
-                    >
-                      바코드
-                    </th>
-                    <th
-                      style={{
-                        borderBottom: "1px solid #ddd",
-                        padding: "8px",
-                        textAlign: "left",
-                      }}
-                    >
-                      수량
-                    </th>
-                    <th
-                      style={{
-                        borderBottom: "1px solid #ddd",
-                        padding: "8px",
-                        textAlign: "left",
-                      }}
-                    >
-                      송장번호
-                    </th>
-                    <th
-                      style={{
-                        borderBottom: "1px solid #ddd",
-                        padding: "8px",
-                        textAlign: "left",
-                      }}
-                    >
-                      비고
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {expectedExportList.map((product, index) => (
-                    <tr key={index}>
-                      <td style={{ padding: "8px" }}>{product.barcode}</td>
-                      <td style={{ padding: "8px" }}>{product.quantity}</td>
-                      <td style={{ padding: "8px" }}>
-                        {product.trackingNumber}
-                      </td>
-                      <td style={{ padding: "8px" }}>
-                        <IconButton
-                          color="secondary"
-                          onClick={() => handleDeleteExportProduct(index)}
                         >
                           <DeleteIcon />
                         </IconButton>

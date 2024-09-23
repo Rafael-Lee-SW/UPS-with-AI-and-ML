@@ -36,7 +36,7 @@ export default function Components({ initialCards, initialUserData, initialBusin
   const [businessData, setBusinessData] = useState(initialBusinessData || null);
   const [selectedWarehouse, setSelectedWarehouse] = useState(id || "");
   const [selectedWarehouseTitle, setSelectedWarehouseTitle] = useState(""); // State to store the selected warehouse title
-  const [currentIndex, setCurrentIndex] = useState(1);
+  const [currentIndex, setCurrentIndex] = useState(2);
 
   // Dynamic component array
   const componentsArray = [
