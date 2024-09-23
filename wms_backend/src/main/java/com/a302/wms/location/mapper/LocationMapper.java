@@ -28,15 +28,15 @@ public class LocationMapper {
             .zSize(request.getZSize())
             .rotation(request.getRotation())
             .store(store)
-            .productStorageType(request.getProductStorageType())
             .build();
     }
 
     /**
      * @param location
+     * @param maxFloorCapacity
      * @return
      */
-    public static LocationResponseDto toLocationResponseDto(Location location, int fill) {
+    public static LocationResponseDto toLocationResponseDto(Location location, int maxFloorCapacity) {
         return LocationResponseDto.builder()
             .id(location.getId())
             .xPosition(location.getXPosition())
@@ -45,8 +45,6 @@ public class LocationMapper {
             .ySize(location.getYSize())
             .zSize(location.getZSize())
             .name(location.getName())
-            .fill(fill)
-            .storageType(location.getProductStorageType())
             .rotation(location.getRotation())
             .floorResponses(location.getFloors().stream().map(
                 FloorMapper::toFloorResponseDto
@@ -66,7 +64,6 @@ public class LocationMapper {
             .ySize(request.getYSize())
             .zSize(request.getZSize())
             .store(store)
-            .productStorageType(request.getStorageType())
             .build();
     }
     public static LocationStorageResponseDto toLocationStorageResponseDto(Location location) {

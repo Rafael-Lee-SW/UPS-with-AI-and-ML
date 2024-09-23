@@ -3,7 +3,7 @@ package com.a302.wms.floor.controller;
 import com.a302.wms.floor.dto.FloorResponseDto;
 import com.a302.wms.floor.exception.FloorException;
 import com.a302.wms.floor.service.FloorService;
-import com.a302.wms.util.BaseSuccessResponse;
+import com.a302.wms.global.response.BaseSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;

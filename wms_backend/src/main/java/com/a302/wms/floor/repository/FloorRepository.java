@@ -13,11 +13,11 @@ public interface FloorRepository extends JpaRepository<Floor, Long> {
 
     @Query("SELECT f FROM Floor f " +
         "JOIN f.location l " +
-        "JOIN l.store w " +
-        "WHERE w.id = :warehouseID "
+        "JOIN l.store s " +
+        "WHERE s.id = :storeId "
         + "AND l.name LIKE '00-00' "
         + " AND f.floorLevel=:floorLevel")
-    Floor findByStoreId(@Param("warehouseID") Long warehouseID,
+    Floor findByStoreId(@Param("storeId") Long storeId,
         @Param("floorLevel") int floorLevel);
 
     @Query("SELECT f FROM Floor f WHERE f.floorLevel = :floorLevel " +
@@ -29,17 +29,17 @@ public interface FloorRepository extends JpaRepository<Floor, Long> {
             "FROM floor f " +
             "JOIN location l ON l.id = f.location_id " +
             "WHERE f.floor_level > 1 " +
-            "AND l.warehouse_id = :storeId " +
+            "AND l.store_id = :storeId " +
             "ORDER BY substr(l.name,2), substr(l.name from 3), f.floor_level", nativeQuery = true)
     List<Floor> findAllEmptyFloorByStoreId(@Param("storeId") Long storeId);
 
     @Query("SELECT f FROM Floor f " +
-        "JOIN f.Products p " +
+        "JOIN f.product p " +
         "JOIN f.location l " +
-        "JOIN l.store w " +
-        "WHERE w.id = :storeId "
+        "JOIN l.store s " +
+        "WHERE s.id = :storeId "
         + "AND f.floorLevel > 0 "
-        + "AND p.quantity>0 ")
+        + "AND p.quantity > 0 ")
     List<Floor> findAllNotEmptyFloorByStoreId(@Param("storeId") Long storeId);
 
 

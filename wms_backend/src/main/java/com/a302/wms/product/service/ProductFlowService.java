@@ -4,7 +4,7 @@ import com.a302.wms.product.entity.Product;
 import com.a302.wms.product.entity.ProductFlow;
 import com.a302.wms.product.dto.*;
 import com.a302.wms.product.repository.ProductFlowRepository;
-import com.a302.wms.util.constant.ProductFlowType;
+import com.a302.wms.global.constant.ProductFlowTypeEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,28 +21,28 @@ public class ProductFlowService {
 
     public void saveData(Product previous,
                          Product present,
-                         ProductFlowType productFlowType,
+                         ProductFlowTypeEnum productFlowTypeEnum,
                          LocalDateTime flowDate) {
         productFlowRepository.save(
         ProductFlow.builder()
                 .barcode(present.getBarcode())
                 .quantity(present.getQuantity())
                 .flowDate(LocalDateTime.now())
-                .productSku(present.getSku())
+                .sku(present.getSku())
                 .productName(present.getProductName())
                 .previousFloorId(previous.getFloor() != null ? previous.getFloor().getId() : null)
                 .presentFloorId(present.getFloor().getId() != null ? present.getFloor().getId() : null)
-                .productFlowType(productFlowType)
+                .productFlowTypeEnum(productFlowTypeEnum)
                 .build());
     }
-    public ProductFlowResponseDto findByStoreIdAndProductFlowType(Long storeId, ProductFlowType productFlowType) throws Exception {
+   /* public ProductFlowResponseDto findByStoreIdAndProductFlowTypeEnum(Long storeId, ProductFlowTypeEnum productFlowTypeEnum) throws Exception {
 
         try {
-            if (productFlowType.equals(ProductFlowType.FLOW))
+            if (productFlowTypeEnum.equals(ProductFlowTypeEnum.FLOW))
                 return productFlowRepository.findByStoreIdAndFlow(storeId);
-            else if (productFlowType.equals(ProductFlowType.IMPORT))
+            else if (productFlowTypeEnum.equals(ProductFlowTypeEnum.IMPORT))
                 return productFlowRepository.findByStoreIdAndImport(storeId);
-            else if (productFlowType.equals(ProductFlowType.MODIFY))
+            else if (productFlowTypeEnum.equals(ProductFlowTypeEnum.MODIFY))
                 return productFlowRepository.findByStoreIdAndModify(storeId);
             else {
                 throw new Exception();
@@ -52,10 +52,13 @@ public class ProductFlowService {
         }
     }
 
-    public List<ProductFlowResponseDto> findByUserIdAndStoreId(Long userId, Long storeId) {
-        return null;
+    public List<ProductFlowResponseDto> findAllByUserIdAndStoreId(Long userId, Long storeId) {
+
+        return productFlowRepository.findAllByUserIdAndStoreId(userId, storeId);
     }
 
-    public List<ProductFlowResponseDto> findByUserIdAndProductFlowType(Long userId, ProductFlowType productFlowType) {
-    }
+    public List<ProductFlowResponseDto> findAllByUserIdAndProductFlowTypeEnum(Long userId, ProductFlowTypeEnum productFlowTypeEnum) {
+
+        return productFlowRepository.findAllByUserIdAndProductFlowType(userId,productFlowTypeEnum);
+    }*/
 }

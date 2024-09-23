@@ -1,10 +1,8 @@
 package com.a302.wms.store.entity;
 
+import com.a302.wms.global.BaseTimeEntity;
 import com.a302.wms.user.entity.User;
 import com.a302.wms.location.entity.Location;
-import com.a302.wms.util.BaseTimeEntity;
-import com.a302.wms.util.constant.FacilityTypeEnum;
-import com.a302.wms.util.constant.StatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -49,18 +47,6 @@ public class Store extends BaseTimeEntity {
 
     @Column(nullable = false, columnDefinition = "integer default 1")
     private int priority;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private FacilityTypeEnum facilityTypeEnum;
-
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private StatusEnum statusEnum = StatusEnum.ACTIVE;
-
-    public void updateStatus(StatusEnum statusEnum) {
-        this.statusEnum = statusEnum;
-    }
 
     // 연관관계 편의를 위한 메서드
     public void setUser(User user) {

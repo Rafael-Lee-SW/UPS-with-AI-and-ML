@@ -1,21 +1,16 @@
 package com.a302.wms.floor.entity;
 
+import com.a302.wms.global.BaseTimeEntity;
 import com.a302.wms.location.entity.Location;
 import com.a302.wms.product.entity.Product;
-import com.a302.wms.util.BaseTimeEntity;
-import com.a302.wms.util.constant.ExportTypeEnum;
-import com.a302.wms.util.constant.StatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Getter
 
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "floor")
-@ToString
 public class Floor extends BaseTimeEntity {
 
     @Id
@@ -29,26 +24,18 @@ public class Floor extends BaseTimeEntity {
     @Column(nullable = false)
     private int floorLevel;
 
-    @Column(nullable = false)
-    private ExportTypeEnum exportTypeEnum;
-
-    @Builder.Default
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private StatusEnum statusEnum = StatusEnum.ACTIVE;
 
     @OneToOne
-    @Builder.Default
     private Product product;
 
-    public void updateStatusEnum(StatusEnum statusEnum) {
-        this.statusEnum = statusEnum;
+    @Builder
+    public Floor(int floorLevel, Long id, Location location, Product product) {
+        this.floorLevel = floorLevel;
+        this.id = id;
+        this.location = location;
+        this.product = product;
     }
 
-    //삭제 처리
-    public void delete() {
-        this.statusEnum = StatusEnum.DELETED;
-    }
 
     //연관관계 편의 메서드
     public Floor setLocation(Location location) {

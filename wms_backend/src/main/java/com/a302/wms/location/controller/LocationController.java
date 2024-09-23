@@ -1,11 +1,11 @@
 package com.a302.wms.location.controller;
 
 import com.a302.wms.floor.exception.FloorException;
+import com.a302.wms.global.response.BaseSuccessResponse;
 import com.a302.wms.location.dto.LocationRequestDto;
 import com.a302.wms.location.dto.LocationResponseDto;
 import com.a302.wms.location.dto.LocationSaveRequestDto;
 import com.a302.wms.location.service.LocationService;
-import com.a302.wms.util.BaseSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +52,7 @@ public class LocationController {
      * @param request
      */
     @PostMapping
-    public BaseSuccessResponse<Void> save(@RequestBody LocationSaveRequestDto request) {
+    public BaseSuccessResponse<Void> save(@RequestBody LocationSaveRequestDto request) throws FloorException {
         log.info("[Controller] save Location");
         locationService.save(request);
         return new BaseSuccessResponse<>(null);
@@ -76,7 +76,7 @@ public class LocationController {
      *
      * @param id -> locationId
      */
-    @PatchMapping("/{id}")
+    @DeleteMapping("/{id}")
     public BaseSuccessResponse<Void> delete(@PathVariable Long id)
         throws Exception, FloorException {
         log.info("[Controller] delete Location by productId: {}", id);

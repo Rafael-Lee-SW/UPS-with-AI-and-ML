@@ -1,6 +1,6 @@
 package com.a302.wms.user.dto;
 
-import com.a302.wms.util.constant.StatusEnum;
+
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -19,5 +19,4 @@ public class UserResponseDto {
     private String userNumber;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
-    private StatusEnum statusEnum;
 }

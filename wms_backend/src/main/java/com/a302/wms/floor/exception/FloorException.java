@@ -1,6 +1,6 @@
 package com.a302.wms.floor.exception;
 
-import com.a302.wms.util.constant.ResponseEnum;
+import com.a302.wms.global.constant.ResponseEnum;
 import lombok.Getter;
 
 @Getter
@@ -20,7 +20,7 @@ public class FloorException extends Throwable {
 
         public NotFoundException(Long id) {
             super(ResponseEnum.FLOOR_NOT_FOUND,
-                String.format(ResponseEnum.FLOOR_NOT_FOUND.getMessage() + MESSAGE_FORMAT, id));
+                String.format(ResponseEnum.FLOOR_NOT_FOUND.getMessage(), id));
         }
     }
 
@@ -30,7 +30,7 @@ public class FloorException extends Throwable {
 
         public DeletedException(Long id) {
             super(ResponseEnum.FLOOR_DELETED,
-                String.format(ResponseEnum.FLOOR_DELETED.getMessage() + MESSAGE_FORMAT, id));
+                String.format(ResponseEnum.FLOOR_DELETED.getMessage(), id));
         }
     }
 
@@ -40,7 +40,7 @@ public class FloorException extends Throwable {
 
         public NotFoundDefaultFloorException(Long id) {
             super(ResponseEnum.DEFAULT_FLOOR_NOT_FOUND,
-                String.format(ResponseEnum.DEFAULT_FLOOR_NOT_FOUND.getMessage() + MESSAGE_FORMAT,
+                String.format(ResponseEnum.DEFAULT_FLOOR_NOT_FOUND.getMessage(),
                     id));
         }
     }
@@ -51,7 +51,7 @@ public class FloorException extends Throwable {
 
         public InvalidExportType(Long id) {
             super(ResponseEnum.INVALID_FLOOR_EXPORT_TYPE,
-                String.format(ResponseEnum.INVALID_FLOOR_EXPORT_TYPE.getMessage() + MESSAGE_FORMAT,
+                String.format(ResponseEnum.INVALID_FLOOR_EXPORT_TYPE.getMessage() ,
                     id));
         }
     }

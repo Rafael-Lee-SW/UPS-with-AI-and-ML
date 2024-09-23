@@ -1,39 +1,48 @@
 package com.a302.wms.location.service;
 
 import com.a302.wms.floor.entity.Floor;
-import com.a302.wms.floor.dto.FloorRequestDto;
 import com.a302.wms.floor.exception.FloorException;
-import com.a302.wms.floor.service.FloorModuleService;
-import com.a302.wms.location.entity.Location;
+import com.a302.wms.floor.repository.FloorRepository;
+import com.a302.wms.floor.service.FloorService;
 import com.a302.wms.location.dto.LocationRequestDto;
 import com.a302.wms.location.dto.LocationResponseDto;
 import com.a302.wms.location.dto.LocationSaveRequestDto;
 import com.a302.wms.location.dto.LocationStorageResponseDto;
+import com.a302.wms.location.entity.Location;
 import com.a302.wms.location.mapper.LocationMapper;
 import com.a302.wms.location.repository.LocationRepository;
-import com.a302.wms.util.constant.ExportTypeEnum;
-import com.a302.wms.util.constant.FacilityTypeEnum;
-import com.a302.wms.util.constant.StatusEnum;
 import com.a302.wms.store.entity.Store;
-import com.a302.wms.store.service.StoreMoudleService;
+import com.a302.wms.store.repository.StoreRepository;
+import com.a302.wms.store.service.StoreService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class LocationService {
-
-    private final LocationModuleService locationModuleService;
-    private final StoreMoudleService storeMoudleService;
-    private final FloorModuleService floorModuleService;
-    private final ProductModuleService productModuleService;
+    private final FloorService floorService;
     private final LocationRepository locationRepository;
+    private final FloorRepository floorRepository;
 
+    /**
+     * 모든 로케이션 반환
+     *
+     * @return 모든 로케이션
+     */
+    public List<Location> findAll() {
+        return locationRepository.findAll();
+    }
+
+
+    public boolean notExist(Long id) {
+        return !locationRepository.existsById(id);
+    }
     /**
      * 특정 로케이션 조회
      *
@@ -42,25 +51,23 @@ public class LocationService {
      */
     public LocationResponseDto findById(Long id) throws FloorException {
         log.info("[Service] find Location by productId: {}", id);
-        Location location = locationModuleService.findById(id);
+        Location location = locationRepository.findById(id).orElse(null);
         return LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location));
     }
 
     /**
-     * 특정 매장가 가지고 있는 로케이션 전부 조회
+     * 특정 매장이 가지고 있는 로케이션 전부 조회
      *
      * @param storeId: store productId
      * @return 입력 storeId를 가지고 있는 Location List
      */
     public List<LocationResponseDto> findAllByStoreId(Long storeId) throws FloorException {
         log.info("[Service] findAllLocation by storeId: {}", storeId);
-        List<Location> locations = locationModuleService.findAllByStoreId(
-            storeId);
 
-        return locations.stream()
-            .map(location -> LocationMapper.toLocationResponseDto(location,
-                getMaxFloorCapacity(location)))
-            .toList();
+        List<LocationResponseDto> locationResponseDtos = new ArrayList<>();
+       locationRepository.findAllByStoreId(storeId).stream()
+               .map(location -> locationResponseDtos.add(LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location))));
+       return locationResponseDtos;
     }
 
     /**
@@ -70,31 +77,16 @@ public class LocationService {
      * @param saveRequest : 프론트에서 넘어오는 location 정보 모든 작업이 하나의 트랜잭션에서 일어나야하므로 @Transactional 추가
      */
     @Transactional
-    public void save(LocationSaveRequestDto saveRequest) {
+    public void save(LocationSaveRequestDto saveRequest) throws FloorException {
         log.info("[Service] save Location");
-        Store store = storeMoudleService.findById(saveRequest.getStoreId());
-
-        for (LocationRequestDto request : saveRequest.getRequests()) {
-
-            Location location = LocationMapper.fromLocationRequestDto(request, store);
-            locationModuleService.save(location);
-            floorModuleService.saveAllByLocation(request, location);
-        }
-    }
-
-
-    /**
-     * 매장의 타입에 맞게 floor의 타입을 수정 하는 기능
-     *
-     * @param floorRequestDto
-     * @param store       : 해당 floor에 해당하는 Store, 타입 확인을 위함.
-     * @return Floor : 타입이 반영된 Floor 객체
-     */
-    private void modifyExportType(FloorRequestDto floorRequestDto, Store store) {
-        //warehouse가 STORE(매장)인 경우
-        if (store.getFacilityTypeEnum().equals(FacilityTypeEnum.STORE)) {
-            floorRequestDto.setExportTypeEnum(ExportTypeEnum.STORE);
-        }
+//        Store store = storeRepository.findById(saveRequest.getStoreId()).get();
+//
+//        for (LocationRequestDto request : saveRequest.getRequests()) {
+//
+//            Location location = LocationMapper.fromLocationRequestDto(request, store);
+//            locationRepository.save(location);
+//            floorService.saveAllByLocation(request, location);
+//        }
     }
 
     /**
@@ -105,7 +97,7 @@ public class LocationService {
     @Transactional
     public LocationResponseDto update(Long id, LocationRequestDto request) throws FloorException {
         log.info("[Service] update Location by productId: {}", id);
-        Location location = locationModuleService.findById(id);
+        Location location = locationRepository.findById(id).get();
 
         if (request.getName() != null) {
             location.updateName(request.getName());
@@ -113,18 +105,18 @@ public class LocationService {
 
         location.updatePosition(request.getXPosition(), request.getYPosition());
 
-        Location savedLocation = locationModuleService.save(location);
+        Location savedLocation = locationRepository.save(location);
         return LocationMapper.toLocationResponseDto(savedLocation,
-            getMaxFloorCapacity(savedLocation));
+                getMaxFloorCapacity(savedLocation));
     }
 
     private int getMaxFloorCapacity(Location location) {
-        List<Floor> floors = floorModuleService.findAllByLocationId(location.getId());
+        List<Floor> floors = floorRepository.findAllByLocationId(location.getId());
 
         return floors.stream()
-            .mapToInt(floorModuleService::getCapacity)
-            .max()
-            .orElse(0);
+                .mapToInt(floorService::getCapacity)
+                .max()
+                .orElse(0);
     }
 
     /**
@@ -136,25 +128,22 @@ public class LocationService {
     @Transactional
     public void delete(Long id) throws FloorException {
         log.info("[Service] delete Location by productId: {}", id);
-        Location location = locationModuleService.findById(id);
+        Location location = locationRepository.findById(id).get();
 
-        List<Floor> floors = floorModuleService.findAllByLocationId(
-            location.getId()); //location의 층 전부 조회
+        List<Floor> floors = floorRepository.findAllByLocationId(
+                location.getId()); //location의 층 전부 조회
 
-        floors.stream().forEach(
-            floor -> floor.updateStatusEnum(StatusEnum.DELETED)
-        );
-
-        floorModuleService.saveAll(floors); //변경사항 저장
-        locationModuleService.delete(location);
+        floorService.deleteAll(floors); //변경사항 저장
+        locationRepository.delete(location);
     }
 
     public Location findByNameAndStoreId(String locationName, Long storeId) {
-        return locationRepository.findByNameAndStoreId(locationName,storeId);
+        return locationRepository.findByNameAndStoreId(locationName, storeId);
     }
 
     /**
      * 모든 로케이션의 최대 적재 가능 수량 찾기
+     *
      * @return
      */
     public List<LocationStorageResponseDto> findAllMaxStorage() {

@@ -26,21 +26,17 @@ public class StoreMapper {
             .name(warehouseDto.getName())
             .rowCount(warehouseDto.getRowCount())
             .columnCount(warehouseDto.getColumnCount())
-            .facilityTypeEnum(warehouseDto.getFacilityTypeEnum())
-            .statusEnum(warehouseDto.getStatusEnum())
             .build();
     }
 
     public static Store fromStoreByUserDto(
-        StoreByUserDto warehouseByUserDto) {
+        StoreByUserDto storeByUserDto) {
         return Store.builder()
-            .id(warehouseByUserDto.getId())
-            .size(warehouseByUserDto.getSize())
-            .name(warehouseByUserDto.getName())
-            .rowCount(warehouseByUserDto.getRowCount())
-            .columnCount(warehouseByUserDto.getColumnCount())
-            .facilityTypeEnum(warehouseByUserDto.getFacilityTypeEnum())
-            .statusEnum(warehouseByUserDto.getStatusEnum())
+            .id(storeByUserDto.id())
+            .size(storeByUserDto.size())
+            .name(storeByUserDto.name())
+            .rowCount(storeByUserDto.rowCount())
+            .columnCount(storeByUserDto.columnCount())
             .build();
     }
 
@@ -58,11 +54,9 @@ public class StoreMapper {
             .name(store.getName())
             .rowCount(store.getRowCount())
             .columnCount(store.getColumnCount())
-            .facilityTypeEnum(store.getFacilityTypeEnum())
             .priority(store.getPriority())
             .createdDate(store.getCreatedDate())
             .updatedDate(store.getUpdatedDate())
-            .statusEnum(store.getStatusEnum())
             .build();
     }
 
@@ -74,11 +68,9 @@ public class StoreMapper {
             .name(store.getName())
             .rowCount(store.getRowCount())
             .columnCount(store.getColumnCount())
-            .facilityTypeEnum(store.getFacilityTypeEnum())
             .priority(store.getPriority())
             .createdDate(store.getCreatedDate())
             .updatedDate(store.getUpdatedDate())
-            .statusEnum(store.getStatusEnum())
             .build();
     }
 
@@ -90,7 +82,6 @@ public class StoreMapper {
             .name(store.getName())
             .rowCount(store.getRowCount())
             .columnCount(store.getColumnCount())
-            .facilityTypeEnum(store.getFacilityTypeEnum())
             .locations(locations)
             .walls(walls)
             .build();

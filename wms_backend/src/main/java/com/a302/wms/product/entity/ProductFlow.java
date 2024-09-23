@@ -1,7 +1,7 @@
 package com.a302.wms.product.entity;
 
-import com.a302.wms.util.BaseTimeEntity;
-import com.a302.wms.util.constant.ProductFlowType;
+import com.a302.wms.global.constant.ProductFlowTypeEnum;
+import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -25,7 +25,7 @@ public class ProductFlow extends BaseTimeEntity {
     private Long barcode;
 
     @Column(name = "sku",nullable = false)
-    private String productSku;
+    private String sku;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
@@ -41,21 +41,21 @@ public class ProductFlow extends BaseTimeEntity {
     private Long previousFloorId;
 
     @Column(name = "product_flow_type", nullable = false)
-    private ProductFlowType productFlowType;
+    private ProductFlowTypeEnum productFlowTypeEnum;
 
     @Builder
     public ProductFlow(Long presentFloorId, LocalDateTime flowDate,
                        Long productFlowId, Long previousFloorId, Long barcode,
-                       ProductFlowType productFlowType, String productName,
-                       String productSku, Integer quantity) {
+                       ProductFlowTypeEnum productFlowTypeEnum, String productName,
+                       String sku, Integer quantity) {
         this.presentFloorId = presentFloorId;
         this.flowDate = flowDate;
         this.productFlowId = productFlowId;
         this.previousFloorId = previousFloorId;
         this.barcode = barcode;
-        this.productFlowType = productFlowType;
+        this.productFlowTypeEnum = productFlowTypeEnum;
         this.productName = productName;
-        this.productSku = productSku;
+        this.sku = sku;
         this.quantity = quantity;
     }
 }

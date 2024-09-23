@@ -6,8 +6,8 @@ import com.a302.wms.product.exception.ProductException;
 import com.a302.wms.product.exception.ProductInvalidRequestException;
 import com.a302.wms.product.service.ProductFlowService;
 import com.a302.wms.product.service.ProductService;
-import com.a302.wms.util.BaseSuccessResponse;
-import com.a302.wms.util.constant.ProductFlowType;
+import com.a302.wms.global.response.BaseSuccessResponse;
+import com.a302.wms.global.constant.ProductFlowTypeEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -25,27 +25,23 @@ public class ProductController {
 
     /**
      * (서비스 전체/매장 별/상품 정보별)로의 상품들을 반환하는 기능
-     *
-     * @param storeId     매장 productId
-     * @param productDetailId 상품정보 productId
-     * @param locationId      로케이션 productId
+     * 해당 매장의 모든 상품 호출
+     * 해당 사업자의 모든 상품 호출
+     * @param storeId     매장 id
+     * @param userId      사업자 id
      * @return
      */
     @GetMapping
-    public BaseSuccessResponse<List<?>> getProducts(
+    public BaseSuccessResponse<List<ProductResponseDto>> getProducts(
         @RequestParam(required = false) Long storeId,
-        @RequestParam(required = false) Long productDetailId,
-        @RequestParam(required = false) Long locationId) {
+        @RequestParam(required = false) Long userId) {
         if (storeId != null) {
             log.info("[Controller] find Products by storeId: {}", storeId);
-            return new BaseSuccessResponse<>(productService.findByStoreId(storeId));
-        } else if (productDetailId != null) {
-            log.info("[Controller] find Products by productDetailId: {}", productDetailId);
-            return new BaseSuccessResponse<>(productService.findAll());
-        } else if (locationId != null) {
-            log.info("[Controller] find Products by LocationId: {}", locationId);
-            return new BaseSuccessResponse<>(productService.findByLocationId(locationId));
-        } else {
+            return new BaseSuccessResponse<>(productService.findAllByStoreId(storeId));
+        } else if (userId != null) {
+            log.info("[Controller] find Products by userId: {}", userId);
+            return new BaseSuccessResponse<>(productService.findAllByUserId(userId));
+        }  else {
            throw new ProductInvalidRequestException("no Variable","null");
         }
     }
@@ -77,12 +73,12 @@ public class ProductController {
     /**
      * 상품 삭제
      *
-     * @param id: 상품의 productId
      */
-    @PatchMapping("/{id}")
-    public BaseSuccessResponse<Void> deleteProduct(@PathVariable Long id) {
-        log.info("[Controller] delete Product by productId: {}", id);
-        productService.delete(id);
+    @DeleteMapping
+    public BaseSuccessResponse<Void> deleteProducts(@RequestParam List<Long> productIds) {
+        log.info("[Controller] delete Products");
+
+        productService.deleteProducts(productIds);
 
         return new BaseSuccessResponse<>(null);
     }
@@ -109,28 +105,28 @@ public class ProductController {
      * @param userId 사업체의 productId
      * @return
      */
-    @GetMapping("/notifications")
+    /*@GetMapping("/notifications")
     public BaseSuccessResponse<?> findAllNotifications(
         @RequestParam(required = false) Long userId,
         @RequestParam(required = false) Long storeId,
-        @RequestParam ProductFlowType productFlowType) throws Exception {
+        @RequestParam ProductFlowTypeEnum productFlowTypeEnum) throws Exception {
         log.info("[Controller] find Notifications by userId: {}", userId);
         if (userId != null && storeId != null) {
-            productFlowService.findByUserIdAndStoreId(userId, storeId);
+            productFlowService.findAllByUserIdAndStoreId(userId, storeId);
         }
         if (storeId != null) {
             log.info("[Controller] find Notifications by storeId: {}", storeId);
-            return new BaseSuccessResponse<>(productFlowService.findByStoreIdAndProductFlowType(storeId,
-                    productFlowType));
+            return new BaseSuccessResponse<>(productFlowService.findByStoreIdAndProductFlowTypeEnum(storeId,
+                    productFlowTypeEnum));
         }
         if (userId != null) {
             log.info("[Controller] find Notifications by userId: {}", userId);
-            return new BaseSuccessResponse<>(productFlowService.findByUserIdAndProductFlowType(userId,
-                    productFlowType));
+            return new BaseSuccessResponse<>(productFlowService.findAllByUserIdAndProductFlowTypeEnum(userId,
+                    productFlowTypeEnum));
         }
         // TODO
         return null;
-    }
+    }*/
 
     @PostMapping("/move")
     public BaseSuccessResponse<Void> moveProducts(

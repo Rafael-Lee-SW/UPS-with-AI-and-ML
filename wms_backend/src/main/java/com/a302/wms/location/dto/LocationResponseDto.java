@@ -22,7 +22,6 @@ public class LocationResponseDto {
     private int zSize;
     private int fill; //0~100까지의 범위로 표현,
     private String name;
-    private  storageType;
     private int rotation;
     private List<FloorResponseDto> floorResponses;
 }

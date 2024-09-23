@@ -1,6 +1,6 @@
 package com.a302.wms.location.exception;
 
-import com.a302.wms.util.constant.ResponseEnum;
+import com.a302.wms.global.constant.ResponseEnum;
 import lombok.Getter;
 
 @Getter
@@ -20,7 +20,7 @@ public class LocationException extends Throwable {
 
         NotFountException(Long id) {
             super(ResponseEnum.LOCATION_NOT_FOUND,
-                String.format(ResponseEnum.LOCATION_NOT_FOUND.getMessage() + MESSAGE_FORMAT, id));
+                String.format(ResponseEnum.LOCATION_NOT_FOUND.getMessage(), id));
         }
     }
 
@@ -30,7 +30,7 @@ public class LocationException extends Throwable {
 
         DeletedException(Long id) {
             super(ResponseEnum.LOCATION_DELETED,
-                String.format(ResponseEnum.LOCATION_DELETED.getMessage() + MESSAGE_FORMAT, id));
+                String.format(ResponseEnum.LOCATION_DELETED.getMessage(), id));
         }
     }
 
@@ -40,7 +40,7 @@ public class LocationException extends Throwable {
 
         NotFoundDefaultLocationException(Long id) {
             super(ResponseEnum.DEFAULT_LOCATION_NOT_FOUND,
-                String.format(ResponseEnum.DEFAULT_LOCATION_NOT_FOUND.getMessage() + MESSAGE_FORMAT,
+                String.format(ResponseEnum.DEFAULT_LOCATION_NOT_FOUND.getMessage(),
                     id));
         }
     }
@@ -52,7 +52,7 @@ public class LocationException extends Throwable {
         InvalidStorageType(Long id) {
             super(ResponseEnum.INVALID_LOCATION_STORAGE_TYPE,
                 String.format(
-                    ResponseEnum.INVALID_LOCATION_STORAGE_TYPE.getMessage() + MESSAGE_FORMAT,
+                    ResponseEnum.INVALID_LOCATION_STORAGE_TYPE.getMessage(),
                     id));
         }
     }

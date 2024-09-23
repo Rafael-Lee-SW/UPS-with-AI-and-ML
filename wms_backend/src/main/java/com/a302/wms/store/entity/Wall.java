@@ -1,18 +1,12 @@
 package com.a302.wms.store.entity;
 
-import com.a302.wms.util.BaseTimeEntity;
-import com.a302.wms.util.constant.StatusEnum;
+import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLRestriction;
 
 @Entity
+@NoArgsConstructor
 @Getter
-@Builder
-@ToString
-
-@RequiredArgsConstructor
-@AllArgsConstructor
 public class Wall extends BaseTimeEntity {
 
     @Id
@@ -20,7 +14,7 @@ public class Wall extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "warehouse_id", nullable = false)
+    @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
     @Column(nullable = false)
@@ -35,11 +29,13 @@ public class Wall extends BaseTimeEntity {
     @Column(nullable = false)
     private int endY;
 
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private StatusEnum statusEnum = StatusEnum.ACTIVE;
-
-    public void updateStatus(StatusEnum statusEnum) {
-        this.statusEnum = statusEnum;
+    @Builder
+    public Wall(int endX, int endY, Long id, int startX, int startY, Store store) {
+        this.endX = endX;
+        this.endY = endY;
+        this.id = id;
+        this.startX = startX;
+        this.startY = startY;
+        this.store = store;
     }
 }

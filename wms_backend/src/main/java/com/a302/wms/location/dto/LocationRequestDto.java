@@ -22,9 +22,7 @@ public class LocationRequestDto {
     private int zSize = -1;
     @Builder.Default
     private int rotation = 0;
-    @Builder.Default
-    private  productStorageType = .상온;
-    
+
     private Integer touchableFloor;
 
 }

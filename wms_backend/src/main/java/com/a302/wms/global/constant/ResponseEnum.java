@@ -37,21 +37,13 @@ public enum ResponseEnum {
     STORAGE_TYPE_NOT_MATCH(false, 6004, HttpStatus.BAD_REQUEST.value(),
         "상품의 보관타입이 이동하려는 로케이션의 보관타입과 일치하지 않습니다."),
 
-    //Business 오류
-    BUSINESS_NOT_FOUND(false, 7000, HttpStatus.BAD_REQUEST.value(), "사업체를 찾을수 없습니다."),
-    BUSINESS_DELETED(false, 7001, HttpStatus.BAD_REQUEST.value(), "삭제된 사업체 입니다."),
-
-    //ProductDetail 오류
-    PRODUCT_DETAIL_NOT_FOUND(false, 8000, HttpStatus.BAD_REQUEST.value(), "상품 정보를 찾을수 없습니다."),
-    PRODUCT_DETAIL_DELETED(false, 8001, HttpStatus.BAD_REQUEST.value(), "삭제된 상품정보 입니다."),
-
     //Floor 오류
     FLOOR_NOT_FOUND(false, 8000, HttpStatus.BAD_REQUEST.value(), "층을 찾을수 없습니다."),
     FLOOR_DELETED(false, 8001, HttpStatus.BAD_REQUEST.value(), "삭제된 층 입니다."),
     DEFAULT_FLOOR_NOT_FOUND(false, 8002, HttpStatus.BAD_REQUEST.value(),
         "Default Floor를 찾을수 없습니다."),
     INVALID_FLOOR_EXPORT_TYPE(false, 8003, HttpStatus.BAD_REQUEST.value(),
-        "해당되는 창고에 적합하지 않는 출고 타입으로 층을 변경할수 없습니다."),
+        "해당되는 매장에 적합하지 않는 출고 타입으로 층을 변경할수 없습니다."),
 
     //Location 오류
     LOCATION_NOT_FOUND(false, 9000, HttpStatus.BAD_REQUEST.value(), "로케이션을 찾을수 없습니다."),
@@ -62,10 +54,10 @@ public enum ResponseEnum {
         "해당 로케이션에 속해있는 상품들로 인해 보관 타입을 변경할수 없습니다."),
 
     //Warehouse 오류
-    WAREHOUSE_NOT_FOUND(false, 10000, HttpStatus.BAD_REQUEST.value(), "창고를 찾을수 없습니다."),
-    WAREHOUSE_DELETED(false, 10001, HttpStatus.BAD_REQUEST.value(), "삭제된 창고 입니다."),
-    INVALID_WAREHOUSE_TYPE(false, 10002, HttpStatus.BAD_REQUEST.value(),
-        "해당 창고에 속해있는 로케이션들로 인해 warehouse의 타입을 변경할수 없습니다."),
+    STORE_NOT_FOUND(false, 10000, HttpStatus.BAD_REQUEST.value(), "매장를 찾을수 없습니다."),
+    STORE_DELETED(false, 10001, HttpStatus.BAD_REQUEST.value(), "삭제된 매장 입니다."),
+    INVALID_STORE_TYPE(false, 10002, HttpStatus.BAD_REQUEST.value(),
+        "해당 매장에 속해있는 로케이션들로 인해 store의 타입을 변경할수 없습니다."),
 
     //Subscription 오류
     SUBSCRIPTION_NOT_FOUND(false, 11000, HttpStatus.BAD_REQUEST.value(), "구독 정보를 찾을수 없습니다."),

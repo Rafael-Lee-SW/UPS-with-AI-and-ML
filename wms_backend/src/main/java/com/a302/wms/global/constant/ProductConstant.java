@@ -7,4 +7,5 @@ public class ProductConstant {
     public static final Integer DEFAULT_PRODUCT_SIZE = 100;
     public static final int DEFAULT_FLOOR_LEVEL = -1;
     public static final int CONVERT_SIZE = 1;
+    public static final int LIMIT_DAY = 1;
 }

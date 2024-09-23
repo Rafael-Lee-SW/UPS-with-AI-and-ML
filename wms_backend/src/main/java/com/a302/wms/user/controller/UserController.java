@@ -1,10 +1,10 @@
-package com.a302.wms.user.controller,
+package com.a302.wms.user.controller;
 
-import com.a302.wms.user.dto.UserRequestDto,
-import com.a302.wms.user.dto.UserResponseDto,
-import com.a302.wms.user.service.UserService,
-import com.a302.wms.util.BaseSuccessResponse,
-import io.swagger.v3.oas.annotations.tags.Tag,
+import com.a302.wms.user.dto.UserRequestDto;
+import com.a302.wms.user.dto.UserResponseDto;
+import com.a302.wms.user.service.UserService;
+import com.a302.wms.global.response.BaseSuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -65,10 +65,11 @@ public class UserController {
      * @param id : 사업체 고유 번호
      * @return UserDto
      */
-    @PatchMapping("/{id}")
-    public BaseSuccessResponse<?> delete(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public BaseSuccessResponse<Void> delete(@PathVariable Long id) {
         log.info("[Controller] delete User by productId: {}", id);
-        return new BaseSuccessResponse<>(userService.delete(id));
+        userService.delete(id);
+        return new BaseSuccessResponse<>(null);
     }
 
 }

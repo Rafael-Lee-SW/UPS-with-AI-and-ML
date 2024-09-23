@@ -1,6 +1,6 @@
 package com.a302.wms.store.exception;
 
-import com.a302.wms.util.BaseExceptionResponse;
+import com.a302.wms.global.response.BaseExceptionResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 

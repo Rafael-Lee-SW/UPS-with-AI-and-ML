@@ -10,11 +10,11 @@ public class WallMapper {
 
     public static Wall fromDto(WallDto wallDto, Store store) {
         return Wall.builder()
-            .id(wallDto.getId())
-            .startX(wallDto.getStartX())
-            .startY(wallDto.getStartY())
-            .endX(wallDto.getEndX())
-            .endY(wallDto.getEndY())
+            .id(wallDto.id())
+            .startX(wallDto.startX())
+            .startY(wallDto.startY())
+            .endX(wallDto.endX())
+            .endY(wallDto.endY())
             .store(store)
             .build();
     }
