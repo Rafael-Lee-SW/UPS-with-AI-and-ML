@@ -23,6 +23,10 @@ const DynamicMyContainerProduct = dynamic(
   () => import("/pages-sections/Components-Sections/MyContainerProduct.jsx"),
   { ssr: false }
 );
+const DynamicMyStorePrevent = dynamic(
+  () => import("/pages-sections/Components-Sections/MyStorePrevent.jsx"),
+  { ssr: false }
+);
 
 const useStyles = makeStyles(styles);
 
@@ -58,9 +62,13 @@ export default function Components({ initialCards, initialUserData, initialBusin
       warehouses={cards}
       warehouseTitle={selectedWarehouseTitle}
     />,
-    <div>
-      <h2>방범 페이지 입니다.</h2>
-    </div>,
+    <DynamicMyStorePrevent
+      key={`product-${selectedWarehouse}`}
+      WHId={selectedWarehouse}
+      businessId={userData?.businessId}
+      warehouses={cards}
+      warehouseTitle={selectedWarehouseTitle}
+    />,
   ];
 
   const handleNextComponent = (index) => {
