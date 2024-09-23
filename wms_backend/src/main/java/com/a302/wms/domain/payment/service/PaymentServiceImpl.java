@@ -1,7 +1,7 @@
 package com.a302.wms.domain.payment.service;
 
-import com.a302.wms.domain.kiosk.entity.Kiosk;
-import com.a302.wms.domain.kiosk.repository.KioskRepository;
+import com.a302.wms.domain.device.entity.Device;
+import com.a302.wms.domain.device.repository.DeviceRepository;
 import com.a302.wms.domain.payment.dto.PaymentCreateRequestDto;
 import com.a302.wms.domain.payment.dto.PaymentResponseDto;
 import com.a302.wms.domain.payment.dto.PaymentSearchRequestDto;
@@ -12,6 +12,7 @@ import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.store.repository.StoreRepository;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.repository.UserRepository;
+import com.a302.wms.global.constant.DeviceTypeEnum;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,16 +26,17 @@ import java.util.List;
 public class PaymentServiceImpl {
 
     private final PaymentRepository paymentRepository;
-    private final KioskRepository kioskRepository;
+    private final DeviceRepository deviceRepository;
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
 
 
     @Transactional
-    public PaymentResponseDto save(Long kioskId, PaymentCreateRequestDto dto) {
-        log.info("[Service] save payment for kiosk {} in store {}", kioskId, dto.storeId());
+    public PaymentResponseDto save(Long deviceId, PaymentCreateRequestDto dto) {
+        log.info("[Service] save payment for device {} in store {}", deviceId, dto.storeId());
 
-        Kiosk kiosk = kioskRepository.findById(kioskId).orElseThrow();
+        Device device = deviceRepository.findById(deviceId).orElseThrow();
+//        if(device.getDeviceType()!= DeviceTypeEnum.KIOSK() throw new Exception();
 
         Store store = storeRepository.findById(dto.storeId()).orElseThrow();
 
