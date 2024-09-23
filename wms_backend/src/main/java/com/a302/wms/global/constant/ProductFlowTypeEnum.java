@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum ProductFlowTypeEnum {
     IMPORT("입고"),
     EXPORT("출고"),
-    FLOW("이동");
+    FLOW("이동"), MODIFY("수정");
 
     private final String value;
 
