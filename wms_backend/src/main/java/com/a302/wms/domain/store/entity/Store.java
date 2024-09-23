@@ -1,6 +1,6 @@
 package com.a302.wms.domain.store.entity;
 
-import com.a302.wms.domain.kiosk.entity.Kiosk;
+import com.a302.wms.domain.device.entity.Device;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -38,14 +38,8 @@ public class Store extends BaseTimeEntity {
     @Column(length = 20)
     private String storeName;
 
-    @Column(nullable = false)
-    private LocalDateTime createdDate;
-
-    @Column(nullable = false)
-    private LocalDateTime updatedDate;
-
     @OneToMany(mappedBy = "store")
-    List<Kiosk> kiosks;
+    List<Device> devices;
 
     // 연관관계 편의를 위한 메서드
 //    public void setBusiness(User user) {
@@ -55,12 +49,10 @@ public class Store extends BaseTimeEntity {
 
 
     @Builder
-
     public Store(User user, int size, String storeName, LocalDateTime createdDate, LocalDateTime updatedDate) {
+        super();
         this.user = user;
         this.size = size;
         this.storeName = storeName;
-        this.createdDate = createdDate;
-        this.updatedDate = updatedDate;
     }
 }
