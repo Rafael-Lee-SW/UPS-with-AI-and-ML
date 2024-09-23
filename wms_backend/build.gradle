@@ -5,7 +5,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
-group = 'com.a508'
+group = 'com.a302'
 version = '0.0.1-SNAPSHOT'
 
 java {
