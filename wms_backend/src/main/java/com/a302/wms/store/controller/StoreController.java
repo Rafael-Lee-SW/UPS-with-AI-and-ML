@@ -1,6 +1,7 @@
 package com.a302.wms.store.controller;
 
-import com.a302.wms.util.BaseSuccessResponse;
+import com.a302.wms.floor.exception.FloorException;
+import com.a302.wms.global.response.BaseSuccessResponse;
 import com.a302.wms.store.dto.*;
 import com.a302.wms.store.service.StoreService;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class StoreController {
     }
 
     @GetMapping("/{id}")
-    public BaseSuccessResponse<StoreDetailResponseDto> findById(@PathVariable Long id) {
+    public BaseSuccessResponse<StoreDetailResponseDto> findById(@PathVariable Long id) throws FloorException {
         log.info("[Controller] find Store by productId: {}", id);
         return new BaseSuccessResponse<>(warehouseService.findById(id));
     }
@@ -47,7 +48,7 @@ public class StoreController {
     /*
    매장 id의 상태를 비활성화 (status를 0으로 변경) PATCH 방식
    */
-    @PatchMapping("/{id}")
+    @DeleteMapping("/{id}")
     public BaseSuccessResponse<Void> delete(@PathVariable Long id) {
         log.info("[Controller] delete Store by productId: {}", id);
         warehouseService.delete(id);
@@ -61,36 +62,4 @@ public class StoreController {
         return new BaseSuccessResponse<>(null);
     }
 
-    @PutMapping("/{id}/locatons-and-walls")
-    public BaseSuccessResponse<StoreDetailResponseDto> updateLocationsAndWalls(
-        @PathVariable Long id, @RequestBody LocationsAndWallsRequestDto request
-    ) {
-        log.info("[Controller] update Store Locations And Walls by productId: {}", id);
-        return new BaseSuccessResponse<>(
-            warehouseService.updateLocationsAndWalls(id, request));
-    }
-
-    @GetMapping("/cnt/{userId}")
-    public BaseSuccessResponse<Integer> findStoreCntByUserId(
-        @PathVariable Long userId) {
-        log.info("[Controller] find Store cnt by userId: {}", userId);
-        int count = warehouseService.findStoreCntByUserId(userId);
-        return new BaseSuccessResponse<>(count);
-    }
-
-
-    @GetMapping("/locationcnt/{id}")
-    public BaseSuccessResponse<Integer> findLocationCnt(@PathVariable Long id) {
-        return new BaseSuccessResponse<>(warehouseService.findLocationCnt(id));
-    }
-
-    @GetMapping("/usage/{id}")
-    public BaseSuccessResponse<Integer> findUsage(@PathVariable Long id) {
-        return new BaseSuccessResponse<>(warehouseService.findUsage(id));
-    }
-
-    @GetMapping("/purpose/{id}")
-    public BaseSuccessResponse<Integer> findPurpose(@PathVariable Long id) {
-        return new BaseSuccessResponse<>(warehouseService.findPurpose(id));
-    }
 }

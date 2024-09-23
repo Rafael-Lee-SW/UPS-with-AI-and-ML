@@ -1,6 +1,6 @@
 package com.a302.wms.product.dto;
 
-import com.a302.wms.util.constant.ProductFlowType;
+import com.a302.wms.global.constant.ProductFlowTypeEnum;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,7 +15,7 @@ public record ProductFlowResponseDto(String productName,
                                      String presentLocationName,
                                      Integer presentFloorLevel,
                                      LocalDateTime flowDate,
-                                     ProductFlowType productFlowType) {
+                                     ProductFlowTypeEnum productFlowTypeEnum) {
 
     @Builder
 
@@ -28,7 +28,7 @@ public record ProductFlowResponseDto(String productName,
                                   String presentLocationName,
                                   Integer presentFloorLevel,
                                   LocalDateTime flowDate,
-                                  ProductFlowType productFlowType) {
+                                  ProductFlowTypeEnum productFlowTypeEnum) {
         this.productName = productName;
         this.barcode = barcode;
         this.quantity = quantity;
@@ -38,6 +38,6 @@ public record ProductFlowResponseDto(String productName,
         this.presentLocationName = presentLocationName;
         this.presentFloorLevel = presentFloorLevel;
         this.flowDate = flowDate;
-        this.productFlowType = productFlowType;
+        this.productFlowTypeEnum = productFlowTypeEnum;
     }
 }

@@ -1,6 +1,6 @@
 package com.a302.wms.user.exception;
 
-import com.a302.wms.util.constant.ResponseEnum;
+import com.a302.wms.global.constant.ResponseEnum;
 import lombok.Getter;
 
 @Getter
@@ -19,8 +19,8 @@ public class UserException extends Throwable {
        final String MESSAGE_FORMAT = " 사업체 productId: %s";
 
         NotFountException(Long id) {
-            super(ResponseEnum.BUSINESS_NOT_FOUND,
-                String.format(ResponseEnum.BUSINESS_NOT_FOUND.getMessage() + MESSAGE_FORMAT, id));
+            super(ResponseEnum.USER_NOT_FOUND,
+                String.format(ResponseEnum.USER_NOT_FOUND.getMessage(), id));
         }
     }
 
@@ -29,8 +29,8 @@ public class UserException extends Throwable {
        final String MESSAGE_FORMAT = " 사업체 productId: %s";
 
         DeletedException(Long id) {
-            super(ResponseEnum.BUSINESS_DELETED,
-                String.format(ResponseEnum.BUSINESS_DELETED.getMessage() + MESSAGE_FORMAT, id));
+            super(ResponseEnum.USER_DELETED,
+                String.format(ResponseEnum.USER_DELETED.getMessage(), id));
         }
     }
 }

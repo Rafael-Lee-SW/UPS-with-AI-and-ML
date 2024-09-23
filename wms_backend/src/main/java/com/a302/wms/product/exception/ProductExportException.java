@@ -1,6 +1,6 @@
 package com.a302.wms.product.exception;
 
-import com.a302.wms.util.constant.ResponseEnum;
+import com.a302.wms.global.constant.ResponseEnum;
 import lombok.Getter;
 
 @Getter

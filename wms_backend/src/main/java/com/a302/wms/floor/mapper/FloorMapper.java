@@ -17,9 +17,8 @@ public class FloorMapper {
      */
     public static Floor fromFloorResponseDto(FloorResponseDto floorResponseDto) {
         return Floor.builder()
-            .id(floorResponseDto.getId())
-            .floorLevel(floorResponseDto.getFloorLevel())
-            .exportTypeEnum(floorResponseDto.getExportType())
+            .id(floorResponseDto.id())
+            .floorLevel(floorResponseDto.floorLevel())
             .build();
     }
 
@@ -34,17 +33,14 @@ public class FloorMapper {
             .id(floor.getId())
             .locationId(floor.getLocation().getId())
             .floorLevel(floor.getFloorLevel())
-            .exportType(floor.getExportTypeEnum())
             .createdDate(floor.getCreatedDate())
             .updatedDate(floor.getUpdatedDate())
-            .statusEnum(floor.getStatusEnum())
             .build();
     }
 
     public static Floor fromFloorRequestDto(FloorRequestDto floorRequestDto) {
         return Floor.builder()
-            .floorLevel(floorRequestDto.getFloorLevel())
-            .exportTypeEnum(floorRequestDto.getExportTypeEnum())
+            .floorLevel(floorRequestDto.floorLevel())
             .build();
     }
     public static ProductMoveRequestDto toProductMoveRequestDto(Floor floor) {

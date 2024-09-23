@@ -18,7 +18,6 @@ public class LocationUpdateDto {
     private int xSize;
     private int ySize;
     private int zSize;
-    private  storageType;
     private int rotation;
 
 }

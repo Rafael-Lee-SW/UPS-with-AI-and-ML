@@ -1,25 +1,27 @@
 package com.a302.wms.floor.dto;
 
-import com.a302.wms.util.constant.ExportTypeEnum;
-import com.a302.wms.util.constant.StatusEnum;
+
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@Builder
-@ToString
-public class FloorResponseDto {
+public record FloorResponseDto(Long id,
+                               Long locationId,
+                               int floorLevel,
+                               LocalDateTime createdDate,
+                               LocalDateTime updatedDate) {
 
-    private Long id;
-    private Long locationId;
-    private int floorLevel;
-    private ExportTypeEnum exportType;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
-    private StatusEnum statusEnum;
+    @Builder
+
+    public FloorResponseDto(Long id,
+                            Long locationId,
+                            int floorLevel,
+                            LocalDateTime createdDate,
+                            LocalDateTime updatedDate) {
+        this.id = id;
+        this.locationId = locationId;
+        this.floorLevel = floorLevel;
+        this.createdDate = createdDate;
+        this.updatedDate = updatedDate;
+    }
 }

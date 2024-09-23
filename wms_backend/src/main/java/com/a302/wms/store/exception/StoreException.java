@@ -1,6 +1,6 @@
 package com.a302.wms.store.exception;
 
-import com.a302.wms.util.constant.ResponseEnum;
+import com.a302.wms.global.constant.ResponseEnum;
 import lombok.Getter;
 
 @Getter
@@ -14,13 +14,13 @@ public class StoreException extends Throwable {
         this.exceptionMessage = exceptionMessage;
     }
 
-    public static class NotFountException extends StoreException {
+    public static class NotFoundException extends StoreException {
 
        final String MESSAGE_FORMAT = " 매장 productId: %s";
 
-        NotFountException(Long id) {
-            super(ResponseEnum.WAREHOUSE_NOT_FOUND,
-                String.format(ResponseEnum.WAREHOUSE_NOT_FOUND.getMessage() + MESSAGE_FORMAT, id));
+        NotFoundException(Long id) {
+            super(ResponseEnum.STORE_NOT_FOUND,
+                String.format(ResponseEnum.STORE_NOT_FOUND.getMessage(), id));
         }
     }
 
@@ -29,8 +29,8 @@ public class StoreException extends Throwable {
        final String MESSAGE_FORMAT = " 매장 productId: %s";
 
         DeletedException(Long id) {
-            super(ResponseEnum.WAREHOUSE_DELETED,
-                String.format(ResponseEnum.WAREHOUSE_DELETED.getMessage() + MESSAGE_FORMAT, id));
+            super(ResponseEnum.STORE_DELETED,
+                String.format(ResponseEnum.STORE_DELETED.getMessage(), id));
         }
     }
 
@@ -39,8 +39,8 @@ public class StoreException extends Throwable {
        final String MESSAGE_FORMAT = " 매장 productId: %s";
 
         InvalidStoreTypeException(Long id) {
-            super(ResponseEnum.INVALID_WAREHOUSE_TYPE,
-                String.format(ResponseEnum.INVALID_WAREHOUSE_TYPE.getMessage() + MESSAGE_FORMAT,
+            super(ResponseEnum.INVALID_STORE_TYPE,
+                String.format(ResponseEnum.INVALID_STORE_TYPE.getMessage(),
                     id));
         }
     }

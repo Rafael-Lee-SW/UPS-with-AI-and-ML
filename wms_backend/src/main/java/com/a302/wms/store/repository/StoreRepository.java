@@ -15,10 +15,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
         "JOIN FETCH s.user b " +
         "WHERE b.id = :userId " +
         "ORDER BY " +
-        "CASE s.facilityTypeEnum " +
-        "  WHEN com.a302.wms.util.constant.FacilityTypeEnum.STORE THEN 1 " +
-        "  WHEN com.a302.wms.util.constant.FacilityTypeEnum.WAREHOUSE THEN 2 " +
-        "  ELSE 3 END, " +
         "s.priority ASC")
     List<Store> findExportOrderStore(
         @Param("userId") Long userId);

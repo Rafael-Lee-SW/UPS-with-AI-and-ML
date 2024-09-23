@@ -1,6 +1,6 @@
 package com.a302.wms.store.service;
 
-import com.a302.wms.util.constant.StatusEnum;
+
 import com.a302.wms.store.entity.Wall;
 import com.a302.wms.store.repository.WallRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class WallModuleService {
+public class WallService {
 
     private final WallRepository wallRepository;
 
@@ -37,7 +37,6 @@ public class WallModuleService {
     */
     @Transactional
     public Wall delete(Wall wall) {
-        wall.updateStatus(StatusEnum.DELETED);
         return save(wall);
     }
 }

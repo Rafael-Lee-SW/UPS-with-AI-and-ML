@@ -30,12 +30,10 @@ public class UserMapper {
     public static UserResponseDto toUserResponseDto(User user) {
         return UserResponseDto.builder()
             .id(user.getId())
-            .userId(user.getUser() == null ? -1 : user.getUser().getId())
             .name(user.getName())
             .userNumber(user.getUserNumber())
             .createdDate(user.getCreatedDate())
             .updatedDate(user.getUpdatedDate())
-            .statusEnum(user.getStatusEnum())
             .build();
     }
 }
