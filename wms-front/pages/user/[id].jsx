@@ -23,6 +23,10 @@ const DynamicMyContainerProduct = dynamic(
   () => import("/pages-sections/Components-Sections/MyContainerProduct.jsx"),
   { ssr: false }
 );
+const DynamicMyStorePrevent = dynamic(
+  () => import("/pages-sections/Components-Sections/MyStorePrevent.jsx"),
+  { ssr: false }
+);
 
 const useStyles = makeStyles(styles);
 
@@ -36,7 +40,7 @@ export default function Components({ initialCards, initialUserData, initialBusin
   const [businessData, setBusinessData] = useState(initialBusinessData || null);
   const [selectedWarehouse, setSelectedWarehouse] = useState(id || "");
   const [selectedWarehouseTitle, setSelectedWarehouseTitle] = useState(""); // State to store the selected warehouse title
-  const [currentIndex, setCurrentIndex] = useState(1);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // Dynamic component array
   const componentsArray = [
@@ -58,9 +62,13 @@ export default function Components({ initialCards, initialUserData, initialBusin
       warehouses={cards}
       warehouseTitle={selectedWarehouseTitle}
     />,
-    <div>
-      <h2>방범 페이지 입니다.</h2>
-    </div>,
+    <DynamicMyStorePrevent
+      key={`product-${selectedWarehouse}`}
+      WHId={selectedWarehouse}
+      businessId={userData?.businessId}
+      warehouses={cards}
+      warehouseTitle={selectedWarehouseTitle}
+    />,
   ];
 
   const handleNextComponent = (index) => {
