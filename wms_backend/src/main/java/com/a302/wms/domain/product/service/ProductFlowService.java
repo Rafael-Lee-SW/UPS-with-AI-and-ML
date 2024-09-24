@@ -3,7 +3,7 @@ package com.a302.wms.domain.product.service;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.entity.ProductFlow;
 import com.a302.wms.domain.product.repository.ProductFlowRepository;
-import com.a302.wms.product.dto.*;
+import com.a302.wms.domain.product.dto.*;
 import com.a302.wms.global.constant.ProductFlowTypeEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

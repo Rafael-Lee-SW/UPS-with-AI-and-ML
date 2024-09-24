@@ -14,11 +14,11 @@ public class LocationException extends Throwable {
         this.exceptionMessage = exceptionMessage;
     }
 
-    public static class NotFountException extends LocationException {
+    public static class NotFoundException extends LocationException {
 
        final String MESSAGE_FORMAT = " 로케이션 productId: %s";
 
-        NotFountException(Long id) {
+        NotFoundException(Long id) {
             super(ResponseEnum.LOCATION_NOT_FOUND,
                 String.format(ResponseEnum.LOCATION_NOT_FOUND.getMessage(), id));
         }

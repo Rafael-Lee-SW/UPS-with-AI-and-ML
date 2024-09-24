@@ -7,8 +7,8 @@ import com.a302.wms.domain.product.dto.ProductImportRequestDto;
 import com.a302.wms.domain.product.dto.ProductResponseDto;
 import com.a302.wms.domain.product.dto.ProductWithUserResponseDto;
 import com.a302.wms.domain.product.entity.Product;
-import com.a302.wms.product.dto.*;
-import com.a302.wms.store.entity.Store;
+import com.a302.wms.domain.product.dto.*;
+import com.a302.wms.domain.store.entity.Store;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -51,31 +51,11 @@ public class ProductMapper {
 
         return ExpirationProductResponseDto.builder()
                 .barcode(product.getBarcode())
-                .productName(product.getProductName())
-                .expirationDate(product.getExpirationDate())
-                .quantity(product.getQuantity())
-                .locationName(location.getName())
-                .floorLevel(floor.getFloorLevel())
-                .isExpired(isExpired)
-                .storeId(store.getId())
-                .warehouseName(store.getName())
                 .build();
     }
 
     public static ProductWithUserResponseDto toProductWithUserDto(Product product) {
         return ProductWithUserResponseDto.builder()
-                .id(product.getProductId())
-                .quantity(product.getQuantity())
-                .locationName(product.getFloor().getLocation().getName())
-                .floorLevel(product.getFloor().getFloorLevel())
-                .expirationDate(product.getExpirationDate())
-                .storeId(product.getFloor().getLocation().getStore().getId())
-                .barcode(product.getBarcode())
-                .name(product.getProductName())
-                .originalPrice((product.getOriginalPrice() == null) ? 0
-                        : product.getOriginalPrice())
-                .sellingPrice((product.getSellingPrice() == null) ? 0
-                        : product.getSellingPrice())
                 .build();
     }
 

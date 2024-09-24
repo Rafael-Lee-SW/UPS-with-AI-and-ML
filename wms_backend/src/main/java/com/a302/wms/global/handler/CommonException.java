@@ -1,6 +1,5 @@
 package com.a302.wms.global.handler;
 
-import com.a302.wms.product.exception.ProductException;
 import com.a302.wms.global.constant.ResponseEnum;
 import lombok.Getter;
 

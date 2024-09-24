@@ -2,7 +2,7 @@ package com.a302.wms.domain.product.entity;
 
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.global.BaseTimeEntity;
-import com.a302.wms.store.entity.Store;
+import com.a302.wms.domain.store.entity.Store;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
