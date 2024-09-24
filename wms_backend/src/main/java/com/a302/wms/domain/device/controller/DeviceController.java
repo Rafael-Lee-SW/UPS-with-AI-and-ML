@@ -72,18 +72,17 @@ public class DeviceController {
 
     /**
      * 디바이스를 새로 등록합니다.
-     * @param userId
-     * @param requestDto
+     * @param dto
      * @return
      */
     @PostMapping
     @Operation(summary = "디바이스 등록", tags = { "디바이스 관리" })
     public BaseSuccessResponse<DeviceResponseDto> saveDevice(
-            @RequestParam(required = true) Long userId,
-            @RequestBody(required = true) DeviceCreateRequestDto requestDto
+//            @RequestParam(required = true) Long userId,
+            @RequestBody(required = true) DeviceCreateRequestDto dto
     ) {
-        log.info("[Controller] create device for the store: {}", requestDto.storeId());
-        return new BaseSuccessResponse<>(deviceService.saveDevice(userId, requestDto));
+        log.info("[Controller] create device for the key: {}", dto.key());
+        return new BaseSuccessResponse<>(deviceService.saveDevice(/*userId, */dto));
     }
 
     /**
