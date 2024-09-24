@@ -72,7 +72,7 @@ public class ProductService {
     public List<ProductResponseDto> findAllByKioskKey(DeviceRegisterRequestDto dto) {
         log.info("[Service] find Products by kiosk key: {}", dto);
 
-        Device device = deviceRepository.findByKey(dto.key()).orElseThrow();
+        Device device = deviceRepository.findByDeviceKey(dto.key()).orElseThrow();
 
         Store store = device.getStore();
 
