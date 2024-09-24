@@ -80,7 +80,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       if (e.target !== e.target.getStage()) return;
 
       // 위치를 얻어온다.
-      const pos = e.target.getStage().getPointerPosition();
+      const pos = getPrecisePosition(e.target.getStage());
       selection.current = {
         visible: true,
         x1: pos.x,
@@ -106,7 +106,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       return;
     }
 
-    const pos = e.target.getStage().getPointerPosition();
+    const pos = getPrecisePosition(e.target.getStage());
     selection.current.x2 = pos.x;
     selection.current.y2 = pos.y;
     updateSelectionRect();
@@ -118,14 +118,18 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
     selection.current.visible = false;
     updateSelectionRect();
+
+    const precisePos = getPrecisePosition(e.target.getStage());
     const selBox = selectionRectRef.current.getClientRect();
+
+    // Your selection logic remains the same
     const shapes = layerRef.current.find(".selectableShape");
     const selected = shapes.filter((shape) =>
       Konva.Util.haveIntersection(selBox, shape.getClientRect())
     );
+
     setSelectedIds(selected.map((shape) => shape.id()));
 
-    // Default context Mene가 켜지는 것을 방지
     e.evt.preventDefault();
   };
 
@@ -267,6 +271,25 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
   // 마우스 포인터에 닿은 앙커를 기록하는 것
   const [hoveredAnchor, setHoveredAnchor] = useState(null);
+
+  // 정확한 위치를 찾는 함수(드래그해서 옮겨가도)
+  const getPrecisePosition = (stage) => {
+    let pos = stage.getPointerPosition(); // Get the pointer position
+    const stageAttrs = stage.attrs;
+
+    if (!stageAttrs.x) {
+      // If the stage is not dragged
+      pos.x = pos.x / stageAttrs.scaleX;
+      pos.y = pos.y / stageAttrs.scaleY;
+    } else {
+      // If the stage is dragged, adjust the position
+      pos.x = (pos.x - stageAttrs.x) / stageAttrs.scaleX;
+      pos.y = (pos.y - stageAttrs.y) / stageAttrs.scaleY;
+    }
+
+    // Return the exact coordinates
+    return pos;
+  };
 
   // 앙커를 추가하고 관리하는 State 추가
   const [anchors, setAnchors] = useState([
@@ -977,17 +1000,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     const handleMouseDown = () => {
       if (currentSetting === "wall") {
         // 정확한 위치를 얻어온다.
-        const pos = stage.getPointerPosition();
-        var stageAttrs = stage.attrs;
-        //드래그 없음
-        if (!stageAttrs.x) {
-          pos.x = pos.x / stageAttrs.scaleX;
-          pos.y = pos.y / stageAttrs.scaleY;
-        } // 드래그 있음
-        else {
-          pos.x = (pos.x - stageAttrs.x) / stageAttrs.scaleX;
-          pos.y = (pos.y - stageAttrs.y) / stageAttrs.scaleY;
-        }
+        const pos = getPrecisePosition(stageRef.current);
 
         if (hoveredAnchor !== null) {
           pos.x = hoveredAnchor.attrs.x;
@@ -1012,19 +1025,8 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     //Event Handler for 'mousemove' stage 위에서 움직일 때,
     const handleMouseMove = () => {
       if (currentSetting === "wall") {
-        if (!line) return;
         // 정확한 위치를 얻어온다.
-        const pos = stage.getPointerPosition();
-        var stageAttrs = stage.attrs;
-        if (!stageAttrs.x) {
-          // 드래그 하지 않음
-          pos.x = pos.x / stageAttrs.scaleX;
-          pos.y = pos.y / stageAttrs.scaleY;
-        } else {
-          // 드래그해서 새로운 stageAttrs의 x,y가 생김
-          pos.x = (pos.x - stageAttrs.x) / stageAttrs.scaleX;
-          pos.y = (pos.y - stageAttrs.y) / stageAttrs.scaleY;
-        }
+        const pos = getPrecisePosition(stageRef.current);
 
         const points = [startPos.x, startPos.y, pos.x, pos.y];
 
@@ -1041,17 +1043,8 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
         //타겟을 찾으면 라인 생성
         if (e.target.hasName("target")) {
           // 정확한 위치를 얻어온다.
-          const pos = stage.getPointerPosition();
-          var stageAttrs = stage.attrs;
-          if (!stageAttrs.x) {
-            // 드래그 하지 않음
-            pos.x = pos.x / stageAttrs.scaleX;
-            pos.y = pos.y / stageAttrs.scaleY;
-          } else {
-            // 드래그해서 새로운 stageAttrs의 x,y가 생김
-            pos.x = (pos.x - stageAttrs.x) / stageAttrs.scaleX;
-            pos.y = (pos.y - stageAttrs.y) / stageAttrs.scaleY;
-          }
+          const pos = getPrecisePosition(stageRef.current);
+
           drawLine(startPos, pos);
           setLine(null);
           setStartPos(null);
@@ -1060,18 +1053,9 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
           line.remove();
           layer.draw();
           //벽을 추가하기 위한 메서드
+
           // 정확한 위치를 얻어온다.
-          const pos = stage.getPointerPosition();
-          var stageAttrs = stage.attrs;
-          if (!stageAttrs.x) {
-            // 드래그 하지 않음
-            pos.x = pos.x / stageAttrs.scaleX;
-            pos.y = pos.y / stageAttrs.scaleY;
-          } else {
-            // 드래그해서 새로운 stageAttrs의 x,y가 생김
-            pos.x = (pos.x - stageAttrs.x) / stageAttrs.scaleX;
-            pos.y = (pos.y - stageAttrs.y) / stageAttrs.scaleY;
-          }
+          const pos = getPrecisePosition(stageRef.current);
 
           // 앙커 위에서 벽을 생성하면 그 앙커를 기준으로 생성하게끔 하는 역할
           if (hoveredAnchor !== null) {
@@ -1150,19 +1134,16 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     //스테이지 적용
     stage.on("contextmenu", function (e) {
       e.evt.preventDefault();
-      if (e.target === stage) {
-        return;
-      }
-
-      // Set the current shape reference
-      currentShapeRef.current = e.target;
-
-      // Show the menu
-      menuNode.style.display = "initial";
+      if (e.target === stage) return;
+    
+      const precisePos = getPrecisePosition(stage);
+    
+      // Show the right-click menu at the precise position
+      const menuNode = menuRef.current;
       const containerRect = stage.container().getBoundingClientRect();
-
-      menuNode.style.top = containerRect.top + e.evt.clientY + "px";
-      menuNode.style.left = containerRect.left + e.evt.clientX + "px";
+    
+      menuNode.style.top = containerRect.top + precisePos.y + "px";
+      menuNode.style.left = containerRect.left + precisePos.x + "px";
     });
 
     window.addEventListener("click", () => {
@@ -1358,7 +1339,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
   // RGB 색깔로 재고율 퍼센트(%)를 추출하는 함수
   const extractFillPercentage = (rgbaString) => {
-     // Return 0% if the string is undefined or null
+    // Return 0% if the string is undefined or null
     if (!rgbaString) return "0.0";
 
     const matches = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
