@@ -1,7 +1,7 @@
 package com.a302.wms.domain.product.exception;
 
 import com.a302.wms.global.constant.ResponseEnum;
-import com.a302.wms.product.exception.ProductException;
+import com.a302.wms.domain.product.exception.ProductException;
 import lombok.Getter;
 
 @Getter

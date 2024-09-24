@@ -14,11 +14,11 @@ public class ProductException extends Throwable {
         this.exceptionMessage = exceptionMessage;
     }
 
-    public static class NotFountException extends ProductException {
+    public static class NotFoundException extends ProductException {
 
         private static final String MESSAGE_FORMAT = " 상품 id: %s";
 
-        public NotFountException(Long id) {
+        public NotFoundException(Long id) {
             super(ResponseEnum.PRODUCT_NOT_FOUND,
                 String.format(ResponseEnum.PRODUCT_NOT_FOUND.getMessage() + MESSAGE_FORMAT, id));
         }

@@ -1,15 +1,18 @@
 package com.a302.wms.domain.payment.entity;
 
 import com.a302.wms.domain.store.entity.Store;
+import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class Payment {
+@NoArgsConstructor
+public class Payment extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
