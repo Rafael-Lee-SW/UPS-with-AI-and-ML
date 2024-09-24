@@ -51,19 +51,28 @@ public class Product extends BaseTimeEntity {
     private Integer sellingPrice;
 
     @Builder
-    public Product(Floor floor, Store store, Integer quantity,
-                   LocalDateTime expirationDate, Long barcode,
-                   String productName, Integer originalPrice,
-                   Integer sellingPrice) {
-        this.floor = floor;
-        this.store = store;
-        this.quantity = quantity;
-        this.expirationDate = expirationDate;
+    public Product(Long barcode,
+                   LocalDateTime expirationDate,
+                   Floor floor,
+                   Integer originalPrice,
+                   Long productId,
+                   String productName,
+                   Integer quantity,
+                   Integer sellingPrice,
+                   String sku,
+                   Store store) {
         this.barcode = barcode;
-        this.productName = productName;
+        this.expirationDate = expirationDate;
+        this.floor = floor;
         this.originalPrice = originalPrice;
+        this.productId = productId;
+        this.productName = productName;
+        this.quantity = quantity;
         this.sellingPrice = sellingPrice;
+        this.sku = sku;
+        this.store = store;
     }
+
     public void updateQuantity(Integer quantity) {
         this.quantity = quantity;
     }

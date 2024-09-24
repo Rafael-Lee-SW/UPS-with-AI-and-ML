@@ -11,17 +11,8 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p " +
-            "JOIN p.floor f " +
-            "JOIN f.location l " +
-            "JOIN l.store s " +
-            "WHERE s.id = :storeId")
+            "WHERE p.store = :storeId ")
     List<Product> findByStoreId(@Param("storeId") Long storeId);
-
-    @Query("SELECT p FROM Product p " +
-            "JOIN p.floor f " +
-            "JOIN f.location l " +
-            "WHERE l.id = :locationId")
-    List<Product> findByLocationId(@Param("locationId") Long locationId);
 
     @Query("SELECT p FROM Product p " +
             "JOIN p.store s " +
@@ -29,6 +20,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE u.id = :userId")
     List<Product> findAllByUserId(Long userId);
 
+    @Query("SELECT p FROM Product p " +
+            "WHERE p.floor = :floor")
     List<Product> findAllByFloor(Floor floor);
 }
 
