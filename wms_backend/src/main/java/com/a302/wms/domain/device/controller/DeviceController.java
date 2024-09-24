@@ -1,6 +1,6 @@
 package com.a302.wms.domain.device.controller;
 
-import com.a302.wms.domain.device.dto.DeviceCreateRequestDto;
+import com.a302.wms.domain.device.dto.DeviceRegisterRequestDto;
 import com.a302.wms.domain.device.dto.DeviceKeyCreateDto;
 import com.a302.wms.domain.device.dto.DeviceKeyResponseDto;
 import com.a302.wms.domain.device.dto.DeviceResponseDto;
@@ -77,12 +77,14 @@ public class DeviceController {
      */
     @PostMapping
     @Operation(summary = "디바이스 등록", tags = { "디바이스 관리" })
-    public BaseSuccessResponse<DeviceResponseDto> saveDevice(
+    public BaseSuccessResponse<Void> saveDevice(
+//    public BaseSuccessResponse<DeviceResponseDto> saveDevice(
 //            @RequestParam(required = true) Long userId,
-            @RequestBody(required = true) DeviceCreateRequestDto dto
+            @RequestBody(required = true) DeviceRegisterRequestDto dto
     ) {
         log.info("[Controller] create device for the key: {}", dto.key());
-        return new BaseSuccessResponse<>(deviceService.saveDevice(/*userId, */dto));
+//        return new BaseSuccessResponse<>(deviceService.saveDevice(/*userId, */dto));
+        return new BaseSuccessResponse<>(null);
     }
 
     /**

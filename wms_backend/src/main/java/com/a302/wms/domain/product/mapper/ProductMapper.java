@@ -25,6 +25,7 @@ public class ProductMapper {
                 .productId(product.getProductId())
                 .productName(product.getProductName())
                 .barcode(product.getBarcode())
+                .sku(product.getSku())
                 .quantity(product.getQuantity())
                 .floorLevel(product.getFloor().getFloorLevel())
                 .locationName(product.getFloor().getLocation().getName())
@@ -32,13 +33,14 @@ public class ProductMapper {
                 .build();
     }
 
-    public static Product fromProductImportRequestDto(ProductImportRequestDto productImportRequestData,
+    public static Product fromProductImportRequestDto(ProductImportRequestDto productImportRequestDto,
                                                       Floor floor) {
-        return Product.builder()
-                .floor(floor)
-                .quantity(productImportRequestData.quantity())
-                .expirationDate(productImportRequestData.expirationDate())
-                .build();
+    return Product.builder()
+        .floor(floor)
+        .sku(productImportRequestDto.sku())
+        .quantity(productImportRequestDto.quantity())
+        .expirationDate(productImportRequestDto.expirationDate())
+        .build();
     }
 
 
