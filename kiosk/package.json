@@ -2,8 +2,7 @@
   "name": "kiosk",
   "version": "1.0.0",
   "description": "Kiosk application using Electron and Next.js",
-  "main": "electron/main.ts",
-  "type": "module",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently \"next dev\" \"npm run electron\"",
     "build": "next build && electron-builder build",

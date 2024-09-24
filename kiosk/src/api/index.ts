@@ -3,14 +3,15 @@ import axios from 'axios';
 // API 요청을 한 곳에서 관리
 const API_URL = 'http://j11a302.p.ssafy.io/api';
 
-// 토큰을 검증하는 함수
+// 토큰을 검증하는 함수 (storeId는 key로 받아서 사용)
 export async function verifyToken(token: string): Promise<{ valid: boolean; products: any[] }> {
   try {
-    const response = await axios.post(`${API_URL}/validate-key`, { token });
-    return response.data;
+    // body에 key 값을 담아서 POST 요청을 보냄
+    const response = await axios.post(`${API_URL}/devices/keys`, { key: token });  // 수정된 API 경로
+    return response.data;  // 응답 데이터를 반환
   } catch (error) {
     console.error('키 검증 API 요청 실패:', error);
-    return { valid: false, products: [] };
+    return { valid: false, products: [] };  // 실패 시 기본값 반환
   }
 }
 

@@ -46,7 +46,7 @@
   },
   
   // 프로젝트에 포함할 파일들 (TypeScript 및 Next.js 설정 파일)
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "electron/main.js"],
 
   // 컴파일에서 제외할 폴더 (node_modules는 제외)
   "exclude": ["node_modules"]

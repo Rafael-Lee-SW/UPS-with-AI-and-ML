@@ -1,16 +1,35 @@
 /* RFID 페이지의 스타일 */
 .container {
-    text-align: center;
-    padding: 20px;
-    background-color: #f0f0f0;
+  text-align: center;
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+.beforeScan h2 {
+  font-size: 24px;
+  color: #333;
+}
+
+.cartContainer {
+  position: relative;
+}
+
+.cartImage {
+  width: 150px;
+  height: 150px;
+}
+
+@keyframes addToCart {
+  0% {
+      transform: scale(0.5);
+      opacity: 0;
   }
-  
-  h1 {
-    color: #333;
-    font-size: 24px;
+  100% {
+      transform: scale(1);
+      opacity: 1;
   }
-  
-  p {
-    font-size: 18px;
-    color: #666;
-  }
+}
+
+.product {
+  animation: addToCart 0.5s ease-in-out;
+}

@@ -1,21 +1,35 @@
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './select.module.css'; // CSS 모듈 가져오기
 
 export default function SelectMethod() {
   const router = useRouter();
   const [isDisabled, setIsDisabled] = useState(false); // 버튼 비활성화 상태 관리
+  const [products, setProducts] = useState<any[]>([]); // 상품 정보 상태 관리
 
-  // 바코드 인식을 선택했을 때
+  // 상품 정보를 받아옴 (이전 페이지에서 전달된 정보)
+  useEffect(() => {
+    if (router.query.products) {
+      setProducts(JSON.parse(router.query.products as string));
+    }
+  }, [router.query]);
+
+  // 바코드 인식을 선택했을 때, 상품 정보를 바코드 페이지로 전달
   const handleBarcodeClick = () => {
     setIsDisabled(true);  // 버튼 비활성화
-    router.push('/barcode');  // 바코드 페이지로 이동
+    router.push({
+      pathname: '/barcode',
+      query: { products: JSON.stringify(products) }
+    });  // 바코드 페이지로 이동하며 상품 정보를 전달
   };
 
-  // RFID 인식을 선택했을 때
+  // RFID 인식을 선택했을 때, 상품 정보를 RFID 페이지로 전달
   const handleRFIDClick = () => {
     setIsDisabled(true);  // 버튼 비활성화
-    router.push('/rfid');  // RFID 페이지로 이동
+    router.push({
+      pathname: '/rfid',
+      query: { products: JSON.stringify(products) }
+    });  // RFID 페이지로 이동하며 상품 정보를 전달
   };
 
   return (
