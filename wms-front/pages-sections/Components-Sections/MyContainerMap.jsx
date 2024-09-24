@@ -27,6 +27,7 @@ import Button from "/components/CustomButtons/Button.js";
 import styles from "/styles/jss/nextjs-material-kit/pages/componentsSections/MyContainerMapStyle";
 //Material UI 창고 생성 테스트를 위한
 import { Typography, Slider, Box, Modal, Fade, TextField } from "@mui/material";
+import Konva from "konva";
 
 // 상수 설정(그리드, 컨버스 등)
 const GRID_SIZE = 100;
@@ -45,6 +46,119 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   const classes = useStyles();
   const stageRef = useRef(null);
   const layerRef = useRef(null);
+  const trRef = useRef(); // Ref for 변형기(Transformer)
+
+  // 다중 선택으로 드래그 했을 때의 영역을 보여주는 Ref
+  const selectionRectRef = useRef();
+  const selection = useRef({
+    visible: false,
+    x1: 0,
+    y1: 0,
+    x2: 0,
+    y2: 0,
+  });
+
+  // 다중 선택을 위한 State
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  // 다중 선택을 위한 HandleMouseDown
+  const handleMouseDownSelection = (e) => {
+    // Ignore if right-clicking on a shape
+    if (e.evt.button === 2 && e.target !== e.target.getStage()) return;
+
+    // Check if left-click on empty area
+    if (e.evt.button === 0 && e.target === e.target.getStage()) {
+      // Left-click on empty area deselects all
+      setSelectedIds([]);
+      setSelectedLocation(null);
+      return;
+    }
+
+    if (e.evt.button === 2) {
+      // Right-click drag for selection
+      // Shape 위에서 발생했을 시에 반환
+      if (e.target !== e.target.getStage()) return;
+
+      // 위치를 얻어온다.
+      const pos = e.target.getStage().getPointerPosition();
+      selection.current = {
+        visible: true,
+        x1: pos.x,
+        y1: pos.y,
+        x2: pos.x,
+        y2: pos.y,
+      };
+      updateSelectionRect();
+
+      // Default context Menu가 켜지는 것을 방지
+      e.evt.preventDefault();
+    }
+  };
+
+  // 드래그를 통해 선택 영역을 조정한다.
+  const handleMouseMoveSelection = (e) => {
+    if (!selection.current.visible) return;
+
+    // 오른쪽 버튼이 계속 눌려있는지 확인
+    if (e.evt.buttons !== 2) {
+      selection.current.visible = false;
+      updateSelectionRect();
+      return;
+    }
+
+    const pos = e.target.getStage().getPointerPosition();
+    selection.current.x2 = pos.x;
+    selection.current.y2 = pos.y;
+    updateSelectionRect();
+  };
+
+  //최종 선택(해당 영역에 대해서 선택함)
+  const handleMouseUpSelection = (e) => {
+    if (!selection.current.visible) return;
+
+    selection.current.visible = false;
+    updateSelectionRect();
+    const selBox = selectionRectRef.current.getClientRect();
+    const shapes = layerRef.current.find(".selectableShape");
+    const selected = shapes.filter((shape) =>
+      Konva.Util.haveIntersection(selBox, shape.getClientRect())
+    );
+    setSelectedIds(selected.map((shape) => shape.id()));
+
+    // Default context Mene가 켜지는 것을 방지
+    e.evt.preventDefault();
+  };
+
+  //선택된 사각형들을 업데이트한다.
+  const updateSelectionRect = () => {
+    const node = selectionRectRef.current;
+    node.visible(selection.current.visible);
+    node.width(Math.abs(selection.current.x2 - selection.current.x1));
+    node.height(Math.abs(selection.current.y2 - selection.current.y1));
+    node.x(Math.min(selection.current.x1, selection.current.x2));
+    node.y(Math.min(selection.current.y1, selection.current.y2));
+    node.getLayer().batchDraw();
+  };
+
+  // onSelect 함수를 변경한다.
+  const onSelect = (e, id) => {
+    // 오른쪽 클릭이면 선택하지 않음
+    if (e.evt.button === 2) return;
+
+    const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
+    if (metaPressed) {
+      // Multiple selection 다중 선택 상황
+      if (selectedIds.includes(id)) {
+        setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
+      } else {
+        setSelectedIds([...selectedIds, id]);
+      }
+    } else {
+      // Single selection 단일 선택
+      setSelectedIds([id]);
+      setSelectedLocation(locations.find((loc) => loc.id === id));
+    }
+  };
 
   // 모바일 화면에서 우측 사이드바를 토글 방식으로 크고/끄는 방식
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
@@ -102,7 +216,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       rotation: 0,
     },
   ]);
-  // Check if position is within bounds
+  // Check if position is within bounds / 캔버스 바운드 안에 들어가는지를 확인
   const isPositionWithinBounds = (x, y, width, height) => {
     return (
       x >= 0 && y >= 0 && x + width <= CANVAS_SIZE && y + height <= CANVAS_SIZE
@@ -206,6 +320,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
     const newLocation = {
       //Id를 넣어서는 안된다. DB에서 자동으로 처리되도록 해야한다.
+      id: (locations.length + 1).toString(), // API 연결 후 삭제
       x: 50,
       y: 50,
       z: newLocationZIndex,
@@ -236,12 +351,12 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     };
 
     // API 호출 - 생성된 로케이션을 서버에 POST
-    try {
-      await postLocationAPI([locationData], warehouseId);
-    } catch (error) {
-      console.error("Error adding location:", error);
-      notify("로케이션 추가 중 오류가 발생했습니다.");
-    }
+    // try {
+    //   await postLocationAPI([locationData], warehouseId);
+    // } catch (error) {
+    //   console.error("Error adding location:", error);
+    //   notify("로케이션 추가 중 오류가 발생했습니다.");
+    // }
 
     // 적재함 추가 후 값 초기화
     setNewLocationColor("blue");
@@ -1039,14 +1154,15 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
         return;
       }
 
+      // Set the current shape reference
       currentShapeRef.current = e.target;
+
+      // Show the menu
       menuNode.style.display = "initial";
       const containerRect = stage.container().getBoundingClientRect();
 
-      menuNode.style.top =
-        containerRect.top + stage.getPointerPosition().y - 50 + "px";
-      menuNode.style.left =
-        containerRect.left + stage.getPointerPosition().x - 5 + "px";
+      menuNode.style.top = containerRect.top + e.evt.clientY + "px";
+      menuNode.style.left = containerRect.left + e.evt.clientX + "px";
     });
 
     window.addEventListener("click", () => {
@@ -1104,6 +1220,18 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
     centerCanvas();
   }, [CANVAS_SIZE, VIEWPORT_WIDTH, VIEWPORT_HEIGHT]);
+
+  //selectedIds를 최신화하기 위함
+  useEffect(() => {
+    if (trRef.current && layerRef.current) {
+      const nodes = selectedIds
+        .map((id) => layerRef.current.findOne(`#${id}`))
+        .filter(Boolean);
+      trRef.current.nodes(nodes);
+      trRef.current.getLayer().batchDraw();
+    }
+  }, [selectedIds, locations]);
+
   /**
    * 창고 자동 생성 로직을 위한 부분
    */
@@ -1230,6 +1358,9 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
   // RGB 색깔로 재고율 퍼센트(%)를 추출하는 함수
   const extractFillPercentage = (rgbaString) => {
+     // Return 0% if the string is undefined or null
+    if (!rgbaString) return "0.0";
+
     const matches = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
 
     if (matches) {
@@ -1459,6 +1590,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       <div className={classes.outOfCanvas}>
         <div className={classes.inOfCanvas} style={{ cursor: customCursor }}>
           <Stage
+            ref={stageRef}
             width={window.innerWidth}
             height={window.innerHeight}
             scaleX={scale}
@@ -1466,10 +1598,17 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             x={stagePosition.x}
             y={stagePosition.y}
             draggable={currentSetting === "wall" ? false : true}
-            ref={stageRef}
             onPointerMove={Pointer}
-            onMouseDown={checkDeselect}
-            onTouchStart={checkDeselect}
+            onMouseDown={(e) => {
+              handleMouseDownSelection(e);
+              checkDeselect(e);
+            }}
+            onContextMenu={(e) => {
+              e.evt.preventDefault();
+            }}
+            onMouseMove={handleMouseMoveSelection}
+            onMouseUp={handleMouseUpSelection}
+            // onTouchStart={checkDeselect}
             dragBoundFunc={(pos) => {
               // Restrict dragging to within 150% of the CANVAS_SIZE
               const minX = -(CANVAS_SIZE * 0.25);
@@ -1484,21 +1623,17 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
           >
             <Layer ref={layerRef}>
               {generateGridLines()}
-
               {locations.map((rect, i) => (
                 <RectangleTransformer
                   key={rect.id}
+                  shapeProps={rect}
                   x={rect.x}
                   y={rect.y}
                   width={rect.width}
                   height={rect.height}
                   fill={rect.fill}
-                  shapeProps={rect}
-                  isSelected={rect.id === selectedLocationTransform}
-                  onSelect={() => {
-                    setSelectedLocationTransform(rect.id);
-                    setSelectedLocation(rect);
-                  }}
+                  isSelected={selectedIds.includes(rect.id)}
+                  onSelect={onSelect}
                   onChange={(newAttrs) => {
                     const rects = locations.slice();
                     rects[i] = newAttrs;
@@ -1506,6 +1641,58 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
                   }}
                 />
               ))}
+              {/* for Dragging */}
+              <Rect
+                fill="rgba(0, 161, 255, 0.3)"
+                ref={selectionRectRef}
+                visible={false}
+              />
+              <Transformer
+                ref={trRef}
+                flipEnabled={false}
+                boundBoxFunc={(oldBox, newBox) => {
+                  if (
+                    Math.abs(newBox.width) < 5 ||
+                    Math.abs(newBox.height) < 5
+                  ) {
+                    return oldBox;
+                  }
+                  return newBox;
+                }}
+                onTransformEnd={(e) => {
+                  // 선택된 모든 사각형이 업데이트 되는 거시기
+                  const transformerNodes = trRef.current.nodes();
+                  const updatedLocations = locations.slice();
+
+                  transformerNodes.forEach((node) => {
+                    const id = node.id();
+                    const rectIndex = locations.findIndex(
+                      (rect) => rect.id === id
+                    );
+                    if (rectIndex >= 0) {
+                      const shapeProps = locations[rectIndex];
+                      const scaleX = node.scaleX();
+                      const scaleY = node.scaleY();
+
+                      node.scaleX(1);
+                      node.scaleY(1);
+
+                      const newAttrs = {
+                        ...shapeProps,
+                        x: Math.round(node.x()),
+                        y: Math.round(node.y()),
+                        rotation: Math.round(node.rotation()),
+                        width: Math.round(Math.max(5, node.width() * scaleX)),
+                        height: Math.round(Math.max(5, node.height() * scaleY)),
+                      };
+                      // 복사된 array에 카피한다.
+                      updatedLocations[rectIndex] = newAttrs;
+                    }
+                  });
+                  // 위치를 업데이트한다.
+                  setLocations(updatedLocations);
+                }}
+              />
             </Layer>
           </Stage>
         </div>
@@ -1561,16 +1748,27 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             <ul className={classes.ulListStyle}>
               {locations
                 .filter(
-                  (locations) =>
-                    locations.type === "location" && locations.name !== "00-00"
+                  (location) =>
+                    location.type === "location" && location.name !== "00-00"
                 )
-                .map((locations, index) => (
+                .map((location, index) => (
                   <li
                     className={classes.liListStyle}
                     key={index}
                     onClick={() => {
-                      setSelectedLocation(locations);
-                      setSelectedLocationTransform(locations.id);
+                      // Set the selected rectangle
+                      setSelectedIds([location.id]); // Select the rectangle
+                      setSelectedLocation(location); // Store the selected location
+
+                      // Attach the Transformer to this rectangle
+                      const rectNode = layerRef.current.findOne(
+                        `#${location.id}`
+                      );
+                      if (rectNode) {
+                        // Add null check to ensure rectNode exists
+                        trRef.current.nodes([rectNode]); // Attach the transformer to the selected rectangle
+                        trRef.current.getLayer().batchDraw(); // Redraw the layer to apply the changes
+                      }
                     }}
                     style={{
                       backgroundColor:
@@ -1579,7 +1777,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
                           : "transparent", // Default color for unselected items
                     }}
                   >
-                    {locations.name}
+                    {location.name}
                   </li>
                 ))}
             </ul>
@@ -1590,17 +1788,16 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
         <hr />
         <h3>선택된 재고함</h3>
-        {selectedLocation ? (
+        {selectedIds.length > 1 ? (
+          <p>다중 선택되었습니다.</p>
+        ) : selectedLocation ? (
           <div>
             <p>이름 : {selectedLocation.name}</p>
             <p>타입 : {selectedLocation.type}</p>
             <p>층수 : {selectedLocation.z}</p>
+            <p>현재 재고율 : {extractFillPercentage(selectedLocation.fill)}%</p>
             <p>
-              현재 재고율 : {extractFillPercentage(selectedLocation.fill)}%{" "}
-              {/* Extract fill percentage from RGBA */}
-            </p>
-            <p>
-              가로 :{selectedLocation.width}cm | 세로 :{" "}
+              가로 : {selectedLocation.width}cm | 세로 :{" "}
               {selectedLocation.height}cm
             </p>
           </div>
@@ -1779,22 +1976,16 @@ const RectangleTransformer = ({
     return "0.0"; // Default to 0% if unable to parse
   };
 
-  // 사각형이 선택되었을 때 변형기를 연결하기 위한 Effect 훅
-  useEffect(() => {
-    if (isSelected) {
-      trRef.current.nodes([shapeRef.current]);
-      trRef.current.getLayer().batchDraw();
-    }
-  }, [isSelected]);
-
   return (
     <React.Fragment>
       {/* 사각형 모양 */}
       <Rect
-        onClick={onSelect} // 사각형 선택을 위한 클릭 이벤트 처리
-        onTap={onSelect} // 터치 디바이스를 위한 탭 이벤트 처리
         ref={shapeRef}
         {...shapeProps}
+        id={shapeProps.id}
+        name="selectableShape" // 선택 가능하게 id값을 추가해서 속성 추가
+        onClick={(e) => onSelect(e, shapeProps.id)}
+        onTap={(e) => onSelect(e, shapeProps.id)}
         draggable // 사각형을 드래그 가능하게 함
         // 드래그 종료 이벤트 -- 사각형 위치 업데이트
         onDragEnd={(e) => {
@@ -1804,23 +1995,7 @@ const RectangleTransformer = ({
             y: Math.round(e.target.y()),
           });
         }}
-        // 변형 종료 이벤트 -- 사각형 크기 및 위치 업데이트
-        onTransformEnd={(e) => {
-          const node = shapeRef.current; // 현재 도형에 대한 정보를 업데이트 받는다.
-          const scaleX = node.scaleX();
-          const scaleY = node.scaleY();
-
-          node.scaleX(1);
-          node.scaleY(1);
-          onChange({
-            ...shapeProps,
-            x: Math.round(node.x()), // 변형 후에 반올림한 위치로 이동
-            y: Math.round(node.y()),
-            width: Math.round(Math.max(5, node.width() * scaleX)), // 최소 너비 보장
-            height: Math.round(Math.max(5, node.height() * scaleY)), // 최소 높이 보장
-            rotation: Math.round(node.rotation()), // 반올림한 각도
-          });
-        }}
+        // 개별 변환기 삭제
       />
       <Text
         text={floorName}
