@@ -10,5 +10,5 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
 
     List<Device> findByStoreId(Long storeId);
 
-    Optional<Device> findByKey(String key);
+    Optional<Device> findByDeviceKey(String deviceKey);
 }

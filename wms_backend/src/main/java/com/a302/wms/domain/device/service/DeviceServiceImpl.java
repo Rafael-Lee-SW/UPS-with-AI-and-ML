@@ -1,9 +1,11 @@
 package com.a302.wms.domain.device.service;
 
+import com.a302.wms.domain.device.dto.DeviceKeyCreateDto;
 import com.a302.wms.domain.device.dto.DeviceKeyResponseDto;
-import com.a302.wms.domain.device.dto.DeviceCreateRequestDto;
+import com.a302.wms.domain.device.dto.DeviceRegisterRequestDto;
 import com.a302.wms.domain.device.dto.DeviceResponseDto;
 import com.a302.wms.domain.device.entity.Device;
+import com.a302.wms.domain.device.entity.DeviceDetails;
 import com.a302.wms.domain.device.mapper.DeviceMapper;
 import com.a302.wms.domain.device.repository.DeviceRepository;
 import com.a302.wms.domain.store.entity.Store;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -54,7 +57,7 @@ public class DeviceServiceImpl {
      * @param deviceId
      * @return
      */
-    public DeviceKeyResponseDto getDeviceKey(Long userId, Long deviceId) {
+    public DeviceKeyResponseDto getDetailedInfo(Long userId, Long deviceId) {
         log.info("[Service] get device key of the user");
 
         //TODO: user validation
@@ -66,29 +69,38 @@ public class DeviceServiceImpl {
         return DeviceMapper.toDeviceKeyDto(device);
     }
 
+    public String createDeviceKey(/*Long userId,*/ DeviceKeyCreateDto dto) {
+        log.info("[Service] create device key of the store: {}", dto);
+        String key = UUID.randomUUID().toString();
+        DeviceDetails deviceDetails = DeviceDetails.builder()
+                .type(dto.deviceType())
+                .storeId(dto.storeId())
+                .build();
+        return key;
+    }
 
     /**
      * 특정 매장에 속하는 디바이스 (키오스크, CCTV)를 등록합니다.
-     * @param userId
-     * @param deviceCreateRequestDto
+     * @param deviceRegisterRequestDto
      * @return
      */
-    public DeviceResponseDto saveDevice(Long userId, DeviceCreateRequestDto deviceCreateRequestDto) {
-        log.info("[Service] create device of the user");
 
-        //TODO: user validation
-//        User user = userRepository.findById(userId).orElseThrow();
-
-        //TODO: store validation
-        Store store = storeRepository.findById(deviceCreateRequestDto.storeId()).orElseThrow();
-//        if(store.getUser().getId()!=user.getId()) throw
-
-        //TODO: key validation with redis and delete
-
-        Device device = deviceRepository.save(DeviceMapper.toEntity(deviceCreateRequestDto, store));
-
-        return DeviceMapper.toDeviceResponseDto(device);
-    }
+//    public DeviceResponseDto saveDevice(/*Long userId,*/ DeviceRegisterRequestDto deviceRegisterRequestDto) {
+//        log.info("[Service] create device of the user");
+//
+//        //TODO: user validation
+////        User user = userRepository.findById(userId).orElseThrow();
+//
+//        //TODO: store validation
+////        Store store = storeRepository.findById(deviceCreateRequestDto.storeId()).orElseThrow();
+////        if(store.getUser().getId()!=user.getId()) throw
+//
+//        //TODO: key validation with redis and delete
+//
+//        Device device = deviceRepository.save(DeviceMapper.toEntity(deviceRegisterRequestDto));
+//
+//        return DeviceMapper.toDeviceResponseDto(device);
+//    }
 
     /**
      * 해당 디바이스 (키오스크, CCTV)를 삭제합니다.
