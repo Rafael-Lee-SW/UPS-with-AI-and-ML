@@ -1,5 +1,8 @@
 package com.a302.wms.domain.product.service;
 
+import com.a302.wms.domain.device.dto.DeviceRegisterRequestDto;
+import com.a302.wms.domain.device.entity.Device;
+import com.a302.wms.domain.device.repository.DeviceRepository;
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.repository.FloorRepository;
 import com.a302.wms.domain.floor.service.FloorService;
@@ -7,6 +10,7 @@ import com.a302.wms.domain.product.dto.*;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.mapper.ProductMapper;
 import com.a302.wms.domain.product.repository.ProductRepository;
+import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.global.constant.ProductConstant;
 import com.a302.wms.domain.product.dto.*;
 import com.a302.wms.domain.product.exception.ProductException;
@@ -32,6 +36,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductFlowService productFlowService;
     private final FloorRepository floorRepository;
+    private final DeviceRepository deviceRepository;
 
     /**
      * 해당 사업자의 모든 상품 호출
@@ -62,6 +67,16 @@ public class ProductService {
         return products.stream()
                 .map(ProductMapper::toProductResponseDto)
                 .toList();
+    }
+
+    public List<ProductResponseDto> findAllByKioskKey(DeviceRegisterRequestDto dto) {
+        log.info("[Service] find Products by kiosk key: {}", dto);
+
+        Device device = deviceRepository.findByKey(dto.key()).orElseThrow();
+
+        Store store = device.getStore();
+
+        return findAllByStoreId(store.getId());
     }
 
 
