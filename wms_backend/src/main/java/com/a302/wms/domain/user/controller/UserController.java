@@ -1,75 +1,62 @@
 package com.a302.wms.domain.user.controller;
 
+import com.a302.wms.domain.user.dto.UserPasswordUpdateRequest;
 import com.a302.wms.domain.user.dto.UserRequestDto;
 import com.a302.wms.domain.user.dto.UserResponseDto;
-import com.a302.wms.domain.user.service.UserService;
+import com.a302.wms.domain.user.dto.UserSignUpRequest;
+import com.a302.wms.domain.user.service.UserServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/useres")
-@Tag(name = "사업체 관리", description = "사업체의 CRUD 관리")
+@RequestMapping("/users")
 @RequiredArgsConstructor
+@Tag(name = "유저 관리", description = "유저 CRUD 관리")
 public class UserController {
 
-    private final UserService userService;
+    @Autowired
+    private UserServiceImpl userService;
 
-    /**
-     * 특정 id를 가진 사업체의 정보를 조회하는 메서드
-     *
-     * @param id : 사업체 고유 번호
-     * @return UserDto
-     */
+    @PostMapping("/sign-up")
+    public BaseSuccessResponse<UserResponseDto> save(@RequestBody UserSignUpRequest request) {
+        UserResponseDto response = userService.save(request);
+        return new BaseSuccessResponse<>(response);
+    }
+
+    // 특정 유저 조회
     @GetMapping("/{id}")
-    public BaseSuccessResponse<?> findById(@PathVariable Long id) {
-        log.info("[Controller] find User by productId: {}", id);
-        return new BaseSuccessResponse<>(userService.findById(id));
+    public BaseSuccessResponse<UserResponseDto> findById(@PathVariable Long id) {
+        if (id != null) {
+            log.info("[Controller] find User by id: {}", id);
+            return new BaseSuccessResponse<>(userService.findById(id));
+        }  return new BaseSuccessResponse<>(null);
     }
 
-    /**
-     * 사업체 생성 메서드
-     *
-     * @param userId
-     * @param request
-     * @return
-     */
-    @PostMapping
-    public BaseSuccessResponse<?> create(@RequestParam(name = "userId") Long userId,
-        @RequestBody UserRequestDto request) {
-        log.info("[Controller] create User by userId: {}", userId);
-        UserResponseDto responseDto = userService.create(userId, request);
-        return new BaseSuccessResponse<>(responseDto);
-    }
-
-    /**
-     * 사업체의 정보를 수정하는 메서드 현재 수정 가능한 부분은 사업체에 관한 개인 정보들(사업체 번호, 이름,이메일 등..)
-     *
-     * @param id      : 사업체 고유 번호
-     * @param request : 사업체 정보가 담긴 Dto
-     * @return UserDto
-     */
+    // 특정 유저 수정
     @PutMapping("/{id}")
-    public BaseSuccessResponse<?> update(@PathVariable Long id,
-        @RequestBody UserRequestDto request) {
-        log.info("[Controller] update User by productId: {}", id);
+    public BaseSuccessResponse<UserResponseDto> update(@PathVariable("id") Long id,
+                                                       @RequestBody UserRequestDto request) {
+        log.info("[Controller] update user by id: {}", id);
         return new BaseSuccessResponse<>(userService.update(id, request));
     }
 
-    /**
-     * 사업체의 정보를 삭제하는 메서드 실제로 지우지 않고, 상태를 DELETED로 변경하여 삭제된 것 처럼 처리
-     *
-     * @param id : 사업체 고유 번호
-     * @return UserDto
-     */
-    @DeleteMapping("/{id}")
-    public BaseSuccessResponse<Void> delete(@PathVariable Long id) {
-        log.info("[Controller] delete User by productId: {}", id);
-        userService.delete(id);
+    @PutMapping("/{id}/password-change")
+    public BaseSuccessResponse<UserResponseDto> updatePassword(@PathVariable("id") Long id,
+                                                               @RequestBody UserPasswordUpdateRequest request) {
+        userService.updatePassword(id, request);
+        log.info("[Controller] change password by id: {}", id);
         return new BaseSuccessResponse<>(null);
+    }
+
+    @DeleteMapping("/{id}")
+    public BaseSuccessResponse<UserResponseDto> delete(@PathVariable("id") Long id) {
+        log.info("[Controller] delete user by id: {}", id);
+        return new BaseSuccessResponse<>(userService.delete(id));
     }
 
 }
