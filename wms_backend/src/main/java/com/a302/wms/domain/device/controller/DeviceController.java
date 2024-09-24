@@ -1,6 +1,7 @@
 package com.a302.wms.domain.device.controller;
 
 import com.a302.wms.domain.device.dto.DeviceCreateRequestDto;
+import com.a302.wms.domain.device.dto.DeviceKeyCreateDto;
 import com.a302.wms.domain.device.dto.DeviceKeyResponseDto;
 import com.a302.wms.domain.device.dto.DeviceResponseDto;
 import com.a302.wms.domain.device.service.DeviceServiceImpl;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -50,24 +52,37 @@ public class DeviceController {
             @PathVariable(required = true) Long deviceId
     ) {
         log.info("[Controller] get device key of the device: {}", deviceId);
-        return new BaseSuccessResponse<>(deviceService.getDeviceKey(userId, deviceId));
+        return new BaseSuccessResponse<>(deviceService.getDetailedInfo(userId, deviceId));
     }
 
+    /**
+     * 매장에 대한 기기를 등록하는 메서드
+     * @param dto 
+     * @return
+     */
+    @PostMapping("/keys")
+    public BaseSuccessResponse<String> createDeviceKey(
+//            @RequestParam Long userId,
+            @RequestBody DeviceKeyCreateDto dto
+            )   {
+        log.info("[Controller] create device key for the store: {}", dto.storeId());
+//        return deviceService.createDeviceKey(dto);
+        return new BaseSuccessResponse<>(UUID.randomUUID().toString());
+    }
 
     /**
-     * 디바이스를 새로 생성합니다.
-     * @param userId
-     * @param requestDto
+     * 디바이스를 새로 등록합니다.
+     * @param dto
      * @return
      */
     @PostMapping
     @Operation(summary = "디바이스 등록", tags = { "디바이스 관리" })
     public BaseSuccessResponse<DeviceResponseDto> saveDevice(
-            @RequestParam(required = true) Long userId,
-            @RequestBody(required = true) DeviceCreateRequestDto requestDto
+//            @RequestParam(required = true) Long userId,
+            @RequestBody(required = true) DeviceCreateRequestDto dto
     ) {
-        log.info("[Controller] create device for the store: {}", requestDto.storeId());
-        return new BaseSuccessResponse<>(deviceService.saveDevice(userId, requestDto));
+        log.info("[Controller] create device for the key: {}", dto.key());
+        return new BaseSuccessResponse<>(deviceService.saveDevice(/*userId, */dto));
     }
 
     /**
