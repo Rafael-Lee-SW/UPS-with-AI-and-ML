@@ -20,7 +20,10 @@ public class StoreController {
     private StoreServiceImpl storeService;
 
     /**
-     * 사업자 id의 창고를 저장 POST 방식
+     * user에 대한 매장 생성
+     * @param userId
+     * @param storeDto
+     * @return
      */
     @PostMapping
     public BaseSuccessResponse<StoreResponseDto> save(
@@ -31,7 +34,9 @@ public class StoreController {
     }
 
     /**
-     * 비지니스 id로 창고 조회 GET 방식
+     * userId를 통해 user의 모든 매장 목록을 불러옴
+     * @param userId
+     * @return
      */
     @GetMapping
     public BaseSuccessResponse<List<StoreResponseDto>> findByUserId(
@@ -40,6 +45,12 @@ public class StoreController {
         return new BaseSuccessResponse<>(storeService.findByUserId(userId));
     }
 
+    /**
+     * storeId로 해당 매장의 세부 정보를 불러옴
+     * @param userId
+     * @param storeId
+     * @return
+     */
     @GetMapping("/{storeId}")
     public BaseSuccessResponse<StoreDetailResponseDto> findById(
             @RequestParam Long userId,
@@ -49,19 +60,28 @@ public class StoreController {
         return new BaseSuccessResponse<>(storeService.findById(userId, storeId));
     }
 
-    /*
-   창고 id의 상태를 비활성화 (status를 0으로 변경) PATCH 방식
-   */
-    @PatchMapping("/{id}")
+
+    /**
+     * store 삭제
+     * @param userId
+     * @param storeId
+     * @return
+     */
+    @PatchMapping("/{storeId}")
     public BaseSuccessResponse<Void> delete(
             @RequestParam Long userId,
-            @PathVariable Long id
+            @PathVariable Long storeId
     ) {
-        log.info("[Controller] delete Store by id: {}", id);
-        storeService.delete(userId, id);
+        log.info("[Controller] delete Store by storeId: {}", storeId);
+        storeService.delete(userId, storeId);
         return new BaseSuccessResponse<>(null);
     }
 
+    /**
+     * Store에 대한 벽 정보 저장
+     * @param dto
+     * @return
+     */
     @PostMapping("/walls")
     public BaseSuccessResponse<Void> saveAllWall(
             @RequestBody WallsCreateDto dto
