@@ -1,6 +1,7 @@
 package com.a302.wms.domain.product.controller;
 
 
+import com.a302.wms.domain.device.dto.DeviceRegisterRequestDto;
 import com.a302.wms.domain.product.dto.ProductImportRequestDto;
 import com.a302.wms.domain.product.dto.ProductMoveRequestDto;
 import com.a302.wms.domain.product.dto.ProductResponseDto;
@@ -25,6 +26,18 @@ public class ProductController {
 
     private final ProductService productService;
     private final ProductFlowService productFlowService;
+
+    /**
+     * 등록된 Kiosk의 Kiosk key로 해당 매장의 모든 상품을 불러오는 메서드
+     * @param dto
+     * @return
+     */
+    @PostMapping
+    public BaseSuccessResponse<List<ProductResponseDto>> getProductsByKioskKey(
+            @RequestBody DeviceRegisterRequestDto dto
+    ) {
+        return new BaseSuccessResponse<>(productService.findAllByKioskKey(dto));
+    }
 
     /**
      * (서비스 전체/매장 별/상품 정보별)로의 상품들을 반환하는 기능
