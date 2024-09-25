@@ -19,12 +19,18 @@ public class PaymentController {
 
     private PaymentServiceImpl paymentService;
 
+    /**
+     * TODO : JavaDoc 작성
+     * @param deviceId
+     * @param dto
+     * @return
+     */
     @PostMapping
     public BaseSuccessResponse<PaymentResponseDto> save(
             @RequestParam Long deviceId,
             @RequestBody PaymentCreateRequestDto dto
     ) {
-        log.info("[Controller] save payment for device {} in store {}", deviceId, dto.storeId());
+        log.info("[Controller] save payment for device in store");
 
         return new BaseSuccessResponse<>(paymentService.save(deviceId, dto));
     }
@@ -34,17 +40,23 @@ public class PaymentController {
             @RequestParam Long userId,
             @PathVariable Long paymentId
     ) {
-        log.info("[Controller] get payment for user {} by paymentId {}", userId, paymentId);
+        log.info("[Controller] get payment for user by paymentId");
 
         return new BaseSuccessResponse<>(paymentService.findById(userId, paymentId));
     }
 
+    /**
+     * TODO : JavaDoc 작성
+     * @param userId
+     * @param dto
+     * @return
+     */
     @GetMapping
     public BaseSuccessResponse<List<PaymentResponseDto>> find(
             @RequestParam Long userId,
             @RequestBody PaymentSearchRequestDto dto
     ) {
-        log.info("[Controller] find payments of store {} created between {} and {} for user {}", dto.storeId(), dto.startDateTime(), dto.endDateTime(), userId);
+        log.info("[Controller] find payments of store ");
 
         return new BaseSuccessResponse<>(paymentService.find(userId, dto));
     }

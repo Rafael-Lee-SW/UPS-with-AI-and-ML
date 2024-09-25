@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/useres")
-@Tag(name = "사업체 관리", description = "사업체의 CRUD 관리")
+@RequestMapping("/users")
+@Tag(name = "사용자 관리", description = "사용자의 CRUD 관리")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
     /**
-     * 특정 id를 가진 사업체의 정보를 조회하는 메서드
+     * 특정 id를 가진 사용자의 정보를 조회하는 메서드
      *
-     * @param id : 사업체 고유 번호
+     * @param id : 사용자 고유 번호
      * @return UserDto
      */
     @GetMapping("/{id}")
@@ -31,44 +31,28 @@ public class UserController {
     }
 
     /**
-     * 사업체 생성 메서드
+     * 사용자 정보 수정
      *
-     * @param userId
-     * @param request
-     * @return
+     * @param userId      : 사용자 고유 번호
+     * @param userRequestDto : 사용자 정보가 담긴 Dto
+     * @return UserDto
      */
-    @PostMapping
-    public BaseSuccessResponse<?> create(@RequestParam(name = "userId") Long userId,
-        @RequestBody UserRequestDto request) {
-        log.info("[Controller] create User by userId: {}", userId);
-        UserResponseDto responseDto = userService.create(userId, request);
-        return new BaseSuccessResponse<>(responseDto);
+    @PutMapping("/{userId}")
+    public BaseSuccessResponse<?> update(@PathVariable Long userId,
+        @RequestBody UserRequestDto userRequestDto) {
+        log.info("[Controller] update User by productId");
+        return new BaseSuccessResponse<>(userService.update(userId, userRequestDto));
     }
 
     /**
-     * 사업체의 정보를 수정하는 메서드 현재 수정 가능한 부분은 사업체에 관한 개인 정보들(사업체 번호, 이름,이메일 등..)
+     * 사용자의 정보를 삭제하는 메서드
      *
-     * @param id      : 사업체 고유 번호
-     * @param request : 사업체 정보가 담긴 Dto
-     * @return UserDto
+     * @param userId : 사용자 고유 번호
      */
-    @PutMapping("/{id}")
-    public BaseSuccessResponse<?> update(@PathVariable Long id,
-        @RequestBody UserRequestDto request) {
-        log.info("[Controller] update User by productId: {}", id);
-        return new BaseSuccessResponse<>(userService.update(id, request));
-    }
-
-    /**
-     * 사업체의 정보를 삭제하는 메서드 실제로 지우지 않고, 상태를 DELETED로 변경하여 삭제된 것 처럼 처리
-     *
-     * @param id : 사업체 고유 번호
-     * @return UserDto
-     */
-    @DeleteMapping("/{id}")
-    public BaseSuccessResponse<Void> delete(@PathVariable Long id) {
-        log.info("[Controller] delete User by productId: {}", id);
-        userService.delete(id);
+    @DeleteMapping("/{userId}")
+    public BaseSuccessResponse<Void> delete(@PathVariable Long userId) {
+        log.info("[Controller] delete User by productId");
+        userService.delete(userId);
         return new BaseSuccessResponse<>(null);
     }
 
