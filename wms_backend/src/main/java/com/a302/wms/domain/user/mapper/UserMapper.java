@@ -22,7 +22,7 @@ public class UserMapper {
     public static User toEntity(UserSignUpRequest dto, String hashedPassword) {
         return User.builder()
                 .username(dto.username())
-                .password(hashedPassword)  // 암호화된 비밀번호 저장
+                .password(hashedPassword)
                 .email(dto.email())
                 .build();
     }
