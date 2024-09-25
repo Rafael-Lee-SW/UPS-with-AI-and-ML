@@ -18,9 +18,9 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @Getter
 @ToString
-//@SQLRestriction("status_enum = 'Active'")
+
 @RequiredArgsConstructor
-//@AllArgsConstructor
+
 public class Wall extends BaseTimeEntity {
 
     @Id
@@ -43,13 +43,12 @@ public class Wall extends BaseTimeEntity {
     @Column(nullable = false)
     private int endY;
 
-//    @Enumerated(EnumType.STRING)
-//    @Builder.Default
-//    private StatusEnum statusEnum = StatusEnum.ACTIVE;
-//
-//    public void updateStatus(StatusEnum statusEnum) {
-//        this.statusEnum = statusEnum;
-//    }
+
+
+
+
+
+
 
     @Builder
     public Wall(Store store, int startX, int startY, int endX, int endY) {

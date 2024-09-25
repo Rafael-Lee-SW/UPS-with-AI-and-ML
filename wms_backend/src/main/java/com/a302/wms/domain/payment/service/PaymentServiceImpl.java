@@ -12,61 +12,81 @@ import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.store.repository.StoreRepository;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.repository.UserRepository;
-import com.a302.wms.global.constant.DeviceTypeEnum;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl {
 
-    private final PaymentRepository paymentRepository;
-    private final DeviceRepository deviceRepository;
-    private final StoreRepository storeRepository;
-    private final UserRepository userRepository;
+  private final PaymentRepository paymentRepository;
+  private final DeviceRepository deviceRepository;
+  private final StoreRepository storeRepository;
+  private final UserRepository userRepository;
 
+  /**
+   * TODO : JavaDoc 작성
+   *
+   * @param deviceId
+   * @param dto
+   * @return
+   */
+  @Transactional
+  public PaymentResponseDto save(Long deviceId, PaymentCreateRequestDto dto) {
+    log.info("[Service] save payment for device in store");
 
-    @Transactional
-    public PaymentResponseDto save(Long deviceId, PaymentCreateRequestDto dto) {
-        log.info("[Service] save payment for device {} in store {}", deviceId, dto.storeId());
+    Device device = deviceRepository.findById(deviceId).orElseThrow();
 
-        Device device = deviceRepository.findById(deviceId).orElseThrow();
-//        if(device.getDeviceType()!= DeviceTypeEnum.KIOSK() throw new Exception();
+    Store store = storeRepository.findById(dto.storeId()).orElseThrow();
 
-        Store store = storeRepository.findById(dto.storeId()).orElseThrow();
+    Payment newPayemnt = paymentRepository.save(PaymentMapper.fromCreateRequestDto(dto, store));
 
-        Payment newPayemnt = paymentRepository.save(PaymentMapper.fromCreateRequestDto(dto, store));
+    return PaymentMapper.toResponseDto(newPayemnt);
+  }
 
-        return PaymentMapper.toResponseDto(newPayemnt);
-    }
+  /**
+   * TODO : JavaDoc 작성
+   *
+   * @param userId
+   * @param paymentId
+   * @return
+   */
+  public PaymentResponseDto findById(Long userId, Long paymentId) {
+    log.info("[Service] find payment for user");
 
-    public PaymentResponseDto findById(Long userId, Long paymentId) {
-        log.info("[Service] find payment for user {} payment {}", userId, paymentId);
+    User user = userRepository.findById(userId).orElseThrow();
+    Payment payment = paymentRepository.findById(paymentId).orElseThrow();
 
-        User user = userRepository.findById(userId).orElseThrow();
-        Payment payment = paymentRepository.findById(paymentId).orElseThrow();
-//        if(payment.getStore().getUser().getId()!=userId) throw new
+    return PaymentMapper.toResponseDto(payment);
+  }
 
-        return PaymentMapper.toResponseDto(payment);
-    }
+  /**
+   * TODO : JavaDoc 작성
+   *
+   * @param userId
+   * @param paymentSearchRequestDto
+   * @return
+   */
+  public List<PaymentResponseDto> find(
+      Long userId, PaymentSearchRequestDto paymentSearchRequestDto) {
+    log.info("[Service] find payment for user");
 
+    User user = userRepository.findById(userId).orElseThrow();
 
-    public List<PaymentResponseDto> find(Long userId, PaymentSearchRequestDto dto) {
-        log.info("[Service] find payment for user {} payment {}", userId, dto);
+    List<PaymentResponseDto> paymentList =
+        paymentRepository
+            .findPaymentsByStoreIdAndPaidAtBetween(
+                paymentSearchRequestDto.storeId(),
+                paymentSearchRequestDto.startDateTime(),
+                paymentSearchRequestDto.endDateTime())
+            .stream()
+            .map(PaymentMapper::toResponseDto)
+            .toList();
 
-        User user = userRepository.findById(userId).orElseThrow();
-//        if(payment.getStore().getUser().getId()!=userId) throw new
-
-        List<PaymentResponseDto> paymentList = paymentRepository.findPaymentsByStoreIdAndPaidAtBetween(dto.storeId(), dto.startDateTime(), dto.endDateTime())
-                .stream()
-                .map(PaymentMapper::toResponseDto)
-                .toList();
-
-        return paymentList;
-    }
+    return paymentList;
+  }
 }
