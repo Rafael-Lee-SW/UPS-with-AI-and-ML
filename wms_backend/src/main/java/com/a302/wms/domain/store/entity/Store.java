@@ -43,11 +43,10 @@ public class Store extends BaseTimeEntity {
     @OneToMany(mappedBy = "store")
     List<Device> devices;
 
-    // 연관관계 편의를 위한 메서드
-//    public void setBusiness(User user) {
-//        this.user = user;
-//        user.getStores().add(this);
-//    }
+
+
+
+
 
 
     @Builder

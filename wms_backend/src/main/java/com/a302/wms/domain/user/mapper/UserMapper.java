@@ -9,23 +9,10 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
 
     /**
-     * UserRequestDto를 받아와서 User로 변환하는 메서드
+     * User -> UserResponseDto
      *
-     * @param userRequestDto
-     * @return
-     */
-    public static User fromUserRequestDto(UserRequestDto userRequestDto) {
-        return User.builder()
-            .name(userRequestDto.getName())
-            .userNumber(userRequestDto.getUserNumber())
-            .build();
-    }
-
-    /**
-     * User Domain을 UserResponseDto로 변환하는 메서드
-     *
-     * @param user
-     * @return
+     * @param user : 변환할 User 객체
+     * @return : 변환된 Dto
      */
     public static UserResponseDto toUserResponseDto(User user) {
         return UserResponseDto.builder()

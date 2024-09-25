@@ -43,17 +43,16 @@ public class StoreServiceImpl {
 
 
     /**
-     * 최초 매장을 생성하는 메서드
+     * 매장을 생성하는 메서드
      *
-     * @param userId
-     * @param storeCreateRequestDto
-     * @return
+     * @param userId : 생성할 매장의 userId
+     * @param storeCreateRequestDto : 생성할 매장의 정보
+     * @return : 생성한 매장의 정보
      */
     @Transactional
     public StoreResponseDto save(Long userId, StoreCreateRequestDto storeCreateRequestDto) {
         log.info("[Service] save store");
 
-        //TODO user validation
         User user = userRepository.findById(userId).orElseThrow();
 
         Store savedStore = storeRepository.save(StoreMapper.fromDto(storeCreateRequestDto, user));
@@ -62,34 +61,30 @@ public class StoreServiceImpl {
     }
 
     /**
-     * 유저 ID로 매장 목록을 조회하는 메서드
-     * @param userId
-     * @return
+     * userId에 해당하는 모든 매장 정보를 조회
+     * @param userId : 조회할 매장의 정보
+     * @return : userId에 해당하는 모든 매장의 리스트
      */
     public List<StoreResponseDto> findByUserId(Long userId) {
-        log.info("[Service] find stores by userId: {}", userId);
+        log.info("[Service] find stores by userId");
 
-        User user = userRepository.findById(userId).orElseThrow();
 
-        List<StoreResponseDto> storeList = storeRepository.findByUserId(userId)
+        return storeRepository.findByUserId(userId)
                 .stream()
                 .map(StoreMapper::toResponseDto)
                 .toList();
-
-        return storeList;
     }
 
     /**
-     * 매장 ID로 매장 세부 정보를 조회하는 메서드
-     * @param userId
-     * @param storeId
-     * @return
+     * 매장의 세부 정보를 조회
+     * @param userId : 조회할 매장의 userId
+     * @param storeId : 조회할 매장의 storeId
+     * @return : userId, StoreId에 해당하는 매장의 세부 정보
      */
     @Transactional
     public StoreDetailResponseDto findById(Long userId, Long storeId) {
-        log.info("[Service] find store: {}", storeId);
+        log.info("[Service] find store:");
 
-        User user = userRepository.findById(userId).orElseThrow();
         Store store = storeRepository.findById(storeId).orElseThrow();
 
         List<LocationResponseDto> locations = locationRepository.findAllByStoreId(
@@ -108,6 +103,11 @@ public class StoreServiceImpl {
     }
 
 
+    /**
+     * Floor의 최대 적재 가능 개수를 반환
+     * @param location : Floor가 있는 location의 정보
+     * @return : 최대 적재 가능 개수
+     */
     private int getMaxFloorCapacity(Location location) {
         List<Floor> floors = floorRepository.findAllByLocationId(location.getId());
 
@@ -118,23 +118,19 @@ public class StoreServiceImpl {
     }
 
     /**
-     * 매장을 삭제하는 메서드
-     * @param userId
-     * @param storeId
+     * 특정 매장 삭제
+     * @param userId : 삭제할 매장의 userId
+     * @param storeId : 삭제할 매장의 storeId
      */
     @Transactional
     public void delete(Long userId, Long storeId) {
-        log.info("[Service] delete store by id: {}", storeId);
+        log.info("[Service] delete store by id");
         Store store = storeRepository.findById(storeId).orElseThrow();
         storeRepository.delete(store);
     }
 
 
-    /**TODO: 수정
-     *
-     * @param dto
-     */
-    public void saveAllWall(WallsCreateDto dto) {
+        public void saveAllWall(WallsCreateDto dto) {
         log.info("[Service] save all walls by storeId: {}", dto.storeId());
         Store store = storeRepository.findById(dto.storeId()).orElseThrow();
         List<Wall> wallList = dto.wallCreateDtos().stream()
@@ -145,9 +141,8 @@ public class StoreServiceImpl {
         wallRepository.saveAll(wallList);
     }
 
-//    public int findStoreCntByUserId(Long userId) {
-//        log.info("[Service] find store count of user: {}", userId);
-//        return storeRepository.countByUserId(userId);
-//    }
+
+
+
 
 }
