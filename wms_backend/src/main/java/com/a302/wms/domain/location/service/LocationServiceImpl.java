@@ -47,7 +47,7 @@ public class LocationServiceImpl {
      * @return id값과 일치하는 Location 하나, 없으면 null 리턴
      */
     public LocationResponseDto findById(Long id) throws FloorException {
-        log.info("[Service] find Location by productId: {}", id);
+        log.info("[Service] find Location by productId");
         Location location = locationRepository.findById(id).orElse(null);
         return LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location));
     }
@@ -59,7 +59,7 @@ public class LocationServiceImpl {
      * @return 입력 storeId를 가지고 있는 Location List
      */
     public List<LocationResponseDto> findAllByStoreId(Long storeId) throws FloorException {
-        log.info("[Service] findAllLocation by storeId: {}", storeId);
+        log.info("[Service] findAllLocation by storeId");
 
         List<LocationResponseDto> locationResponseDtos = new ArrayList<>();
        locationRepository.findAllByStoreId(storeId).stream()
@@ -93,7 +93,7 @@ public class LocationServiceImpl {
      */
     @Transactional
     public LocationResponseDto update(Long id, LocationRequestDto request) throws FloorException {
-        log.info("[Service] update Location by productId: {}", id);
+        log.info("[Service] update Location by productId");
         Location location = locationRepository.findById(id).get();
 
         if (request.getName() != null) {
@@ -124,7 +124,7 @@ public class LocationServiceImpl {
      */
     @Transactional
     public void delete(Long id) throws FloorException {
-        log.info("[Service] delete Location by productId: {}", id);
+        log.info("[Service] delete Location by productId");
         Location location = locationRepository.findById(id).get();
 
         List<Floor> floors = floorRepository.findAllByLocationId(

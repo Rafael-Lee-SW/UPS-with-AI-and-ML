@@ -53,7 +53,7 @@ public class ProductServiceImpl {
    * @return storeId에 해당하는 모든 상품 리스트
    */
   public List<ProductResponseDto> findAllByStoreId(Long storeId) {
-    log.info("[Service] find Products by storeId: {}", storeId);
+    log.info("[Service] find Products by storeId");
 
     final List<Product> products = productRepository.findByStoreId(storeId);
 
@@ -68,7 +68,7 @@ public class ProductServiceImpl {
    */
   public List<ProductResponseDto> findAllByKioskKey(
           DeviceCreateRequest deviceRegisterRequestDto) {
-    log.info("[Service] find Products by kiosk key: {}", deviceRegisterRequestDto);
+    log.info("[Service] find Products by kiosk key");
 
     Device device = deviceRepository.findByDeviceKey(deviceRegisterRequestDto.key()).orElseThrow();
 

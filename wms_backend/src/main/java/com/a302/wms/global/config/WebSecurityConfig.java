@@ -115,7 +115,7 @@ class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
       HttpServletResponse response,
       AuthenticationException authException)
       throws IOException, ServletException {
-    log.error("Authentication failed: {}", authException.getMessage());
+    log.error("Authentication failed");
 
     response.setContentType("application/json");
     response.setStatus(HttpServletResponse.SC_FORBIDDEN);

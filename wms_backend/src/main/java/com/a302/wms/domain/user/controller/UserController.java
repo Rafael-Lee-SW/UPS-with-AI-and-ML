@@ -25,7 +25,7 @@ public class UserController {
      */
     @GetMapping("/{id}")
     public BaseSuccessResponse<?> findById(@PathVariable Long id) {
-        log.info("[Controller] find User by productId: {}", id);
+        log.info("[Controller] find User by productId");
         return new BaseSuccessResponse<>(userService.findById(id));
     }
 
