@@ -1,23 +1,17 @@
-
-
-#  cashierless store Project :  
+#  Automatic Store Project :  
 
 
 ---
 
 # 목차
 
-
-
-
 - [📦 도메인 소개](#-도메인-소개)
-- [📌 프로젝트 소개](#-Web-WMS-프로젝트-소개)
+- [📌 프로젝트 소개](#-Automatic-Store-프로젝트-소개)
 - [👥 팀 소개](#-팀-소개)
 - [⏱ 개발 기간](#-개발-기간)
 - [🛠️ 기술 스택](#-기술-스택)
 - [🎋 브랜치 전략](#-브랜치-전략)
 - [📜 커밋 컨벤션](#-커밋-컨벤션)
-
 - [📄 프로젝트 구조](#-프로젝트-구조)
 - [🌐 포팅 매뉴얼](#-포팅-매뉴얼) 
 - [💻 서비스 화면](#-서비스-화면)
@@ -29,39 +23,32 @@
 - Test ID :
 - Test PW :
 
-
 <br>
 
 # 📦 무인매장 도메인 소개
-
-
 
 ## 주요 요소
 
 ### 🏢 창고 관리(Warehouse Management)
 
-
 ### 📦 재고 관리(Inventory Management)
-
 
 ### 📑 포장 및 취급(Packaging and Handling)
 
-
 ### 📋 주문 처리(Order Fulfillment)
-
 
 ### 🖥 물류 정보 시스템(Logistics Information Systems)
 
-
 ## 물류 도메인의 중요성
 
-
+- 자동화된 시스템을 통해 인건비 절감
+- 효율적인 운영을 통해 고객 편의성 증대
 
 <br>
 
-# 📌 Automatic Store
+# 📌 Automatic Store 프로젝트 소개
 
-**Web WMS**는 무인 매장이나 창고에서 여러 위치의 재고를 효율적으로 관리할 수 있는 재고 관리 시스템입니다. 다양한 기능을 통해 다중 로케이션의 재고를 최적화하여 관리합니다.
+****는 무인 매장이나 창고에서 여러 위치의 재고를 효율적으로 관리할 수 있는 재고 관리 시스템입니다. 다양한 기능을 통해 다중 로케이션의 재고를 최적화하여 관리합니다.
 
 ## 주요 기능
 
@@ -90,9 +77,7 @@
 - **최적화**: 재고 공간 및 작업자 동선을 최적화하여 생산성을 높입니다.
 - **예측성**: 수요 예측 기능을 통해 미래의 재고 필요량을 정확히 예측하고, 공급망 관리의 안정성을 높입니다.
 
-
 <br>
-
 
 # 👥 팀 소개
 
@@ -198,13 +183,10 @@
 
 ##### 🔗 npm
 
-
-
 ![HandsonTable](https://img.shields.io/badge/HandsonTable-FFA500?logo=handsoncode&logoColor=white)
 ![SheetJS](https://img.shields.io/badge/SheetJS-0072C6?logo=javascript&logoColor=white)
 ![MUI DataTable](https://img.shields.io/badge/MUI%20DataTable-007FFF?logo=mui&logoColor=white)
 ![Konva](https://img.shields.io/badge/Konva-FF6347?logo=canvas&logoColor=white)
-
 
 ##### 💻 Backend
 
@@ -212,8 +194,6 @@
 ![JDK 17](https://img.shields.io/badge/JDK-17-orange?logo=java&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white)
 ![JPA](https://img.shields.io/badge/JPA-6DB33F?logo=hibernate&logoColor=white)
-
-
 
 ##### 🚀 Infra
 
@@ -231,12 +211,10 @@
 ![Notion](https://img.shields.io/badge/Notion-000000?logo=notion&logoColor=white)
 [![Code Style: Google Java Style Guide](https://img.shields.io/badge/Code%20Style-Google--Java--Style--Guide-4285F4?logo=google&logoColor=white)](https://google.github.io/styleguide/javaguide.html)
 
-
 ##### 🖥️ IDE
 
 ![IntelliJ IDEA](https://img.shields.io/badge/IntelliJ_IDEA-000000?logo=intellij-idea&logoColor=white)
 ![VS Code](https://img.shields.io/badge/VS_Code-007ACC?logo=visual-studio-code&logoColor=white)
-
 
 # 🎋 브랜치 전략
 <img src="/READMEfile/Branch strategy.png">
@@ -268,18 +246,7 @@
 
 |                                     |                                      |
 |-------------------------------------|--------------------------------------|
-| <img src="/READMEfile/로그인.png">     | <img src="/READMEfile/회원가입.PNG">     |
-| <div align=center> `로그인` </div>     | <div align=center> `회원가입` </div>     |
-| <img src="/READMEfile/창고목록.PNG">    | <img src="/READMEfile/재고관리영상.mp4">   |
-| <div align=center> `창고 등록` </div>   | <div align=center> `창고 관리` </div>    |
-| <img src="/READMEfile/창고구매.mp4">    | <img src="/READMEfile/창고생성.mp4">     |
-| <div align=center> `창고 구매` </div>   | <div align=center> `창고 생성` </div>    |
-| <img src="/READMEfile/로케이션생성.mp4">  | <img src="/READMEfile/벽생성.mp4">      |
-| <div align=center> `로케이션 생성` </div> | <div align=center> `벽 생성` </div>     |
-| <img src="/READMEfile/입고.mp4">      | <img src="/READMEfile/출고.mp4">       |
-| <div align=center> `상품 입고` </div>   | <div align=center> `상품 출고 ` </div>   |
-| <img src="/READMEfile/상품이동.mp4">    | <img src="/READMEfile/마이페이지_알람.mp4"> |
-| <div align=center> `상품 이동` </div>   | <div align=center> `알림 내역` </div>    |
+
 
 
 <br>
