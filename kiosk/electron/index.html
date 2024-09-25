@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiosk Token Verification</title>
+  </head>
+  <body>
+    <h1>토큰 입력</h1>
+    <input type="text" id="tokenInput" placeholder="토큰 입력">
+    <button id="verifyButton">검증</button>
+    
+    <script>
+      document.getElementById('verifyButton').addEventListener('click', async () => {
+        const token = document.getElementById('tokenInput').value;
+        const isValid = await window.electronAPI.verifyToken(token);
+        
+        if (isValid) {
+          window.electronAPI.startApp();  // 토큰이 유효할 경우 Next.js 애플리케이션 시작
+        } else {
+          alert('토큰이 유효하지 않습니다.');
+        }
+      });
+    </script>
+  </body>
+</html>
