@@ -20,74 +20,72 @@ public class StoreController {
     private StoreServiceImpl storeService;
 
     /**
-     * user에 대한 매장 생성
-     * @param userId
-     * @param storeDto
-     * @return
+     * userId에 해당하는 매장 생성
+     * @param userId : 생성할 매장의 userId
+     * @param storeCreateRequestDto : 생성할 매장의 정보가 담긴 dto
+     * @return 생성한 매장의 정보
      */
     @PostMapping
     public BaseSuccessResponse<StoreResponseDto> save(
             @RequestParam Long userId,
-            @RequestBody StoreCreateRequestDto storeDto) {
+            @RequestBody StoreCreateRequestDto storeCreateRequestDto) {
         log.info("[Controller] save Store");
-        return new BaseSuccessResponse<>(storeService.save(userId, storeDto));
+        return new BaseSuccessResponse<>(storeService.save(userId, storeCreateRequestDto));
     }
 
     /**
      * userId를 통해 user의 모든 매장 목록을 불러옴
-     * @param userId
-     * @return
+     * @param userId : 매장 목록을 찾을 userId
+     * @return userId에 해당하는 모든 매장 목록
      */
     @GetMapping
     public BaseSuccessResponse<List<StoreResponseDto>> findByUserId(
             @RequestParam Long userId) {
-        log.info("[Controller] find Stores by userId: {}", userId);
+        log.info("[Controller] find Stores");
         return new BaseSuccessResponse<>(storeService.findByUserId(userId));
     }
 
     /**
-     * storeId로 해당 매장의 세부 정보를 불러옴
-     * @param userId
-     * @param storeId
-     * @return
+     * 특정 유저의 특정 매장에 대한 정보를 불러옴
+     * @param userId : 찾을 매장의 userId
+     * @param storeId : 찾을 매장의 id
+     * @return 찾은 매장의 정보
      */
     @GetMapping("/{storeId}")
     public BaseSuccessResponse<StoreDetailResponseDto> findById(
             @RequestParam Long userId,
             @PathVariable Long storeId
     ) {
-        log.info("[Controller] find Store by id: {}", storeId);
+        log.info("[Controller] find Store by id");
         return new BaseSuccessResponse<>(storeService.findById(userId, storeId));
     }
 
 
     /**
      * store 삭제
-     * @param userId
-     * @param storeId
-     * @return
+     * @param userId : 삭제할 매장의 userId
+     * @param storeId : 삭제할 매장의 id
      */
     @PatchMapping("/{storeId}")
     public BaseSuccessResponse<Void> delete(
             @RequestParam Long userId,
             @PathVariable Long storeId
     ) {
-        log.info("[Controller] delete Store by storeId: {}", storeId);
+        log.info("[Controller] delete Store by storeId");
         storeService.delete(userId, storeId);
         return new BaseSuccessResponse<>(null);
     }
 
     /**
-     * Store에 대한 벽 정보 저장
-     * @param dto
-     * @return
+     * 해당 매장의 모든 벽 정보를 저장
+     * @param wallsCreateDto : 저장할 벽의 정보
      */
     @PostMapping("/walls")
     public BaseSuccessResponse<Void> saveAllWall(
-            @RequestBody WallsCreateDto dto
+            @RequestBody WallsCreateDto wallsCreateDto
     ) {
         log.info("[Controller] save Walls: ");
-        storeService.saveAllWall(dto);
+        storeService.saveAllWall(wallsCreateDto);
         return new BaseSuccessResponse<>(null);
     }
 }

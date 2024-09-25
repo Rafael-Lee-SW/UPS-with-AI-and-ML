@@ -30,8 +30,7 @@ public class User extends BaseTimeEntity {
     @Column(length = 12)
     private String userNumber;
 
-//    @OneToMany(mappedBy = "user")
-//    private List<Subscription> subscriptions = new ArrayList<>();
+
 
     @OneToMany(mappedBy = "user")
     private List<Store> stores = new ArrayList<>();
@@ -52,9 +51,8 @@ public class User extends BaseTimeEntity {
         this.userNumber = userNumber;
     }
 
-//    public void setSubscriptions(List<Subscription> subscriptions) {
-//        this.subscriptions = subscriptions;
-//    }
+
+
     public void setStores(List<Store> stores) {
         this.stores = stores;
     }
