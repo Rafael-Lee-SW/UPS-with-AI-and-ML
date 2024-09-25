@@ -13,20 +13,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public class SignInResponseDto extends ResponseDto {
+public class SignInResponse extends ResponseDto {
     private String token;
     private int expirationTime;
     private UserResponseDto user;
 
-    private SignInResponseDto(String token, User user) {
+    private SignInResponse(String token, User user) {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
         this.token = token;
         this.expirationTime = 1800; // 30분
         this.user = UserMapper.toUserResponseDto(user); // Convert User to UserResponseDto
     }
 
-    public static ResponseEntity<SignInResponseDto> success(String token, User user) {
-        SignInResponseDto responseDto = new SignInResponseDto(token, user);
+    public static ResponseEntity<SignInResponse> success(String token, User user) {
+        SignInResponse responseDto = new SignInResponse(token, user);
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 

@@ -14,11 +14,18 @@ import java.time.LocalDateTime;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProductFlowService {
+public class ProductFlowServiceImpl {
 
     private final ProductFlowRepository productFlowRepository;
 
 
+    /**
+     * product_flow table에 데이터 저장
+     * @param previous : 작업 전 상품 데이터
+     * @param present : 작업 후 상품 데이터
+     * @param productFlowTypeEnum : 작업 유형
+     * @param flowDate : 작업 일시
+     */
     public void saveData(Product previous,
                          Product present,
                          ProductFlowTypeEnum productFlowTypeEnum,
@@ -33,32 +40,7 @@ public class ProductFlowService {
                 .previousFloorId(previous.getFloor() != null ? previous.getFloor().getId() : null)
                 .presentFloorId(present.getFloor().getId() != null ? present.getFloor().getId() : null)
                 .productFlowTypeEnum(productFlowTypeEnum)
+                .flowDate(flowDate)
                 .build());
     }
-   /* public ProductFlowResponseDto findByStoreIdAndProductFlowTypeEnum(Long storeId, ProductFlowTypeEnum productFlowTypeEnum) throws Exception {
-
-        try {
-            if (productFlowTypeEnum.equals(ProductFlowTypeEnum.FLOW))
-                return productFlowRepository.findByStoreIdAndFlow(storeId);
-            else if (productFlowTypeEnum.equals(ProductFlowTypeEnum.IMPORT))
-                return productFlowRepository.findByStoreIdAndImport(storeId);
-            else if (productFlowTypeEnum.equals(ProductFlowTypeEnum.MODIFY))
-                return productFlowRepository.findByStoreIdAndModify(storeId);
-            else {
-                throw new Exception();
-            }
-        } catch (Exception e) {
-            throw new Exception();
-        }
-    }
-
-    public List<ProductFlowResponseDto> findAllByUserIdAndStoreId(Long userId, Long storeId) {
-
-        return productFlowRepository.findAllByUserIdAndStoreId(userId, storeId);
-    }
-
-    public List<ProductFlowResponseDto> findAllByUserIdAndProductFlowTypeEnum(Long userId, ProductFlowTypeEnum productFlowTypeEnum) {
-
-        return productFlowRepository.findAllByUserIdAndProductFlowType(userId,productFlowTypeEnum);
-    }*/
-}
+   }
