@@ -1,0 +1,142 @@
+{
+  "rectData": [
+    {
+      "id": "0",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "width": 0,
+      "height": 0,
+      "fill": "blue",
+      "type": "임시",
+      "name": "임시",
+      "rotation": 0
+    },
+    {
+      "id": "1",
+      "x": 114,
+      "y": 172,
+      "z": 9,
+      "width": 50,
+      "height": 50,
+      "fill": "blue",
+      "type": "location",
+      "name": "적재함 1",
+      "rotation": 0
+    },
+    {
+      "id": "2",
+      "x": 136,
+      "y": 115,
+      "z": 9,
+      "width": 50,
+      "height": 50,
+      "fill": "#f5a623",
+      "type": "location",
+      "name": "적재함 2",
+      "rotation": 0
+    },
+    {
+      "id": "3",
+      "x": 196,
+      "y": 118,
+      "z": 9,
+      "width": 50,
+      "height": 50,
+      "fill": "#f8e71c",
+      "type": "location",
+      "name": "적재함 3",
+      "rotation": 0
+    },
+    {
+      "id": "4",
+      "x": 251,
+      "y": 117,
+      "z": 9,
+      "width": 50,
+      "height": 50,
+      "fill": "#8b572a",
+      "type": "location",
+      "name": "적재함 4",
+      "rotation": 0
+    },
+    {
+      "id": "5",
+      "x": 307,
+      "y": 117,
+      "z": 5,
+      "width": 50,
+      "height": 50,
+      "fill": "#7ed321",
+      "type": "location",
+      "name": "적재함 5",
+      "rotation": 0
+    },
+    {
+      "id": "6",
+      "x": 366,
+      "y": 115,
+      "z": 2,
+      "width": 50,
+      "height": 50,
+      "fill": "#417505",
+      "type": "location",
+      "name": "적재함 6",
+      "rotation": 0
+    },
+    {
+      "id": "7",
+      "x": 429,
+      "y": 115,
+      "z": 1,
+      "width": 50,
+      "height": 50,
+      "fill": "blue",
+      "type": "location",
+      "name": "적재함 7",
+      "rotation": 0
+    }
+  ],
+  "anchorData": [
+    {
+      "startID": "1",
+      "startX": 100,
+      "startY": 100,
+      "endID": "1",
+      "endX": 501,
+      "endY": 101
+    },
+    {
+      "startID": "1",
+      "startX": 501,
+      "startY": 101,
+      "endID": "2",
+      "endX": 499,
+      "endY": 300
+    },
+    {
+      "startID": "1",
+      "startX": 501,
+      "startY": 101,
+      "endID": "3",
+      "endX": 603,
+      "endY": 99
+    },
+    {
+      "startID": "2",
+      "startX": 499,
+      "startY": 300,
+      "endID": "4",
+      "endX": 198,
+      "endY": 303
+    },
+    {
+      "startID": "1",
+      "startX": 100,
+      "startY": 100,
+      "endID": "5",
+      "endX": 99,
+      "endY": 302
+    }
+  ]
+}
