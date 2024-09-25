@@ -5,19 +5,19 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-public record FloorResponseDto(Long id,
-                               Long locationId,
-                               int floorLevel,
-                               LocalDateTime createdDate,
-                               LocalDateTime updatedDate) {
-
-    @Builder
-
-    public FloorResponseDto(Long id,
+public record FloorResponse(Long id,
                             Long locationId,
                             int floorLevel,
                             LocalDateTime createdDate,
                             LocalDateTime updatedDate) {
+
+    @Builder
+
+    public FloorResponse(Long id,
+                         Long locationId,
+                         int floorLevel,
+                         LocalDateTime createdDate,
+                         LocalDateTime updatedDate) {
         this.id = id;
         this.locationId = locationId;
         this.floorLevel = floorLevel;

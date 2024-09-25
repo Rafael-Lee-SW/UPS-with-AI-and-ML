@@ -1,11 +1,11 @@
 package com.a302.wms.domain.product.service;
 
-import com.a302.wms.domain.device.dto.DeviceRegisterRequestDto;
+import com.a302.wms.domain.device.dto.DeviceCreateRequest;
 import com.a302.wms.domain.device.entity.Device;
 import com.a302.wms.domain.device.repository.DeviceRepository;
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.repository.FloorRepository;
-import com.a302.wms.domain.floor.service.FloorService;
+import com.a302.wms.domain.floor.service.FloorServiceImpl;
 import com.a302.wms.domain.product.dto.*;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.exception.ProductException;
@@ -25,11 +25,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProductService {
+public class ProductServiceImpl {
 
-  private final FloorService floorService;
+  private final FloorServiceImpl floorService;
   private final ProductRepository productRepository;
-  private final ProductFlowService productFlowService;
+  private final ProductFlowServiceImpl productFlowService;
   private final FloorRepository floorRepository;
   private final DeviceRepository deviceRepository;
 
@@ -53,7 +53,7 @@ public class ProductService {
    * @return storeId에 해당하는 모든 상품 리스트
    */
   public List<ProductResponseDto> findAllByStoreId(Long storeId) {
-    log.info("[Service] find Products by storeId: {}", storeId);
+    log.info("[Service] find Products by storeId");
 
     final List<Product> products = productRepository.findByStoreId(storeId);
 
@@ -67,8 +67,8 @@ public class ProductService {
    * @return
    */
   public List<ProductResponseDto> findAllByKioskKey(
-      DeviceRegisterRequestDto deviceRegisterRequestDto) {
-    log.info("[Service] find Products by kiosk key: {}", deviceRegisterRequestDto);
+          DeviceCreateRequest deviceRegisterRequestDto) {
+    log.info("[Service] find Products by kiosk key");
 
     Device device = deviceRepository.findByDeviceKey(deviceRegisterRequestDto.key()).orElseThrow();
 

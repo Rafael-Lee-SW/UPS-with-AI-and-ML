@@ -41,7 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             // 1. "Authorization" 헤더에서 Bearer 토큰을 가져옴
             String token = parseBearerToken(request);
-            logger.info("Token: {}", token);
 
             // 2. 토큰이 null이면 다음 필터로 진행
             if (token == null) {
@@ -52,12 +51,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 3. 토큰 유효성 검증
             String userId = jwtProvider.validate(token);
-            logger.info("UserId: {}", userId);
+
 
             // 4. 유효하지 않은 토큰이면 다음 필터로 진행
             try {
                 userId = jwtProvider.validate(token);
-                logger.info("UserId: {}", userId);
             } catch (Exception e) {
                 logger.error("Invalid JWT token", e);
                 filterChain.doFilter(request, response);
@@ -66,7 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 5. 유저 ID로 User 엔티티 조회
             User user = userRepository.findById(Long.parseLong(userId)).orElse(null);
-            logger.info("User: {}", user);
+
 
             // 6. User 엔티티가 없을 경우 다음 필터로 진행
             if (user == null) {
@@ -93,7 +91,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private String parseBearerToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        logger.info("Authorization Header: {}", bearerToken);
 
         if (!StringUtils.hasText(bearerToken)) {
             return null;

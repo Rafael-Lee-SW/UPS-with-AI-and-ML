@@ -8,14 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public class EmailCertificationResponseDto extends ResponseDto {
+public class EmailCertificationResponse extends ResponseDto {
 
-    private EmailCertificationResponseDto() {
+    private EmailCertificationResponse() {
         super();
     }
 
-    public static ResponseEntity<EmailCertificationResponseDto> success() {
-        EmailCertificationResponseDto responseBody = new EmailCertificationResponseDto();
+    public static ResponseEntity<EmailCertificationResponse> success() {
+        EmailCertificationResponse responseBody = new EmailCertificationResponse();
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
     public static ResponseEntity<ResponseDto> duplicatedId() {

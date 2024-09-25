@@ -1,6 +1,6 @@
 package com.a302.wms.domain.location.dto;
 
-import com.a302.wms.domain.floor.dto.FloorResponseDto;
+import com.a302.wms.domain.floor.dto.FloorResponse;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,5 +23,5 @@ public class LocationResponseDto {
     private int fill; //0~100까지의 범위로 표현,
     private String name;
     private int rotation;
-    private List<FloorResponseDto> floorResponses;
+    private List<FloorResponse> floorResponses;
 }

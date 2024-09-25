@@ -6,8 +6,7 @@ import com.a302.wms.domain.auth.dto.ResponseCode;
 import com.a302.wms.domain.auth.dto.ResponseMessage;
 import com.a302.wms.domain.auth.handler.ValidationExceptionHandler;
 import com.a302.wms.domain.auth.provider.JwtProvider;
-import com.a302.wms.domain.user.repository.UserRepository;
-import com.a302.wms.domain.user.service.UserService;
+import com.a302.wms.domain.user.service.UserServiceImpl;
 import com.a302.wms.global.security.filter.JwtAuthenticationFilter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,7 +48,7 @@ public class WebSecurityConfig {
   protected SecurityFilterChain configure(
       HttpSecurity httpSecurity,
       ValidationExceptionHandler validationExceptionHandler,
-      UserService userService)
+      UserServiceImpl userService)
       throws Exception {
 
     httpSecurity
@@ -116,7 +115,7 @@ class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
       HttpServletResponse response,
       AuthenticationException authException)
       throws IOException, ServletException {
-    log.error("Authentication failed: {}", authException.getMessage());
+    log.error("Authentication failed");
 
     response.setContentType("application/json");
     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
