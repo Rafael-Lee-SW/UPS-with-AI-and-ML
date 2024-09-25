@@ -1,7 +1,7 @@
 #  Automatic Store Project :  
 
-<img src="/READMEfile/unmanndestore.jpg" alt="AUTOSTORE Image" width="600">
----
+<img src="/READMEfile/unmanndestore.jpg" alt="AUTOSTORE Image" width="1000">
+
 
 # 목차
 
