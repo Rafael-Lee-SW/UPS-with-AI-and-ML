@@ -8,13 +8,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public class SignUpResponseDto extends ResponseDto {
-   private SignUpResponseDto(){
+public class SignUpResponse extends ResponseDto {
+   private SignUpResponse(){
        super();
    }
 
-   public static ResponseEntity<SignUpResponseDto> success(){
-       SignUpResponseDto responseDto = new SignUpResponseDto();
+   public static ResponseEntity<SignUpResponse> success(){
+       SignUpResponse responseDto = new SignUpResponse();
        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
 
    }

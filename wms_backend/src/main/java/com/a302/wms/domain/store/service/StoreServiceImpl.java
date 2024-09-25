@@ -2,7 +2,7 @@ package com.a302.wms.domain.store.service;
 
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.repository.FloorRepository;
-import com.a302.wms.domain.floor.service.FloorService;
+import com.a302.wms.domain.floor.service.FloorServiceImpl;
 import com.a302.wms.domain.location.dto.LocationResponseDto;
 import com.a302.wms.domain.location.entity.Location;
 import com.a302.wms.domain.location.mapper.LocationMapper;
@@ -38,7 +38,7 @@ public class StoreServiceImpl {
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
     private final WallRepository wallRepository;
-    private final FloorService floorService;
+    private final FloorServiceImpl floorService;
     private final FloorRepository floorRepository;
 
 
@@ -131,7 +131,7 @@ public class StoreServiceImpl {
 
 
         public void saveAllWall(WallsCreateDto dto) {
-        log.info("[Service] save all walls by storeId: {}", dto.storeId());
+        log.info("[Service] save all walls by storeId");
         Store store = storeRepository.findById(dto.storeId()).orElseThrow();
         List<Wall> wallList = dto.wallCreateDtos().stream()
                 .map(wallCreateDto->

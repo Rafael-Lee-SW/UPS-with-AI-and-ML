@@ -8,14 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public class IdCheckResponseDto extends ResponseDto {
+public class IdCheckResponse extends ResponseDto {
 
-    public IdCheckResponseDto() {
+    public IdCheckResponse() {
         super();
     }
 
-    public static ResponseEntity<IdCheckResponseDto> success() {
-        IdCheckResponseDto responseBody = new IdCheckResponseDto();
+    public static ResponseEntity<IdCheckResponse> success() {
+        IdCheckResponse responseBody = new IdCheckResponse();
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 

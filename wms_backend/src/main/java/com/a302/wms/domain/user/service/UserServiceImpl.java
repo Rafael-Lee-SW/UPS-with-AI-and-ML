@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserServiceImpl {
 
   private final UserRepository userRepository;
 
@@ -54,7 +54,7 @@ public class UserService {
    * @return UserDto
    */
   public UserResponseDto findById(long id) {
-    log.info("[Service] find User by productId: {}", id);
+    log.info("[Service] find User by productId");
     try {
       User user = userRepository.findById(id).get();
       return UserMapper.toUserResponseDto(user);

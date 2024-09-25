@@ -1,6 +1,6 @@
 package com.a302.wms.domain.floor.service;
 
-import com.a302.wms.domain.floor.dto.FloorResponseDto;
+import com.a302.wms.domain.floor.dto.FloorResponse;
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.exception.FloorException;
 import com.a302.wms.domain.floor.mapper.FloorMapper;
@@ -23,22 +23,11 @@ import static com.a302.wms.global.constant.ProductConstant.DEFAULT_FLOOR_LEVEL;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class FloorService {
+public class FloorServiceImpl {
 
 
     private final FloorRepository floorRepository;
     private final ProductRepository productRepository;
-
-    public List<Floor> findAllEmptyFloorByStoreId(Long storeId) {
-        log.info("[Service] findAllEmptyLocationByStoreId: {}", storeId);
-        return floorRepository.findAllEmptyFloorByStoreId(storeId);
-    }
-
-    public void deleteById(@PathVariable Long id) {
-        log.info("[Service] delete Floor by productId");
-        floorRepository.deleteById(id);
-
-    }
 
     /**
      * location이 가지고 있는 층 전부 조회
@@ -46,10 +35,10 @@ public class FloorService {
      * @param locationId: 로케이션 iD
      * @return Floor List
      */
-    public List<FloorResponseDto> findAllByLocationId(Long locationId) {
+    public List<FloorResponse> findAllByLocationId(Long locationId) {
 
         return floorRepository.findAllByLocationId(locationId)
-                .stream().map(FloorMapper::toFloorResponseDto)
+                .stream().map(FloorMapper::toResponseDto)
                 .toList();
 
     }
@@ -60,8 +49,8 @@ public class FloorService {
      * @param floorId: 층 productId
      * @return Floor
      */
-    public FloorResponseDto findById(Long floorId) throws FloorException {
-        return FloorMapper.toFloorResponseDto(floorRepository.findById(floorId).get());
+    public FloorResponse findById(Long floorId) throws FloorException {
+        return FloorMapper.toResponseDto(floorRepository.findById(floorId).get());
     }
 
 
@@ -100,25 +89,6 @@ public class FloorService {
         return floorRepository.save(floor);
     }
 
-    /**
-     * 매핑할 request의 zSize만큼 floor를 만들어서 각 floor를 location에 매핑한다..
-     *
-     * @param request
-     * @param location
-     */
-    public void saveAllByLocation(LocationRequestDto request, Location location) {
-        List<Floor> floors = new ArrayList<>();
-        for (int presentFloorLevel = 1; presentFloorLevel <= request.getZSize();
-             presentFloorLevel++) {
-            Floor floor = Floor.builder()
-                    .floorLevel(presentFloorLevel)
-                    .location(location)
-                    .build();
-            floors.add(floor);
-        }
-        saveAll(floors);
-        location.updateFloors(floors);
-    }
 
     /**
      * 해당 floor의 점유율을 반환하는 로직
@@ -126,7 +96,6 @@ public class FloorService {
      * @param floor
      * @return
      */
-
     public int getCapacity(Floor floor) {
         List<Product> products = productRepository.findAllByFloor(floor);
 
@@ -139,6 +108,11 @@ public class FloorService {
         return Math.min(100, productTotalSize * 100 / floorSize);
     }
 
+    /**
+     * floorSize 계산 메서드
+     * @param floor
+     * @return
+     */
     private int calculateFloorSize(Floor floor) {
         int xSize = floor.getLocation().getXSize();
         int ySize = floor.getLocation().getYSize();
@@ -146,11 +120,11 @@ public class FloorService {
         return xSize * CONVERT_SIZE * ySize * CONVERT_SIZE;
     }
 
-    public List<Floor> findAllNotEmptyFloorByStoreId(Long id) {
-        return floorRepository.findAllNotEmptyFloorByStoreId(id);
-    }
-
-    public void deleteAll(List<Floor> floors) {
-        floorRepository.deleteAll(floors);
+    /**
+     * floorList로 주어진 floor 모두 삭제
+     * @param floorList
+     */
+    public void deleteAll(List<Floor> floorList) {
+        floorRepository.deleteAll(floorList);
     }
 }

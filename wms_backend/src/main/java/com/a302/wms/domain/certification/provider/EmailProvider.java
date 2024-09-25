@@ -17,9 +17,15 @@ public class EmailProvider {
 
     private final String SUBJECT = "[Web WMS] 인증 메일입니다.";
 
+    /**
+     * 인증 이메일 전송
+     * @param email 전송할 이메일
+     * @param certificationNumber 인증번호
+     * @return
+     */
     public boolean sendCertificationMail(String email, String certificationNumber) {
         try {
-            logger.info("이메일 전송 시도 중: {}", email);
+            logger.info("이메일 전송 시도 중");
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
             String htmlContent = getCertificationMessage(certificationNumber);
@@ -28,14 +34,19 @@ public class EmailProvider {
             messageHelper.setSubject(SUBJECT);
             messageHelper.setText(htmlContent, true);
             javaMailSender.send(message);
-            logger.info("메일 전송 성공: {}", email);
+            logger.info("메일 전송 성공");
             return true;  // 이메일 전송 성공 시 true 반환
         } catch (Exception e) {
-            logger.error("메일 전송 실패: {}", email, e);
+            logger.error("메일 전송 실패", e);
             return false;  // 이메일 전송 실패 시 false 반환
         }
     }
 
+    /**
+     * 인증번호 메시지 html 템플릿
+     * @param certificationNumber
+     * @return
+     */
     private String getCertificationMessage(String certificationNumber) {
         return "<h1 style='text-align: center;'>[Web WMS] 인증 메일입니다. </h1>" +
                 "<h3 style='text-align: center;'>" +

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProductFlowService {
+public class ProductFlowServiceImpl {
 
     private final ProductFlowRepository productFlowRepository;
 

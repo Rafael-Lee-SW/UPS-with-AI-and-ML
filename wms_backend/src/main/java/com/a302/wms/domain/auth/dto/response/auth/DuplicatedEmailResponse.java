@@ -8,14 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public class DuplicatedEmailResponseDto extends ResponseDto {
+public class DuplicatedEmailResponse extends ResponseDto {
 
-    private DuplicatedEmailResponseDto() {
+    private DuplicatedEmailResponse() {
         super(ResponseCode.DUPLICATE, ResponseMessage.DUPLICATE);
     }
 
-    public static ResponseEntity<DuplicatedEmailResponseDto> response() {
-        DuplicatedEmailResponseDto responseBody = new DuplicatedEmailResponseDto();
+    public static ResponseEntity<DuplicatedEmailResponse> response() {
+        DuplicatedEmailResponse responseBody = new DuplicatedEmailResponse();
         return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody); // HTTP 상태 코드 409 사용
     }
 }

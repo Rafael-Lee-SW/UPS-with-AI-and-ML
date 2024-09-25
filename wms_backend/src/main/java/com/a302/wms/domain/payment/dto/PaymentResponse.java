@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record PaymentResponseDto(
+public record PaymentResponse(
         Long id,
         Long storeId,
         Long paidAmount,

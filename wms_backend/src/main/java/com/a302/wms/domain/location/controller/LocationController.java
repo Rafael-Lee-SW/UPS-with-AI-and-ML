@@ -1,7 +1,7 @@
 package com.a302.wms.domain.location.controller;
 
-import com.a302.wms.domain.location.service.LocationService;
 import com.a302.wms.domain.floor.exception.FloorException;
+import com.a302.wms.domain.location.service.LocationServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
 import com.a302.wms.domain.location.dto.LocationRequestDto;
 import com.a302.wms.domain.location.dto.LocationResponseDto;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/locations")
 public class LocationController {
 
-    private final LocationService locationService;
+    private final LocationServiceImpl locationService;
 
     /**
      * @param storeId -> 매장 아이디 (필수 )
@@ -27,7 +27,7 @@ public class LocationController {
     @GetMapping
     public BaseSuccessResponse<List<LocationResponseDto>> findAllByStoreId(
         @RequestParam(name = "storeId") Long storeId) throws FloorException {
-        log.info("[Controller] find Locations by storeId: {}", storeId);
+        log.info("[Controller] find Locations by storeId");
         return new BaseSuccessResponse<>(
             locationService.findAllByStoreId(storeId));
 
@@ -42,7 +42,7 @@ public class LocationController {
     @GetMapping("/{id}")
     public BaseSuccessResponse<LocationResponseDto> findById(@PathVariable Long id)
         throws FloorException {
-        log.info("[Controller] find Location by productId: {}", id);
+        log.info("[Controller] find Location by productId");
         return new BaseSuccessResponse<>(locationService.findById(id));
     }
 
@@ -67,7 +67,7 @@ public class LocationController {
     @PutMapping("/{id}")
     public BaseSuccessResponse<LocationResponseDto> update(@PathVariable Long id,
         @RequestBody LocationRequestDto locationDto) throws FloorException {
-        log.info("[Controller] update Location by productId: {}", id);
+        log.info("[Controller] update Location by productId");
         return new BaseSuccessResponse<>(locationService.update(id, locationDto));
     }
 
@@ -79,7 +79,7 @@ public class LocationController {
     @DeleteMapping("/{id}")
     public BaseSuccessResponse<Void> delete(@PathVariable Long id)
         throws Exception, FloorException {
-        log.info("[Controller] delete Location by productId: {}", id);
+        log.info("[Controller] delete Location by productId");
         locationService.delete(id);
         return new BaseSuccessResponse<>(null);
     }

@@ -1,13 +1,13 @@
 package com.a302.wms.domain.product.controller;
 
-import com.a302.wms.domain.device.dto.DeviceRegisterRequestDto;
+import com.a302.wms.domain.device.dto.DeviceCreateRequest;
 import com.a302.wms.domain.product.dto.ProductImportRequestDto;
 import com.a302.wms.domain.product.dto.ProductMoveRequestDto;
 import com.a302.wms.domain.product.dto.ProductResponseDto;
 import com.a302.wms.domain.product.dto.ProductUpdateRequestDto;
 import com.a302.wms.domain.product.exception.ProductException;
 import com.a302.wms.domain.product.exception.ProductInvalidRequestException;
-import com.a302.wms.domain.product.service.ProductService;
+import com.a302.wms.domain.product.service.ProductServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,18 +20,18 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ProductController {
 
-  private final ProductService productService;
+  private final ProductServiceImpl productService;
 
   /**
    * 등록된 키오스크의 Kiosk key로 해당 매장의 모든 상품을 불러오는 메서드
    *
-   * @param deviceRegisterRequestDto : 디바이스 정보가 담긴 dto 
+   * @param deviceCreateRequestDto : 디바이스 정보가 담긴 dto
    * @return 해당 매장의 모든 상품 리스트
    */
   @PostMapping
   public BaseSuccessResponse<List<ProductResponseDto>> getProductsByKioskKey(
-      @RequestBody DeviceRegisterRequestDto deviceRegisterRequestDto) {
-    return new BaseSuccessResponse<>(productService.findAllByKioskKey(deviceRegisterRequestDto));
+          @RequestBody DeviceCreateRequest deviceCreateRequestDto) {
+    return new BaseSuccessResponse<>(productService.findAllByKioskKey(deviceCreateRequestDto));
   }
 
   /**

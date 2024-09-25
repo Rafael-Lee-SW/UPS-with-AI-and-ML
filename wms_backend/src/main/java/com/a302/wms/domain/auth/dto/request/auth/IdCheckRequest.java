@@ -9,13 +9,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CheckCertificationRequestDto {
 
-    @Email
-    @NotBlank
+public class IdCheckRequest {
+
+    @Email(message = "이메일 형식이 잘못되었습니다.")
+    @NotBlank(message = "이메일은 비워둘 수 없습니다.")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "인증 번호는 비워둘 수 없습니다.")
     private String certificationNumber;
 
 }
