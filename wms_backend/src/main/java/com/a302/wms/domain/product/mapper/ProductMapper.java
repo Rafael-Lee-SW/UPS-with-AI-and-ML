@@ -61,31 +61,30 @@ public class ProductMapper {
                 .build();
     }
 
-//    /**
-//     * 상품이동 후 반환하는 Dto
-//     *
-//     * @param product
-//     * @return
-//     */
-//    public static ProductMoveResponseDto toProductMoveResponseDto(Product product,
-//                                                                  String productName,
-//                                                                  Long barcode,
-//                                                                  String sku,
-//                                                                  int quantity,
-//                                                                  LocalDateTime date,
-//                                                                  String presentLocationName,
-//                                                                  String presentFloorLevel,
-//                                                                  String previousLocationName,
-//                                                                  String previousFloorLevel) {
-//        return ProductMoveResponseDto.builder()
-//                .productName(product.getProductName())
-//                .barcode(product.getBarcode())
-//                .previousLocationName(previousLocationName)
-//                .presentLocationName(presentLocationName)
-//                .previousFloorLevel(previousFloorLevel)
-//                .presentFloorLevel(presentFloorLevel)
-//                .quantity(product.getQuantity())
-//                .date(p)
-//                .build();
-//    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
