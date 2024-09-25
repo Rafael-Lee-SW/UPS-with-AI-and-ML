@@ -54,7 +54,7 @@ public class UserServiceImpl {
    * @return UserDto
    */
   public UserResponseDto findById(long id) {
-    log.info("[Service] find User by productId: {}", id);
+    log.info("[Service] find User by productId");
     try {
       User user = userRepository.findById(id).get();
       return UserMapper.toUserResponseDto(user);

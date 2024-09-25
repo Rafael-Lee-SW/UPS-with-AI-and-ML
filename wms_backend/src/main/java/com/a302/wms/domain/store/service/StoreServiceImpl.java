@@ -131,7 +131,7 @@ public class StoreServiceImpl {
 
 
         public void saveAllWall(WallsCreateDto dto) {
-        log.info("[Service] save all walls by storeId: {}", dto.storeId());
+        log.info("[Service] save all walls by storeId");
         Store store = storeRepository.findById(dto.storeId()).orElseThrow();
         List<Wall> wallList = dto.wallCreateDtos().stream()
                 .map(wallCreateDto->
