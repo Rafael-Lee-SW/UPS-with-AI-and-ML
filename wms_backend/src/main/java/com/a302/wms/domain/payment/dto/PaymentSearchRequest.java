@@ -2,7 +2,7 @@ package com.a302.wms.domain.payment.dto;
 
 import java.time.LocalDateTime;
 
-public record PaymentSearchRequestDto(
+public record PaymentSearchRequest(
         Long storeId,
         LocalDateTime startDateTime,
         LocalDateTime endDateTime

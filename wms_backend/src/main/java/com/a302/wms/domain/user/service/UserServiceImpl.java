@@ -1,74 +1,103 @@
 package com.a302.wms.domain.user.service;
 
-import com.a302.wms.domain.user.dto.UserPasswordUpdateRequest;
 import com.a302.wms.domain.user.dto.UserRequestDto;
 import com.a302.wms.domain.user.dto.UserResponseDto;
-import com.a302.wms.domain.user.dto.UserSignUpRequest;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.mapper.UserMapper;
 import com.a302.wms.domain.user.repository.UserRepository;
-import com.a302.wms.domain.util.PasswordUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl {
 
-    private final UserRepository userRepository;
-    private final UserModuleService userModuleService;
+  private final UserRepository userRepository;
 
-    public UserResponseDto save(UserSignUpRequest dto) {
-        String hashedPassword = PasswordUtil.hashPassword(dto.password()); //TODO 암호화 하기
-        User user = UserMapper.toEntity(dto, hashedPassword);
-        User createdUser = userRepository.save(user);
-        return UserMapper.toUserResponseDto(createdUser);
+  /**
+   * 사용자 생성 메서드
+   *
+   * @param userRequestDto : 생성할 유저의 정보가 담긴 dto
+   * @return 생성된 유저의 정보
+   */
+  @Transactional
+  public UserResponseDto create(Long userId, UserRequestDto userRequestDto) {
+    log.info("[Service] create User by userId");
+    User.UserBuilder builder = User.builder();
+
+    User user = userRepository.findById(userId).get();
+    builder.user(user);
+
+    if (userRequestDto.getName() != null) {
+      builder.name(userRequestDto.getName());
     }
-
-    public UserResponseDto findById(Long id) {
-        log.info("[Service] find User by id: {}", id);
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Employee ID: " + id));
-        return UserMapper.toUserResponseDto(user);
+    if (userRequestDto.getUserNumber() != null) {
+      builder.userNumber(userRequestDto.getUserNumber());
     }
+    user = builder.build();
+    try {
+      User savedUser = userRepository.save(user);
 
-    // 정보수정
-    public UserResponseDto update(Long id, UserRequestDto request) {
-        log.info("[Service] update User by id: {}", id);
-        User user = userModuleService.findById(id);
-        user.updateInfo(request);
-        User updatedUser = userModuleService.save(user);
-
-        return UserMapper.toUserResponseDto(updatedUser);
+      return UserMapper.toUserResponseDto(savedUser);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    // 비밀번호 변경
-    public void updatePassword(Long userId, UserPasswordUpdateRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-        String hashedCurrentPassword = PasswordUtil.hashPassword(request.currentPassword());
-        if (!user.getPassword().equals(hashedCurrentPassword)) {
-            throw new IllegalArgumentException("현재 비밀번호가 올바르지 않습니다.");
-        }
-        String hashedNewPassword = PasswordUtil.hashPassword(request.newPassword());
-
-        user.setPassword(hashedNewPassword);
-        userRepository.save(user);
-        log.info("사용자의 비밀번호가 성공적으로 변경되었습니다.");
+  /**
+   * 특정 id를 가진 사용자의 정보를 조회하여 반환하는 메서드
+   *
+   * @param id : 사용자 고유 번호
+   * @return UserDto
+   */
+  public UserResponseDto findById(long id) {
+    log.info("[Service] find User by productId");
+    try {
+      User user = userRepository.findById(id).get();
+      return UserMapper.toUserResponseDto(user);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    // 탈퇴
-    public UserResponseDto delete(Long id) {
-        log.info("[Service] delete User by id: {}", id);
-        User user = userModuleService.findById(id);
-        if (user == null) {
-            throw new IllegalArgumentException("존재하지 않는 직원입니다.");
-        }
-        userRepository.deleteById(id);
+  /**
+   * 사용자의 정보를 수정하는 메서드
+   *
+   * @param request : 사용자 정보가 담긴 Dto
+   * @return UserDto
+   */
+  @Transactional
+  public UserResponseDto update(Long id, UserRequestDto request) {
+    log.info("[Service] update User by productId");
+    try {
 
-        return UserMapper.toUserResponseDto(user);
+      User updatedUser = userRepository.findById(id).get();
+      updatedUser.updateName(request.getName());
+      updatedUser.updateUserNumber(request.getUserNumber());
+      updatedUser = userRepository.save(updatedUser);
+
+      return UserMapper.toUserResponseDto(updatedUser);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 
+  /**
+   * 사용자의 정보를 삭제하는 메서드
+   *
+   * @param id : 사용자 고유 번호
+   */
+  @Transactional
+  public void delete(Long id) {
+    try {
+      log.info("[Service] delete User by productId");
+      User existingUser = userRepository.findById(id).get();
+      userRepository.delete(existingUser);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
