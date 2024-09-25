@@ -46,8 +46,8 @@ public class LocationMapper {
             .zSize(location.getZSize())
             .name(location.getName())
             .rotation(location.getRotation())
-            .floorResponses(location.getFloors().stream().map(
-                FloorMapper::toFloorResponseDto
+            .floorResponses(location.getFloorList().stream().map(
+                FloorMapper::toResponseDto
             ).toList())
             .build();
     }
