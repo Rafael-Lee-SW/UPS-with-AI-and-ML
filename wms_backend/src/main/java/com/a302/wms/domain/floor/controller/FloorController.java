@@ -1,8 +1,8 @@
 package com.a302.wms.domain.floor.controller;
 
-import com.a302.wms.domain.floor.dto.FloorResponseDto;
+import com.a302.wms.domain.floor.dto.FloorResponse;
 import com.a302.wms.domain.floor.exception.FloorException;
-import com.a302.wms.domain.floor.service.FloorService;
+import com.a302.wms.domain.floor.service.FloorServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/floors")
 public class FloorController {
 
-    private final FloorService floorService;
+    private final FloorServiceImpl floorServiceImpl;
 
     /**
      * LocationId를 통해 해당 로케이션이 보유한 층 전부 조회
@@ -25,10 +25,10 @@ public class FloorController {
      * @return FloorDto List
      */
     @GetMapping
-    public BaseSuccessResponse<List<FloorResponseDto>> findAllByLocationId(
+    public BaseSuccessResponse<List<FloorResponse>> findAllByLocationId(
         @RequestParam(name = "locationId") Long locationId) throws FloorException {
-        log.info("[Controller] find all Floors by locationId: {}", locationId);
-        return new BaseSuccessResponse<>(floorService.findAllByLocationId(locationId));
+        log.info("[Controller] find all Floors by locationId");
+        return new BaseSuccessResponse<>(floorServiceImpl.findAllByLocationId(locationId));
     }
 
     /**
@@ -38,8 +38,8 @@ public class FloorController {
      * @return FloorDto
      */
     @GetMapping("/{id}")
-    public BaseSuccessResponse<FloorResponseDto> findById(@PathVariable Long id) throws FloorException {
-        log.info("[Controller] find Floor by productId: {}", id);
-        return new BaseSuccessResponse<>(floorService.findById(id));
+    public BaseSuccessResponse<FloorResponse> findById(@PathVariable Long id) throws FloorException {
+        log.info("[Controller] find Floor by productId");
+        return new BaseSuccessResponse<>(floorServiceImpl.findById(id));
     }
 }

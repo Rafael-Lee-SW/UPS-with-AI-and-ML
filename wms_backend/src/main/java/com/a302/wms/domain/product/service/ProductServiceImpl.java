@@ -1,18 +1,17 @@
 package com.a302.wms.domain.product.service;
 
-import com.a302.wms.domain.device.dto.DeviceRegisterRequestDto;
+import com.a302.wms.domain.device.dto.DeviceCreateRequest;
 import com.a302.wms.domain.device.entity.Device;
 import com.a302.wms.domain.device.repository.DeviceRepository;
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.repository.FloorRepository;
-import com.a302.wms.domain.floor.service.FloorService;
+import com.a302.wms.domain.floor.service.FloorServiceImpl;
 import com.a302.wms.domain.product.dto.*;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.mapper.ProductMapper;
 import com.a302.wms.domain.product.repository.ProductRepository;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.global.constant.ProductConstant;
-import com.a302.wms.domain.product.dto.*;
 import com.a302.wms.domain.product.exception.ProductException;
 import com.a302.wms.domain.product.exception.ProductInvalidRequestException;
 import com.a302.wms.global.constant.ProductFlowTypeEnum;
@@ -32,7 +31,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class ProductService {
 
-    private final FloorService floorService;
+    private final FloorServiceImpl floorServiceImpl;
     private final ProductRepository productRepository;
     private final ProductFlowService productFlowService;
     private final FloorRepository floorRepository;
@@ -69,7 +68,7 @@ public class ProductService {
                 .toList();
     }
 
-    public List<ProductResponseDto> findAllByKioskKey(DeviceRegisterRequestDto dto) {
+    public List<ProductResponseDto> findAllByKioskKey(DeviceCreateRequest dto) {
         log.info("[Service] find Products by kiosk key: {}", dto);
 
         Device device = deviceRepository.findByDeviceKey(dto.key()).orElseThrow();
@@ -241,7 +240,7 @@ public class ProductService {
     public void importProducts(List<ProductImportRequestDto> requests) {
         log.info("[Service] import Products ");
         requests.forEach(data -> importProduct(data,
-                floorService.findDefaultFloorByStore(data.storeId())));
+                floorServiceImpl.findDefaultFloorByStore(data.storeId())));
     }
 
     /**
