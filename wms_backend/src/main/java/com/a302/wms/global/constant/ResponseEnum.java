@@ -7,13 +7,11 @@ import org.springframework.http.HttpStatus;
 public enum ResponseEnum {
     SUCCESS(true, 1000, HttpStatus.OK.value(), "요청에 성공하였습니다."),  //성공 코드
 
-    // Request 오류
     BAD_REQUEST(false, 2000, HttpStatus.BAD_REQUEST.value(), "유효하지 않은 요청입니다."),
     URL_NOT_FOUND(false, 2001, HttpStatus.BAD_REQUEST.value(), "유효하지 않은 URL 입니다."),
     METHOD_NOT_ALLOWED(false, 2002, HttpStatus.METHOD_NOT_ALLOWED.value(),
         "해당 URL에서는 지원하지 않는 HTTP Method 입니다."),
 
-    // Server, Database 오류
     SERVER_ERROR(false, 3000, HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버에서 오류가 발생하였습니다."),
     DATABASE_ERROR(false, 3001, HttpStatus.INTERNAL_SERVER_ERROR.value(), "데이터베이스에서 오류가 발생하였습니다."),
     BAD_SQL_GRAMMAR(false, 3002, HttpStatus.INTERNAL_SERVER_ERROR.value(), "SQL에 오류가 있습니다."),

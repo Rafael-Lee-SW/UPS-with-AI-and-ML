@@ -16,7 +16,7 @@ public class UserException extends Throwable {
 
     public static class NotFoundException extends UserException {
 
-       final String MESSAGE_FORMAT = " 사업체 productId: %s";
+       final String MESSAGE_FORMAT = " 사용자 productId: %s";
 
         NotFoundException(Long id) {
             super(ResponseEnum.USER_NOT_FOUND,
@@ -26,7 +26,7 @@ public class UserException extends Throwable {
 
     public static class DeletedException extends UserException {
 
-       final String MESSAGE_FORMAT = " 사업체 productId: %s";
+       final String MESSAGE_FORMAT = " 사용자 productId: %s";
 
         DeletedException(Long id) {
             super(ResponseEnum.USER_DELETED,
