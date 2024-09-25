@@ -1,4 +1,3 @@
-// electron.d.tsx (기존 파일에 추가)
 export {};
 
 declare global {
