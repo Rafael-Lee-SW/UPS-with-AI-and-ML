@@ -6,7 +6,7 @@ import com.a302.wms.domain.location.mapper.LocationMapper;
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.exception.FloorException;
 import com.a302.wms.domain.floor.repository.FloorRepository;
-import com.a302.wms.domain.floor.service.FloorService;
+import com.a302.wms.domain.floor.service.FloorServiceImpl;
 import com.a302.wms.domain.location.dto.LocationRequestDto;
 import com.a302.wms.domain.location.dto.LocationResponseDto;
 import com.a302.wms.domain.location.dto.LocationSaveRequestDto;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class LocationService {
-    private final FloorService floorService;
+    private final FloorServiceImpl floorServiceImpl;
     private final LocationRepository locationRepository;
     private final FloorRepository floorRepository;
 
@@ -111,7 +111,7 @@ public class LocationService {
         List<Floor> floors = floorRepository.findAllByLocationId(location.getId());
 
         return floors.stream()
-                .mapToInt(floorService::getCapacity)
+                .mapToInt(floorServiceImpl::getCapacity)
                 .max()
                 .orElse(0);
     }
@@ -130,7 +130,7 @@ public class LocationService {
         List<Floor> floors = floorRepository.findAllByLocationId(
                 location.getId()); //location의 층 전부 조회
 
-        floorService.deleteAll(floors); //변경사항 저장
+        floorServiceImpl.deleteAll(floors); //변경사항 저장
         locationRepository.delete(location);
     }
 

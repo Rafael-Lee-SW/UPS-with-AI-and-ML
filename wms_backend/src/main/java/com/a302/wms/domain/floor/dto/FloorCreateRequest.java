@@ -2,11 +2,11 @@ package com.a302.wms.domain.floor.dto;
 
 import lombok.*;
 
-public record FloorRequestDto (
+public record FloorCreateRequest(
         int floorLevel
 ) {
     @Builder
-    public FloorRequestDto (int floorLevel) {
+    public FloorCreateRequest(int floorLevel) {
         this.floorLevel = floorLevel;
     }
 }
