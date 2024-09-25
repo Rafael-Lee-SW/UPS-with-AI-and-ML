@@ -1,8 +1,7 @@
 package com.a302.wms.domain.user.controller;
 
 import com.a302.wms.domain.user.dto.UserRequestDto;
-import com.a302.wms.domain.user.dto.UserResponseDto;
-import com.a302.wms.domain.user.service.UserService;
+import com.a302.wms.domain.user.service.UserServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     /**
      * 특정 id를 가진 사용자의 정보를 조회하는 메서드

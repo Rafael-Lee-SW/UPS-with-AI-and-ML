@@ -1,7 +1,7 @@
 package com.a302.wms.domain.location.controller;
 
-import com.a302.wms.domain.location.service.LocationService;
 import com.a302.wms.domain.floor.exception.FloorException;
+import com.a302.wms.domain.location.service.LocationServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
 import com.a302.wms.domain.location.dto.LocationRequestDto;
 import com.a302.wms.domain.location.dto.LocationResponseDto;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/locations")
 public class LocationController {
 
-    private final LocationService locationService;
+    private final LocationServiceImpl locationService;
 
     /**
      * @param storeId -> 매장 아이디 (필수 )

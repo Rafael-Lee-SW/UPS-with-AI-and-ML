@@ -36,11 +36,11 @@ public class Location extends BaseTimeEntity {
     @Column(nullable = false)
     private int zSize = -1;
     @OneToMany(mappedBy = "location")
-    private List<Floor> floors = new ArrayList<>();
+    private List<Floor> floorList = new ArrayList<>();
 
     @Builder
-    public Location(List<Floor> floors, Long id, String name, int rotation, Store store, int xPosition, int xSize, int yPosition, int ySize, int zSize) {
-        this.floors = floors;
+    public Location(List<Floor> floorList, Long id, String name, int rotation, Store store, int xPosition, int xSize, int yPosition, int ySize, int zSize) {
+        this.floorList = floorList;
         this.id = id;
         this.name = name;
         this.rotation = rotation;
@@ -58,7 +58,7 @@ public class Location extends BaseTimeEntity {
     }
 
     public void updateFloors(List<Floor> floors) {
-        this.floors = floors;
+        this.floorList = floors;
     }
     public void updateName(String name) {
         this.name = name;

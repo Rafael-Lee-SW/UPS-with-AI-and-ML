@@ -2,9 +2,9 @@ package com.a302.wms.domain.payment.service;
 
 import com.a302.wms.domain.device.entity.Device;
 import com.a302.wms.domain.device.repository.DeviceRepository;
-import com.a302.wms.domain.payment.dto.PaymentCreateRequestDto;
-import com.a302.wms.domain.payment.dto.PaymentResponseDto;
-import com.a302.wms.domain.payment.dto.PaymentSearchRequestDto;
+import com.a302.wms.domain.payment.dto.PaymentCreateRequest;
+import com.a302.wms.domain.payment.dto.PaymentResponse;
+import com.a302.wms.domain.payment.dto.PaymentSearchRequest;
 import com.a302.wms.domain.payment.entity.Payment;
 import com.a302.wms.domain.payment.mapper.PaymentMapper;
 import com.a302.wms.domain.payment.repository.PaymentRepository;
@@ -29,14 +29,14 @@ public class PaymentServiceImpl {
   private final UserRepository userRepository;
 
   /**
-   * TODO : JavaDoc 작성
+   * 해당 매장에 결제내역 새로 등록
    *
    * @param deviceId
    * @param dto
    * @return
    */
   @Transactional
-  public PaymentResponseDto save(Long deviceId, PaymentCreateRequestDto dto) {
+  public PaymentResponse save(Long deviceId, PaymentCreateRequest dto) {
     log.info("[Service] save payment for device in store");
 
     Device device = deviceRepository.findById(deviceId).orElseThrow();
@@ -49,13 +49,13 @@ public class PaymentServiceImpl {
   }
 
   /**
-   * TODO : JavaDoc 작성
+   * 결제내역 id로 결제내역 상세 조회
    *
    * @param userId
    * @param paymentId
    * @return
    */
-  public PaymentResponseDto findById(Long userId, Long paymentId) {
+  public PaymentResponse findById(Long userId, Long paymentId) {
     log.info("[Service] find payment for user");
 
     User user = userRepository.findById(userId).orElseThrow();
@@ -65,24 +65,24 @@ public class PaymentServiceImpl {
   }
 
   /**
-   * TODO : JavaDoc 작성
+   * storeId에 해당하는 store의 startDateTime에서 endDateTime 사이에 생성된 결제 내역 조회
    *
    * @param userId
-   * @param paymentSearchRequestDto
+   * @param paymentSearchRequest
    * @return
    */
-  public List<PaymentResponseDto> find(
-      Long userId, PaymentSearchRequestDto paymentSearchRequestDto) {
+  public List<PaymentResponse> find(
+      Long userId, PaymentSearchRequest paymentSearchRequest) {
     log.info("[Service] find payment for user");
 
     User user = userRepository.findById(userId).orElseThrow();
 
-    List<PaymentResponseDto> paymentList =
+    List<PaymentResponse> paymentList =
         paymentRepository
             .findPaymentsByStoreIdAndPaidAtBetween(
-                paymentSearchRequestDto.storeId(),
-                paymentSearchRequestDto.startDateTime(),
-                paymentSearchRequestDto.endDateTime())
+                paymentSearchRequest.storeId(),
+                paymentSearchRequest.startDateTime(),
+                paymentSearchRequest.endDateTime())
             .stream()
             .map(PaymentMapper::toResponseDto)
             .toList();
