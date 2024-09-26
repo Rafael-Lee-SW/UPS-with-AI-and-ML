@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class StoreController {
 
     private final ProductServiceImpl productServiceImpl;
-    private StoreServiceImpl storeService;
+    private final StoreServiceImpl storeService;
 
     /**
      * userId에 해당하는 매장 생성
