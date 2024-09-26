@@ -39,7 +39,7 @@ public class ProductServiceImpl {
    * @param userId : 찾을 유저의 id
    * @return : userId에 해당하는 모든 상품 리스트
    */
-  public List<ProductResponseDto> findAllByUserId(Long userId) {
+  public List<ProductResponse> findAllByUserId(Long userId) {
     log.info("[Service] find Products");
     final List<Product> products = productRepository.findAllByUserId(userId);
 
@@ -52,7 +52,7 @@ public class ProductServiceImpl {
    * @param storeId 찾을 매장의 id
    * @return storeId에 해당하는 모든 상품 리스트
    */
-  public List<ProductResponseDto> findAllByStoreId(Long storeId) {
+  public List<ProductResponse> findAllByStoreId(Long storeId) {
     log.info("[Service] find Products by storeId");
 
     final List<Product> products = productRepository.findByStoreId(storeId);
@@ -66,7 +66,7 @@ public class ProductServiceImpl {
    * @param deviceRegisterRequestDto : 찾을 device의 정보
    * @return
    */
-  public List<ProductResponseDto> findAllByKioskKey(DeviceCreateRequest deviceRegisterRequestDto) {
+  public List<ProductResponse> findAllByKioskKey(DeviceCreateRequest deviceRegisterRequestDto) {
     log.info("[Service] find Products by kiosk key");
 
     Device device = deviceRepository.findByDeviceKey(deviceRegisterRequestDto.key()).orElseThrow();
@@ -79,32 +79,32 @@ public class ProductServiceImpl {
   /**
    * 상품 다중 업데이트
    *
-   * @param productUpdateRequestDtoList : 업데이트할 상품 정보 리스트
+   * @param productUpdateRequestList : 업데이트할 상품 정보 리스트
    */
-  public void updateAll(List<ProductUpdateRequestDto> productUpdateRequestDtoList) {
+  public void updateAll(List<ProductUpdateRequest> productUpdateRequestList) {
     log.info("[Service] update Products :");
-    productUpdateRequestDtoList.forEach(this::update);
+    productUpdateRequestList.forEach(this::update);
   }
 
   /**
    * 상품 단일 수정
    *
-   * @param productUpdateRequestDto 수정할 상품 정보
+   * @param productUpdateRequest 수정할 상품 정보
    */
-  public void update(ProductUpdateRequestDto productUpdateRequestDto) {
+  public void update(ProductUpdateRequest productUpdateRequest) {
     log.info("[Service] update Product by productId ");
     try {
       Product product =
-          productRepository.findById(productUpdateRequestDto.productId()).orElse(null);
+          productRepository.findById(productUpdateRequest.productId()).orElseThrow(null);
 
-      updateIfValid(productUpdateRequestDto.barcode(), product::updateBarcode);
-      updateIfValid(productUpdateRequestDto.sku(), product::updateSku);
-      updateIfValid(productUpdateRequestDto.productName(), product::updateProductName);
-      updateIfValid(productUpdateRequestDto.quantity(), product::updateQuantity);
-      updateIfValid(productUpdateRequestDto.originalPrice(), product::updateOriginalPrice);
-      updateIfValid(productUpdateRequestDto.sellingPrice(), product::updateSellingPrice);
+      updateIfValid(productUpdateRequest.barcode(), product::updateBarcode);
+      updateIfValid(productUpdateRequest.sku(), product::updateSku);
+      updateIfValid(productUpdateRequest.productName(), product::updateProductName);
+      updateIfValid(productUpdateRequest.quantity(), product::updateQuantity);
+      updateIfValid(productUpdateRequest.originalPrice(), product::updateOriginalPrice);
+      updateIfValid(productUpdateRequest.sellingPrice(), product::updateSellingPrice);
     } catch (IllegalArgumentException e) {
-      throw new ProductInvalidRequestException("productUpdateRequestDto", productUpdateRequestDto);
+      throw new ProductInvalidRequestException("productUpdateRequestDto", productUpdateRequest);
     }
   }
 
@@ -164,13 +164,13 @@ public class ProductServiceImpl {
   /**
    * 상품 다중 이동
    *
-   * @param productMoveRequestDtoList : 이동할 상품 리스트
+   * @param productMoveRequestList : 이동할 상품 리스트
    * @throws ProductException
    */
   @Transactional
-  public void moveProducts(List<ProductMoveRequestDto> productMoveRequestDtoList)
+  public void moveProducts(List<ProductMoveRequest> productMoveRequestList)
       throws ProductException {
-    for (ProductMoveRequestDto request : productMoveRequestDtoList) {
+    for (ProductMoveRequest request : productMoveRequestList) {
       moveProduct(request);
     }
   }
@@ -178,62 +178,58 @@ public class ProductServiceImpl {
   /**
    * 단일 상품 이동
    *
-   * @param productMoveRequestDto
+   * @param productMoveRequest
    * @throws ProductException
    */
   @Transactional
-  public void moveProduct(ProductMoveRequestDto productMoveRequestDto) throws ProductException {
+  public void moveProduct(ProductMoveRequest productMoveRequest) throws ProductException {
     try {
 
-      Product product = productRepository.findById(productMoveRequestDto.productId()).orElseThrow();
+      Product product = productRepository.findById(productMoveRequest.productId()).orElseThrow();
 
       Floor targetFloor =
-          floorRepository.findAllByLocationId(productMoveRequestDto.locationId()).stream()
-              .filter((data) -> data.getFloorLevel() == productMoveRequestDto.floorLevel())
+          floorRepository.findAllByLocationId(productMoveRequest.locationId()).stream()
+              .filter((data) -> data.getFloorLevel() == productMoveRequest.floorLevel())
               .findFirst()
               .orElse(null);
-      Product previous = null;
-      if (targetFloor.getProduct() != null) {
-        throw new ProductException.NotFoundException(product.getProductId());
-      } else {
-        previous = Product.builder().floor(product.getFloor()).build();
+      Product previous = Product.builder().floor(product.getFloor()).build();
 
         Floor presentFloor = product.getFloor();
         presentFloor.updateProduct(null);
 
         updateIfValid(targetFloor, product::updateFloor);
-      }
+
 
       productFlowService.saveData(
-          previous, product, ProductFlowTypeEnum.FLOW, productMoveRequestDto.movementDate());
+          previous, product, ProductFlowTypeEnum.FLOW, productMoveRequest.movementDate().atStartOfDay());
     } catch (NullPointerException e) {
-      throw new ProductException.NotFoundException(productMoveRequestDto.productId());
+      throw new ProductException.NotFoundException(productMoveRequest.productId());
     }
   }
 
   /**
    * 상품 다중 입고
    *
-   * @param productImportRequestDtoList : 입고할 상품 리스트
+   * @param productImportRequestList : 입고할 상품 리스트
    */
   @Transactional
-  public void importAll(List<ProductImportRequestDto> productImportRequestDtoList) {
+  public void importAll(List<ProductImportRequest> productImportRequestList) {
     log.info("[Service] import Products ");
-    productImportRequestDtoList.forEach(
+    productImportRequestList.forEach(
         data -> importProduct(data, floorService.findDefaultFloorByStore(data.storeId())));
   }
 
   /**
    * 상품 단일 입고
    *
-   * @param productImportRequestDto : 입고할 상품 정보
+   * @param productImportRequest : 입고할 상품 정보
    * @param defaultFloor 입고용 default 층 객체
    */
-  private void importProduct(ProductImportRequestDto productImportRequestDto, Floor defaultFloor) {
+  private void importProduct(ProductImportRequest productImportRequest, Floor defaultFloor) {
     log.info("[Service] import Product by productData: ");
 
     Product product =
-        ProductMapper.fromProductImportRequestDto(productImportRequestDto, defaultFloor);
+        ProductMapper.fromProductImportRequestDto(productImportRequest, defaultFloor);
 
     productRepository.save(product);
 

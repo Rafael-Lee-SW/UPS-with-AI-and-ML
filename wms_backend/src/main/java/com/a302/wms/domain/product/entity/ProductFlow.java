@@ -40,13 +40,17 @@ public class ProductFlow extends BaseTimeEntity {
     private Long previousFloorId;
 
     @Column(name = "product_flow_type", nullable = false)
+    @Enumerated(EnumType.STRING)
     private ProductFlowTypeEnum productFlowTypeEnum;
+
+    @Column(name = "user_id")
+    private Long userId;
 
     @Builder
     public ProductFlow(Long presentFloorId, LocalDateTime flowDate,
                        Long productFlowId, Long previousFloorId, Long barcode,
                        ProductFlowTypeEnum productFlowTypeEnum, String productName,
-                       String sku, Integer quantity) {
+                       String sku, Integer quantity, Long userId) {
         this.presentFloorId = presentFloorId;
         this.flowDate = flowDate;
         this.productFlowId = productFlowId;
@@ -56,5 +60,6 @@ public class ProductFlow extends BaseTimeEntity {
         this.productName = productName;
         this.sku = sku;
         this.quantity = quantity;
+        this.userId = userId;
     }
 }

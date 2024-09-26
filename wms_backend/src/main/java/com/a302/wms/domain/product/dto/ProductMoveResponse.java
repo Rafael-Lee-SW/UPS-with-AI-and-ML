@@ -3,7 +3,7 @@ package com.a302.wms.domain.product.dto;
 import java.time.LocalDateTime;
 import lombok.Builder;
 
-public record ProductMoveResponseDto(
+public record ProductMoveResponse(
     String productName,
     Long barcode,
     String sku,
@@ -14,7 +14,7 @@ public record ProductMoveResponseDto(
     String previousLocationName,
     String previousFloorLevel) {
   @Builder
-  public ProductMoveResponseDto(
+  public ProductMoveResponse(
       String productName,
       Long barcode,
       String sku,

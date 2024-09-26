@@ -1,9 +1,9 @@
 package com.a302.wms.domain.product.mapper;
 
 import com.a302.wms.domain.floor.entity.Floor;
-import com.a302.wms.domain.product.dto.ProductImportRequestDto;
-import com.a302.wms.domain.product.dto.ProductResponseDto;
-import com.a302.wms.domain.product.dto.ProductWithUserResponseDto;
+import com.a302.wms.domain.product.dto.ProductImportRequest;
+import com.a302.wms.domain.product.dto.ProductResponse;
+import com.a302.wms.domain.product.dto.ProductWithUserResponse;
 import com.a302.wms.domain.product.entity.Product;
 import org.springframework.stereotype.Component;
 
@@ -16,28 +16,32 @@ public class ProductMapper {
    * @param product
    * @return
    */
-  public static ProductResponseDto toProductResponseDto(Product product) {
-    return ProductResponseDto.builder()
+  public static ProductResponse toProductResponseDto(Product product) {
+
+    return ProductResponse.builder()
         .productId(product.getProductId())
         .productName(product.getProductName())
         .barcode(product.getBarcode())
         .sku(product.getSku())
         .quantity(product.getQuantity())
-        .floorLevel(product.getFloor().getFloorLevel())
         .locationName(product.getFloor().getLocation().getName())
+        .floorLevel(product.getFloor().getFloorLevel())
+        .storeId(product.getStore().getId())
+        .originalPrice(product.getOriginalPrice())
+        .sellingPrice(product.getSellingPrice())
         .build();
   }
 
   public static Product fromProductImportRequestDto(
-      ProductImportRequestDto productImportRequestDto, Floor floor) {
+          ProductImportRequest productImportRequest, Floor floor) {
     return Product.builder()
         .floor(floor)
-        .sku(productImportRequestDto.sku())
-        .quantity(productImportRequestDto.quantity())
+        .sku(productImportRequest.sku())
+        .quantity(productImportRequest.quantity())
         .build();
   }
 
-  public static ProductWithUserResponseDto toProductWithUserDto(Product product) {
-    return ProductWithUserResponseDto.builder().build();
+  public static ProductWithUserResponse toProductWithUserDto(Product product) {
+    return ProductWithUserResponse.builder().build();
   }
 }
