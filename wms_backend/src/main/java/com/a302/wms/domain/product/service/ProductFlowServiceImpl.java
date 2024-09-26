@@ -1,15 +1,20 @@
 package com.a302.wms.domain.product.service;
 
+import com.a302.wms.domain.floor.entity.Floor;
+import com.a302.wms.domain.floor.repository.FloorRepository;
+import com.a302.wms.domain.product.dto.*;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.entity.ProductFlow;
+import com.a302.wms.domain.product.mapper.ProductFlowMapper;
 import com.a302.wms.domain.product.repository.ProductFlowRepository;
-import com.a302.wms.domain.product.dto.*;
 import com.a302.wms.global.constant.ProductFlowTypeEnum;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -17,6 +22,7 @@ import java.time.LocalDateTime;
 public class ProductFlowServiceImpl {
 
     private final ProductFlowRepository productFlowRepository;
+    private final FloorRepository floorRepository;
 
 
     /**
@@ -42,5 +48,17 @@ public class ProductFlowServiceImpl {
                 .productFlowTypeEnum(productFlowTypeEnum)
                 .flowDate(flowDate)
                 .build());
+    }
+    public List<ProductFlowResponse> findAllByUserId(Long userId) {
+        List<ProductFlow> productFlowList =  productFlowRepository.findAllByUserId(userId);
+        List<ProductFlowResponse> productFlowResponseList = new ArrayList<>();
+        for (ProductFlow productFlow : productFlowList) {
+            productFlowResponseList.add(
+                    ProductFlowMapper.toProductFlowResponse(productFlow,
+                            floorRepository.findById(productFlow.getPreviousFloorId()).get(),
+                            floorRepository.findById(productFlow.getPresentFloorId()).get())
+                            );
+        }
+        return productFlowResponseList;
     }
    }
