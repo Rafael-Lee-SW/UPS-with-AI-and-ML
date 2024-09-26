@@ -1,9 +1,12 @@
 package com.a302.wms.domain.store.controller;
 
+import com.a302.wms.domain.product.dto.ProductResponseDto;
+import com.a302.wms.domain.product.service.ProductServiceImpl;
 import com.a302.wms.domain.store.dto.store.StoreCreateRequestDto;
 import com.a302.wms.domain.store.dto.store.StoreDetailResponseDto;
 import com.a302.wms.domain.store.dto.store.StoreResponseDto;
 import com.a302.wms.domain.store.dto.wall.WallsCreateDto;
+import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.store.service.StoreServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
 import java.util.List;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/stores")
 public class StoreController {
 
+    private final ProductServiceImpl productServiceImpl;
     private StoreServiceImpl storeService;
 
     /**
@@ -87,5 +91,13 @@ public class StoreController {
         log.info("[Controller] save Walls: ");
         storeService.saveAllWall(wallsCreateDto);
         return new BaseSuccessResponse<>(null);
+    }
+
+    @GetMapping("/{storeId}/products")
+    public BaseSuccessResponse<List<ProductResponseDto>> findAllProducts(
+            @RequestParam Long storeId
+    ) {
+        log.info("[Controller] find all products for store: {}", storeId);
+        return new BaseSuccessResponse<>(storeService.findProducts(storeId));
     }
 }
