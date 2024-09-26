@@ -32,9 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @Slf4j
-@RestController
+@Service
 @RequiredArgsConstructor
-@RequestMapping("/store")
 public class StoreServiceImpl {
 
     private final StoreRepository storeRepository;
