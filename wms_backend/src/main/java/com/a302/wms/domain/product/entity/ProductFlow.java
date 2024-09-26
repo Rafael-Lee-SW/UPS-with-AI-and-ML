@@ -1,12 +1,11 @@
 package com.a302.wms.domain.product.entity;
 
-import com.a302.wms.global.constant.ProductFlowTypeEnum;
 import com.a302.wms.global.BaseTimeEntity;
+import com.a302.wms.global.constant.ProductFlowTypeEnum;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
 
 @Table(name = "product_flow")
 @Getter
