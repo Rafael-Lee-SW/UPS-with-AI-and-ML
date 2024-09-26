@@ -58,37 +58,37 @@ public class WebSecurityConfig {
         .sessionManagement(
             sessionManagement ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(request -> request.anyRequest().permitAll())
-        .oauth2Login(
-            oauth2 ->
-                oauth2
-                    .loginPage("/oauth2/authorization/kakao") // 로그인 페이지 설정
-                    .successHandler(
-                        (request, response, authentication) -> {
-                          OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-                          Map<String, Object> attributes = oAuth2User.getAttributes();
-                          Map<String, Object> kakaoAccount =
-                              (Map<String, Object>) attributes.get("kakao_account");
-                          String userEmail = (String) kakaoAccount.get("email");
-
-                          String token = jwtProvider.create(USER, userEmail);
-                          response.addHeader("Authorization", "Bearer " + token);
-                          String jsonResponse =
-                              URLEncoder.encode(
-                                  "{\"code\":\"SU\", \"token\":\""
-                                      + token
-                                      + "\", \"userEmail\":\""
-                                      + userEmail
-                                      + "\"}",
-                                  StandardCharsets.UTF_8);
-                          response.sendRedirect(
-                              "https://i11a508.p.ssafy.io/oauth/callback?token="
-                                  + token); // 성공 후 리다이렉트
-                        }))
-        .exceptionHandling(
-            exceptionHandling ->
-                exceptionHandling.authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        .authorizeHttpRequests(request -> request.anyRequest().permitAll());
+//        .oauth2Login(
+//            oauth2 ->
+//                oauth2
+//                    .loginPage("/oauth2/authorization/kakao") // 로그인 페이지 설정
+//                    .successHandler(
+//                        (request, response, authentication) -> {
+//                          OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+//                          Map<String, Object> attributes = oAuth2User.getAttributes();
+//                          Map<String, Object> kakaoAccount =
+//                              (Map<String, Object>) attributes.get("kakao_account");
+//                          String userEmail = (String) kakaoAccount.get("email");
+//
+//                          String token = jwtProvider.create(USER, userEmail);
+//                          response.addHeader("Authorization", "Bearer " + token);
+//                          String jsonResponse =
+//                              URLEncoder.encode(
+//                                  "{\"code\":\"SU\", \"token\":\""
+//                                      + token
+//                                      + "\", \"userEmail\":\""
+//                                      + userEmail
+//                                      + "\"}",
+//                                  StandardCharsets.UTF_8);
+//                          response.sendRedirect(
+//                              "https://i11a508.p.ssafy.io/oauth/callback?token="
+//                                  + token); // 성공 후 리다이렉트
+//                        }))
+//        .exceptionHandling(
+//            exceptionHandling ->
+//                exceptionHandling.authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
+//        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
     return httpSecurity.build();
   }
