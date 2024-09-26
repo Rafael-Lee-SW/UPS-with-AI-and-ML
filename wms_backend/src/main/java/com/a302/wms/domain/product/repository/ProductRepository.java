@@ -11,7 +11,7 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p " +
-            "WHERE p.store = :storeId ")
+            "WHERE p.store.id = :storeId ")
     List<Product> findByStoreId(@Param("storeId") Long storeId);
 
     @Query("SELECT p FROM Product p " +
