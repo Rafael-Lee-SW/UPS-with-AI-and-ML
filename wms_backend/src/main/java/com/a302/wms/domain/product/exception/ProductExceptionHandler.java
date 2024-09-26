@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ProductExceptionHandler {
 
-    @ExceptionHandler(ProductException.class)
-    public BaseExceptionResponse productException(ProductException e) {
-        return new BaseExceptionResponse(e.getResponseEnum());
-    }
+  @ExceptionHandler(ProductException.class)
+  public BaseExceptionResponse productException(ProductException e) {
+    return new BaseExceptionResponse(e.getResponseEnum());
+  }
 }
