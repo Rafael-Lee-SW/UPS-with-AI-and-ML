@@ -1,12 +1,12 @@
 package com.a302.wms.domain.auth.service;
 
 import com.a302.wms.domain.auth.common.CertificationNumber;
-import com.a302.wms.domain.auth.dto.request.auth.CheckCertificationRequestDto;
-import com.a302.wms.domain.auth.dto.request.auth.EmailCertificationRequestDto;
+import com.a302.wms.domain.auth.dto.request.CheckCertificationRequest;
+import com.a302.wms.domain.auth.dto.request.EmailCertificationRequest;
 import com.a302.wms.domain.auth.dto.response.ResponseDto;
-import com.a302.wms.domain.auth.dto.response.auth.CheckCertificationResponseDto;
-import com.a302.wms.domain.auth.dto.response.auth.EmailCertificationResponseDto;
-import com.a302.wms.domain.auth.dto.response.auth.IdCheckResponseDto;
+import com.a302.wms.domain.auth.dto.response.auth.CheckCertificationResponse;
+import com.a302.wms.domain.auth.dto.response.auth.EmailCertificationResponse;
+import com.a302.wms.domain.auth.dto.response.auth.IdCheckResponse;
 import com.a302.wms.domain.auth.entity.Certification;
 import com.a302.wms.domain.auth.provider.JwtProvider;
 import com.a302.wms.domain.auth.repository.CertificationRepository;
@@ -41,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
      */
 
     @Override
-    public ResponseEntity<? super IdCheckResponseDto> idCheck(EmailCertificationRequestDto dto) {
+    public ResponseEntity<? super IdCheckResponse> idCheck(EmailCertificationRequest dto) {
         log.info("idCheck method called with dto: {}", dto);
         try {
             // 사용자 이메일을 가져옴
@@ -52,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
             boolean isExistEmail = userRepository.existsByEmail(email);
             if (isExistEmail) { // 중복이면
                 log.info("Email already exists: {}", email);
-                return IdCheckResponseDto.duplicateId();
+                return IdCheckResponse.duplicateId();
             }
         } catch (Exception e) {
             // 기타 예외 처리
@@ -61,11 +61,11 @@ public class AuthServiceImpl implements AuthService {
         }
         // 중복이 아닌 경우 성공 응답 반환
         log.info("Email is available: {}", dto.getEmail());
-        return IdCheckResponseDto.success();
+        return IdCheckResponse.success();
     }
 
     @Override
-    public ResponseEntity<? super EmailCertificationResponseDto> emailCertification(EmailCertificationRequestDto dto) {
+    public ResponseEntity<? super EmailCertificationResponse> emailCertification(EmailCertificationRequest dto) {
         log.info("emailCertification method called with dto: {}", dto);
         try {
             // 이메일 주소 가져오기
@@ -78,7 +78,7 @@ public class AuthServiceImpl implements AuthService {
 
             if (certificationNumber == null || certificationNumber.isEmpty()) {
                 log.error("Certification number generation failed");
-                return EmailCertificationResponseDto.mailSendFail();
+                return EmailCertificationResponse.mailSendFail();
             }
 
             // 인증 이메일 발송
@@ -86,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
 
             if (!isSuccessed) {
                 log.error("Failed to send certification email to: {}", email);
-                return EmailCertificationResponseDto.mailSendFail();
+                return EmailCertificationResponse.mailSendFail();
             }
 
             // 인증 정보를 저장
@@ -105,12 +105,12 @@ public class AuthServiceImpl implements AuthService {
         }
         // 이메일 인증 성공 응답 반환
         log.info("Email certification succeeded for email: {}", dto.getEmail());
-        return EmailCertificationResponseDto.success();
+        return EmailCertificationResponse.success();
     }
 
     @Override
-    public ResponseEntity<? super CheckCertificationResponseDto> checkCertification(
-            CheckCertificationRequestDto dto) {
+    public ResponseEntity<? super CheckCertificationResponse> checkCertification(
+            CheckCertificationRequest dto) {
         try {
             // 사용자 ID, 이메일, 인증 번호를 DTO로부터 가져옴
             String email = dto.getEmail();  // 이메일을 DTO로부터 가져옴
@@ -124,7 +124,7 @@ public class AuthServiceImpl implements AuthService {
             // 인증 정보가 없을 경우 인증 실패 응답 반환
             if (certificationEntity == null) {
                 log.info("No certification information found for email: {}", email);
-                return CheckCertificationResponseDto.certificationFail();  // 인증 정보가 없으면 실패 응답 반환
+                return CheckCertificationResponse.certificationFail();  // 인증 정보가 없으면 실패 응답 반환
             }
 
             log.info("Certification information retrieved for email: {}", email);
@@ -136,7 +136,7 @@ public class AuthServiceImpl implements AuthService {
             // 인증 실패 시 응답 반환
             if (!isSuccessed) {
                 log.info("Certification failed for email: {}", email);
-                return CheckCertificationResponseDto.certificationFail();  // 인증 정보가 일치하지 않으면 실패 응답 반환
+                return CheckCertificationResponse.certificationFail();  // 인증 정보가 일치하지 않으면 실패 응답 반환
             }
 
         } catch (Exception e) {
@@ -147,7 +147,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 인증 성공 시 성공 응답 반환
         log.info("Certification successful for email: {}", dto.getEmail());
-        return CheckCertificationResponseDto.success();  // 인증이 성공하면 성공 응답 반환
+        return CheckCertificationResponse.success();  // 인증이 성공하면 성공 응답 반환
     }
 
 

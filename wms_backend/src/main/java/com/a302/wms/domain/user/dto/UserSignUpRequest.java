@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.Length;
 public record UserSignUpRequest(
         @NotBlank(message = "이름을 입력해 주세요.")
         @Length(max = 255, message = "적절한 이름을 입력해 주세요 (최대 255자)")
-        String username,
+        String userName,
         @NotBlank(message = "이메일을 입력해 주세요.")
         @Length(max = 255, message = "적절한 이메일을 입력해 주세요 (최대 255자)")
         String email,

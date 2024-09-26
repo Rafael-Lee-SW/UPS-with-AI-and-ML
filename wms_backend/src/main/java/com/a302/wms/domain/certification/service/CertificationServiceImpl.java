@@ -1,7 +1,7 @@
 package com.a302.wms.domain.certification.service;
 
-import com.a302.wms.domain.auth.dto.request.auth.CheckCertificationRequest;
-import com.a302.wms.domain.auth.dto.request.auth.EmailCertificationRequest;
+import com.a302.wms.domain.auth.dto.request.CheckCertificationRequest;
+import com.a302.wms.domain.auth.dto.request.EmailCertificationRequest;
 import com.a302.wms.domain.auth.dto.response.ResponseDto;
 import com.a302.wms.domain.auth.dto.response.auth.CheckCertificationResponse;
 import com.a302.wms.domain.auth.dto.response.auth.EmailCertificationResponse;

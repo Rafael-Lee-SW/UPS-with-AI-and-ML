@@ -1,4 +1,4 @@
-package com.a302.wms.domain.auth.dto.request.auth;
+package com.a302.wms.domain.auth.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,14 +9,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SignInRequest {
+public class CheckCertificationRequest {
 
-    @NotBlank
     @Email
+    @NotBlank
     private String email;
 
     @NotBlank
-    private String password;
-
+    private String certificationNumber;
 
 }

@@ -4,7 +4,7 @@ import lombok.*;
 
 @Builder
 public record UserRequestDto(
-        String username,
+        String userName,
         String email
 ) {
 
