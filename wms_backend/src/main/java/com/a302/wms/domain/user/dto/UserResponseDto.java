@@ -5,14 +5,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Setter
-@Getter
 @Builder
 public record UserResponseDto(
 
         Long id,
         String email,
-        String username,
+        String userName,
         SocialLoginTypeEnum loginTypeEnum,
         LocalDateTime createdDate
 

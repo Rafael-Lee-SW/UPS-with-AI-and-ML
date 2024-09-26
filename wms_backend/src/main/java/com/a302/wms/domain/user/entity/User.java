@@ -22,7 +22,7 @@ public class User extends BaseTimeEntity {
     private Long id;
 
     @Column(name= "user_name", nullable = false, length = 100, unique = true)
-    private String username;
+    private String userName;
 
     @Column(nullable = false, length = 100 ,unique = true)
     private String email;
@@ -35,14 +35,14 @@ public class User extends BaseTimeEntity {
     private SocialLoginTypeEnum socialLoginType;
 
     @Builder
-    public User(String username, String email, String password) {
-        this.username = username;
+    public User(String userName, String email, String password) {
+        this.userName = userName;
         this.email = email;
         this.password = password;
     }
 
     public void updateInfo(UserRequestDto userRequestDto) {
-        this.username = userRequestDto.username();
+        this.userName = userRequestDto.userName();
         this.email = userRequestDto.email();
     }
 

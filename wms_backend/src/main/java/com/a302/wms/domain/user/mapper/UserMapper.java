@@ -1,6 +1,5 @@
 package com.a302.wms.domain.user.mapper;
 
-import com.a302.wms.domain.user.dto.UserRequestDto;
 import com.a302.wms.domain.user.dto.UserResponseDto;
 import com.a302.wms.domain.user.dto.UserSignUpRequest;
 import com.a302.wms.domain.user.entity.User;
@@ -13,7 +12,7 @@ public class UserMapper {
         return UserResponseDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .username(user.getUsername())
+                .userName(user.getUserName())
                 .loginTypeEnum(user.getSocialLoginType())
                 .createdDate(user.getCreatedDate())
                 .build();
@@ -21,7 +20,7 @@ public class UserMapper {
 
     public static User toEntity(UserSignUpRequest dto, String hashedPassword) {
         return User.builder()
-                .username(dto.username())
+                .userName(dto.userName())
                 .password(hashedPassword)
                 .email(dto.email())
                 .build();
