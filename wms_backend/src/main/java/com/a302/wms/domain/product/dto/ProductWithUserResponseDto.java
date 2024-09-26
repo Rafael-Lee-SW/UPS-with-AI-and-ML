@@ -8,7 +8,6 @@ public record ProductWithUserResponseDto(Long id,
         int quantity,
         String locationName,
         int floorLevel,
-        LocalDateTime expirationDate,
         Long storeId,
         Long barcode,
         String name,
@@ -18,13 +17,13 @@ public record ProductWithUserResponseDto(Long id,
        @Builder
 
        public ProductWithUserResponseDto(Long id, int quantity, String locationName, int floorLevel,
-                                         LocalDateTime expirationDate, Long storeId, Long barcode,
+                                          Long storeId, Long barcode,
                                          String name, int originalPrice, int sellingPrice) {
               this.id = id;
               this.quantity = quantity;
               this.locationName = locationName;
               this.floorLevel = floorLevel;
-              this.expirationDate = expirationDate;
+              
               this.storeId = storeId;
               this.barcode = barcode;
               this.name = name;
