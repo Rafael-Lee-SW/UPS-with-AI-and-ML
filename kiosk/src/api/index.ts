@@ -1,30 +1,25 @@
 import axios from 'axios';
 
 // API 요청을 한 곳에서 관리
-const API_URL = 'http://j11a302.p.ssafy.io/api';
+const API_URL = 'https://j11a302.p.ssafy.io/api';
 
-// 토큰을 검증하는 함수 (storeId는 key로 받아서 사용)
-export async function verifyToken(token: string): Promise<{ valid: boolean; products: any[] }> {
+export async function fetchProducts(storeId: string): Promise<{ valid: boolean; products: any[] }> {
   try {
-    // body에 key 값을 담아서 POST 요청을 보냄
-    const response = await axios.post(`${API_URL}/devices/keys`, { key: token });  // 수정된 API 경로
-    return response.data;  // 응답 데이터를 반환
+    // storeId를 포함한 GET 요청
+    const response = await axios.get(`${API_URL}/stores/${storeId}/products`);
+    const data = response.data;
+    
+    if (data.success) {
+      return { valid: true, products: data.result };  // 성공 시 상품 리스트 반환
+    } else {
+      return { valid: false, products: [] };  // 실패 시 빈 배열 반환
+    }
   } catch (error) {
-    console.error('키 검증 API 요청 실패:', error);
+    console.error('상품 조회 API 요청 실패:', error);
     return { valid: false, products: [] };  // 실패 시 기본값 반환
   }
 }
 
-// 상품 목록을 가져오는 함수
-export async function fetchProducts(): Promise<any[]> {
-  try {
-    const response = await axios.get(`${API_URL}/products`);
-    return response.data;
-  } catch (error) {
-    console.error('상품 API 요청 실패:', error);
-    return [];
-  }
-}
 
 // RFID로 상품 정보를 가져오는 함수 추가
 export async function fetchProductsByRFID(rfid: string): Promise<any[]> {
