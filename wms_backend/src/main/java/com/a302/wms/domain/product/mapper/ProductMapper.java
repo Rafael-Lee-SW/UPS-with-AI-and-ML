@@ -10,62 +10,34 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProductMapper {
 
-    /**
-     * Product -> ProductResponseDto
-     *
-     * @param product
-     * @return
-     */
-    public static ProductResponseDto toProductResponseDto(Product product) {
-        return ProductResponseDto.builder()
-                .productId(product.getProductId())
-                .productName(product.getProductName())
-                .barcode(product.getBarcode())
-                .sku(product.getSku())
-                .quantity(product.getQuantity())
-                .floorLevel(product.getFloor().getFloorLevel())
-                .locationName(product.getFloor().getLocation().getName())
-                .build();
-    }
+  /**
+   * Product -> ProductResponseDto
+   *
+   * @param product
+   * @return
+   */
+  public static ProductResponseDto toProductResponseDto(Product product) {
+    return ProductResponseDto.builder()
+        .productId(product.getProductId())
+        .productName(product.getProductName())
+        .barcode(product.getBarcode())
+        .sku(product.getSku())
+        .quantity(product.getQuantity())
+        .floorLevel(product.getFloor().getFloorLevel())
+        .locationName(product.getFloor().getLocation().getName())
+        .build();
+  }
 
-    public static Product fromProductImportRequestDto(ProductImportRequestDto productImportRequestDto,
-                                                      Floor floor) {
+  public static Product fromProductImportRequestDto(
+      ProductImportRequestDto productImportRequestDto, Floor floor) {
     return Product.builder()
         .floor(floor)
         .sku(productImportRequestDto.sku())
         .quantity(productImportRequestDto.quantity())
         .build();
-    }
+  }
 
-    public static ProductWithUserResponseDto toProductWithUserDto(Product product) {
-        return ProductWithUserResponseDto.builder()
-                .build();
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  public static ProductWithUserResponseDto toProductWithUserDto(Product product) {
+    return ProductWithUserResponseDto.builder().build();
+  }
 }

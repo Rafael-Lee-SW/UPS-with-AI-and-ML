@@ -66,8 +66,7 @@ public class ProductServiceImpl {
    * @param deviceRegisterRequestDto : 찾을 device의 정보
    * @return
    */
-  public List<ProductResponseDto> findAllByKioskKey(
-          DeviceCreateRequest deviceRegisterRequestDto) {
+  public List<ProductResponseDto> findAllByKioskKey(DeviceCreateRequest deviceRegisterRequestDto) {
     log.info("[Service] find Products by kiosk key");
 
     Device device = deviceRepository.findByDeviceKey(deviceRegisterRequestDto.key()).orElseThrow();

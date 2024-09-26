@@ -30,7 +30,7 @@ public class ProductController {
    */
   @PostMapping
   public BaseSuccessResponse<List<ProductResponseDto>> getProductsByKioskKey(
-          @RequestBody DeviceCreateRequest deviceCreateRequestDto) {
+      @RequestBody DeviceCreateRequest deviceCreateRequestDto) {
     return new BaseSuccessResponse<>(productService.findAllByKioskKey(deviceCreateRequestDto));
   }
 
@@ -68,10 +68,11 @@ public class ProductController {
     return new BaseSuccessResponse<>(null);
   }
 
-    /**
-     *  상품 다중 삭제
-     * @param productIds 삭제할 상품들의 id가 담긴 리스트
-     */
+  /**
+   * 상품 다중 삭제
+   *
+   * @param productIds 삭제할 상품들의 id가 담긴 리스트
+   */
   @DeleteMapping
   public BaseSuccessResponse<Void> deleteProducts(@RequestParam List<Long> productIds) {
     log.info("[Controller] delete Products");
@@ -94,13 +95,14 @@ public class ProductController {
     return new BaseSuccessResponse<>(null);
   }
 
-    /**
-     * 상품 다중 이동
-     * @param productMoveRequestDtoList 이동하는 상품들의 정보가 담긴 리스트
-     */
+  /**
+   * 상품 다중 이동
+   *
+   * @param productMoveRequestDtoList 이동하는 상품들의 정보가 담긴 리스트
+   */
   @PostMapping("/move")
-  public BaseSuccessResponse<Void> moveProducts(@RequestBody List<ProductMoveRequestDto> productMoveRequestDtoList)
-      throws ProductException {
+  public BaseSuccessResponse<Void> moveProducts(
+      @RequestBody List<ProductMoveRequestDto> productMoveRequestDtoList) throws ProductException {
 
     log.info("[Controller] find ProductMoveRequestDtoList");
     productService.moveProducts(productMoveRequestDtoList);
