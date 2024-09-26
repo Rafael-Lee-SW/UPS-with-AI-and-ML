@@ -104,7 +104,6 @@ public class ProductServiceImpl {
       updateIfValid(productUpdateRequestDto.quantity(), product::updateQuantity);
       updateIfValid(productUpdateRequestDto.originalPrice(), product::updateOriginalPrice);
       updateIfValid(productUpdateRequestDto.sellingPrice(), product::updateSellingPrice);
-      updateIfValid(productUpdateRequestDto.expirationDate(), product::updateExpirationDate);
     } catch (IllegalArgumentException e) {
       throw new ProductInvalidRequestException("productUpdateRequestDto", productUpdateRequestDto);
     }
