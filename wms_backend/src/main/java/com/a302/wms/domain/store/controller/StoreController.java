@@ -95,7 +95,7 @@ public class StoreController {
 
     @GetMapping("/{storeId}/products")
     public BaseSuccessResponse<List<ProductResponseDto>> findAllProducts(
-            @RequestParam Long storeId
+            @PathVariable Long storeId
     ) {
         log.info("[Controller] find all products for store: {}", storeId);
         return new BaseSuccessResponse<>(storeService.findProducts(storeId));
