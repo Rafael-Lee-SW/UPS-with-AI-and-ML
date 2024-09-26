@@ -1,11 +1,12 @@
 package com.a302.wms.domain.certification.repository;
 
 import com.a302.wms.domain.certification.dto.Certification;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public interface CertificationRedisRepository  {
+@Repository
+public interface CertificationRepository {
 
     void save(final Certification certification);
 
