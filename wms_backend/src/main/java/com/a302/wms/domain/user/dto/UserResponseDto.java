@@ -1,22 +1,19 @@
 package com.a302.wms.domain.user.dto;
 
-
+import com.a302.wms.global.constant.SocialLoginTypeEnum;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Setter
-@Getter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class UserResponseDto {
+public record UserResponseDto(
 
-    private Long id;
-    private Long userId;
-    private String name;
-    private String userNumber;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+        Long id,
+        String email,
+        String userName,
+        SocialLoginTypeEnum loginTypeEnum,
+        LocalDateTime createdDate
+
+) {
+
 }

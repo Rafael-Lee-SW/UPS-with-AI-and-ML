@@ -1,4 +1,4 @@
-package com.a302.wms.domain.auth.dto.request.auth;
+package com.a302.wms.domain.auth.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
