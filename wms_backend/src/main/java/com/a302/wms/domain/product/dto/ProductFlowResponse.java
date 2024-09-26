@@ -2,11 +2,10 @@ package com.a302.wms.domain.product.dto;
 
 import com.a302.wms.global.constant.ProductFlowTypeEnum;
 import lombok.Builder;
-import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-public record ProductFlowResponseDto(
+public record ProductFlowResponse(
     String productName,
     Long barcode,
     Integer quantity,
@@ -19,7 +18,7 @@ public record ProductFlowResponseDto(
     ProductFlowTypeEnum productFlowTypeEnum) {
 
   @Builder
-  public ProductFlowResponseDto(
+  public ProductFlowResponse(
       String productName,
       Long barcode,
       Integer quantity,

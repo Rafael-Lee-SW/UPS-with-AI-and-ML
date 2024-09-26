@@ -2,29 +2,37 @@ package com.a302.wms.domain.product.dto;
 
 import lombok.Builder;
 
-public record ProductUpdateRequestDto(
+public record ProductResponse(
     Long productId,
+    String productName,
     Long barcode,
     String sku,
-    String productName,
     Integer quantity,
+    String locationName,
+    Integer floorLevel,
+    Long storeId,
     Integer originalPrice,
     Integer sellingPrice) {
-
   @Builder
-  public ProductUpdateRequestDto(
+  public ProductResponse(
       Long productId,
+      String productName,
       Long barcode,
       String sku,
-      String productName,
       Integer quantity,
+      String locationName,
+      Integer floorLevel,
+      Long storeId,
       Integer originalPrice,
       Integer sellingPrice) {
     this.productId = productId;
+    this.productName = productName;
     this.barcode = barcode;
     this.sku = sku;
-    this.productName = productName;
     this.quantity = quantity;
+    this.locationName = locationName;
+    this.floorLevel = floorLevel;
+    this.storeId = storeId;
     this.originalPrice = originalPrice;
     this.sellingPrice = sellingPrice;
   }

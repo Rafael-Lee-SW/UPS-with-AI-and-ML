@@ -2,7 +2,7 @@ package com.a302.wms.domain.product.dto;
 
 import lombok.*;
 
-public record ProductImportRequestDto(
+public record ProductImportRequest(
         String productName,
         String sku,
         Long barcode,
@@ -11,7 +11,7 @@ public record ProductImportRequestDto(
 ) {
 
   @Builder
-  public ProductImportRequestDto(
+  public ProductImportRequest(
           String productName,
           String sku,
           Long barcode,

@@ -2,7 +2,7 @@ package com.a302.wms.domain.product.dto;
 
 import lombok.Builder;
 
-public record ProductWithUserResponseDto(
+public record ProductWithUserResponse(
     Long id,
     int quantity,
     String locationName,
@@ -14,7 +14,7 @@ public record ProductWithUserResponseDto(
     int sellingPrice) {
 
   @Builder
-  public ProductWithUserResponseDto(
+  public ProductWithUserResponse(
       Long id,
       int quantity,
       String locationName,
