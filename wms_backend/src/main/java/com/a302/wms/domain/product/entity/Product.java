@@ -5,7 +5,6 @@ import com.a302.wms.global.BaseTimeEntity;
 import com.a302.wms.domain.store.entity.Store;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -34,10 +33,6 @@ public class Product extends BaseTimeEntity {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @Column(name = "expiration_date")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime expirationDate;
-
     @Column(name = "barcode", nullable = false)
     private Long barcode;
 
@@ -52,7 +47,6 @@ public class Product extends BaseTimeEntity {
 
     @Builder
     public Product(Long barcode,
-                   LocalDateTime expirationDate,
                    Floor floor,
                    Integer originalPrice,
                    Long productId,
@@ -62,7 +56,6 @@ public class Product extends BaseTimeEntity {
                    String sku,
                    Store store) {
         this.barcode = barcode;
-        this.expirationDate = expirationDate;
         this.floor = floor;
         this.originalPrice = originalPrice;
         this.productId = productId;
@@ -75,9 +68,6 @@ public class Product extends BaseTimeEntity {
 
     public void updateQuantity(Integer quantity) {
         this.quantity = quantity;
-    }
-    public void updateExpirationDate(LocalDateTime expirationDate) {
-        this.expirationDate = expirationDate;
     }
     public void updateBarcode(Long barcode) {
         this.barcode = barcode;

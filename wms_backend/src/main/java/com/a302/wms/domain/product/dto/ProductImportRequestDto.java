@@ -9,17 +9,17 @@ public record ProductImportRequestDto(
         String sku,
         Long barcode,
         int quantity,
-        LocalDateTime expirationDate,
+        
         Long storeId) {
 
     @Builder
 
-    public ProductImportRequestDto(String productName, String sku, Long barcode, int quantity, LocalDateTime expirationDate, Long storeId) {
+    public ProductImportRequestDto(String productName, String sku, Long barcode, int quantity,  Long storeId) {
         this.productName = productName;
         this.sku = sku;
         this.barcode = barcode;
         this.quantity = quantity;
-        this.expirationDate = expirationDate;
+        
         this.storeId = storeId;
     }
 }
