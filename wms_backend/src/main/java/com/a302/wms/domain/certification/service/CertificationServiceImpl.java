@@ -7,7 +7,7 @@ import com.a302.wms.domain.auth.dto.response.auth.CheckCertificationResponse;
 import com.a302.wms.domain.auth.dto.response.auth.EmailCertificationResponse;
 import com.a302.wms.domain.certification.dto.Certification;
 import com.a302.wms.domain.certification.provider.EmailProvider;
-import com.a302.wms.domain.certification.repository.CertificationRedisRepository;
+import com.a302.wms.domain.certification.repository.CertificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CertificationServiceImpl {
 
-    private CertificationRedisRepository certificationRedisRepository;
+    private CertificationRepository certificationRepository;
     private EmailProvider emailProvider;
 
     /**
@@ -52,7 +52,7 @@ public class CertificationServiceImpl {
 
             // 인증 정보를 저장
             Certification certification = new Certification(email, certificationNumber);
-            certificationRedisRepository.save(certification);
+            certificationRepository.save(certification);
             log.info("Saved certification info for email");
 
         } catch (NumberFormatException e) {
@@ -86,7 +86,7 @@ public class CertificationServiceImpl {
             log.info("Received certification check request for email");
 
             // 사용자 이메일을 기반으로 가장 최신 인증 정보를 데이터베이스에서 조회
-            Certification certificationEntity = certificationRedisRepository.findByEmail(email).get();
+            Certification certificationEntity = certificationRepository.findByEmail(email).get();
 
             // 인증 정보가 없을 경우 인증 실패 응답 반환
             if (certificationEntity == null) {

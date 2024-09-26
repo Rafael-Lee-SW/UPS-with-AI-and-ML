@@ -48,7 +48,7 @@ public class JwtProvider {
          * { "iat" : 1551515,  // 발행 시간
          *   "exp" : 12355454  // 만료 시간
          *   "sub" : "id"  // 사용자 ID
-         *   "type" : ,eusrId cctvId, deviceId 저장
+         *   "type" : ,user, cctv, device 저장
          * }
          */
         return jwt;

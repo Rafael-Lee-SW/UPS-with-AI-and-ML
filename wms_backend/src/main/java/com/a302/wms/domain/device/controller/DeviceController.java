@@ -55,7 +55,7 @@ public class DeviceController {
     }
 
     /**
-     * 매장에 대한 기기를 등록하는 메서드
+     * 매장에 대한 디바이스의 키를 생성하는 메서드
      * @param dto 
      * @return
      */
