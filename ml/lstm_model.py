@@ -68,7 +68,12 @@ y_test_inv = scaler.inverse_transform(y_test)
 y_pred_inv = scaler.inverse_transform(y_pred)
 
 mse = mean_squared_error(y_test_inv, y_pred_inv)
+rmse = np.sqrt(mse)
+mean_actual = np.mean(y_test_inv)
+accuracy = 100 - (rmse / mean_actual) * 100
+
 print(f"LSTM Model MSE: {mse}")
+print(f"LSTM Model Accuracy: {accuracy:.2f}%")
 
 # Save the model
 model.save('lstm_sales_forecast_model.h5')

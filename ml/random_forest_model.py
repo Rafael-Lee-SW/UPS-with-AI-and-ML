@@ -50,9 +50,13 @@ print("Model saved as 'random_forest_sales_model.pkl'")
 print("Evaluating the model...")
 y_pred = rf_model.predict(X_test)
 mse = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+mean_actual = np.mean(y_test)
+accuracy = 100 - (rmse / mean_actual) * 100
 
-# Print the MSE to see the result
+# Print the MSE and accuracy
 print(f"Random Forest Model MSE: {mse}")
+print(f"Random Forest Model Accuracy: {accuracy:.2f}%")
 
 # Save the predictions and actual values to a CSV file
 predictions_df = pd.DataFrame({
