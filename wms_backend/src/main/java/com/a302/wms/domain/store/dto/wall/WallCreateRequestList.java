@@ -2,9 +2,9 @@ package com.a302.wms.domain.store.dto.wall;
 
 import java.util.List;
 
-public record WallsCreateDto (
+public record WallCreateRequestList(
         Long storeId,
-        List<WallCreateRequestDto> wallCreateDtos
+        List<WallCreateRequest> wallCreateDtos
 
 ) {
 }

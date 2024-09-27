@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 
 @Builder
-public record StoreCreateRequestDto(
+public record StoreCreateRequest(
         Long userId,
         Integer size,
         String storeName,
