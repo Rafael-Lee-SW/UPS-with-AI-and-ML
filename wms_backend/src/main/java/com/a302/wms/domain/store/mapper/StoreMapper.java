@@ -1,10 +1,9 @@
 package com.a302.wms.domain.store.mapper;
 
 import com.a302.wms.domain.location.dto.LocationResponseDto;
-import com.a302.wms.domain.store.dto.store.StoreCreateRequestDto;
+import com.a302.wms.domain.store.dto.store.StoreCreateRequest;
 import com.a302.wms.domain.store.dto.store.StoreDetailResponseDto;
 import com.a302.wms.domain.store.dto.store.StoreResponseDto;
-import com.a302.wms.domain.store.dto.wall.WallCreateRequestDto;
 import com.a302.wms.domain.store.dto.wall.WallResponseDto;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.user.entity.User;
@@ -17,17 +16,17 @@ public class StoreMapper {
 
     /**
      * StoreCreateRequestDto -> Store 변환 
-     * @param storeCreateRequestDto : 변환될 Dto 
+     * @param storeCreateRequest : 변환될 Dto
      * @param user : 해당 store에 해당하는 유저 정보
      * @return : 변환된 Store 객체
      */
-    public static Store fromDto(StoreCreateRequestDto storeCreateRequestDto, User user) {
+    public static Store fromDto(StoreCreateRequest storeCreateRequest, User user) {
         return Store.builder()
-                .size(storeCreateRequestDto.size())
-                .storeName(storeCreateRequestDto.storeName())
+                .size(storeCreateRequest.size())
+                .storeName(storeCreateRequest.storeName())
                 .user(user)
-                .createdDate(storeCreateRequestDto.createdDate())
-                .updatedDate(storeCreateRequestDto.updatedDate())
+                .createdDate(storeCreateRequest.createdDate())
+                .updatedDate(storeCreateRequest.updatedDate())
                 .build();
     }
 

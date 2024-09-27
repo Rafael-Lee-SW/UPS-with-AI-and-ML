@@ -33,7 +33,7 @@ public class DeviceServiceImpl {
     public List<List<DeviceResponse>> getUserDevicesList(Long userId) {
         log.info("[Service] get device list of the user");
 
-        List<Store> storeList = storeRepository.findByUserId(userId);
+        List<Store> storeList = storeRepository.findAllByUserId(userId);
         List<List<DeviceResponse>> userDeviceList = new ArrayList<>();
 
         List<DeviceResponse> storeDeviceList;
