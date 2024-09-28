@@ -1,7 +1,6 @@
 package com.a302.wms.domain.device.controller;
 
 import com.a302.wms.domain.device.dto.DeviceCreateRequest;
-import com.a302.wms.domain.device.dto.DeviceKeyCreateRequest;
 import com.a302.wms.domain.device.dto.DeviceDetailedResponse;
 import com.a302.wms.domain.device.dto.DeviceResponse;
 import com.a302.wms.domain.device.service.DeviceServiceImpl;
@@ -14,7 +13,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @RestController

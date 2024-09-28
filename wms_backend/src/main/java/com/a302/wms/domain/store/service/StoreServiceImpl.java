@@ -3,23 +3,23 @@ package com.a302.wms.domain.store.service;
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.repository.FloorRepository;
 import com.a302.wms.domain.floor.service.FloorServiceImpl;
-import com.a302.wms.domain.store.dto.StoreUpdateRequest;
-import com.a302.wms.domain.structure.dto.StructureCreateRequest;
-import com.a302.wms.domain.structure.dto.StructureDeleteRequest;
-import com.a302.wms.domain.structure.dto.StructureUpdateRequest;
-import com.a302.wms.domain.structure.dto.location.LocationListCreateRequest;
-import com.a302.wms.domain.structure.dto.location.LocationResponse;
 import com.a302.wms.domain.product.dto.ProductResponse;
 import com.a302.wms.domain.product.mapper.ProductMapper;
 import com.a302.wms.domain.product.repository.ProductRepository;
 import com.a302.wms.domain.store.dto.StoreCreateRequest;
 import com.a302.wms.domain.store.dto.StoreDetailResponse;
 import com.a302.wms.domain.store.dto.StoreResponse;
-import com.a302.wms.domain.structure.dto.wall.WallResponse;
-import com.a302.wms.domain.structure.dto.wall.WallListCreateRequest;
+import com.a302.wms.domain.store.dto.StoreUpdateRequest;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.store.mapper.StoreMapper;
 import com.a302.wms.domain.store.repository.StoreRepository;
+import com.a302.wms.domain.structure.dto.StructureCreateRequest;
+import com.a302.wms.domain.structure.dto.StructureDeleteRequest;
+import com.a302.wms.domain.structure.dto.StructureUpdateRequest;
+import com.a302.wms.domain.structure.dto.location.LocationListCreateRequest;
+import com.a302.wms.domain.structure.dto.location.LocationResponse;
+import com.a302.wms.domain.structure.dto.wall.WallListCreateRequest;
+import com.a302.wms.domain.structure.dto.wall.WallResponse;
 import com.a302.wms.domain.structure.entity.Location;
 import com.a302.wms.domain.structure.mapper.LocationMapper;
 import com.a302.wms.domain.structure.mapper.WallMapper;
@@ -120,15 +120,13 @@ public class StoreServiceImpl {
 
         List<LocationResponse> locationList = store.getLocations().stream()
                 .map(location ->
-                    LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location))
+                        LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location))
                 ).toList();
         List<WallResponse> walls = store.getWalls().stream()
                 .map(WallMapper::toResponseDto).toList();
 
         return StoreMapper.toDetailResponseDto(store, locationList, walls);
     }
-
-
 
 
     /**
@@ -146,6 +144,7 @@ public class StoreServiceImpl {
 
     /**
      * 매장 구조 생성
+     *
      * @param userId
      * @param storeId
      * @param structureCreateRequest
@@ -160,6 +159,7 @@ public class StoreServiceImpl {
 
     /**
      * 매장 구조 수정
+     *
      * @param userId
      * @param storeId
      * @param structureUpdateRequest
@@ -174,6 +174,7 @@ public class StoreServiceImpl {
 
     /**
      * 매장 구조 삭제
+     *
      * @param userId
      * @param storeId
      * @param structureDeleteRequest
@@ -187,6 +188,7 @@ public class StoreServiceImpl {
 
     /**
      * 모든 location을 해당 storeId의 매장에 저장하는 메서드
+     *
      * @param userId
      * @param locationListCreateRequest
      */
@@ -201,6 +203,7 @@ public class StoreServiceImpl {
 
     /**
      * 모든 wall을 해당 storeid의 매장에 저장하는 메서드
+     *
      * @param wallListCreateRequest
      */
     public void saveAllWall(Long userId, WallListCreateRequest wallListCreateRequest) {
@@ -211,6 +214,7 @@ public class StoreServiceImpl {
 
     /**
      * 해당 매장에 있는 product를 모두 조회하는 메서드
+     *
      * @param storeId
      * @return
      */

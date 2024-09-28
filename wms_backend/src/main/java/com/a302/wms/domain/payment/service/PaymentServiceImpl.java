@@ -4,7 +4,6 @@ import com.a302.wms.domain.device.entity.Device;
 import com.a302.wms.domain.device.repository.DeviceRepository;
 import com.a302.wms.domain.payment.dto.PaymentCreateRequest;
 import com.a302.wms.domain.payment.dto.PaymentResponse;
-import com.a302.wms.domain.payment.dto.PaymentSearchRequest;
 import com.a302.wms.domain.payment.entity.Payment;
 import com.a302.wms.domain.payment.mapper.PaymentMapper;
 import com.a302.wms.domain.payment.repository.PaymentRepository;
@@ -13,13 +12,12 @@ import com.a302.wms.domain.store.repository.StoreRepository;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -69,6 +67,7 @@ public class PaymentServiceImpl {
 
     /**
      * storeId에 해당하는 store의 startDateTime에서 endDateTime 사이에 생성된 결제 내역 조회
+     *
      * @param userId
      * @param storeId
      * @param start

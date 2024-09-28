@@ -2,7 +2,6 @@ package com.a302.wms.domain.payment.controller;
 
 import com.a302.wms.domain.payment.dto.PaymentCreateRequest;
 import com.a302.wms.domain.payment.dto.PaymentResponse;
-import com.a302.wms.domain.payment.dto.PaymentSearchRequest;
 import com.a302.wms.domain.payment.service.PaymentServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,6 +58,7 @@ public class PaymentController {
 
     /**
      * 특정 매장의 특정 기간 내의 결제내역 모두 조회
+     *
      * @param userId
      * @param storeId
      * @param startDateTime
