@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @Builder
 @ToString
-public class LocationRequestDto {
+public class LocationCreateRequest {
 
     private String name;
     @Builder.Default

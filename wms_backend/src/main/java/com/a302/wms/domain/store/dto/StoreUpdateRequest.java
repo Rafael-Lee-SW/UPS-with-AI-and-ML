@@ -5,16 +5,11 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record StoreByUserDto(
-
-        Long id,
-        Long userId,
-        int size,
-        String name,
-        int priority,
+public record StoreUpdateRequest(
+        Long storeId,
+        Integer size,
+        String storeName,
         LocalDateTime createdDate,
         LocalDateTime updatedDate
 ) {
-
-
 }

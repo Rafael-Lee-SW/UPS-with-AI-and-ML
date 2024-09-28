@@ -9,7 +9,7 @@ import lombok.ToString;
 @Setter
 @Builder
 @ToString
-public class LocationUpdateDto {
+public class LocationUpdateRequest {
 
     private Long id;
     private String name;

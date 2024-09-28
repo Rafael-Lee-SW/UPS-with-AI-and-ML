@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record StoreResponseDto(
+public record StoreResponse(
         Long id,
         Long userId,
         int size,

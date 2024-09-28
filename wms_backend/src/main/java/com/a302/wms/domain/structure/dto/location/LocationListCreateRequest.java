@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class LocationSaveRequestDto {
+public class LocationListCreateRequest {
     private Long storeId;
-    private List<LocationRequestDto> requests;
+    private List<LocationCreateRequest> requests;
 }
