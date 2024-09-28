@@ -9,7 +9,7 @@ import lombok.ToString;
 @Setter
 @Builder
 @ToString
-public class LocationStorageResponseDto {
+public class LocationStorageResponse {
     private Long id;
     private Integer floorStorage;
 }

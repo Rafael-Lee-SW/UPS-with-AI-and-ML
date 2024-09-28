@@ -1,15 +1,17 @@
 package com.a302.wms.domain.structure.service;
 
-import com.a302.wms.domain.structure.dto.location.LocationStorageResponseDto;
+import com.a302.wms.domain.store.entity.Store;
+import com.a302.wms.domain.store.repository.StoreRepository;
+import com.a302.wms.domain.structure.dto.location.LocationStorageResponse;
 import com.a302.wms.domain.structure.entity.Location;
 import com.a302.wms.domain.structure.mapper.LocationMapper;
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.exception.FloorException;
 import com.a302.wms.domain.floor.repository.FloorRepository;
 import com.a302.wms.domain.floor.service.FloorServiceImpl;
-import com.a302.wms.domain.structure.dto.location.LocationRequestDto;
-import com.a302.wms.domain.structure.dto.location.LocationResponseDto;
-import com.a302.wms.domain.structure.dto.location.LocationSaveRequestDto;
+import com.a302.wms.domain.structure.dto.location.LocationCreateRequest;
+import com.a302.wms.domain.structure.dto.location.LocationResponse;
+import com.a302.wms.domain.structure.dto.location.LocationListCreateRequest;
 import com.a302.wms.domain.structure.repository.LocationRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +25,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class LocationServiceImpl {
-    private final FloorServiceImpl floorServiceImpl;
+    private final FloorServiceImpl floorService;
     private final LocationRepository locationRepository;
     private final FloorRepository floorRepository;
+    private final StoreRepository storeRepository;
 
     /**
      * 모든 로케이션 반환
@@ -40,13 +43,14 @@ public class LocationServiceImpl {
     public boolean notExist(Long id) {
         return !locationRepository.existsById(id);
     }
+
     /**
      * 특정 로케이션 조회
      *
      * @param id: location productId
      * @return id값과 일치하는 Location 하나, 없으면 null 리턴
      */
-    public LocationResponseDto findById(Long id) throws FloorException {
+    public LocationResponse findById(Long id) throws FloorException {
         log.info("[Service] find Location by productId");
         Location location = locationRepository.findById(id).orElse(null);
         return LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location));
@@ -58,13 +62,13 @@ public class LocationServiceImpl {
      * @param storeId: store productId
      * @return 입력 storeId를 가지고 있는 Location List
      */
-    public List<LocationResponseDto> findAllByStoreId(Long storeId) throws FloorException {
+    public List<LocationResponse> findAllByStoreId(Long storeId) throws FloorException {
         log.info("[Service] findAllLocation by storeId");
 
-        List<LocationResponseDto> locationResponseDtos = new ArrayList<>();
-       locationRepository.findAllByStoreId(storeId).stream()
-               .map(location -> locationResponseDtos.add(LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location))));
-       return locationResponseDtos;
+        List<LocationResponse> locationResponses = new ArrayList<>();
+        locationRepository.findAllByStoreId(storeId).stream()
+                .map(location -> locationResponses.add(LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location))));
+        return locationResponses;
     }
 
     /**
@@ -74,7 +78,7 @@ public class LocationServiceImpl {
      * @param saveRequest : 프론트에서 넘어오는 location 정보 모든 작업이 하나의 트랜잭션에서 일어나야하므로 @Transactional 추가
      */
     @Transactional
-    public void save(LocationSaveRequestDto saveRequest) throws FloorException {
+    public void save(LocationListCreateRequest saveRequest) throws FloorException {
         log.info("[Service] save Location");
 //        Store store = storeRepository.findById(saveRequest.getStoreId()).get();
 //
@@ -92,7 +96,7 @@ public class LocationServiceImpl {
      * @param request: 바꿀 로케이션 정보들
      */
     @Transactional
-    public LocationResponseDto update(Long id, LocationRequestDto request) throws FloorException {
+    public LocationResponse update(Long id, LocationCreateRequest request) throws FloorException {
         log.info("[Service] update Location by productId");
         Location location = locationRepository.findById(id).get();
 
@@ -111,7 +115,7 @@ public class LocationServiceImpl {
         List<Floor> floors = floorRepository.findAllByLocationId(location.getId());
 
         return floors.stream()
-                .mapToInt(floorServiceImpl::getCapacity)
+                .mapToInt(floorService::getCapacity)
                 .max()
                 .orElse(0);
     }
@@ -130,7 +134,7 @@ public class LocationServiceImpl {
         List<Floor> floors = floorRepository.findAllByLocationId(
                 location.getId()); //location의 층 전부 조회
 
-        floorServiceImpl.deleteAll(floors); //변경사항 저장
+        floorService.deleteAll(floors); //변경사항 저장
         locationRepository.delete(location);
     }
 
@@ -143,7 +147,7 @@ public class LocationServiceImpl {
      *
      * @return
      */
-    public List<LocationStorageResponseDto> findAllMaxStorage() {
+    public List<LocationStorageResponse> findAllMaxStorage() {
         return locationRepository.findAllMaxStorage().stream()
                 .map(LocationMapper::toLocationStorageResponseDto)
                 .toList();

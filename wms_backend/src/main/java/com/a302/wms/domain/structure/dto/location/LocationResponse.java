@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @Builder
 @ToString
-public class LocationResponseDto {
+public class LocationResponse {
 
     private Long id;
     private int xPosition;

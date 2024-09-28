@@ -1,6 +1,6 @@
 package com.a302.wms.domain.structure.entity;
 
-import com.a302.wms.domain.structure.dto.wall.WallUpdateRequestDto;
+import com.a302.wms.domain.structure.dto.wall.WallUpdateRequest;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.Column;
@@ -43,13 +43,6 @@ public class Wall extends BaseTimeEntity {
     @Column(nullable = false)
     private int endY;
 
-
-
-
-
-
-
-
     @Builder
     public Wall(Store store, int startX, int startY, int endX, int endY) {
         super();
@@ -60,10 +53,11 @@ public class Wall extends BaseTimeEntity {
         this.endY = endY;
     }
 
-    public void updateFromDto(WallUpdateRequestDto dto) {
+    public void updateFromDto(WallUpdateRequest dto) {
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
     }
+
 }

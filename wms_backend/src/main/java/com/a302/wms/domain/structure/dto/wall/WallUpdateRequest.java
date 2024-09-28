@@ -1,6 +1,6 @@
 package com.a302.wms.domain.structure.dto.wall;
 
-public record WallUpdateRequestDto(
+public record WallUpdateRequest(
         Long id,
         int startX,
         int startY,

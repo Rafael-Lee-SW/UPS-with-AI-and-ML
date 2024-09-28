@@ -1,11 +1,11 @@
 package com.a302.wms.domain.structure.mapper;
 
-import com.a302.wms.domain.structure.dto.location.LocationStorageResponseDto;
-import com.a302.wms.domain.structure.dto.location.LocationUpdateDto;
+import com.a302.wms.domain.structure.dto.location.LocationStorageResponse;
+import com.a302.wms.domain.structure.dto.location.LocationUpdateRequest;
 import com.a302.wms.domain.floor.mapper.FloorMapper;
 import com.a302.wms.domain.structure.entity.Location;
-import com.a302.wms.domain.structure.dto.location.LocationRequestDto;
-import com.a302.wms.domain.structure.dto.location.LocationResponseDto;
+import com.a302.wms.domain.structure.dto.location.LocationCreateRequest;
+import com.a302.wms.domain.structure.dto.location.LocationResponse;
 import com.a302.wms.domain.store.entity.Store;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +17,8 @@ public class LocationMapper {
      * @param store
      * @return
      */
-    public static Location fromLocationRequestDto(LocationRequestDto request,
-        Store store) {
+    public static Location fromLocationRequestDto(LocationCreateRequest request,
+                                                  Store store) {
         return Location.builder()
             .name(request.getName())
             .xPosition(request.getXPosition())
@@ -36,8 +36,8 @@ public class LocationMapper {
      * @param maxFloorCapacity
      * @return
      */
-    public static LocationResponseDto toLocationResponseDto(Location location, int maxFloorCapacity) {
-        return LocationResponseDto.builder()
+    public static LocationResponse toLocationResponseDto(Location location, int maxFloorCapacity) {
+        return LocationResponse.builder()
             .id(location.getId())
             .xPosition(location.getXPosition())
             .yPosition(location.getYPosition())
@@ -52,7 +52,7 @@ public class LocationMapper {
             .build();
     }
 
-    public static Location fromLocationUpdateDto(LocationUpdateDto request,
+    public static Location fromLocationUpdateDto(LocationUpdateRequest request,
                                                  Store store) {
         return Location.builder()
             .id(request.getId())
@@ -66,8 +66,8 @@ public class LocationMapper {
             .store(store)
             .build();
     }
-    public static LocationStorageResponseDto toLocationStorageResponseDto(Location location) {
-        return LocationStorageResponseDto.builder()
+    public static LocationStorageResponse toLocationStorageResponseDto(Location location) {
+        return LocationStorageResponse.builder()
                 .id(location.getId())
                 .floorStorage(location.getXSize() * location.getYSize() / location.getZSize())
                 .build();
