@@ -6,13 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class EmailCertificationRequest {
+public record EmailCertificationRequest(
+        @Email
+        @NotBlank
+        String email
+) {
 
-    @Email
-    @NotBlank
-    private String email;
 
 }

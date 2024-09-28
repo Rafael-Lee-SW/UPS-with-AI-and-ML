@@ -6,17 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class SignInRequest {
+public record SignInRequest(
 
-    @NotBlank
-    @Email
-    private String email;
+        @NotBlank
+        @Email
+        String email,
 
-    @NotBlank
-    private String password;
+        @NotBlank
+        String password
+) {
 
 
 }
