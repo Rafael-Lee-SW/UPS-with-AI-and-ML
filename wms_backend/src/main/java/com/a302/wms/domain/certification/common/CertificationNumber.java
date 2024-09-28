@@ -1,4 +1,4 @@
-package com.a302.wms.domain.auth.common;
+package com.a302.wms.domain.certification.common;
 
 public class CertificationNumber {
     public static String getCertificationNumber() {

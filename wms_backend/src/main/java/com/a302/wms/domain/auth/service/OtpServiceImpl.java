@@ -1,15 +1,14 @@
 package com.a302.wms.domain.auth.service;
 
-import com.a302.wms.domain.auth.dto.request.DeviceOtpCreateRequest;
+import com.a302.wms.global.constant.ResponseEnum;
+import com.a302.wms.global.handler.CommonException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -17,24 +16,24 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class OtpServiceImpl {
 
-    private final StringRedisTemplate redisTemplate;
     static final int OTP_TTL = 5 * 60;
+    private final StringRedisTemplate redisTemplate;
 
-    public ResponseEntity<String> createDeviceOtp(DeviceOtpCreateRequest deviceOtpCreateRequest) {
+    public String createDeviceOtp(Long deviceId) {
         log.info("[Service] create device otp");
         try {
             // TODO: 사용자 검증
 
             String otpString = createRandomOTP();
-            String deviceId = deviceOtpCreateRequest.deviceId().toString();
+            String deviceIdString = deviceId.toString();
 
             ValueOperations<String, String> ops = redisTemplate.opsForValue();
-            ops.set(otpString, deviceId, OTP_TTL, TimeUnit.SECONDS); // redis set 명령어
+            ops.set(otpString, deviceIdString, OTP_TTL, TimeUnit.SECONDS); // redis set 명령어
 
-            return ResponseEntity.ok(otpString);
+            return otpString;
         } catch (Exception e) {
             log.error("[Service] create device otp error {}", e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            throw new CommonException(ResponseEnum.DATABASE_ERROR, e.getMessage());
         }
     }
 

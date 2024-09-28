@@ -1,6 +1,6 @@
 package com.a302.wms.domain.product.mapper;
 
-import com.a302.wms.domain.floor.entity.Floor;
+import com.a302.wms.domain.structures.dto.location.Floor;
 import com.a302.wms.domain.product.dto.ProductFlowResponse;
 import com.a302.wms.domain.product.entity.ProductFlow;
 import org.springframework.stereotype.Component;

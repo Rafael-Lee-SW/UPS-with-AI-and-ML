@@ -22,8 +22,6 @@ public class ProductController {
 
   private final ProductServiceImpl productService;
 
-
-
   /**
    * (매장 별/사용자 별) 상품들을 반환하는 메서드
    *

@@ -1,25 +1,18 @@
 package com.a302.wms.domain.auth.service;
 
-import com.a302.wms.domain.auth.common.CertificationNumber;
-import com.a302.wms.domain.auth.dto.request.CheckCertificationRequest;
-import com.a302.wms.domain.auth.dto.request.DeviceOtpCreateRequest;
-import com.a302.wms.domain.auth.dto.request.EmailCertificationRequest;
-import com.a302.wms.domain.auth.dto.response.ResponseDto;
-import com.a302.wms.domain.auth.dto.response.auth.CheckCertificationResponse;
-import com.a302.wms.domain.auth.dto.response.auth.EmailCertificationResponse;
-import com.a302.wms.domain.auth.dto.response.auth.IdCheckResponse;
+import com.a302.wms.domain.auth.dto.request.DeviceSignInRequest;
+import com.a302.wms.domain.auth.dto.request.SignInRequest;
+import com.a302.wms.domain.auth.dto.response.AccessTokenResponse;
+import com.a302.wms.domain.auth.mapper.AuthMapper;
 import com.a302.wms.domain.auth.provider.JwtProvider;
-import com.a302.wms.domain.certification.dto.Certification;
 import com.a302.wms.domain.certification.provider.EmailProvider;
-import com.a302.wms.domain.certification.repository.CertificationRepository;
+import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.repository.UserRepository;
-import jakarta.validation.Valid;
+import com.a302.wms.global.constant.TokenRoleTypeEnum;
+import io.lettuce.core.RedisException;
+import jakarta.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,129 +27,40 @@ public class AuthServiceImpl {
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
     private final EmailProvider emailProvider;
-//    private final CertificationRepository certificationRepository;
+    //    private final CertificationRepository certificationRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); //password Encorder 인터페이스
     private final OtpServiceImpl otpService;
 //    private final CertificationRedisRepository certificationRedisRepository;
 
 
-    public ResponseEntity<Long> deviceSignIn(String otpString) {
-        Long deviceId = otpService.verifyDeviceOtp(otpString);
-        return ResponseEntity.ok(deviceId);
+    public String deviceSignIn(DeviceSignInRequest deviceOtpSingInRequest) {
+        Long deviceId = otpService.verifyDeviceOtp(deviceOtpSingInRequest.deviceOtp());
+        return deviceId.toString();
     }
 
-//    /**
-//     * 사용자 이메일 중복 여부를 확인합니다.
-//     *
-//     * @param dto 사용자 이메일 체크 요청 DTO
-//     * @return 중복 여부에 따른 응답 엔터티
-//     */
-//    public ResponseEntity<? super IdCheckResponse> idCheck(EmailCertificationRequest dto) {
-//        log.info("idCheck method called with dto: {}", dto);
-//        try {
-//            // 사용자 이메일을 가져옴
-//            String email = dto.getEmail();
-//            log.info("Checking email for duplication: {}", email);
-//
-//            // 사용자 이메일 중복 여부 확인
-//            boolean isExistEmail = userRepository.existsByEmail(email);
-//            if (isExistEmail) { // 중복이면
-//                log.info("Email already exists: {}", email);
-//                return IdCheckResponse.duplicateId();
-//            }
-//        } catch (Exception e) {
-//            // 기타 예외 처리
-//            log.error("Error during email duplication check", e);
-//            return ResponseDto.databaseError();
-//        }
-//        // 중복이 아닌 경우 성공 응답 반환
-//        log.info("Email is available: {}", dto.getEmail());
-//        return IdCheckResponse.success();
-//    }
-//
-//    public ResponseEntity<? super EmailCertificationResponse> emailCertification(EmailCertificationRequest dto) {
-//        log.info("emailCertification method called with dto: {}", dto);
-//        try {
-//            // 이메일 주소 가져오기
-//            String email = dto.getEmail();
-//            log.info("Processing email certification for email: {}", email);
-//
-//            // 인증 번호 생성
-//            String certificationNumber = CertificationNumber.getCertificationNumber();
-//            log.info("Generated certification number: {}", certificationNumber);
-//
-//            if (certificationNumber == null || certificationNumber.isEmpty()) {
-//                log.error("Certification number generation failed");
-//                return EmailCertificationResponse.mailSendFail();
-//            }
-//
-//            // 인증 이메일 발송
-//            boolean isSuccessed = emailProvider.sendCertificationMail(email, certificationNumber);
-//
-//            if (!isSuccessed) {
-//                log.error("Failed to send certification email to: {}", email);
-//                return EmailCertificationResponse.mailSendFail();
-//            }
-//
-//            // 인증 정보를 저장
-//            Certification certification = new Certification(email, certificationNumber);
-//            certificationRepository.save(certification);
-//            log.info("Saved certification info for email: {}", email);
-//
-//        } catch (NumberFormatException e) {
-//            // 이메일이 유효하지 않은 경우 예외 처리
-//            log.error("Invalid email format: {}", dto.getEmail(), e);
-//            return ResponseDto.validationFail();
-//        } catch (Exception e) {
-//            // 기타 예외 처리
-//            log.error("Error during email certification process", e);
-//            return ResponseDto.databaseError();
-//        }
-//        // 이메일 인증 성공 응답 반환
-//        log.info("Email certification succeeded for email: {}", dto.getEmail());
-//        return EmailCertificationResponse.success();
-//    }
-//
-//    public ResponseEntity<? super CheckCertificationResponse> checkCertification(
-//            CheckCertificationRequest dto) {
-//        try {
-//            // 사용자 ID, 이메일, 인증 번호를 DTO로부터 가져옴
-//            String email = dto.getEmail();  // 이메일을 DTO로부터 가져옴
-//            String inputCertificationNumber = dto.getCertificationNumber();  // 인증 번호를 DTO로부터 가져옴
-//
-//            log.info("Received certification check request for email: {}", email);
-//
-//            // 사용자 이메일을 기반으로 가장 최신 인증 정보를 데이터베이스에서 조회
-//            Certification certificationEntity = certificationRepository.findTopByEmailOrderByCreatedDateDesc(email);
-//
-//            // 인증 정보가 없을 경우 인증 실패 응답 반환
-//            if (certificationEntity == null) {
-//                log.info("No certification information found for email: {}", email);
-//                return CheckCertificationResponse.certificationFail();  // 인증 정보가 없으면 실패 응답 반환
-//            }
-//
-//            log.info("Certification information retrieved for email: {}", email);
-//
-//            // 저장된 이메일과 인증 번호가 입력된 이메일과 인증 번호와 일치하는지 검증
-//            boolean isSuccessed = certificationEntity.getEmail().equals(email) &&
-//                    certificationEntity.getCertificationNumber().equals(inputCertificationNumber);
-//
-//            // 인증 실패 시 응답 반환
-//            if (!isSuccessed) {
-//                log.info("Certification failed for email: {}", email);
-//                return CheckCertificationResponse.certificationFail();  // 인증 정보가 일치하지 않으면 실패 응답 반환
-//            }
-//
-//        } catch (Exception e) {
-//            // 예외 발생 시 예외 스택 트레이스 출력 및 데이터베이스 오류 응답 반환
-//            log.info("An error occurred while checking certification for email: {}", dto.getEmail(), e);
-//            return ResponseDto.databaseError();  // 예외 발생 시 데이터베이스 오류 응답 반환
-//        }
-//
-//        // 인증 성공 시 성공 응답 반환
-//        log.info("Certification successful for email: {}", dto.getEmail());
-//        return CheckCertificationResponse.success();  // 인증이 성공하면 성공 응답 반환
-//    }
+    public AccessTokenResponse signIn(SignInRequest signInRequest) {
+        log.info("[Service] signIn request: {}", signInRequest);
+        try {
+            String userEmail = signInRequest.email();
+            User user = userRepository.findByEmail(userEmail).orElseThrow();
+
+            String password = signInRequest.password();
+            String encodedPassword = passwordEncoder.encode(password);
+            if (passwordEncoder.matches(password, encodedPassword)) {
+                throw new AuthException();
+            }
+
+            String accessToken = jwtProvider.create(TokenRoleTypeEnum.USER, user.getId().toString());
+            String refreshToken = UUID.randomUUID().toString();
+
+            //TODO redis 저장
+
+            return AuthMapper.fromAccessToken(accessToken);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RedisException("JWT 토큰 저장에 실패했습니다.");
+        }
+    }
 
 
     /*public ResponseEntity<? super SignUpResponseDto> signUp(SignUpRequestDto dto) {

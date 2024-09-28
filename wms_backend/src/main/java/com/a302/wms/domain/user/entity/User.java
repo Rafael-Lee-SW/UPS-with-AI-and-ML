@@ -1,6 +1,6 @@
 package com.a302.wms.domain.user.entity;
 
-import com.a302.wms.domain.user.dto.UserRequestDto;
+import com.a302.wms.domain.user.dto.UserUpdateRequest;
 import com.a302.wms.global.BaseTimeEntity;
 import com.a302.wms.global.constant.SocialLoginTypeEnum;
 import jakarta.persistence.*;
@@ -41,9 +41,9 @@ public class User extends BaseTimeEntity {
         this.password = password;
     }
 
-    public void updateInfo(UserRequestDto userRequestDto) {
-        this.userName = userRequestDto.userName();
-        this.email = userRequestDto.email();
+    public void updateInfo(UserUpdateRequest userUpdateRequest) {
+        this.userName = userUpdateRequest.userName();
+        this.email = userUpdateRequest.email();
     }
 
     public void setPassword(String newPassword) {

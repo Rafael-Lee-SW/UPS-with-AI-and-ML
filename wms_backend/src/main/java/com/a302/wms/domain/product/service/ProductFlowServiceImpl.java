@@ -1,7 +1,6 @@
 package com.a302.wms.domain.product.service;
 
-import com.a302.wms.domain.floor.entity.Floor;
-import com.a302.wms.domain.floor.repository.FloorRepository;
+import com.a302.wms.domain.structures.repository.FloorRepository;
 import com.a302.wms.domain.product.dto.*;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.entity.ProductFlow;

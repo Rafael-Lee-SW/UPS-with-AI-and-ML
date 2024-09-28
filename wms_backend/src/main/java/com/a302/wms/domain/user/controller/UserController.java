@@ -1,8 +1,8 @@
 package com.a302.wms.domain.user.controller;
 
 import com.a302.wms.domain.user.dto.UserPasswordUpdateRequest;
-import com.a302.wms.domain.user.dto.UserRequestDto;
-import com.a302.wms.domain.user.dto.UserResponseDto;
+import com.a302.wms.domain.user.dto.UserUpdateRequest;
+import com.a302.wms.domain.user.dto.UserResponse;
 import com.a302.wms.domain.user.dto.UserSignUpRequest;
 import com.a302.wms.domain.user.service.UserServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
@@ -26,8 +26,8 @@ public class UserController {
      * @return
      */
     @PostMapping("/sign-up")
-    public BaseSuccessResponse<UserResponseDto> save(@RequestBody UserSignUpRequest request) {
-        UserResponseDto response = userService.save(request);
+    public BaseSuccessResponse<UserResponse> save(@RequestBody UserSignUpRequest request) {
+        UserResponse response = userService.save(request);
         return new BaseSuccessResponse<>(response);
     }
 
@@ -37,7 +37,7 @@ public class UserController {
      * @return
      */
     @GetMapping("/{userId}")
-    public BaseSuccessResponse<UserResponseDto> findById(@PathVariable Long id) {
+    public BaseSuccessResponse<UserResponse> findById(@PathVariable Long id) {
         if (id != null) {
             log.info("[Controller] find User by id: {}", id);
             return new BaseSuccessResponse<>(userService.findById(id));
@@ -51,8 +51,8 @@ public class UserController {
      * @return
      */
     @PutMapping("/{userId}")
-    public BaseSuccessResponse<UserResponseDto> update(@PathVariable("id") Long id,
-                                                       @RequestBody UserRequestDto request) {
+    public BaseSuccessResponse<UserResponse> update(@PathVariable("id") Long id,
+                                                    @RequestBody UserUpdateRequest request) {
         log.info("[Controller] update user by id: {}", id);
         return new BaseSuccessResponse<>(userService.update(id, request));
     }
@@ -64,8 +64,8 @@ public class UserController {
      * @return
      */
     @PutMapping("/{userId}/password-change")
-    public BaseSuccessResponse<UserResponseDto> updatePassword(@PathVariable("id") Long id,
-                                                               @RequestBody UserPasswordUpdateRequest request) {
+    public BaseSuccessResponse<UserResponse> updatePassword(@PathVariable("id") Long id,
+                                                            @RequestBody UserPasswordUpdateRequest request) {
         userService.updatePassword(id, request);
         log.info("[Controller] change password by id: {}", id);
         return new BaseSuccessResponse<>(null);
@@ -77,7 +77,7 @@ public class UserController {
      * @return
      */
     @DeleteMapping("/{userId}")
-    public BaseSuccessResponse<UserResponseDto> delete(@PathVariable("id") Long id) {
+    public BaseSuccessResponse<UserResponse> delete(@PathVariable("id") Long id) {
         log.info("[Controller] delete user by id: {}", id);
         return new BaseSuccessResponse<>(userService.delete(id));
     }

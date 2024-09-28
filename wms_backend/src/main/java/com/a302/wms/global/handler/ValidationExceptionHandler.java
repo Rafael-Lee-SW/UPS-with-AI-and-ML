@@ -1,12 +1,13 @@
-package com.a302.wms.domain.auth.handler;
+package com.a302.wms.global.handler;
 
 
-import com.a302.wms.domain.auth.dto.response.ResponseDto;
-import org.springframework.http.ResponseEntity;
+import com.a302.wms.global.response.BaseExceptionResponse;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import static com.a302.wms.global.constant.ResponseEnum.VALIDATION_FAILED;
 
 @RestControllerAdvice
 public class ValidationExceptionHandler {
@@ -19,8 +20,8 @@ public class ValidationExceptionHandler {
      */
 
     @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
-    public ResponseEntity<ResponseDto> validationExceptionHandler(Exception exception) {
-        return ResponseDto.validationFail();
+    public BaseExceptionResponse validationExceptionHandler(Exception exception) {
+        return new BaseExceptionResponse(VALIDATION_FAILED);
     }
 
 }

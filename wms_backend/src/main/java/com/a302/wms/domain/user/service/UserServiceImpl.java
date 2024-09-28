@@ -1,8 +1,8 @@
 package com.a302.wms.domain.user.service;
 
 import com.a302.wms.domain.user.dto.UserPasswordUpdateRequest;
-import com.a302.wms.domain.user.dto.UserRequestDto;
-import com.a302.wms.domain.user.dto.UserResponseDto;
+import com.a302.wms.domain.user.dto.UserUpdateRequest;
+import com.a302.wms.domain.user.dto.UserResponse;
 import com.a302.wms.domain.user.dto.UserSignUpRequest;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.mapper.UserMapper;
@@ -25,7 +25,7 @@ public class UserServiceImpl {
      * @param dto
      * @return
      */
-    public UserResponseDto save(UserSignUpRequest dto) {
+    public UserResponse save(UserSignUpRequest dto) {
         String hashedPassword = PasswordUtil.hashPassword(dto.password()); //TODO 암호화 하기
         User user = UserMapper.toEntity(dto, hashedPassword);
         User createdUser = userRepository.save(user);
@@ -37,7 +37,7 @@ public class UserServiceImpl {
      * @param id
      * @return
      */
-    public UserResponseDto findById(Long id) {
+    public UserResponse findById(Long id) {
         log.info("[Service] find User by id: {}", id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Employee ID: " + id));
@@ -50,7 +50,7 @@ public class UserServiceImpl {
      * @param request
      * @return
      */
-    public UserResponseDto update(Long id, UserRequestDto request) {
+    public UserResponse update(Long id, UserUpdateRequest request) {
         log.info("[Service] update User by id: {}", id);
         User user = userModuleService.findById(id);
         user.updateInfo(request);
@@ -83,7 +83,7 @@ public class UserServiceImpl {
      * @param id
      * @return
      */
-    public UserResponseDto delete(Long id) {
+    public UserResponse delete(Long id) {
         log.info("[Service] delete User by id: {}", id);
         User user = userModuleService.findById(id);
         if (user == null) {

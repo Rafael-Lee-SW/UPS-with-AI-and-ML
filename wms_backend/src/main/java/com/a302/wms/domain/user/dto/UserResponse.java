@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Builder
-public record UserResponseDto(
+public record UserResponse(
 
         Long id,
         String email,

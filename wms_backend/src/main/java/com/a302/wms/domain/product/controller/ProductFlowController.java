@@ -1,8 +1,6 @@
 package com.a302.wms.domain.product.controller;
 
-import com.a302.wms.domain.floor.repository.FloorRepository;
 import com.a302.wms.domain.product.dto.ProductFlowResponse;
-import com.a302.wms.domain.product.repository.ProductFlowRepository;
 import com.a302.wms.domain.product.service.ProductFlowServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
 import java.util.List;
