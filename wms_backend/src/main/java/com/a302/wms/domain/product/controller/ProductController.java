@@ -103,15 +103,5 @@ public class ProductController {
     productService.moveProducts(productMoveRequestList);
     return new BaseSuccessResponse<>(null);
   }
-  /**
-   * 등록된 키오스크의 Kiosk key로 해당 매장의 모든 상품을 불러오는 메서드
-   *
-   * @param deviceCreateRequest : 디바이스 정보가 담긴 dto
-   * @return 해당 매장의 모든 상품 리스트
-   */
-  @PostMapping
-  public BaseSuccessResponse<List<ProductResponse>> getProductsByKioskKey(
-          @RequestBody DeviceCreateRequest deviceCreateRequest) {
-    return new BaseSuccessResponse<>(productService.findAllByKioskKey(deviceCreateRequest));
-  }
+
 }

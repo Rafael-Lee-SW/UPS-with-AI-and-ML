@@ -1,7 +1,9 @@
 package com.a302.wms.domain.store.entity;
 
 import com.a302.wms.domain.device.entity.Device;
-import com.a302.wms.domain.location.entity.Location;
+import com.a302.wms.domain.store.dto.StoreUpdateRequest;
+import com.a302.wms.domain.structure.entity.Location;
+import com.a302.wms.domain.structure.entity.Wall;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -43,18 +45,17 @@ public class Store extends BaseTimeEntity {
     @OneToMany(mappedBy = "store")
     List<Device> devices;
 
-
-
-
-
-
-
     @Builder
-    public Store(User user, int size, String storeName, LocalDateTime createdDate, LocalDateTime updatedDate) {
+    public Store(User user, int size, String storeName) {
         super();
         this.user = user;
         this.size = size;
         this.storeName = storeName;
     }
 
+
+    public void update(StoreUpdateRequest storeUpdateRequest) {
+        this.size = storeUpdateRequest.size();
+        this.storeName = storeUpdateRequest.storeName();
+    }
 }
