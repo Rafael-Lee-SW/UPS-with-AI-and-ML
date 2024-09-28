@@ -1,7 +1,8 @@
 package com.a302.wms.domain.store.entity;
 
 import com.a302.wms.domain.device.entity.Device;
-import com.a302.wms.domain.location.entity.Location;
+import com.a302.wms.domain.structure.entity.Location;
+import com.a302.wms.domain.structure.entity.Wall;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
