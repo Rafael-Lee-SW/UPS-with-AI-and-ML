@@ -63,11 +63,12 @@ public class StructureServiceImpl {
 //                .max()
 //                .orElse(0);
 //    }
-
     public void saveStructure(Long userId, Long storeId, StructureCreateRequest structureCreateRequest) {
         Store store = storeRepository.findById(storeId).orElse(null);
-        if (store == null){}
-        if (store.getUser().getId()!=userId){}
+        if (store == null) {
+        }
+        if (store.getUser().getId() != userId) {
+        }
 
         saveWalls(store, structureCreateRequest.wallCreateRequestList());
         saveLocations(store, structureCreateRequest.locationCreateRequestList());
@@ -75,21 +76,25 @@ public class StructureServiceImpl {
 
     public void saveAllLocations(Long userId, Long storeId, List<LocationCreateRequest> locationCreateRequestList) {
         Store store = storeRepository.findById(storeId).orElse(null);
-        if (store == null){        }
-        if (store.getUser().getId()!=userId){}
+        if (store == null) {
+        }
+        if (store.getUser().getId() != userId) {
+        }
 
         saveLocations(store, locationCreateRequestList);
     }
 
     public void saveAllWalls(Long userId, Long storeId, List<WallCreateRequest> wallCreateRequestList) {
         Store store = storeRepository.findById(storeId).orElse(null);
-        if (store == null){}
-        if (store.getUser().getId()!=userId){}
+        if (store == null) {
+        }
+        if (store.getUser().getId() != userId) {
+        }
 
         saveWalls(store, wallCreateRequestList);
     }
 
-    private void saveLocations(Store store, List<LocationCreateRequest> locationCreateRequestList){
+    private void saveLocations(Store store, List<LocationCreateRequest> locationCreateRequestList) {
         List<Location> locationList = locationCreateRequestList.stream()
                 .map(locationCreateRequest -> LocationMapper.fromLocationRequestDto(locationCreateRequest, store))
                 .toList();
@@ -110,8 +115,10 @@ public class StructureServiceImpl {
 
     public void updateStructure(Long userId, Long storeId, StructureUpdateRequest structureUpdateRequest) {
         Store store = storeRepository.findById(storeId).orElse(null);
-        if (store == null){}
-        if (store.getUser().getId()!=userId){}
+        if (store == null) {
+        }
+        if (store.getUser().getId() != userId) {
+        }
 
         List<LocationResponse> locationResponseList = updateAllLocations(store, structureUpdateRequest.locationUpdateRequestList());
         List<WallResponse> wallResponseList = updateAllWalls(store, structureUpdateRequest.wallUpdateRequestList());
@@ -120,16 +127,20 @@ public class StructureServiceImpl {
 
     public List<WallResponse> updateWalls(Long userId, Long storeId, List<WallUpdateRequest> wallUpdateRequestList) {
         Store store = storeRepository.findById(storeId).orElse(null);
-        if (store == null){}
-        if (store.getUser().getId()!=userId){}
+        if (store == null) {
+        }
+        if (store.getUser().getId() != userId) {
+        }
 
         return updateAllWalls(store, wallUpdateRequestList);
     }
 
     public List<LocationResponse> updateLocations(Long userId, Long storeId, List<LocationUpdateRequest> locationUpdateRequestList) {
         Store store = storeRepository.findById(storeId).orElse(null);
-        if (store == null){}
-        if (store.getUser().getId()!=userId){}
+        if (store == null) {
+        }
+        if (store.getUser().getId() != userId) {
+        }
 
         return updateAllLocations(store, locationUpdateRequestList);
     }
@@ -138,8 +149,10 @@ public class StructureServiceImpl {
         List<LocationResponse> locationResponseList = locationUpdateRequestList.stream()
                 .map(request -> {
                     Location location = locationRepository.findById(request.getId()).orElse(null);
-                    if (location == null){}
-                    if (!Objects.equals(location.getStore().getId(), store.getId())){}
+                    if (location == null) {
+                    }
+                    if (!Objects.equals(location.getStore().getId(), store.getId())) {
+                    }
 //                    location.updateFloors(locationUpdateRequest.floors);
                     location.updateSize(request.getXSize(), request.getYSize(), request.getZSize());
                     location.updateName(request.getName());
@@ -157,8 +170,10 @@ public class StructureServiceImpl {
         List<WallResponse> wallResponseList = wallUpdateRequestList.stream()
                 .map(request -> {
                     Wall wall = wallRepository.findById(request.id()).orElse(null);
-                    if(wall == null){}
-                    if(!Objects.equals(wall.getStore().getId(), store.getId())){}
+                    if (wall == null) {
+                    }
+                    if (!Objects.equals(wall.getStore().getId(), store.getId())) {
+                    }
                     wall.updateFromDto(request);
                     return wall;
                 })
@@ -170,29 +185,33 @@ public class StructureServiceImpl {
 
     public void deleteStructure(Long userId, Long storeId, StructureDeleteRequest structureDeleteRequest) {
         Store store = storeRepository.findById(storeId).orElse(null);
-        if (store == null){}
-        if (store.getUser().getId()!=userId){}
+        if (store == null) {
+        }
+        if (store.getUser().getId() != userId) {
+        }
 
-        structureDeleteRequest.locationDeleteList().forEach(locationId->{
+        structureDeleteRequest.locationDeleteList().forEach(locationId -> {
             Location location = locationRepository.findById(locationId).orElse(null);
-            if (location == null){}
-            if (!Objects.equals(location.getStore().getId(), store.getId())){}
+            if (location == null) {
+            }
+            if (!Objects.equals(location.getStore().getId(), store.getId())) {
+            }
 
             store.getLocations().remove(location);
             locationRepository.deleteById(locationId);
         });
 
-        structureDeleteRequest.wallDeleteList().forEach(wallId->{
+        structureDeleteRequest.wallDeleteList().forEach(wallId -> {
             Wall wall = wallRepository.findById(wallId).orElse(null);
-            if (wall == null){}
-            if (!Objects.equals(wall.getStore().getId(), store.getId())){}
+            if (wall == null) {
+            }
+            if (!Objects.equals(wall.getStore().getId(), store.getId())) {
+            }
 
             store.getWalls().remove(wall);
             wallRepository.deleteById(wallId);
         });
     }
-
-
 
 
     private int getMaxFloorCapacity(Location location) {
