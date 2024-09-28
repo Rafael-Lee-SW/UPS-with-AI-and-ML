@@ -1,6 +1,6 @@
 package com.a302.wms.domain.floor.entity;
 
-import com.a302.wms.domain.location.entity.Location;
+import com.a302.wms.domain.structure.entity.Location;
 import com.a302.wms.global.BaseTimeEntity;
 import com.a302.wms.domain.product.entity.Product;
 import jakarta.persistence.*;

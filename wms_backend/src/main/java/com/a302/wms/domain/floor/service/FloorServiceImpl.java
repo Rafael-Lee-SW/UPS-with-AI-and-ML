@@ -5,16 +5,12 @@ import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.exception.FloorException;
 import com.a302.wms.domain.floor.mapper.FloorMapper;
 import com.a302.wms.domain.floor.repository.FloorRepository;
-import com.a302.wms.domain.location.dto.LocationRequestDto;
-import com.a302.wms.domain.location.entity.Location;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.a302.wms.global.constant.ProductConstant.CONVERT_SIZE;

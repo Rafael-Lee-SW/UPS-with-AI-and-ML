@@ -1,11 +1,10 @@
 package com.a302.wms.domain.store.mapper;
 
-import com.a302.wms.domain.location.dto.LocationResponseDto;
-import com.a302.wms.domain.store.dto.store.StoreCreateRequestDto;
-import com.a302.wms.domain.store.dto.store.StoreDetailResponseDto;
-import com.a302.wms.domain.store.dto.store.StoreResponseDto;
-import com.a302.wms.domain.store.dto.wall.WallCreateRequestDto;
-import com.a302.wms.domain.store.dto.wall.WallResponseDto;
+import com.a302.wms.domain.structure.dto.location.LocationResponseDto;
+import com.a302.wms.domain.store.dto.StoreCreateRequestDto;
+import com.a302.wms.domain.store.dto.StoreDetailResponseDto;
+import com.a302.wms.domain.store.dto.StoreResponseDto;
+import com.a302.wms.domain.structure.dto.wall.WallResponseDto;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.user.entity.User;
 import org.springframework.stereotype.Component;
