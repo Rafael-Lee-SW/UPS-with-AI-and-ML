@@ -19,7 +19,7 @@ public class DeviceMapper {
     public static Device fromCreateRequestDto(DeviceCreateRequest deviceCreateRequest, Store store) {
         return Device.builder()
                 .store(store)
-                .deviceKey(deviceCreateRequest.key())
+                .deviceType(deviceCreateRequest.deviceType())
                 .build();
     }
 

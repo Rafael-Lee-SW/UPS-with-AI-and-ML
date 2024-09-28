@@ -60,21 +60,6 @@ public class ProductServiceImpl {
     return products.stream().map(ProductMapper::toProductResponseDto).toList();
   }
 
-  /**
-   * Device에 해당하는 모든 상품 호출
-   *
-   * @param deviceRegisterRequestDto : 찾을 device의 정보
-   * @return
-   */
-  public List<ProductResponse> findAllByKioskKey(DeviceCreateRequest deviceRegisterRequestDto) {
-    log.info("[Service] find Products by kiosk key");
-
-    Device device = deviceRepository.findByDeviceKey(deviceRegisterRequestDto.key()).orElseThrow();
-
-    Store store = device.getStore();
-
-    return findAllByStoreId(store.getId());
-  }
 
   /**
    * 상품 다중 업데이트
