@@ -9,7 +9,7 @@ declare global {
       loadProducts: () => Promise<{ name: string; price: number }[]>;
       login: (key: string) => Promise<boolean>;
       navigateToPage: () => Promise<void>;
-      onRFIDDetected: (callback: (rfid: string) => void) => void;  // onRFIDDetected 추가
+      onRFIDDetected: (callback: (rfid: string) => void) => void; // onRFIDDetected 추가
     };
   }
 }
