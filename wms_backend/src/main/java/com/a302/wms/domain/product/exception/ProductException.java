@@ -6,63 +6,69 @@ import lombok.Getter;
 @Getter
 public class ProductException extends Throwable {
 
-    private final ResponseEnum responseEnum;
-    private final String exceptionMessage;
+  private final ResponseEnum responseEnum;
+  private final String exceptionMessage;
 
-    public ProductException(ResponseEnum responseEnum, String exceptionMessage) {
-        this.responseEnum = responseEnum;
-        this.exceptionMessage = exceptionMessage;
+  public ProductException(ResponseEnum responseEnum, String exceptionMessage) {
+    this.responseEnum = responseEnum;
+    this.exceptionMessage = exceptionMessage;
+  }
+
+  public static class NotFoundException extends ProductException {
+
+    private static final String MESSAGE_FORMAT = " 상품 id: %s";
+
+    public NotFoundException(Long id) {
+      super(
+          ResponseEnum.PRODUCT_NOT_FOUND,
+          String.format(ResponseEnum.PRODUCT_NOT_FOUND.getMessage() + MESSAGE_FORMAT, id));
     }
+  }
 
-    public static class NotFoundException extends ProductException {
+  public static class DeletedException extends ProductException {
 
-        private static final String MESSAGE_FORMAT = " 상품 id: %s";
+    private static final String MESSAGE_FORMAT = " 상품 id: %s";
 
-        public NotFoundException(Long id) {
-            super(ResponseEnum.PRODUCT_NOT_FOUND,
-                String.format(ResponseEnum.PRODUCT_NOT_FOUND.getMessage() + MESSAGE_FORMAT, id));
-        }
+    DeletedException(Long id) {
+      super(
+          ResponseEnum.PRODUCT_DELETED,
+          String.format(ResponseEnum.PRODUCT_DELETED.getMessage() + MESSAGE_FORMAT, id));
     }
+  }
 
-    public static class DeletedException extends ProductException {
+  public static class ExportShortageException extends ProductException {
 
-        private static final String MESSAGE_FORMAT = " 상품 id: %s";
-
-        DeletedException(Long id) {
-            super(ResponseEnum.PRODUCT_DELETED,
-                String.format(ResponseEnum.PRODUCT_DELETED.getMessage() + MESSAGE_FORMAT, id));
-        }
+    ExportShortageException() {
+      super(
+          ResponseEnum.UNAVAILABLE_EXPORT_PRODUCT_SHORTAGE,
+          ResponseEnum.UNAVAILABLE_EXPORT_PRODUCT_SHORTAGE.getMessage());
     }
+  }
 
-    public static class ExportShortageException extends ProductException {
+  public static class ExportMoveException extends ProductException {
 
-        ExportShortageException() {
-            super(ResponseEnum.UNAVAILABLE_EXPORT_PRODUCT_SHORTAGE,
-                ResponseEnum.UNAVAILABLE_EXPORT_PRODUCT_SHORTAGE.getMessage());
-        }
+    private static final String MESSAGE_FORMAT = " 이동필요 상품 바코드: %s";
+
+    ExportMoveException(String barcodes) {
+      super(
+          ResponseEnum.UNAVAILABLE_EXPORT_PRODUCT_MOVE,
+          String.format(
+              ResponseEnum.UNAVAILABLE_EXPORT_PRODUCT_MOVE.getMessage() + MESSAGE_FORMAT,
+              barcodes));
     }
+  }
 
-    public static class ExportMoveException extends ProductException {
+  public static class StorageTypeException extends ProductException {
 
-        private static final String MESSAGE_FORMAT = " 이동필요 상품 바코드: %s";
+    private static final String MESSAGE_FORMAT = " 상품 id: %s, 로케이션 id: %s";
 
-        ExportMoveException(String barcodes) {
-            super(ResponseEnum.UNAVAILABLE_EXPORT_PRODUCT_MOVE,
-                String.format(
-                    ResponseEnum.UNAVAILABLE_EXPORT_PRODUCT_MOVE.getMessage() + MESSAGE_FORMAT,
-                    barcodes));
-        }
+    StorageTypeException(Long productId, Long locationId) {
+      super(
+          ResponseEnum.STORAGE_TYPE_NOT_MATCH,
+          String.format(
+              ResponseEnum.STORAGE_TYPE_NOT_MATCH.getMessage() + MESSAGE_FORMAT,
+              productId,
+              locationId));
     }
-
-    public static class StorageTypeException extends ProductException {
-
-        private static final String MESSAGE_FORMAT = " 상품 id: %s, 로케이션 id: %s";
-
-        StorageTypeException(Long productId, Long locationId) {
-            super(ResponseEnum.STORAGE_TYPE_NOT_MATCH,
-                String.format(ResponseEnum.STORAGE_TYPE_NOT_MATCH.getMessage() + MESSAGE_FORMAT,
-                    productId, locationId));
-        }
-    }
-
+  }
 }
