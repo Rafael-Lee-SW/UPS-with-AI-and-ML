@@ -13,6 +13,7 @@ import com.a302.wms.domain.product.exception.ProductInvalidRequestException;
 import com.a302.wms.domain.product.mapper.ProductMapper;
 import com.a302.wms.domain.product.repository.ProductRepository;
 import com.a302.wms.domain.store.entity.Store;
+import com.a302.wms.domain.store.repository.StoreRepository;
 import com.a302.wms.global.constant.ProductFlowTypeEnum;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -32,6 +33,7 @@ public class ProductServiceImpl {
   private final ProductFlowServiceImpl productFlowService;
   private final FloorRepository floorRepository;
   private final DeviceRepository deviceRepository;
+  private final StoreRepository storeRepository;
 
   /**
    * 특정 유저의 모든 상품 호출
@@ -43,7 +45,7 @@ public class ProductServiceImpl {
     log.info("[Service] find Products");
     final List<Product> products = productRepository.findAllByUserId(userId);
 
-    return products.stream().map(ProductMapper::toProductResponseDto).toList();
+    return products.stream().map(ProductMapper::toProductResponse).toList();
   }
 
   /**
@@ -57,7 +59,7 @@ public class ProductServiceImpl {
 
     final List<Product> products = productRepository.findByStoreId(storeId);
 
-    return products.stream().map(ProductMapper::toProductResponseDto).toList();
+    return products.stream().map(ProductMapper::toProductResponse).toList();
   }
 
   /**
@@ -66,7 +68,8 @@ public class ProductServiceImpl {
    * @param deviceRegisterRequestDto : 찾을 device의 정보
    * @return
    */
-  public List<ProductResponse> findAllByKioskKey(DeviceCreateRequest deviceRegisterRequestDto) {
+  public List<ProductResponse> findAllByKioskKey(
+          DeviceCreateRequest deviceRegisterRequestDto) {
     log.info("[Service] find Products by kiosk key");
 
     Device device = deviceRepository.findByDeviceKey(deviceRegisterRequestDto.key()).orElseThrow();
@@ -95,7 +98,7 @@ public class ProductServiceImpl {
     log.info("[Service] update Product by productId ");
     try {
       Product product =
-          productRepository.findById(productUpdateRequest.productId()).orElseThrow(null);
+          productRepository.findById(productUpdateRequest.productId()).orElse(null);
 
       updateIfValid(productUpdateRequest.barcode(), product::updateBarcode);
       updateIfValid(productUpdateRequest.sku(), product::updateSku);
@@ -195,13 +198,18 @@ public class ProductServiceImpl {
       Product previous = Product.builder().floor(product.getFloor()).build();
 
         Floor presentFloor = product.getFloor();
+        if (targetFloor.getProduct() != null) {
+        throw new ProductException.NotFoundException(product.getProductId());
+      }
         presentFloor.updateProduct(null);
-
         updateIfValid(targetFloor, product::updateFloor);
 
 
-      productFlowService.saveData(
-          previous, product, ProductFlowTypeEnum.FLOW, productMoveRequest.movementDate().atStartOfDay());
+      productFlowService.save(product,
+            LocalDateTime.now(),
+            presentFloor,
+              ProductFlowTypeEnum.FLOW
+          );
     } catch (NullPointerException e) {
       throw new ProductException.NotFoundException(productMoveRequest.productId());
     }
@@ -216,23 +224,27 @@ public class ProductServiceImpl {
   public void importAll(List<ProductImportRequest> productImportRequestList) {
     log.info("[Service] import Products ");
     productImportRequestList.forEach(
-        data -> importProduct(data, floorService.findDefaultFloorByStore(data.storeId())));
+            this::importProduct);
   }
 
   /**
    * 상품 단일 입고
    *
    * @param productImportRequest : 입고할 상품 정보
-   * @param defaultFloor 입고용 default 층 객체
    */
-  private void importProduct(ProductImportRequest productImportRequest, Floor defaultFloor) {
-    log.info("[Service] import Product by productData: ");
+  @Transactional
+  public void importProduct(ProductImportRequest productImportRequest) {
+    log.info("[Service] import Product by productImportRequest");
 
+    Store store = storeRepository.findById(productImportRequest.storeId()).orElseThrow();
+    Floor defaultFloor = floorService.findDefaultFloorByStore(productImportRequest.storeId());
     Product product =
-        ProductMapper.fromProductImportRequestDto(productImportRequest, defaultFloor);
+        ProductMapper.fromProductImportRequest(productImportRequest, defaultFloor,store);
 
     productRepository.save(product);
-
-    productFlowService.saveData(null, product, ProductFlowTypeEnum.IMPORT, LocalDateTime.now());
+    productFlowService.save(product,
+            LocalDateTime.now(),
+            defaultFloor,
+            ProductFlowTypeEnum.IMPORT);
   }
 }
