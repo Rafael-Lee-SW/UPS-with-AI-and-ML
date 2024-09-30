@@ -7,7 +7,7 @@ import com.a302.wms.domain.location.dto.LocationResponseDto;
 import com.a302.wms.domain.location.entity.Location;
 import com.a302.wms.domain.location.mapper.LocationMapper;
 import com.a302.wms.domain.location.repository.LocationRepository;
-import com.a302.wms.domain.product.dto.ProductResponseDto;
+import com.a302.wms.domain.product.dto.ProductResponse;
 import com.a302.wms.domain.product.mapper.ProductMapper;
 import com.a302.wms.domain.product.repository.ProductRepository;
 import com.a302.wms.domain.store.dto.store.StoreCreateRequest;
@@ -134,10 +134,10 @@ public class StoreServiceImpl {
     wallRepository.saveAll(wallList);
   }
 
-  public List<ProductResponseDto> findProducts(Long storeId) {
+  public List<ProductResponse> findProducts(Long storeId) {
     log.info("[Service] get all the products of the store: ");
     return productRepository.findByStoreId(storeId).stream()
-        .map(ProductMapper::toProductResponseDto)
+        .map(ProductMapper::toProductResponse)
         .toList();
   }
 }

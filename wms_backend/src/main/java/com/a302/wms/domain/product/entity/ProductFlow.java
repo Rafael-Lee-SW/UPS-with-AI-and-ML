@@ -1,12 +1,11 @@
 package com.a302.wms.domain.product.entity;
 
-import com.a302.wms.global.constant.ProductFlowTypeEnum;
 import com.a302.wms.global.BaseTimeEntity;
+import com.a302.wms.global.constant.ProductFlowTypeEnum;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
 
 @Table(name = "product_flow")
 @Getter
@@ -14,48 +13,59 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductFlow extends BaseTimeEntity {
 
-    @Id
-    @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long productFlowId;
-    @Column(name = "product_name", nullable = false)
-    private String productName;
+  @Id
+  @Column(name = "id", nullable = false)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long productFlowId;
 
-    @Column(name = "barcode", nullable = false)
-    private Long barcode;
+  @Column(name = "product_name", nullable = false)
+  private String productName;
 
-    @Column(name = "sku",nullable = false)
-    private String sku;
+  @Column(name = "barcode", nullable = false)
+  private Long barcode;
 
-    @Column(name = "quantity", nullable = false)
-    private Integer quantity;
+  @Column(name = "sku", nullable = false)
+  private String sku;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Column(name = "flow_date", nullable = false)
-    private LocalDateTime flowDate;
+  @Column(name = "quantity", nullable = false)
+  private Integer quantity;
 
-    @Column(name = "present_floor_id", nullable = false)
-    private Long presentFloorId;
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  @Column(name = "flow_date", nullable = false)
+  private LocalDateTime flowDate;
 
-    @Column(name = "previous_floor_id")
-    private Long previousFloorId;
+  @Column(name = "present_floor_id", nullable = false)
+  private Long presentFloorId;
 
-    @Column(name = "product_flow_type", nullable = false)
-    private ProductFlowTypeEnum productFlowTypeEnum;
+  @Column(name = "previous_floor_id")
+  private Long previousFloorId;
 
-    @Builder
-    public ProductFlow(Long presentFloorId, LocalDateTime flowDate,
-                       Long productFlowId, Long previousFloorId, Long barcode,
-                       ProductFlowTypeEnum productFlowTypeEnum, String productName,
-                       String sku, Integer quantity) {
-        this.presentFloorId = presentFloorId;
-        this.flowDate = flowDate;
-        this.productFlowId = productFlowId;
-        this.previousFloorId = previousFloorId;
-        this.barcode = barcode;
-        this.productFlowTypeEnum = productFlowTypeEnum;
-        this.productName = productName;
-        this.sku = sku;
-        this.quantity = quantity;
-    }
+  @Column(name = "product_flow_type", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private ProductFlowTypeEnum productFlowTypeEnum;
+
+  @Column(name = "user_id", nullable = false)
+  private Long userId;
+
+  @Builder
+  public ProductFlow(
+      Long barcode,
+      LocalDateTime flowDate,
+      Long presentFloorId,
+      Long previousFloorId,
+      ProductFlowTypeEnum productFlowTypeEnum,
+      String productName,
+      Integer quantity,
+      String sku,
+      Long userId) {
+    this.barcode = barcode;
+    this.flowDate = flowDate;
+    this.presentFloorId = presentFloorId;
+    this.previousFloorId = previousFloorId;
+    this.productFlowTypeEnum = productFlowTypeEnum;
+    this.productName = productName;
+    this.quantity = quantity;
+    this.sku = sku;
+    this.userId = userId;
+  }
 }

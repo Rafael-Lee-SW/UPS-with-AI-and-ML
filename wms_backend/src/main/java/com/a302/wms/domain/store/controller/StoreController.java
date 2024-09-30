@@ -1,6 +1,6 @@
 package com.a302.wms.domain.store.controller;
 
-import com.a302.wms.domain.product.dto.ProductResponseDto;
+import com.a302.wms.domain.product.dto.ProductResponse;
 import com.a302.wms.domain.store.dto.store.StoreCreateRequest;
 import com.a302.wms.domain.store.dto.store.StoreDetailResponseDto;
 import com.a302.wms.domain.store.dto.store.StoreResponseDto;
@@ -95,7 +95,7 @@ public class StoreController {
     }
 
     @GetMapping("/{storeId}/products")
-    public BaseSuccessResponse<List<ProductResponseDto>> findAllProducts(
+    public BaseSuccessResponse<List<ProductResponse>> findAllProducts(
             @PathVariable Long storeId
     ) {
         log.info("[Controller] find all products for store");

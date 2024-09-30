@@ -2,7 +2,7 @@ package com.a302.wms.domain.product.dto;
 
 import lombok.Builder;
 
-public record ProductResponseDto(
+public record ProductResponse(
     Long productId,
     String productName,
     Long barcode,
@@ -14,7 +14,7 @@ public record ProductResponseDto(
     Integer originalPrice,
     Integer sellingPrice) {
   @Builder
-  public ProductResponseDto(
+  public ProductResponse(
       Long productId,
       String productName,
       Long barcode,
