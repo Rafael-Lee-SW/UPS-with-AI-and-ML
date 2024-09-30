@@ -19,6 +19,7 @@ const MyStorePrevent = ({ warehouseId, businessId }) => {
   return (
     <div className={classes.protectContainer}>
       <h1>방범 섹터입니다.</h1>
+      <h2>수정 예정입니다.</h2>
     </div>
   );
 };
