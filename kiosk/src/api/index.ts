@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// API 요청을 한 곳에서 관리
 const API_URL = 'https://j11a302.p.ssafy.io/api';
 
+// 상품 리스트 가져오는 함수
 export async function fetchProducts(storeId: string): Promise<{ valid: boolean; products: any[] }> {
   try {
     // storeId를 포함한 GET 요청
@@ -10,7 +10,7 @@ export async function fetchProducts(storeId: string): Promise<{ valid: boolean; 
     const data = response.data;
     
     if (data.success) {
-      return { valid: true, products: data.result };  // 성공 시 상품 리스트 반환
+      return { valid: true, products: data.result };  // response.result에서 데이터 반환
     } else {
       return { valid: false, products: [] };  // 실패 시 빈 배열 반환
     }
@@ -20,12 +20,11 @@ export async function fetchProducts(storeId: string): Promise<{ valid: boolean; 
   }
 }
 
-
-// RFID로 상품 정보를 가져오는 함수 추가
+// RFID로 상품 정보를 가져오는 함수
 export async function fetchProductsByRFID(rfid: string): Promise<any[]> {
   try {
     const response = await axios.post(`${API_URL}/get-products-by-rfid`, { rfid });
-    return response.data;
+    return response.data.result;  // RFID로 상품 정보를 받아옴
   } catch (error) {
     console.error('RFID 상품 조회 실패:', error);
     return [];
