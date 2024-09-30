@@ -219,7 +219,9 @@ const basicsStyle = {
   },
   ...customCheckboxRadioSwitch,
 
-  //Mobile 환경
+  /**
+   * Mobile 모바일 환경
+   */
   "@media (max-width: 960px)": {
     // 해당 컴포넌트 전역 스타일
     canvasContainer: {
@@ -327,11 +329,7 @@ const basicsStyle = {
       justifyContent: "flex-end",
     },
     zoomicons: {
-      width: "17px",
-      height: "17px",
       color: "#FFFFFF",
-      width: "35px",
-      height: "35px",
     },
 
     // 우측 사이드바
