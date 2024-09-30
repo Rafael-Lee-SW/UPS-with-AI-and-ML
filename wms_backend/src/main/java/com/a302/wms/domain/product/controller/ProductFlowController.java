@@ -1,28 +1,26 @@
 package com.a302.wms.domain.product.controller;
 
-import com.a302.wms.domain.product.dto.ProductFlowResponseDto;
+import com.a302.wms.domain.floor.repository.FloorRepository;
+import com.a302.wms.domain.product.dto.ProductFlowResponse;
 import com.a302.wms.domain.product.repository.ProductFlowRepository;
 import com.a302.wms.domain.product.service.ProductFlowServiceImpl;
+import com.a302.wms.global.response.BaseSuccessResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/product-flows")
 @RequiredArgsConstructor
 public class ProductFlowController {
-    private final ProductFlowRepository productFlowRepository;
-    private final ProductFlowServiceImpl productFlowServiceImpl;
+  private final ProductFlowServiceImpl productFlowServiceImpl;
 
-    @GetMapping("/{userId}")
-    public List<ProductFlowResponseDto> getProductFlows(@PathVariable Long userId) {
-        return productFlowServiceImpl.findAllByUserId(userId);
-    }
+  @GetMapping
+  public BaseSuccessResponse<List<ProductFlowResponse>> getAllProductFlows(
+      @RequestParam(name = "userId") Long userId) {
 
+    return new BaseSuccessResponse<>(productFlowServiceImpl.findAllByUserId(userId));
+  }
 }

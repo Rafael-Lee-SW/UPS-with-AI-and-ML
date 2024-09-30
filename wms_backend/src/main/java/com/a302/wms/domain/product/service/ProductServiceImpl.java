@@ -167,13 +167,13 @@ public class ProductServiceImpl {
   /**
    * 상품 다중 이동
    *
-   * @param productMoveRequestDtoList : 이동할 상품 리스트
+   * @param productMoveRequestList : 이동할 상품 리스트
    * @throws ProductException
    */
   @Transactional
-  public void moveProducts(List<ProductMoveRequestDto> productMoveRequestDtoList)
+  public void moveProducts(List<ProductMoveRequest> productMoveRequestList)
       throws ProductException {
-    for (ProductMoveRequestDto request : productMoveRequestDtoList) {
+    for (ProductMoveRequest request : productMoveRequestList) {
       moveProduct(request);
     }
   }
@@ -181,20 +181,23 @@ public class ProductServiceImpl {
   /**
    * 단일 상품 이동
    *
-   * @param productMoveRequestDto
+   * @param productMoveRequest
    * @throws ProductException
    */
   @Transactional
-  public void moveProduct(ProductMoveRequestDto productMoveRequestDto) throws ProductException {
+  public void moveProduct(ProductMoveRequest productMoveRequest) throws ProductException {
     try {
 
-      Product product = productRepository.findById(productMoveRequestDto.productId()).orElseThrow();
+      Product product = productRepository.findById(productMoveRequest.productId()).orElseThrow();
 
       Floor targetFloor =
-          floorRepository.findAllByLocationId(productMoveRequestDto.locationId()).stream()
-              .filter((data) -> data.getFloorLevel() == productMoveRequestDto.floorLevel())
+          floorRepository.findAllByLocationId(productMoveRequest.locationId()).stream()
+              .filter((data) -> data.getFloorLevel() == productMoveRequest.floorLevel())
               .findFirst()
               .orElse(null);
+      Product previous = Product.builder().floor(product.getFloor()).build();
+
+        Floor presentFloor = product.getFloor();
         if (targetFloor.getProduct() != null) {
         throw new ProductException.NotFoundException(product.getProductId());
       }

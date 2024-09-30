@@ -2,7 +2,7 @@ package com.a302.wms.domain.product.controller;
 
 import com.a302.wms.domain.device.dto.DeviceCreateRequest;
 import com.a302.wms.domain.product.dto.ProductImportRequest;
-import com.a302.wms.domain.product.dto.ProductMoveRequestDto;
+import com.a302.wms.domain.product.dto.ProductMoveRequest;
 import com.a302.wms.domain.product.dto.ProductResponse;
 import com.a302.wms.domain.product.dto.ProductUpdateRequest;
 import com.a302.wms.domain.product.exception.ProductException;
@@ -22,6 +22,8 @@ public class ProductController {
 
   private final ProductServiceImpl productService;
 
+
+
   /**
    * (매장 별/사용자 별) 상품들을 반환하는 메서드
    *
@@ -36,31 +38,24 @@ public class ProductController {
       log.info("[Controller] find Products by storeId");
       return new BaseSuccessResponse<>(productService.findAllByStoreId(storeId));
     } else if (userId != null) {
-      log.info("[Conftroller] find Products by userId");
+      log.info("[Controller] find Products by userId");
       return new BaseSuccessResponse<>(productService.findAllByUserId(userId));
     } else {
       throw new ProductInvalidRequestException("no Variable", "null");
     }
   }
-  /**
-   * 등록된 키오스크의 Kiosk key로 해당 매장의 모든 상품을 불러오는 메서드
-   *
-   * @param deviceCreateRequest : 디바이스 정보가 담긴 dto
-   * @return 해당 매장의 모든 상품 리스트
-   */
-  @PostMapping
-  public BaseSuccessResponse<List<ProductResponse>> getProductsByKioskKey(
-          @RequestBody DeviceCreateRequest deviceCreateRequest) {
-    return new BaseSuccessResponse<>(productService.findAllByKioskKey(deviceCreateRequest));
+
+  @DeleteMapping("/{productId}")
+  public BaseSuccessResponse<Void> deleteProduct(@PathVariable Long productId) {
+    productService.deleteProduct(productId);
+    return new BaseSuccessResponse<>(null);
   }
-
-
   /**
    * 상품 다중 수정
    *
    * @param productUpdateRequestList 수정할 상품의 정보가 담긴 리스트
    */
-  @PutMapping("/batch")
+  @PatchMapping("/batch")
   public BaseSuccessResponse<Void> updateProducts(
       @RequestBody List<ProductUpdateRequest> productUpdateRequestList) {
     log.info("[Controller] update Products");
@@ -94,16 +89,28 @@ public class ProductController {
     return new BaseSuccessResponse<>(null);
   }
 
-    /**
-     * 상품 다중 이동
-     * @param productMoveRequestDtoList 이동하는 상품들의 정보가 담긴 리스트
-     */
-  @PostMapping("/move")
-  public BaseSuccessResponse<Void> moveProducts(@RequestBody List<ProductMoveRequestDto> productMoveRequestDtoList)
-      throws ProductException {
+  /**
+   * 상품 다중 이동
+   *
+   * @param productMoveRequestList 이동하는 상품들의 정보가 담긴 리스트
+   */
+  @PutMapping("/batch")
+  public BaseSuccessResponse<Void> moveProducts(
+      @RequestBody List<ProductMoveRequest> productMoveRequestList) throws ProductException {
 
     log.info("[Controller] find ProductMoveRequestDtoList");
-    productService.moveProducts(productMoveRequestDtoList);
+    productService.moveProducts(productMoveRequestList);
     return new BaseSuccessResponse<>(null);
+  }
+  /**
+   * 등록된 키오스크의 Kiosk key로 해당 매장의 모든 상품을 불러오는 메서드
+   *
+   * @param deviceCreateRequest : 디바이스 정보가 담긴 dto
+   * @return 해당 매장의 모든 상품 리스트
+   */
+  @PostMapping
+  public BaseSuccessResponse<List<ProductResponse>> getProductsByKioskKey(
+          @RequestBody DeviceCreateRequest deviceCreateRequest) {
+    return new BaseSuccessResponse<>(productService.findAllByKioskKey(deviceCreateRequest));
   }
 }

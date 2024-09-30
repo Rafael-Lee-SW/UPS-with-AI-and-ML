@@ -1,12 +1,10 @@
 package com.a302.wms.domain.product.entity;
 
 import com.a302.wms.domain.floor.entity.Floor;
-import com.a302.wms.global.BaseTimeEntity;
 import com.a302.wms.domain.store.entity.Store;
+import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
