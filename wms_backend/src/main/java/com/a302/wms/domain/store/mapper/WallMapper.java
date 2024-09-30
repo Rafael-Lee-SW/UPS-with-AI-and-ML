@@ -1,6 +1,6 @@
 package com.a302.wms.domain.store.mapper;
 
-import com.a302.wms.domain.store.dto.wall.WallCreateRequestDto;
+import com.a302.wms.domain.store.dto.wall.WallCreateRequest;
 import com.a302.wms.domain.store.dto.wall.WallResponseDto;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.store.entity.Wall;
@@ -11,16 +11,16 @@ public class WallMapper {
 
     /**
      * WallCreateRequestDto -> Wall 변환
-     * @param wallCreateRequestDto : 변환될 Dto
+     * @param wallCreateRequest : 변환될 Dto
      * @param store : Wall에 대한 Store 정보
      * @return : 변환된 Wall 객체
      */
-    public static Wall fromCreateRequestDto(WallCreateRequestDto wallCreateRequestDto, Store store) {
+    public static Wall fromCreateRequestDto(WallCreateRequest wallCreateRequest, Store store) {
         return Wall.builder()
-                .startX(wallCreateRequestDto.startX())
-                .startY(wallCreateRequestDto.startY())
-                .endX(wallCreateRequestDto.endX())
-                .endY(wallCreateRequestDto.endY())
+                .startX(wallCreateRequest.startX())
+                .startY(wallCreateRequest.startY())
+                .endX(wallCreateRequest.endX())
+                .endY(wallCreateRequest.endY())
                 .store(store)
                 .build();
     }

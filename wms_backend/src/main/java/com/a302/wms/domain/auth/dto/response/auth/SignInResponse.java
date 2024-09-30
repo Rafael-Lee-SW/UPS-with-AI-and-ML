@@ -22,7 +22,7 @@ public class SignInResponse extends ResponseDto {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
         this.token = token;
         this.expirationTime = 1800; // 30분
-        this.user = UserMapper.toUserResponseDto(user); // Convert User to UserResponseDto
+        this.user = UserMapper.toUserResponse(user); // Convert User to UserResponseDto
     }
 
     public static ResponseEntity<SignInResponse> success(String token, User user) {
