@@ -201,7 +201,6 @@ public class ProductServiceImpl {
         if (targetFloor.getProduct() != null) {
         throw new ProductException.NotFoundException(product.getProductId());
       }
-            Floor presentFloor = product.getFloor();
         presentFloor.updateProduct(null);
         updateIfValid(targetFloor, product::updateFloor);
 
@@ -212,7 +211,7 @@ public class ProductServiceImpl {
               ProductFlowTypeEnum.FLOW
           );
     } catch (NullPointerException e) {
-      throw new ProductException.NotFoundException(productMoveRequestDto.productId());
+      throw new ProductException.NotFoundException(productMoveRequest.productId());
     }
   }
 

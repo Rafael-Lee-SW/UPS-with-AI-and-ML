@@ -2,7 +2,7 @@ package com.a302.wms.domain.product.service;
 
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.repository.FloorRepository;
-import com.a302.wms.domain.product.dto.ProductFlowResponseDto;
+import com.a302.wms.domain.product.dto.ProductFlowResponse;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.mapper.ProductFlowMapper;
 import com.a302.wms.domain.product.repository.ProductFlowRepository;
@@ -41,7 +41,7 @@ public class ProductFlowServiceImpl {
                 productFlowTypeEnum));
     }
 
-    public List<ProductFlowResponseDto> findAllByUserId(Long userId) {
+    public List<ProductFlowResponse> findAllByUserId(Long userId) {
 
         return productFlowRepository.findAll().stream()
                 .filter((productFlow -> productFlow.getUserId().equals(userId)))

@@ -49,7 +49,7 @@ public class LocationServiceImpl {
     public LocationResponseDto findById(Long id) throws FloorException {
         log.info("[Service] find Location by productId");
         Location location = locationRepository.findById(id).orElse(null);
-        return LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location));
+        return LocationMapper.toLocationResponseDto(location);
     }
 
     /**
@@ -63,7 +63,7 @@ public class LocationServiceImpl {
 
         List<LocationResponseDto> locationResponseDtos = new ArrayList<>();
        locationRepository.findAllByStoreId(storeId).stream()
-               .map(location -> locationResponseDtos.add(LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location))));
+               .map(location -> locationResponseDtos.add(LocationMapper.toLocationResponseDto(location)));
        return locationResponseDtos;
     }
 
@@ -103,8 +103,7 @@ public class LocationServiceImpl {
         location.updatePosition(request.getXPosition(), request.getYPosition());
 
         Location savedLocation = locationRepository.save(location);
-        return LocationMapper.toLocationResponseDto(savedLocation,
-                getMaxFloorCapacity(savedLocation));
+        return LocationMapper.toLocationResponseDto(savedLocation);
     }
 
     private int getMaxFloorCapacity(Location location) {

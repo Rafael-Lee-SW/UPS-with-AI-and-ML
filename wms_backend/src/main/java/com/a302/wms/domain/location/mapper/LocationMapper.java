@@ -33,10 +33,9 @@ public class LocationMapper {
 
     /**
      * @param location
-     * @param maxFloorCapacity
      * @return
      */
-    public static LocationResponseDto toLocationResponseDto(Location location, int maxFloorCapacity) {
+    public static LocationResponseDto toLocationResponseDto(Location location) {
         return LocationResponseDto.builder()
             .id(location.getId())
             .xPosition(location.getXPosition())

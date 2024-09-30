@@ -89,8 +89,7 @@ public class StoreServiceImpl {
     List<LocationResponseDto> locations =
         locationRepository.findAllByStoreId(storeId).stream()
             .map(
-                location ->
-                    LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location)))
+                    LocationMapper::toLocationResponseDto)
             .toList();
 
     List<WallResponseDto> walls =
@@ -98,38 +97,6 @@ public class StoreServiceImpl {
 
     return StoreMapper.toDetailResponseDto(store, locations, walls);
   }
-
-  /**
-   * Floor의 최대 적재 가능 개수를 반환
-   *
-   * @param location : Floor가 있는 location의 정보
-   * @return : 최대 적재 가능 개수
-   */
-  private int getMaxFloorCapacity(Location location) {
-    List<Floor> floors = floorRepository.findAllByLocationId(location.getId());
-
-        List<WallResponseDto> walls = wallRepository.findByStoreId(storeId)
-                .stream()
-                .map(WallMapper::toResponseDto)
-                .toList();
-
-        return StoreMapper.toDetailResponseDto(store, locations, walls);
-    }
-
-
-    /**
-     * Floor의 최대 적재 가능 개수를 반환
-     * @param location : Floor가 있는 location의 정보
-     * @return : 최대 적재 가능 개수
-     */
-    private int getMaxFloorCapacity(Location location) {
-        List<Floor> floors = floorRepository.findAllByLocationId(location.getId());
-
-        return floors.stream()
-                .mapToInt(floorService::getCapacity)
-                .max()
-                .orElse(0);
-    }
 
     /**
      * 특정 매장 삭제
@@ -144,7 +111,7 @@ public class StoreServiceImpl {
     }
 
 
-        public void saveAllWall(WallsCreateDto dto) {
+        public void saveAllWall(WallCreateRequestList dto) {
         log.info("[Service] save all walls by storeId");
         Store store = storeRepository.findById(dto.storeId()).orElseThrow();
         List<Wall> wallList = dto.wallCreateDtos().stream()
@@ -158,37 +125,8 @@ public class StoreServiceImpl {
     public List<ProductResponse> findProducts(Long storeId) {
         log.info("[Service] get all the products of the store: {}", storeId);
         return productRepository.findByStoreId(storeId).stream()
-                .map(ProductMapper::toProductResponseDto)
+                .map(ProductMapper::toProductResponse)
                 .toList();
     }
 
-  /**
-   * 특정 매장 삭제
-   *
-   * @param userId : 삭제할 매장의 userId
-   * @param storeId : 삭제할 매장의 storeId
-   */
-  @Transactional
-  public void delete(Long userId, Long storeId) {
-    log.info("[Service] delete store by id");
-    Store store = storeRepository.findById(storeId).orElseThrow();
-    storeRepository.delete(store);
-  }
-
-  public void saveAllWall(WallCreateRequestList dto) {
-    log.info("[Service] save all walls by storeId");
-    Store store = storeRepository.findById(dto.storeId()).orElseThrow();
-    List<Wall> wallList =
-        dto.wallCreateDtos().stream()
-            .map(wallCreateDto -> WallMapper.fromCreateRequestDto(wallCreateDto, store))
-            .toList();
-    wallRepository.saveAll(wallList);
-  }
-
-  public List<ProductResponse> findProducts(Long storeId) {
-    log.info("[Service] get all the products of the store: ");
-    return productRepository.findByStoreId(storeId).stream()
-        .map(ProductMapper::toProductResponse)
-        .toList();
-  }
 }
