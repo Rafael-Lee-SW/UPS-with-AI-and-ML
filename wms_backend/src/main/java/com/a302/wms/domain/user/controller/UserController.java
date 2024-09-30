@@ -1,7 +1,7 @@
 package com.a302.wms.domain.user.controller;
 
 import com.a302.wms.domain.user.dto.UserPasswordUpdateRequest;
-import com.a302.wms.domain.user.dto.UserRequestDto;
+import com.a302.wms.domain.user.dto.UserUpdateRequest;
 import com.a302.wms.domain.user.dto.UserResponseDto;
 import com.a302.wms.domain.user.dto.UserSignUpRequest;
 import com.a302.wms.domain.user.service.UserServiceImpl;
@@ -15,71 +15,79 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@Tag(name = "유저 관리", description = "유저 CRUD 관리")
+@Tag(name = "유저 관리", description = "유저 관리")
+// TODO : 나중에 userId 제거(토큰에서 추출)
 public class UserController {
 
-    private final UserServiceImpl userService;
+  private final UserServiceImpl userService;
 
-    /**
-     * 회원가입
-     * @param request
-     * @return
-     */
-    @PostMapping("/sign-up")
-    public BaseSuccessResponse<UserResponseDto> save(@RequestBody UserSignUpRequest request) {
-        UserResponseDto response = userService.save(request);
-        return new BaseSuccessResponse<>(response);
+  /**
+   * 회원가입
+   *
+   * @param userSignUpRequest
+   * @return
+   */
+  @PostMapping("/sign-up")
+  public BaseSuccessResponse<UserResponseDto> save(
+      @RequestBody UserSignUpRequest userSignUpRequest) {
+    UserResponseDto response = userService.save(userSignUpRequest);
+    return new BaseSuccessResponse<>(response);
+  }
+
+  /**
+   * Id로 사용자 조회
+   *
+   * @param userId
+   * @return
+   */
+  @GetMapping("/{userId}")
+  public BaseSuccessResponse<UserResponseDto> findById(@PathVariable Long userId) {
+    if (userId != null) {
+      log.info("[Controller] find User by userId");
+      return new BaseSuccessResponse<>(userService.findById(userId));
     }
+    return new BaseSuccessResponse<>(null);
+  }
 
-    /**
-     * Id로 사용자 조회
-     * @param id
-     * @return
-     */
-    @GetMapping("/{userId}")
-    public BaseSuccessResponse<UserResponseDto> findById(@PathVariable Long id) {
-        if (id != null) {
-            log.info("[Controller] find User by id: {}", id);
-            return new BaseSuccessResponse<>(userService.findById(id));
-        }  return new BaseSuccessResponse<>(null);
-    }
+  /**
+   * 특정 유저 수정
+   *
+   * @param userId
+   * @param userUpdateRequest
+   * @return
+   */
+  @PatchMapping("/{userId}")
+  public BaseSuccessResponse<UserResponseDto> update(
+      @PathVariable("userId") Long userId, @RequestBody UserUpdateRequest userUpdateRequest) {
+    log.info("[Controller] update user by userId");
+    return new BaseSuccessResponse<>(userService.update(userId, userUpdateRequest));
+  }
 
-    /**
-     * 특정 유저 수정
-     * @param id
-     * @param request
-     * @return
-     */
-    @PutMapping("/{userId}")
-    public BaseSuccessResponse<UserResponseDto> update(@PathVariable("id") Long id,
-                                                       @RequestBody UserRequestDto request) {
-        log.info("[Controller] update user by id: {}", id);
-        return new BaseSuccessResponse<>(userService.update(id, request));
-    }
+  /**
+   * 비밀번호 변경
+   *
+   * @param userId
+   * @param userPasswordUpdateRequest
+   * @return
+   */
+  @PatchMapping("/{userId}/password-change")
+  public BaseSuccessResponse<UserResponseDto> updatePassword(
+      @PathVariable("userId") Long userId,
+      @RequestBody UserPasswordUpdateRequest userPasswordUpdateRequest) {
+    userService.updatePassword(userId, userPasswordUpdateRequest);
+    log.info("[Controller] change password by userId");
+    return new BaseSuccessResponse<>(null);
+  }
 
-    /**
-     * 비밀번호 변경
-     * @param id
-     * @param request
-     * @return
-     */
-    @PutMapping("/{userId}/password-change")
-    public BaseSuccessResponse<UserResponseDto> updatePassword(@PathVariable("id") Long id,
-                                                               @RequestBody UserPasswordUpdateRequest request) {
-        userService.updatePassword(id, request);
-        log.info("[Controller] change password by id: {}", id);
-        return new BaseSuccessResponse<>(null);
-    }
-
-    /**
-     * 회원 탈퇴
-     * @param id
-     * @return
-     */
-    @DeleteMapping("/{userId}")
-    public BaseSuccessResponse<UserResponseDto> delete(@PathVariable("id") Long id) {
-        log.info("[Controller] delete user by id: {}", id);
-        return new BaseSuccessResponse<>(userService.delete(id));
-    }
-
+  /**
+   * 회원 탈퇴
+   *
+   * @param userId
+   */
+  @DeleteMapping("/{userId}")
+  public BaseSuccessResponse<Void> delete(@PathVariable("userId") Long userId) {
+    log.info("[Controller] delete user by userId");
+    userService.delete(userId);
+    return new BaseSuccessResponse<>(null);
+  }
 }
