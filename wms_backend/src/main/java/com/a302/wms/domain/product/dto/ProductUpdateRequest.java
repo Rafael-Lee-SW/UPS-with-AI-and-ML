@@ -1,11 +1,8 @@
 package com.a302.wms.domain.product.dto;
 
 import lombok.Builder;
-import lombok.Getter;
 
-import java.time.LocalDateTime;
-
-public record ProductUpdateRequestDto(
+public record ProductUpdateRequest(
         Long productId,
         Long barcode,
         String sku,
@@ -17,10 +14,10 @@ public record ProductUpdateRequestDto(
         ) {
 
     @Builder
-    public ProductUpdateRequestDto(Long productId, Long barcode, String sku,
-                                   String productName, Integer quantity,
-                                   
-                                   Integer originalPrice, Integer sellingPrice) {
+    public ProductUpdateRequest(Long productId, Long barcode, String sku,
+                                String productName, Integer quantity,
+
+                                Integer originalPrice, Integer sellingPrice) {
         this.productId = productId;
         this.barcode = barcode;
         this.sku = sku;
