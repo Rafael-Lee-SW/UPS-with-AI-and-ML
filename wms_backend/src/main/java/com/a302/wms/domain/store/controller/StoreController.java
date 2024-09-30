@@ -1,11 +1,10 @@
 package com.a302.wms.domain.store.controller;
 
 import com.a302.wms.domain.product.dto.ProductResponse;
-import com.a302.wms.domain.product.service.ProductServiceImpl;
-import com.a302.wms.domain.store.dto.store.StoreCreateRequestDto;
+import com.a302.wms.domain.store.dto.store.StoreCreateRequest;
 import com.a302.wms.domain.store.dto.store.StoreDetailResponseDto;
 import com.a302.wms.domain.store.dto.store.StoreResponseDto;
-import com.a302.wms.domain.store.dto.wall.WallsCreateDto;
+import com.a302.wms.domain.store.dto.wall.WallCreateRequestList;
 import com.a302.wms.domain.store.service.StoreServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
 import java.util.List;
