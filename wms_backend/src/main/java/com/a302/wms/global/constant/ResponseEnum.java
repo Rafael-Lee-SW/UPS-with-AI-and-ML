@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 public enum ResponseEnum {
     SUCCESS(true, 1000, HttpStatus.OK.value(), "요청에 성공하였습니다."),  //성공 코드
 
-
     BAD_REQUEST(false, 2000, HttpStatus.BAD_REQUEST.value(), "유효하지 않은 요청입니다."),
     URL_NOT_FOUND(false, 2001, HttpStatus.BAD_REQUEST.value(), "유효하지 않은 URL 입니다."),
     METHOD_NOT_ALLOWED(false, 2002, HttpStatus.METHOD_NOT_ALLOWED.value(),
@@ -18,10 +17,14 @@ public enum ResponseEnum {
     DATABASE_ERROR(false, 3001, HttpStatus.INTERNAL_SERVER_ERROR.value(), "데이터베이스에서 오류가 발생하였습니다."),
     BAD_SQL_GRAMMAR(false, 3002, HttpStatus.INTERNAL_SERVER_ERROR.value(), "SQL에 오류가 있습니다."),
 
-    // Auth
+    // Auth, OTP, Certification
+    INVALID_SIGNIN(false, 4000, HttpStatus.BAD_REQUEST.value(), "아이디 또는 비밀번호가 일치하지 않습니다."),
+    INVALID_TOKEN(false, 4000, HttpStatus.BAD_REQUEST.value(), "토큰이 유효하지 않습니다."),
+    INVALID_OTP_VALUE(false, 4000, HttpStatus.BAD_REQUEST.value(), "OTP 값이 유효하지 않습니다."),
     CERTIFICATION_FAILED(false, 4000, HttpStatus.BAD_REQUEST.value(), "인증번호가 올바르지 않습니다."),
     MAIL_SEND_FAILED(false, 4001, HttpStatus.BAD_REQUEST.value(), "인증 메일 전송에 실패하였습니다."),
     INVALID_EMAIL(false, 4002, HttpStatus.BAD_REQUEST.value(), "유효하지 않은 이메일입니다."),
+    DEVICE_NOT_FOUND(false, 400, HttpStatus.BAD_REQUEST.value(), "존재하지 않는 기기입니다."),
 
     // User 오류
     INVALID_USER_VALUE(false, 5000, HttpStatus.BAD_REQUEST.value(), "회원가입 요청에서 잘못된 값이 존재합니다."),
