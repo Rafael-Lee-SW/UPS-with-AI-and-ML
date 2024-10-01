@@ -6,7 +6,6 @@ import com.a302.wms.domain.floor.service.FloorServiceImpl;
 import com.a302.wms.domain.product.dto.ProductResponse;
 import com.a302.wms.domain.product.mapper.ProductMapper;
 import com.a302.wms.domain.product.repository.ProductRepository;
-import com.a302.wms.domain.store.dto.StoreCreateRequest;
 import com.a302.wms.domain.store.dto.StoreDetailResponse;
 import com.a302.wms.domain.store.dto.StoreResponse;
 import com.a302.wms.domain.store.dto.StoreUpdateRequest;
@@ -56,7 +55,7 @@ public class StoreServiceImpl {
      * @return : 생성한 매장의 정보
      */
     @Transactional
-    public StoreResponse save(Long userId, StoreCreateRequest storeCreateRequest) {
+    public StoreResponse save(Long userId, com.a302.wms.domain.store.dto.store.StoreCreateRequest storeCreateRequest) {
         log.info("[Service] save store");
 
         User user = userRepository.findById(userId).orElseThrow();
@@ -93,7 +92,7 @@ public class StoreServiceImpl {
     public List<StoreResponse> findByUserId(Long userId) {
         log.info("[Service] find stores by userId");
 
-        return storeRepository.findByUserId(userId)
+        return storeRepository.findAllByUserId(userId)
                 .stream()
                 .map(StoreMapper::toResponseDto)
                 .toList();
@@ -122,10 +121,10 @@ public class StoreServiceImpl {
                 .map(location ->
                         LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location))
                 ).toList();
-        List<WallResponse> walls = store.getWalls().stream()
+        List<WallResponse> wallList = store.getWalls().stream()
                 .map(WallMapper::toResponseDto).toList();
 
-        return StoreMapper.toDetailResponseDto(store, locationList, walls);
+        return StoreMapper.toDetailResponseDto(store, locationList, wallList);
     }
 
 
@@ -221,7 +220,7 @@ public class StoreServiceImpl {
     public List<ProductResponse> findProducts(Long storeId) {
         log.info("[Service] get all the products of the store: {}", storeId);
         return productRepository.findByStoreId(storeId).stream()
-                .map(ProductMapper::toProductResponseDto)
+                .map(ProductMapper::toProductResponse)
                 .toList();
     }
 

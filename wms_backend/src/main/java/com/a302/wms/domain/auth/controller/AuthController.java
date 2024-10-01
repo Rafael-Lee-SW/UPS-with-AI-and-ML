@@ -56,14 +56,15 @@ public class AuthController {
 //
 //
     @PostMapping("/sign-in")
-    public BaseSuccessResponse<AccessTokenResponse> deviceSignIn(
+    public BaseSuccessResponse<AccessTokenResponse> signIn(
             @RequestBody @Valid SignInRequest signInRequest
     ) {
         return new BaseSuccessResponse<>(authService.signIn(signInRequest));
     }
-//
+
 //    @DeleteMapping("/sign-out")
-//    public ResponseEntity<Void> deviceSignOut() {
-//        return;
+//    public BaseSuccessResponse<Void> deviceSignOut() {
+//        authService.signOut()
+//        return new BaseSuccessResponse<>(null);
 //    }
 }
