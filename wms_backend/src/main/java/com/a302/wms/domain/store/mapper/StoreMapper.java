@@ -1,8 +1,8 @@
 package com.a302.wms.domain.store.mapper;
 
+import com.a302.wms.domain.store.dto.StoreCreateRequest;
 import com.a302.wms.domain.store.dto.StoreDetailResponse;
 import com.a302.wms.domain.store.dto.StoreResponse;
-import com.a302.wms.domain.store.dto.store.StoreCreateRequest;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.structure.dto.location.LocationResponse;
 import com.a302.wms.domain.structure.dto.wall.WallResponse;
@@ -40,6 +40,7 @@ public class StoreMapper {
                 .id(store.getId())
                 .userId(store.getUser().getId())
                 .storeName(store.getStoreName())
+                .size(store.getSize())
                 .createdDate(store.getCreatedDate())
                 .updatedDate(store.getUpdatedDate())
                 .build();

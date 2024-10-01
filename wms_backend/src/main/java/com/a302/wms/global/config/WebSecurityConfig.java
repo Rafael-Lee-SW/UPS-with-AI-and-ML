@@ -1,21 +1,41 @@
 package com.a302.wms.global.config;
 
 import com.a302.wms.domain.auth.provider.JwtProvider;
+import com.a302.wms.domain.auth.service.CustomUserDetailsService;
 import com.a302.wms.domain.user.service.UserServiceImpl;
+import com.a302.wms.global.constant.ResponseEnum;
 import com.a302.wms.global.handler.ValidationExceptionHandler;
+import com.a302.wms.global.response.BaseExceptionResponse;
+import com.a302.wms.global.security.filter.JwtAuthenticationFilter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -23,9 +43,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Component
 public class WebSecurityConfig {
 
-//  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private final JwtProvider jwtProvider;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Bean
     protected SecurityFilterChain configure(
@@ -41,7 +62,7 @@ public class WebSecurityConfig {
                 .sessionManagement(
                         sessionManagement ->
                                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(request -> request.anyRequest().permitAll());
+                .authorizeHttpRequests(request -> request.anyRequest().permitAll())
 //        .oauth2Login(
 //            oauth2 ->
 //                oauth2
@@ -71,7 +92,7 @@ public class WebSecurityConfig {
 //        .exceptionHandling(
 //            exceptionHandling ->
 //                exceptionHandling.authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
-//        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
@@ -86,6 +107,27 @@ public class WebSecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.authenticationProvider(authenticationProvider());
+        return authenticationManagerBuilder.build();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(customUserDetailsService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        return authenticationProvider;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
 
@@ -104,11 +146,6 @@ public class WebSecurityConfig {
 //        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 //        response
 //                .getWriter()
-//                .write(
-//                        "{\"code\":\""
-//                                + ResponseCode.SIGN_IN_FAIL
-//                                + "\" , \"message\":\""
-//                                + ResponseMessage.SIGN_IN_FAIL
-//                                + "\"}");
+//                .write(new BaseExceptionResponse(ResponseEnum.VALIDATION_FAILED).toString());
 //    }
 //}

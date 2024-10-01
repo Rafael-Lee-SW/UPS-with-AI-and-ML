@@ -1,9 +1,9 @@
 package com.a302.wms.domain.store.controller;
 
 import com.a302.wms.domain.product.dto.ProductResponse;
+import com.a302.wms.domain.store.dto.StoreCreateRequest;
 import com.a302.wms.domain.store.dto.StoreDetailResponse;
 import com.a302.wms.domain.store.dto.StoreResponse;
-import com.a302.wms.domain.store.dto.store.StoreCreateRequest;
 import com.a302.wms.domain.store.service.StoreServiceImpl;
 import com.a302.wms.domain.structure.dto.wall.WallListCreateRequest;
 import com.a302.wms.global.response.BaseSuccessResponse;
@@ -32,9 +32,9 @@ public class StoreController {
      */
     @PostMapping
     public BaseSuccessResponse<StoreResponse> save(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal Long userId,
             @RequestBody StoreCreateRequest storeCreateRequest) {
-        log.info("[Controller] save Store");
+        log.info("[Controller] save Store:{} - {}", userId, storeCreateRequest);
         return new BaseSuccessResponse<>(storeService.save(userId, storeCreateRequest));
     }
 
@@ -47,8 +47,8 @@ public class StoreController {
      */
     @GetMapping
     public BaseSuccessResponse<List<StoreResponse>> findByUserId(
-            @RequestParam Long userId) {
-        log.info("[Controller] find Stores");
+            @AuthenticationPrincipal Long userId) {
+        log.info("[Controller] find Stores: {}", userId);
         return new BaseSuccessResponse<>(storeService.findByUserId(userId));
     }
 
@@ -61,7 +61,7 @@ public class StoreController {
      */
     @GetMapping("/{storeId}")
     public BaseSuccessResponse<StoreDetailResponse> findById(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long storeId
     ) {
         log.info("[Controller] find Store by id");
@@ -77,7 +77,7 @@ public class StoreController {
      */
     @PatchMapping("/{storeId}")
     public BaseSuccessResponse<Void> delete(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long storeId
     ) {
         log.info("[Controller] delete Store by storeId");
