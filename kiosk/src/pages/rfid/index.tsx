@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import styles from "./rfid.module.css";
+import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 
 // 상품 정보 타입 정의
 interface Product {
@@ -55,7 +56,9 @@ export default function RFIDPage() {
       });
 
       // 총 가격 계산
-      setTotalPrice((prevTotal) => prevTotal + (matchedProduct.sellingPrice || 0));
+      setTotalPrice(
+        (prevTotal) => prevTotal + (matchedProduct.sellingPrice || 0)
+      );
     } else {
       console.log("일치하는 상품이 없습니다."); // 일치하는 상품이 없을 경우 콘솔에 메시지 출력
     }
@@ -90,10 +93,25 @@ export default function RFIDPage() {
     });
   };
 
-  // 결제하기 로직
-  const handlePayment = () => {
-    console.log("총 결제 금액:", totalPrice, "원");
-    alert(`총 결제 금액: ${totalPrice}원`);
+  // 결제하기 로직 (토스페이먼츠 연동)
+  const handlePayment = async () => {
+    try {
+      const tossPayments: any = await loadTossPayments(
+        "test_ck_yZqmkKeP8gxBDajBEZqY3bQRxB9l"
+      ); // 클라이언트 키
+
+      tossPayments.requestPayment("카드", {
+        amount: totalPrice, // 총 결제 금액
+        orderId: `order-${new Date().getTime()}`, // 주문 ID는 고유값
+        orderName: "RFID 상품 결제",
+        successUrl: `${window.location.origin}/paymentSuccess`, // 성공 시 리다이렉트 URL
+        failUrl: `${window.location.origin}/fail`, // 실패 시 리다이렉트 URL
+        customerName: "고객 이름", // 실제 적용될 고객 정보
+        customerEmail: "customer@example.com",
+      });
+    } catch (error) {
+      console.error("결제 요청 실패:", error);
+    }
   };
 
   // 취소하기(처음으로 돌아가기) 버튼 처리
@@ -131,7 +149,11 @@ export default function RFIDPage() {
                   </button>
                 </h3>
                 <p>
-                  가격: {product.sellingPrice ? product.sellingPrice * product.quantity : 0}원
+                  가격:{" "}
+                  {product.sellingPrice
+                    ? product.sellingPrice * product.quantity
+                    : 0}
+                  원
                 </p>
               </div>
             ))
