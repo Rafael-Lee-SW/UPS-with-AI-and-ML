@@ -42,19 +42,18 @@ public class AuthController {
      * @return
      */
     @GetMapping("/devices/sign-in")
-    public BaseSuccessResponse<String> deviceSignIn(
+    public BaseSuccessResponse<AccessTokenResponse> deviceSignIn(
             @RequestBody DeviceSignInRequest deviceOtpSingInRequest
     ) {
         return new BaseSuccessResponse<>(authService.deviceSignIn(deviceOtpSingInRequest));
     }
 
-    //
-//    @DeleteMapping("/devices/sign-out")
-//    public ResponseEntity<Boolean> deviceSignOut(){
-//
-//    }
-//
-//
+    /**
+     * 유저 로그인
+     *
+     * @param signInRequest
+     * @return
+     */
     @PostMapping("/sign-in")
     public BaseSuccessResponse<AccessTokenResponse> signIn(
             @RequestBody @Valid SignInRequest signInRequest
@@ -62,9 +61,26 @@ public class AuthController {
         return new BaseSuccessResponse<>(authService.signIn(signInRequest));
     }
 
-//    @DeleteMapping("/sign-out")
-//    public BaseSuccessResponse<Void> deviceSignOut() {
-//        authService.signOut()
-//        return new BaseSuccessResponse<>(null);
-//    }
+    /**
+     * 유저 및 디바이스 로그아웃
+     *
+     * @param header
+     * @return
+     */
+    @DeleteMapping("/sign-out")
+    public BaseSuccessResponse<Void> signOut(@RequestHeader("Authorization") String header) {
+        authService.signOut(header);
+        return new BaseSuccessResponse<>(null);
+    }
+
+    /**
+     * 토큰 재발급
+     *
+     * @param header
+     * @return
+     */
+    @GetMapping("/refresh-token")
+    public BaseSuccessResponse<AccessTokenResponse> refreshToken(@RequestHeader("Authorization") String header) {
+        return new BaseSuccessResponse<>(authService.refreshToken(header));
+    }
 }

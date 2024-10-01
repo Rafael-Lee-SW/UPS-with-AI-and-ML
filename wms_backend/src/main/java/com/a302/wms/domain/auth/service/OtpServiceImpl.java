@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import static com.a302.wms.global.constant.ResponseEnum.INVALID_OTP_VALUE;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -40,7 +42,8 @@ public class OtpServiceImpl {
     public Long verifyDeviceOtp(String otp) {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         String value = ops.get(otp);
-//        if (value == null) throw ;
+        if (value == null) throw new CommonException(INVALID_OTP_VALUE, null);
+
         Long deviceId = Long.parseLong(ops.get(otp));
 
         return deviceId;
