@@ -1,18 +1,9 @@
 package com.a302.wms.global.config;
 
-import com.a302.wms.domain.auth.dto.ResponseCode;
-import com.a302.wms.domain.auth.dto.ResponseMessage;
 import com.a302.wms.domain.auth.provider.JwtProvider;
-import com.a302.wms.global.handler.ValidationExceptionHandler;
 import com.a302.wms.domain.user.service.UserServiceImpl;
-//import com.a302.wms.global.security.filter.JwtAuthenticationFilter;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
+import com.a302.wms.global.handler.ValidationExceptionHandler;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,8 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
@@ -36,23 +25,23 @@ public class WebSecurityConfig {
 
 //  private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-  private final JwtProvider jwtProvider;
+    private final JwtProvider jwtProvider;
 
-  @Bean
-  protected SecurityFilterChain configure(
-      HttpSecurity httpSecurity,
-      ValidationExceptionHandler validationExceptionHandler,
-      UserServiceImpl userService)
-      throws Exception {
+    @Bean
+    protected SecurityFilterChain configure(
+            HttpSecurity httpSecurity,
+            ValidationExceptionHandler validationExceptionHandler,
+            UserServiceImpl userService)
+            throws Exception {
 
-    httpSecurity
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(CsrfConfigurer::disable)
-        .httpBasic(HttpBasicConfigurer::disable)
-        .sessionManagement(
-            sessionManagement ->
-                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(request -> request.anyRequest().permitAll());
+        httpSecurity
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(CsrfConfigurer::disable)
+                .httpBasic(HttpBasicConfigurer::disable)
+                .sessionManagement(
+                        sessionManagement ->
+                                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(request -> request.anyRequest().permitAll());
 //        .oauth2Login(
 //            oauth2 ->
 //                oauth2
@@ -84,42 +73,42 @@ public class WebSecurityConfig {
 //                exceptionHandling.authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
 //        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-    return httpSecurity.build();
-  }
+        return httpSecurity.build();
+    }
 
-  @Bean
-  protected CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    configuration.addAllowedOrigin("*");
-    configuration.addAllowedHeader("*");
-    configuration.addAllowedMethod("*");
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
+    @Bean
+    protected CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("*");
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
 
-    return source;
-  }
+        return source;
+    }
 }
 
-@Slf4j
-class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
-
-  @Override
-  public void commence(
-      HttpServletRequest request,
-      HttpServletResponse response,
-      AuthenticationException authException)
-      throws IOException, ServletException {
-    log.error("Authentication failed");
-
-    response.setContentType("application/json");
-    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-    response
-        .getWriter()
-        .write(
-            "{\"code\":\""
-                + ResponseCode.SIGN_IN_FAIL
-                + "\" , \"message\":\""
-                + ResponseMessage.SIGN_IN_FAIL
-                + "\"}");
-  }
-}
+//@Slf4j
+//class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
+//
+//    @Override
+//    public void commence(
+//            HttpServletRequest request,
+//            HttpServletResponse response,
+//            AuthenticationException authException)
+//            throws IOException, ServletException {
+//        log.error("Authentication failed");
+//
+//        response.setContentType("application/json");
+//        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+//        response
+//                .getWriter()
+//                .write(
+//                        "{\"code\":\""
+//                                + ResponseCode.SIGN_IN_FAIL
+//                                + "\" , \"message\":\""
+//                                + ResponseMessage.SIGN_IN_FAIL
+//                                + "\"}");
+//    }
+//}
