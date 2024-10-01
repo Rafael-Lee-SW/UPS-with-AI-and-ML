@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Table(name = "user")
 public class User extends BaseTimeEntity {
 
@@ -34,13 +32,6 @@ public class User extends BaseTimeEntity {
     @Column(name = "social_login_type", nullable = false, columnDefinition = "ENUM('GENERAL', 'KAKAO', 'NAVER') DEFAULT 'GENERAL'")
     private SocialLoginTypeEnum socialLoginType;
 
-    @Builder
-    public User(String userName, String email, String password) {
-        this.userName = userName;
-        this.email = email;
-        this.password = password;
-    }
-
     public void updateInfo(UserUpdateRequest userUpdateRequest) {
         this.userName = userUpdateRequest.userName();
         this.email = userUpdateRequest.email();
@@ -53,4 +44,17 @@ public class User extends BaseTimeEntity {
         this.password = newPassword;
     }
 
+    @Builder
+
+    public User(String email,
+                Long id,
+                String password,
+                SocialLoginTypeEnum socialLoginType,
+                String userName) {
+        this.email = email;
+        this.id = id;
+        this.password = password;
+        this.socialLoginType = socialLoginType;
+        this.userName = userName;
+    }
 }

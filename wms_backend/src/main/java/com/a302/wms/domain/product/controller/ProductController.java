@@ -61,16 +61,15 @@ public class ProductController {
     return new BaseSuccessResponse<>(null);
   }
 
-  /**
-   * 상품 다중 삭제
-   *
-   * @param productIds 삭제할 상품들의 id가 담긴 리스트
-   */
-  @DeleteMapping
-  public BaseSuccessResponse<Void> deleteProducts(@RequestParam List<Long> productIds) {
+    /**
+     *  상품 다중 삭제
+     * @param productIdList 삭제할 상품들의 id가 담긴 리스트
+     */
+  @DeleteMapping("/batch")
+  public BaseSuccessResponse<Void> deleteProducts(@RequestParam List<Long> productIdList) {
     log.info("[Controller] delete Products");
 
-    productService.deleteAll(productIds);
+    productService.deleteAll(productIdList);
 
     return new BaseSuccessResponse<>(null);
   }
