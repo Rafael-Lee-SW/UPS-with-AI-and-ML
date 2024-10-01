@@ -1,10 +1,10 @@
 package com.a302.wms.domain.store.mapper;
 
-import com.a302.wms.domain.structure.dto.location.LocationResponse;
-import com.a302.wms.domain.store.dto.StoreCreateRequest;
-import com.a302.wms.domain.store.dto.StoreDetailResponse;
-import com.a302.wms.domain.store.dto.StoreResponse;
-import com.a302.wms.domain.structure.dto.wall.WallResponse;
+import com.a302.wms.domain.location.dto.LocationResponseDto;
+import com.a302.wms.domain.store.dto.store.StoreCreateRequest;
+import com.a302.wms.domain.store.dto.store.StoreDetailResponseDto;
+import com.a302.wms.domain.store.dto.store.StoreResponseDto;
+import com.a302.wms.domain.store.dto.wall.WallResponseDto;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.user.entity.User;
 import org.springframework.stereotype.Component;
@@ -20,11 +20,13 @@ public class StoreMapper {
      * @param user : 해당 store에 해당하는 유저 정보
      * @return : 변환된 Store 객체
      */
-    public static Store fromCreateRequestDto(StoreCreateRequest storeCreateRequest, User user) {
+    public static Store fromDto(StoreCreateRequest storeCreateRequest, User user) {
         return Store.builder()
                 .size(storeCreateRequest.size())
                 .storeName(storeCreateRequest.storeName())
                 .user(user)
+                .createdDate(storeCreateRequest.createdDate())
+                .updatedDate(storeCreateRequest.updatedDate())
                 .build();
     }
 
@@ -33,8 +35,8 @@ public class StoreMapper {
      * @param store : 변환될 Store 객체
      * @return : 변환된 Dto
      */
-    public static StoreResponse toResponseDto(Store store) {
-        return StoreResponse.builder()
+    public static StoreResponseDto toResponseDto(Store store) {
+        return StoreResponseDto.builder()
                 .id(store.getId())
                 .userId(store.getUser().getId())
                 .storeName(store.getStoreName())
@@ -50,8 +52,8 @@ public class StoreMapper {
      * @param walls : Store에 해당하는 벽 정보
      * @return : 변환된 Dto
      */
-    public static StoreDetailResponse toDetailResponseDto(Store store, List<LocationResponse> locations, List<WallResponse> walls) {
-        return StoreDetailResponse.builder()
+    public static StoreDetailResponseDto toDetailResponseDto(Store store, List<LocationResponseDto> locations, List<WallResponseDto> walls) {
+        return StoreDetailResponseDto.builder()
                 .id(store.getId())
                 .userId(store.getUser().getId())
                 .storeName(store.getStoreName())

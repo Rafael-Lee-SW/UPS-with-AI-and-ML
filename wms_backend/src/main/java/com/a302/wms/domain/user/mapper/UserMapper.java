@@ -1,6 +1,6 @@
 package com.a302.wms.domain.user.mapper;
 
-import com.a302.wms.domain.user.dto.UserResponse;
+import com.a302.wms.domain.user.dto.UserResponseDto;
 import com.a302.wms.domain.user.dto.UserSignUpRequest;
 import com.a302.wms.domain.user.entity.User;
 import org.springframework.stereotype.Component;
@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
-    public static UserResponse toUserResponseDto(User user) {
-        return UserResponse.builder()
+    public static UserResponseDto toUserResponse(User user) {
+        return UserResponseDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .userName(user.getUserName())
@@ -18,7 +18,7 @@ public class UserMapper {
                 .build();
     }
 
-    public static User toEntity(UserSignUpRequest dto, String hashedPassword) {
+    public static User fromUserSignUpRequest(UserSignUpRequest dto, String hashedPassword) {
         return User.builder()
                 .userName(dto.userName())
                 .password(hashedPassword)
