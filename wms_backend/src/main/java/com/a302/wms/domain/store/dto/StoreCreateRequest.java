@@ -1,13 +1,14 @@
-package com.a302.wms.domain.store.dto.store;
+package com.a302.wms.domain.store.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
 
 @Builder
 public record StoreCreateRequest(
-    Long userId,
-    Integer size,
-    String storeName,
-    LocalDateTime createdDate,
-    LocalDateTime updatedDate) {}
+    @NotNull(message = "매장 크기를 적어주세요")
+    int size,
+    @NotNull(message = "매장명을 적어주세요")
+    String storeName) {
+
+}

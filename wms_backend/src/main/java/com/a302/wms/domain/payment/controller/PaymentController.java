@@ -7,6 +7,7 @@ import com.a302.wms.global.response.BaseSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -30,11 +31,10 @@ public class PaymentController {
     @PostMapping
     @Operation(summary = "새 결제내역 생성")
     public BaseSuccessResponse<PaymentResponse> save(
-            @RequestParam Long deviceId,
+            @AuthenticationPrincipal Long deviceId,
             @RequestBody PaymentCreateRequest dto
     ) {
-        log.info("[Controller] save payment for device in store");
-
+        log.info("[Controller] save payment for device in store: {}", deviceId);
         return new BaseSuccessResponse<>(paymentService.save(deviceId, dto));
     }
 

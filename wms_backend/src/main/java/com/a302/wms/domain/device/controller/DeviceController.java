@@ -32,7 +32,7 @@ public class DeviceController {
     @GetMapping
     @Operation(summary = "디바이스 목록 조회 (키값 제외)", tags = {"디바이스 관리"})
     public BaseSuccessResponse<List<List<DeviceResponse>>> getUserDevicesList(
-            @RequestParam Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         log.info("[Controller] get devices list of the user");
         return new BaseSuccessResponse<>(deviceService.getUserDevicesList(userId));
@@ -56,10 +56,11 @@ public class DeviceController {
     @PostMapping
     @Operation(summary = "디바이스 등록", tags = {"디바이스 관리"})
     public BaseSuccessResponse<DeviceResponse> saveDevice(
+            @AuthenticationPrincipal Long userId,
             @RequestBody DeviceCreateRequest deviceCreateRequest
     ) {
         log.info("[Controller] create device for the key");
-        return new BaseSuccessResponse<>(deviceService.save(deviceCreateRequest));
+        return new BaseSuccessResponse<>(deviceService.save(userId, deviceCreateRequest));
     }
 
     /**
@@ -72,7 +73,7 @@ public class DeviceController {
     @PostMapping("/{deviceId}")
     @Operation(summary = "디바이스 삭제", tags = {"디바이스 관리"})
     public BaseSuccessResponse<Void> deleteDevice(
-            @RequestParam(required = true) Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long deviceId
     ) {
         log.info("[Controller] delete device for the store");

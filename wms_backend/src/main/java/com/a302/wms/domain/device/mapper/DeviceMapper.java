@@ -32,6 +32,7 @@ public class DeviceMapper {
         return DeviceResponse.builder()
                 .id(device.getId())
                 .storeId(device.getStore().getId())
+                .deviceType(device.getDeviceType())
                 .build();
     }
 
@@ -44,7 +45,6 @@ public class DeviceMapper {
         return DeviceDetailedResponse.builder()
                 .id(device.getId())
                 .storeId(device.getStore().getId())
-                .deviceKey(device.getDeviceKey())
                 .build();
     }
 }

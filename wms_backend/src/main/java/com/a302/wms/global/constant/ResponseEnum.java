@@ -19,7 +19,8 @@ public enum ResponseEnum {
 
     // Auth, OTP, Certification
     INVALID_SIGNIN(false, 4000, HttpStatus.BAD_REQUEST.value(), "아이디 또는 비밀번호가 일치하지 않습니다."),
-    INVALID_TOKEN(false, 4000, HttpStatus.BAD_REQUEST.value(), "토큰이 유효하지 않습니다."),
+    INVALID_TOKEN(false, 4000, HttpStatus.BAD_REQUEST.value(), "로그인이 필요합니다."),
+    EXPIRED_ACCESS_TOKEN(false, 4000, HttpStatus.BAD_REQUEST.value(), "로그인이 만료되었습니다"),
     INVALID_OTP_VALUE(false, 4000, HttpStatus.BAD_REQUEST.value(), "OTP 값이 유효하지 않습니다."),
     CERTIFICATION_FAILED(false, 4000, HttpStatus.BAD_REQUEST.value(), "인증번호가 올바르지 않습니다."),
     MAIL_SEND_FAILED(false, 4001, HttpStatus.BAD_REQUEST.value(), "인증 메일 전송에 실패하였습니다."),
