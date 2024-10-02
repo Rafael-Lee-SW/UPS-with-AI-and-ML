@@ -4,7 +4,10 @@ import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -67,18 +70,23 @@ public class Product extends BaseTimeEntity {
     public void updateQuantity(Integer quantity) {
         this.quantity = quantity;
     }
+
     public void updateBarcode(Long barcode) {
         this.barcode = barcode;
     }
+
     public void updateProductName(String productName) {
         this.productName = productName;
     }
+
     public void updateOriginalPrice(Integer originalPrice) {
         this.originalPrice = originalPrice;
     }
+
     public void updateSellingPrice(Integer sellingPrice) {
         this.sellingPrice = sellingPrice;
     }
+
     public void updateSku(String sku) {
         this.sku = sku;
     }
