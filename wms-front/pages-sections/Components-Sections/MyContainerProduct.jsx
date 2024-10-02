@@ -1751,7 +1751,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               [classes.activeButton]: activeButton === 2,
             })}
           >
-            출고하기
+            결제내역
           </Button>
         </div>
         <div className={classes.buttonContainer}>
@@ -1816,7 +1816,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               [classes.activeButton]: activeButton === 6,
             })}
           >
-            분석
+            ML분석
           </Button>
         </div>
         <div className={classes.buttonContainer}>
