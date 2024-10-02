@@ -8,12 +8,17 @@ import com.a302.wms.domain.device.mapper.DeviceMapper;
 import com.a302.wms.domain.device.repository.DeviceRepository;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.store.repository.StoreRepository;
+import com.a302.wms.domain.user.entity.User;
+import com.a302.wms.domain.user.repository.UserRepository;
+import com.a302.wms.global.constant.ResponseEnum;
+import com.a302.wms.global.handler.CommonException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -22,6 +27,7 @@ public class DeviceServiceImpl {
 
     private final DeviceRepository deviceRepository;
     private final StoreRepository storeRepository;
+    private final UserRepository userRepository;
 
     /**
      * 해당 매장의 device를 새로 생성합니다.
@@ -29,9 +35,13 @@ public class DeviceServiceImpl {
      * @param deviceCreateRequest
      * @return
      */
-    public DeviceResponse save(DeviceCreateRequest deviceCreateRequest) {
+    public DeviceResponse save(Long userId, DeviceCreateRequest deviceCreateRequest) {
         log.info("[Service] create device of the deviceCreateRequest: {}", deviceCreateRequest);
-        Store store = storeRepository.findById(deviceCreateRequest.storeId()).orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow(()->new CommonException(ResponseEnum.USER_NOT_FOUND, null));
+
+        Store store = storeRepository.findById(deviceCreateRequest.storeId()).orElseThrow(()->new CommonException(ResponseEnum.STORE_NOT_FOUND, null));
+
+        if(!Objects.equals(store.getUser().getId(), user.getId())) throw new CommonException(ResponseEnum.STORE_NOT_FOUND, null);
 
         Device device = DeviceMapper.fromCreateRequestDto(deviceCreateRequest, store);
         Device newDevice = deviceRepository.save(device);

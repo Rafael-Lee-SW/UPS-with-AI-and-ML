@@ -6,6 +6,7 @@ import com.a302.wms.domain.floor.service.FloorServiceImpl;
 import com.a302.wms.domain.product.dto.ProductResponse;
 import com.a302.wms.domain.product.mapper.ProductMapper;
 import com.a302.wms.domain.product.repository.ProductRepository;
+import com.a302.wms.domain.store.dto.StoreCreateRequest;
 import com.a302.wms.domain.store.dto.StoreDetailResponse;
 import com.a302.wms.domain.store.dto.StoreResponse;
 import com.a302.wms.domain.store.dto.StoreUpdateRequest;
@@ -55,14 +56,16 @@ public class StoreServiceImpl {
      * @return : 생성한 매장의 정보
      */
     @Transactional
-    public StoreResponse save(Long userId, com.a302.wms.domain.store.dto.store.StoreCreateRequest storeCreateRequest) {
+    public StoreResponse save(Long userId, StoreCreateRequest storeCreateRequest) {
         log.info("[Service] save store");
 
         User user = userRepository.findById(userId).orElseThrow();
 
         Store savedStore = storeRepository.save(StoreMapper.fromCreateRequestDto(storeCreateRequest, user));
+        StoreResponse response = StoreMapper.toResponseDto(savedStore);
+        log.info("{}", response);
 
-        return StoreMapper.toResponseDto(savedStore);
+        return response;
     }
 
     /**

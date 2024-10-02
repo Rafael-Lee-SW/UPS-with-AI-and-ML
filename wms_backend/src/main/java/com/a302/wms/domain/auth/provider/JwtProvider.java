@@ -7,18 +7,23 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import static com.a302.wms.global.constant.ResponseEnum.INVALID_TOKEN;
+
 
 @Component
 public class JwtProvider {
@@ -65,22 +70,21 @@ public class JwtProvider {
      * @param jwt 검증할 JWT 토큰
      * @return 토큰이 유효하면 사용자 ID, 유효하지 않으면 null
      */
-    public Long validate(String jwt) {
-        String subject = null;
+    public Map<String, Object> validate(String jwt) {
+        Long id = null;
         String type = null;
 
         // secretKey를 사용하여 HMAC SHA 키를 생성
         Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)); // 수정: Keys 클래스의 hmacShaKeyFor 메서드 사용
 
+
+        if(isTokenExpired(jwt)) throw new CommonException(INVALID_TOKEN, null);
+
         try {
             // JWT 토큰을 파싱하고 서명 검증
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(key) // 수정: setSigningKey 메서드 사용
-                    .build()
-                    .parseClaimsJws(jwt) // JWT 토큰을 파싱하여 클레임 추출
-                    .getBody();
+            Claims claims = extractAllClaims(jwt);
 
-            subject = claims.getSubject();
+            id = Long.parseLong(claims.getSubject());
             type = claims.get("type", String.class);
 
         } catch (Exception exception) {
@@ -89,10 +93,37 @@ public class JwtProvider {
         }
 
         Map<String, Object> result = new HashMap<>();
-        result.put("id", subject);
+        result.put("id", id);
         result.put("type", TokenRoleTypeEnum.fromValue(type));
 
         // 검증 성공 시 사용자 ID 반환
-        return Long.parseLong(subject);
+        return result;
+    }
+
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolvers.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+
+    private @NotNull SecretKey getSecretKey() {
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 }

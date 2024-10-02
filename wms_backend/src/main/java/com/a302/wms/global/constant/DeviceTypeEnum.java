@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum DeviceTypeEnum {
-    CCTV("CCTV"),
-    KIOSK("키오스크");
+    CAMERA("camera"),
+    KIOSK("kiosk");
 
     private String value;
 

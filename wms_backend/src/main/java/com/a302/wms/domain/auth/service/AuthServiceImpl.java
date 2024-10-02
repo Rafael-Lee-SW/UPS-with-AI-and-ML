@@ -14,6 +14,7 @@ import com.a302.wms.global.constant.DeviceTypeEnum;
 import com.a302.wms.global.constant.ResponseEnum;
 import com.a302.wms.global.constant.TokenRoleTypeEnum;
 import com.a302.wms.global.handler.CommonException;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -79,6 +81,7 @@ public class AuthServiceImpl {
     }
 
     private AccessTokenResponse createToken(TokenRoleTypeEnum tokenRoleTypeEnum, Long id) {
+        log.info("[Service] createToken tokenRoleTypeEnum: {} - {}", tokenRoleTypeEnum, id);
         String accessToken = jwtProvider.create(tokenRoleTypeEnum, id.toString());
         String refreshToken = UUID.randomUUID().toString();
 
@@ -93,6 +96,7 @@ public class AuthServiceImpl {
      * @param header
      */
     public void signOut(String header) {
+        log.info("[Service] signOut request: {}", header);
         String accessToken = header.substring(TOKEN_SPLIT_INDEX);
 
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
@@ -111,9 +115,10 @@ public class AuthServiceImpl {
         if (refreshToken == null) throw new CommonException(ResponseEnum.INVALID_TOKEN, null);
 
         ops.getAndDelete(accessToken);
-        long userId = jwtProvider.validate(accessToken);
 
-        return createToken(TokenRoleTypeEnum.USER, userId);
+        Map<String, Object> claims = jwtProvider.validate(accessToken);
+
+        return createToken((TokenRoleTypeEnum) claims.get("type"), (Long) claims.get("id"));
     }
 }
 
