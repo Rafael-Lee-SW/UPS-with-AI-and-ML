@@ -1,5 +1,6 @@
 package com.a302.wms.global.security.filter;
 
+import com.a302.wms.domain.auth.dto.Tokens;
 import com.a302.wms.domain.auth.provider.JwtProvider;
 import com.a302.wms.domain.device.entity.Device;
 import com.a302.wms.domain.device.repository.DeviceRepository;
@@ -12,28 +13,25 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
@@ -67,28 +65,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // 3. 토큰 유효성 검증
+            // 3. refresh token 토큰 유효성 검증
             ValueOperations<String, String> ops = redisTemplate.opsForValue();
             String refreshToken = ops.get(accessToken);
-            if (refreshToken == null) throw new CommonException(ResponseEnum.INVALID_TOKEN, null);
+            if (refreshToken == null) {
+//                throw new CommonException(ResponseEnum.INVALID_TOKEN, "로그인이 필요합니다.");
+                logger.info("Invalid Token.");
+                filterChain.doFilter(request, response);
+                return;
+            }
 
             // 4. 유효하지 않은 토큰이면 다음 필터로 진행
             Map<String, Object> claims;
 
             try {
-                claims = jwtProvider.validate(accessToken);
+                jwtProvider.isTokenExpired(accessToken);
             } catch (Exception e) {
-                logger.error("Access Token need to be refreshed", e);
-                throw new CommonException(ResponseEnum.EXPIRED_ACCESS_TOKEN, null);
+                log.info("Token is expired.");
+                refreshToken = ops.get(accessToken);
+                claims = jwtProvider.getClaims(refreshToken);
+                Tokens tokens = jwtProvider.create((TokenRoleTypeEnum) claims.get("type"), ((Long) claims.get("id")).toString());
+                ops.set(tokens.accessToken(), tokens.refreshToken(), jwtProvider.getRefreshTokenExpire(), TimeUnit.SECONDS);
+                redisTemplate.delete(accessToken);
+                response.setHeader("accessToken", tokens.accessToken());
+                accessToken = tokens.accessToken();
             }
 
             // 5. type과 id로 엔티티 조회
+            claims = jwtProvider.getClaims(accessToken);
             authenticate(claims, request);
 
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             logger.error("Error during JWT authentication", e);
-            throw new CommonException(ResponseEnum.SERVER_ERROR, null);
+            throw new CommonException(ResponseEnum.INVALID_TOKEN, "로그인이 필요합니다.");
         }
     }
 
@@ -98,7 +108,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("[AuthenticationFilter] type: {}, id: {}", type, id);
 
 
-        if(type.equals(TokenRoleTypeEnum.USER)) {
+        if (type.equals(TokenRoleTypeEnum.USER)) {
             log.info("USER authentication");
             long userId = (Long) claims.get("id");
             User user = userRepository.findById(userId).orElseThrow(() -> {
@@ -138,6 +148,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * 2. 헤더가 비어있지 않은지 확인
      * 3. Bearer로 시작하는지 확인
      * 4. Bearer 다음의 실제 토큰 값을 추출
+     *
      * @param request HTTP 요청 객체
      * @return 추출된 JWT 토큰
      */
