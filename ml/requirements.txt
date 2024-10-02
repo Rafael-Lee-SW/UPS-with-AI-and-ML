@@ -1,6 +1,7 @@
 fastapi
 uvicorn[standard]
 numpy
+pandas
 tensorflow
 scikit-learn
-# Add other dependencies as needed
+joblib
