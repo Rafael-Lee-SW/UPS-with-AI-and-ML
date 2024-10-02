@@ -1502,7 +1502,7 @@ useEffect(() => {
                 setHoveredLocations([]); // Reset hovered locations
               }}
             >
-              Close
+              닫기
             </Button>
           </div>
           {showDetails && selectedLocation ? (
@@ -1510,14 +1510,14 @@ useEffect(() => {
               <div>
                 <div id="상자 정보" className={classes.infoBox}>
                   <div id="상자 숫자 정보" className={classes.infoBoxNum}>
-                    <h3 style={{ marginTop: 0 }}>
-                      재고함 : {selectedLocation.name}
+                    <h3 className={classes.infoBoxTitle}>
+                      위치: {selectedLocation.name}
                     </h3>
                     <b>가로 : {selectedLocation.width}cm</b>
                     <b>세로 : {selectedLocation.height}cm</b>
                     <b>단수(층) : {selectedLocation.z}단/층</b>
                     <b>
-                      현재 재고율 :{" "}
+                      재고율 :{" "}
                       {extractFillPercentage(selectedLocation.fill)}%{" "}
                     </b>
                   </div>

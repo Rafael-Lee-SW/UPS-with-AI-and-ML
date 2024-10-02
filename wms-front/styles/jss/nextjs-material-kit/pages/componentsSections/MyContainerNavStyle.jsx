@@ -336,7 +336,7 @@ const basicsStyle = {
       top: "10vh",
       right:"0",
       padding: "10px",
-      width: "220px",
+      width: "120px",
       height: "75vh",
       overflowY: "auto",
       backgroundColor: "rgba(247, 247, 247, 0.9)",
@@ -411,22 +411,30 @@ const basicsStyle = {
     rightSidebar: {
       position: "absolute",
       top: "10vh",
-      right: "0px",
+      right: "120px",
       padding: "10px",
       border: "0px solid black",
       borderRadius: "0px",
-      width: "220px",
+      width: "200px",
       height: "75vh",
       overflowY: "auto",
       backgroundColor: "rgba(247, 247, 247, 0.9)",
     },
     //우측 사이드바 닫기 버튼
     closeButtonPart: {
-      display: "none",
-      justifyContent: "flex-end",
+      position: "fixed",
+      margin : "0px",
+      padding: "0px",
+      // display: "flex",
+      // justifyContent: "center",
     },
     closeButton: {
       color: "#7D4A1A",
+      backgroundColor: "white",
+      border: "1px solid #7D4A1A",
+      borderRadius: "20%",
+      padding: "3px",
+      zIndex: 1000, // Ensure it's above other elements
     },
     /**
      * 각 상자 정보와 이에 속하는 재고 목록을 보여주는 파트
@@ -435,17 +443,22 @@ const basicsStyle = {
     infoBox: {
       display: "flex",
     },
+    infoBoxTitle:{
+      fontSize : "16px",
+      margin :"0"
+    },
     infoBoxNum: {
       width: "45%",
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
       alignItems: "center",
+      fontSize : "10px",
     },
     infoZindexBox: {
       marginLeft: "10px",
       height: "200px",
-      width: "65%",
+      width: "55%",
       overflowY: "auto",
       border: "1px solid gray",
       borderRadius: "5px",
@@ -505,6 +518,7 @@ const basicsStyle = {
       marginBottom: "20px",
     },
     printButton: {
+      display:"none",
       color: "#7D4A1A",
     },
     notificationTable: {
