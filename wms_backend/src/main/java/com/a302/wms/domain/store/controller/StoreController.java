@@ -5,6 +5,10 @@ import com.a302.wms.domain.store.dto.StoreDetailResponse;
 import com.a302.wms.domain.store.dto.StoreResponse;
 import com.a302.wms.domain.store.dto.store.StoreCreateRequest;
 import com.a302.wms.domain.store.service.StoreServiceImpl;
+import com.a302.wms.domain.structure.dto.StructureCreateRequest;
+import com.a302.wms.domain.structure.dto.StructureDeleteRequest;
+import com.a302.wms.domain.structure.dto.StructureUpdateRequest;
+import com.a302.wms.domain.structure.dto.location.LocationListCreateRequest;
 import com.a302.wms.domain.structure.dto.wall.WallListCreateRequest;
 import com.a302.wms.global.response.BaseSuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -82,6 +86,50 @@ public class StoreController {
     ) {
         log.info("[Controller] delete Store by storeId");
         storeService.delete(userId, storeId);
+        return new BaseSuccessResponse<>(null);
+    }
+
+    @PostMapping("/{storeId}/structures")
+    public BaseSuccessResponse<Void> saveStructure(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long storeId,
+            @RequestBody StructureCreateRequest structureCreateRequest
+    ) {
+        log.info("[Controller] save Structure");
+        storeService.saveStructure(userId, storeId, structureCreateRequest);
+        return new BaseSuccessResponse<>(null);
+    }
+
+    @PatchMapping("/{storeId}/structures")
+    public BaseSuccessResponse<Void> updateStructure(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long storeId,
+            @RequestBody StructureUpdateRequest structureUpdateRequest
+    ) {
+        log.info("[Controller] update Structure");
+        storeService.updateStructure(userId, storeId, structureUpdateRequest);
+        return new BaseSuccessResponse<>(null);
+    }
+
+    @PostMapping("/{storeId}/structures/batch-delete")
+    public BaseSuccessResponse<Void> deleteStructure(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long storeId,
+            @RequestBody StructureDeleteRequest structureDeleteRequest
+    ) {
+        log.info("[Controller] delete structure");
+        storeService.deleteStructure(userId, storeId, structureDeleteRequest);
+        return new BaseSuccessResponse<>(null);
+    }
+
+    @PostMapping("/{storeId}/structures/locations")
+    public BaseSuccessResponse<Void> saveAllLocations(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long storeId,
+            @RequestBody LocationListCreateRequest locationListCreateRequest
+    ) {
+        log.info("[Controller] save all locations");
+        storeService.saveAllLocations(userId, locationListCreateRequest);
         return new BaseSuccessResponse<>(null);
     }
 
