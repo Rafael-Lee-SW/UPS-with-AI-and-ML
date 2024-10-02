@@ -13,7 +13,6 @@ import {
   DialogActions,
   FormControl,
   InputLabel,
-  useTheme,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useRouter } from 'next/router';
@@ -44,14 +43,13 @@ const Container = styled('div')(({ theme }) => ({
 
 const FilterContainer = styled('div')(({ theme }) => ({
   display: 'flex',
+  flexWrap: 'wrap',
   justifyContent: 'space-between',
   width: '100%',
   marginBottom: theme.spacing(2),
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    '& > *': {
-      marginBottom: theme.spacing(2),
-    },
+  '& > *': {
+    margin: theme.spacing(1),
+    flex: '1 1 200px',
   },
 }));
 
@@ -63,7 +61,8 @@ const CardContainer = styled('div')(({ theme }) => ({
 }));
 
 const StyledCard = styled(Card)(({ theme }) => ({
-  width: '400px',
+  flex: '1 1 calc(25% - 32px)',
+  maxWidth: '300px',
   margin: theme.spacing(2),
   position: 'relative',
   cursor: 'pointer',
@@ -72,10 +71,20 @@ const StyledCard = styled(Card)(({ theme }) => ({
     transform: 'translateY(-8px)',
     boxShadow: theme.shadows[4],
   },
+  [theme.breakpoints.down('lg')]: {
+    flex: '1 1 calc(34% - 32px)',
+  },
+  [theme.breakpoints.down('md')]: {
+    flex: '1 1 calc(50% - 32px)',
+  },
+  [theme.breakpoints.down('sm')]: {
+    flex: '1 1 calc(100% - 32px)',
+  },
 }));
 
 const Media = styled(CardMedia)(({ theme }) => ({
-  height: 200,
+  height: 0,
+  paddingTop: '56.25%',
 }));
 
 const Anomaly = styled('div')(({ theme }) => ({
@@ -92,12 +101,15 @@ const ModalContent = styled('div')(({ theme }) => ({
   position: 'relative',
   padding: theme.spacing(2),
   outline: 'none',
+  maxHeight: '90vh',
+  overflowY: 'hidden',
 }));
 
 const Video = styled('video')(({ theme }) => ({
   width: '100%',
   height: 'auto',
   objectFit: 'contain',
+  maxHeight: '75vh',
 }));
 
 const LoadingIndicator = styled('div')(({ theme }) => ({
@@ -109,55 +121,35 @@ const CloseButton = styled(IconButton)(({ theme }) => ({
   position: 'absolute',
   top: theme.spacing(1),
   right: theme.spacing(1),
+  zIndex: 1,
+  color: theme.palette.grey[700],
+  fontSize: '2rem',
 }));
 
-const useStyles = {
-  selectField: {
-    flex: 1,
-    marginRight: '16px',
-  },
-  dateField: {
-    flex: 1,
-  },
+// 날짜를 기준으로 비디오 데이터를 내림차순 정렬
+const sortVideosByDate = (videos) => {
+  return [...videos].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
 };
 
 let uniqueId = 0;
-const generateDummyData = (count, filter, dateFilter) => {
+const generateDummyData = (count) => {
   return Array.from({ length: count }, () => {
     uniqueId++;
-    // 최근 30일 내의 랜덤 날짜 생성
     const date = new Date();
-    date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+    date.setDate(date.getDate() - Math.floor(Math.random() * 10));
     const createdAt = date.toISOString();
     const anomalyCategory = uniqueId % 3 === 0 ? 'Intrusion' : null;
-
-    // 필터 적용
-    const anomalyFilterPassed =
-      filter === 'all'
-        ? true
-        : filter === 'anomaly'
-        ? anomalyCategory !== null
-        : filter === 'normal'
-        ? anomalyCategory === null
-        : true;
-
-    const dateFilterPassed = dateFilter
-      ? new Date(createdAt).toDateString() === new Date(dateFilter).toDateString()
-      : true;
-
-    if (anomalyFilterPassed && dateFilterPassed) {
-      return {
-        pk: uniqueId,
-        storeId: 1,
-        videoUrl: `https://www.example.com/video${uniqueId}.mp4`,
-        thumbnailUrl: `https://via.placeholder.com/400x200?text=Video${uniqueId}`,
-        createdAt,
-        anomalyCategory,
-      };
-    } else {
-      return null;
-    }
-  }).filter(Boolean);
+    return {
+      pk: uniqueId,
+      storeId: 1,
+      videoUrl: `https://www.example.com/video${uniqueId}.mp4`,
+      thumbnailUrl: `https://via.placeholder.com/400x225?text=Video${uniqueId}`,
+      createdAt,
+      anomalyCategory,
+    };
+  });
 };
 
 const VideoCard = React.memo(({ video, onOpen, onDelete }) => {
@@ -183,6 +175,8 @@ const VideoCard = React.memo(({ video, onOpen, onDelete }) => {
 
 const MyStorePrevent = () => {
   const [videos, setVideos] = useState([]);
+  const [filteredVideos, setFilteredVideos] = useState([]);
+  const [visibleVideos, setVisibleVideos] = useState([]); // 현재 화면에 표시할 비디오
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState('all');
@@ -191,17 +185,19 @@ const MyStorePrevent = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [deleteVideoId, setDeleteVideoId] = useState(null);
-
   const router = useRouter();
-
   const observer = useRef();
+
+  const ITEMS_PER_PAGE = 20; // 한 번에 로드할 비디오의 수
+
+  // 무한 로딩을 위한 IntersectionObserver 설정
   const lastVideoElementRef = useCallback(
     (node) => {
       if (loading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMore) {
-          setPage((prevPage) => prevPage + 1);
+          setPage((prevPage) => prevPage + 1); // 페이지 증가
         }
       });
       if (node) observer.current.observe(node);
@@ -209,40 +205,65 @@ const MyStorePrevent = () => {
     [loading, hasMore]
   );
 
+  // 더미 데이터 생성 시 가장 최근 날짜순으로 정렬
   useEffect(() => {
-    loadMoreVideos();
-  }, [page, filter, dateFilter]);
+    const initialVideos = sortVideosByDate(generateDummyData(100)); // 100개의 더미 데이터를 생성
+    setVideos(initialVideos);
+    setFilteredVideos(initialVideos); // 필터링 전 전체 데이터를 저장
+    setVisibleVideos(initialVideos.slice(0, ITEMS_PER_PAGE)); // 첫 페이지의 비디오만 보여줌
+  }, []);
 
+  // 페이지가 증가할 때마다 추가 데이터를 표시
   useEffect(() => {
-    // URL에서 videoId 파라미터를 확인하여 모달을 열어줍니다.
-    const { videoId } = router.query;
-    if (videoId && videos.length > 0) {
-      const video = videos.find((v) => v.pk === parseInt(videoId));
-      if (video) {
-        setSelectedVideo(video);
-        setOpen(true);
-      }
-    }
-  }, [router.query, videos]);
-
-  const loadMoreVideos = () => {
-    setLoading(true);
-    setTimeout(() => {
-      const newVideos = generateDummyData(20, filter, dateFilter);
-      if (newVideos.length === 0) {
-        setHasMore(false);
-      } else {
-        setVideos((prevVideos) => [...prevVideos, ...newVideos]);
+    if (page === 0) return;
+    const loadMoreVideos = () => {
+      setLoading(true);
+      const newVisibleVideos = filteredVideos.slice(
+        page * ITEMS_PER_PAGE,
+        (page + 1) * ITEMS_PER_PAGE
+      );
+      setVisibleVideos((prevVisibleVideos) => [
+        ...prevVisibleVideos,
+        ...newVisibleVideos,
+      ]);
+      if (newVisibleVideos.length < ITEMS_PER_PAGE) {
+        setHasMore(false); // 더 이상 로드할 데이터가 없으면 종료
       }
       setLoading(false);
-    }, 1000);
-  };
+    };
+    loadMoreVideos();
+  }, [page, filteredVideos]);
+
+  // 필터 처리 함수
+  const applyFilters = useCallback(() => {
+    const filtered = videos.filter((video) => {
+      const anomalyFilterPassed =
+        filter === 'all'
+          ? true
+          : filter === 'anomaly'
+          ? video.anomalyCategory !== null
+          : video.anomalyCategory === null;
+
+      const dateFilterPassed = dateFilter
+        ? new Date(video.createdAt).toDateString() === new Date(dateFilter).toDateString()
+        : true;
+
+      return anomalyFilterPassed && dateFilterPassed;
+    });
+    setFilteredVideos(filtered);
+    setVisibleVideos(filtered.slice(0, ITEMS_PER_PAGE)); // 필터링 후 첫 페이지의 비디오만 보여줌
+    setPage(0); // 페이지를 0으로 리셋
+    setHasMore(true); // 다시 무한 스크롤을 활성화
+  }, [videos, filter, dateFilter]);
+
+  useEffect(() => {
+    applyFilters(); // 필터를 적용
+  }, [filter, dateFilter, applyFilters]);
 
   const handleOpen = useCallback(
     (video) => {
       setSelectedVideo(video);
       setOpen(true);
-      // URL에 videoId 추가
       router.push(
         {
           pathname: router.pathname,
@@ -258,7 +279,6 @@ const MyStorePrevent = () => {
   const handleClose = useCallback(() => {
     setOpen(false);
     setSelectedVideo(null);
-    // URL에서 videoId 제거
     const { videoId, ...restQuery } = router.query;
     router.push(
       {
@@ -277,10 +297,14 @@ const MyStorePrevent = () => {
   const confirmDelete = () => {
     const pk = deleteVideoId;
     setDeleteVideoId(null);
-    // API 호출 시뮬레이션
     setVideos((prevVideos) => prevVideos.filter((video) => video.pk !== pk));
+    setFilteredVideos((prevFilteredVideos) =>
+      prevFilteredVideos.filter((video) => video.pk !== pk)
+    );
+    setVisibleVideos((prevVisibleVideos) =>
+      prevVisibleVideos.filter((video) => video.pk !== pk)
+    );
     toast.success('삭제가 완료되었습니다.');
-
     if (selectedVideo && selectedVideo.pk === pk) {
       setOpen(false);
       setSelectedVideo(null);
@@ -293,19 +317,10 @@ const MyStorePrevent = () => {
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
-    resetVideos();
   };
 
   const handleDateFilterChange = (event) => {
     setDateFilter(event.target.value);
-    resetVideos();
-  };
-
-  const resetVideos = () => {
-    setPage(0);
-    setVideos([]);
-    setHasMore(true);
-    uniqueId = 0; // uniqueId 초기화
   };
 
   return (
@@ -313,7 +328,7 @@ const MyStorePrevent = () => {
       <HeaderPlaceholder></HeaderPlaceholder>
       <Container>
         <FilterContainer>
-          <FormControl style={useStyles.selectField}>
+          <FormControl variant="outlined">
             <InputLabel id="filter-label">필터</InputLabel>
             <Select
               labelId="filter-label"
@@ -327,37 +342,33 @@ const MyStorePrevent = () => {
             </Select>
           </FormControl>
           <TextField
+            label="날짜 필터"
             type="date"
             value={dateFilter}
             onChange={handleDateFilterChange}
             InputLabelProps={{
               shrink: true,
             }}
-            style={useStyles.dateField}
+            variant="outlined"
           />
         </FilterContainer>
         <CardContainer>
-          {videos.map((video, index) => (
+          {visibleVideos.map((video, index) => (
             <div
               key={video.pk}
-              ref={index === videos.length - 1 ? lastVideoElementRef : null}
+              ref={index === visibleVideos.length - 1 ? lastVideoElementRef : null} // 무한 스크롤을 위해 ref 설정
             >
               <VideoCard video={video} onOpen={handleOpen} onDelete={handleDelete} />
             </div>
           ))}
         </CardContainer>
         {loading && <LoadingIndicator>Loading...</LoadingIndicator>}
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          maxWidth="lg"
-          fullWidth
-        >
+        <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
           <ModalContent>
             {selectedVideo && (
               <>
                 <CloseButton onClick={handleClose}>
-                  <CloseIcon />
+                  <CloseIcon fontSize="large" />
                 </CloseButton>
                 <Video controls autoPlay>
                   <source src={selectedVideo.videoUrl} type="video/mp4" />
@@ -370,10 +381,7 @@ const MyStorePrevent = () => {
             )}
           </ModalContent>
         </Dialog>
-        <Dialog
-          open={deleteVideoId !== null}
-          onClose={cancelDelete}
-        >
+        <Dialog open={deleteVideoId !== null} onClose={cancelDelete}>
           <DialogTitle>해당 CCTV 영상을 삭제하시겠습니까?</DialogTitle>
           <DialogActions>
             <Button onClick={cancelDelete}>아니오</Button>
