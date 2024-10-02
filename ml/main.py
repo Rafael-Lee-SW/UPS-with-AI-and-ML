@@ -2,7 +2,9 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import numpy as np
 import tensorflow as tf  # or import your specific ML library
+
 # Import other necessary libraries
+
 
 # Define input data model
 class PredictionRequest(BaseModel):
@@ -11,16 +13,25 @@ class PredictionRequest(BaseModel):
     feature2: float
     # Add more features as required
 
-app = FastAPI()
+
+app = FastAPI(root_path="/api/ml")
 
 # Load your ML model
-model = tf.keras.models.load_model('lstm_sales_forecast_model.h5')  # Replace with your model file
+model = tf.keras.models.load_model("lstm_sales_forecast_model.h5")
+# Replace with your model file
+
+@app.get("/health")
+async def health_check():
+    return {"status": "OK"}
+
 
 @app.post("/predict")
 async def predict(request: PredictionRequest):
     try:
         # Prepare input data for prediction
-        input_data = np.array([[request.feature1, request.feature2]])  # Adjust according to your model's input shape
+        input_data = np.array(
+            [[request.feature1, request.feature2]]
+        )  # Adjust according to your model's input shape
 
         # Make prediction
         prediction = model.predict(input_data)
