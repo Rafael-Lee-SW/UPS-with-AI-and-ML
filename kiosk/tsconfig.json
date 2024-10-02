@@ -52,7 +52,7 @@
     "**/*.tsx",
     "electron/main.js",
     "src/types/**/*.d.ts"
-, "src/payment/checkout.js", "src/payment/checkout.js", "src/payment/index.jsx"  ],
+, "src/pages/payment/checkout.jsx", "src/pages/payment/checkout.jsx", "src/pages/payment/index.jsx"  ],
 
   // 컴파일에서 제외할 폴더 (node_modules는 제외)
   "exclude": ["node_modules"]
