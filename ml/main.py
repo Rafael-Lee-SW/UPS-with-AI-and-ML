@@ -14,7 +14,7 @@ class PredictionRequest(BaseModel):
     # Add more features as required
 
 
-app = FastAPI(root_path="/api/ml")
+app = FastAPI(root_path="/ml")
 
 # Load your ML model
 model = tf.keras.models.load_model("lstm_sales_forecast_model.h5")
@@ -23,7 +23,6 @@ model = tf.keras.models.load_model("lstm_sales_forecast_model.h5")
 @app.get("/health")
 async def health_check():
     return {"status": "OK"}
-
 
 @app.post("/predict")
 async def predict(request: PredictionRequest):
