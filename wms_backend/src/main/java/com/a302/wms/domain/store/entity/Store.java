@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.List;
 @Getter
 @Table(name="store")
 @RequiredArgsConstructor
+@ToString
 public class Store extends BaseTimeEntity {
 
 
@@ -43,7 +45,7 @@ public class Store extends BaseTimeEntity {
     private String storeName;
 
     @OneToMany(mappedBy = "store")
-    List<Device> devices;
+    List<Device> devices = new ArrayList<>();
 
     @Builder
     public Store(User user, int size, String storeName) {
