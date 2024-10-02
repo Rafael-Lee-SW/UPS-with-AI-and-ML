@@ -43,33 +43,7 @@ const Select = (props) => {
   const [facilityType, setFacilityType] = useState("STORE");
   const [priority, setPriority] = useState(1);
 
-  const [cards, setCards] = useState([
-    //CSS 테스트 데이터
-    {
-      id : 1,
-      title : "김득구",
-      pcsCount : 100,
-      locationCount : 50,
-    },
-    {
-      id : 2,
-      title : "김정구",
-      pcsCount : 100,
-      locationCount : 50,
-    },
-    {
-      id : 3,
-      title : "김방구",
-      pcsCount : 100,
-      locationCount : 50,
-    },
-    {
-      id : 4,
-      title : "김덩구",
-      pcsCount : 100,
-      locationCount : 50,
-    },
-  ]);
+  const [cards, setCards] = useState([]);
   const [userData, setUserData] = useState(null);
   const [businessData, setBusinessData] = useState(null);
   const [businessId, setBusinessId] = useState(null);
@@ -189,10 +163,10 @@ const Select = (props) => {
 
         return { presentCount, MaxCount };
       } else {
-        router.push('/404');
+        router.push("/404");
       }
     } catch (error) {
-      router.push('/404');
+      router.push("/404");
     }
   };
 
@@ -204,7 +178,7 @@ const Select = (props) => {
     }
 
     if (!businessId) {
-      router.push('/404');
+      router.push("/404");
       return;
     }
 
@@ -285,10 +259,10 @@ const Select = (props) => {
 
         handleClose();
       } else {
-        router.push('/404');
+        router.push("/404");
       }
     } catch (error) {
-      router.push('/404');
+      router.push("/404");
     }
   };
 
@@ -318,7 +292,6 @@ const Select = (props) => {
   };
 
   const postLocationAPI = async (requests, warehouseId) => {
-
     const total = { requests, warehouseId };
 
     try {
@@ -332,10 +305,10 @@ const Select = (props) => {
 
       if (response.ok) {
       } else {
-        router.push('/404');
+        router.push("/404");
       }
     } catch (error) {
-      router.push('/404');
+      router.push("/404");
     }
   };
 
@@ -356,47 +329,61 @@ const Select = (props) => {
 
       if (response.ok) {
       } else {
-        router.push('/404');
+        router.push("/404");
       }
     } catch (error) {
-      router.push('/404');
+      router.push("/404");
     }
   };
 
-  const getAllWarehouseInfoAPI = async (businessId) => {
+  // 사용자의 모든 매장 정보를 가져오는 API
+  const getAllStoreInfoAPI = async (userId) => {
     try {
-      const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses?businessId=${businessId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      // Retrieve the token from localStorage (or wherever it is stored)
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        // Handle the case where the token is missing (e.g., redirect to login)
+        router.push("/login");
+        return;
+      }
+
+      console.log(token)
+
+      const response = await fetch(`https://j11a302.p.ssafy.io/api/stores`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          // Include the token in the Authorization header
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log(response)
 
       if (response.ok) {
         const apiConnection = await response.json();
         const warehouses = apiConnection.result;
 
-        const warehouseCards = await warehouses.map((warehouse) => ({
+        const warehouseCards = warehouses.map((warehouse) => ({
           id: warehouse.id,
           title: warehouse.name,
           image: "/img/storeroom.webp",
         }));
 
-        await setCards(warehouseCards);
-        //모든 카드 정보를 받은 다음에 움직인다.
-        // 각 창고 카드에 대한 pcsCount 및 locationCount 요청
-        warehouseCards.forEach((card) => {
-          fetchCounts(card.id);
-        });
+        // Set the warehouse cards in state (assuming setCards is a useState function)
+        setCards(warehouseCards);
 
+        // After receiving all cards, request pcsCount and locationCount for each warehouse card
+        warehouseCards.forEach((card) => {
+          fetchCounts(card.id); // Ensure this function is defined to handle counts
+        });
       } else {
-        router.push('/404');
+        router.push("/404");
       }
     } catch (error) {
-      router.push('/404');
+      console.error("Error fetching store info:", error);
+      router.push("/404");
     }
   };
 
@@ -419,29 +406,18 @@ const Select = (props) => {
         setBusinessId(businessInfo.businessId);
 
         fetchWarehouseCounts(businessInfo.businessId);
-        getAllWarehouseInfoAPI(businessInfo.businessId);
-        
+        getAllStoreInfoAPI(businessInfo.businessId);
       } else {
-        router.push('/404');
+        router.push("/404");
       }
     } catch (error) {
-      router.push('/404');
+      router.push("/404");
     }
   };
 
-  // useEffect(() => {
-  //   const user = localStorage.getItem("user");
-  //   if (user) {
-  //     try {
-  //       const parsedUser = JSON.parse(user);
-  //       setUserData(parsedUser);
-
-  //       fetchBusinessData(parsedUser.id);
-  //     } catch (error) {
-  //       router.push('/404');
-  //     }
-  //   }
-  // }, []);
+  useEffect(() => {
+    getAllStoreInfoAPI();
+  }, []);
 
   const fetchCounts = async (warehouseId) => {
     try {
@@ -477,7 +453,7 @@ const Select = (props) => {
         )
       );
     } catch (error) {
-      router.push('/404');
+      router.push("/404");
     }
   };
 
@@ -510,16 +486,19 @@ const Select = (props) => {
 
   const handleDelete = async (warehouseId) => {
     try {
-      await axios.patch(`https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}`, {
-        isDeleted: true,
-      });
+      await axios.patch(
+        `https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}`,
+        {
+          isDeleted: true,
+        }
+      );
 
       // 삭제 후 카드 목록에서 해당 창고 제거
       setCards((prevCards) =>
         prevCards.filter((card) => card.id !== warehouseId)
       );
     } catch (error) {
-      router.push('/404');
+      router.push("/404");
     }
   };
 
@@ -545,76 +524,75 @@ const Select = (props) => {
           </div>
           <GridContainer>
             {cards.map((card) => (
-              <GridItem key={card.id} xs={12} sm={4} md={4} className={classes.cardGrid}>
+              <GridItem
+                key={card.id}
+                xs={12}
+                sm={4}
+                md={4}
+                className={classes.cardGrid}
+              >
                 <Link href={`/user/${card.id}`} passHref>
-                  <CardSelect
-                    component="a"
-                    className={classes.cardLink}
-                  >
-                      <div
-                        className={classes.cardHeader}
-                        style={{
-                          backgroundColor: getBackgroundColor(
-                            card.warehouseColor
-                          ),
+                  <CardSelect component="a" className={classes.cardLink}>
+                    <div
+                      className={classes.cardHeader}
+                      style={{
+                        backgroundColor: getBackgroundColor(
+                          card.warehouseColor
+                        ),
+                      }}
+                    >
+                      <img
+                        src={getWarehouseImage(card.warehouseColor)}
+                        alt="warehouse"
+                        className={classes.cardImage}
+                      />
+                      <img
+                        src="/img/delete.png"
+                        alt="delete"
+                        className={classes.deleteButton}
+                        onClick={(e) => {
+                          e.preventDefault(); // 링크 이동 방지
+                          handleDelete(card.id);
                         }}
-                      >
-                        <img
-                          src={getWarehouseImage(card.warehouseColor)}
-                          alt="warehouse"
-                          className={classes.cardImage}
-                        />
-                        <img
-                          src="/img/delete.png"
-                          alt="delete"
-                          className={classes.deleteButton}
-                          onClick={(e) => {
-                            e.preventDefault(); // 링크 이동 방지
-                            handleDelete(card.id);
-                          }}
-                        />
-                      </div>
-                      <div className={classes.cardBody}>
-                        <h3>{card.title}</h3>
+                      />
+                    </div>
+                    <div className={classes.cardBody}>
+                      <h3>{card.title}</h3>
+                      <div className={classes.cardMain}>
                         <div
-                          className={classes.cardMain}
+                          className={classes.cardProgress}
+                          style={{
+                            width: `${card.usagePercent}%`,
+                            backgroundColor: getBackgroundColor(
+                              card.warehouseColor
+                            ),
+                          }}
                         >
-                          <div
-                            className={classes.cardProgress}
-                            style={{
-                              width: `${card.usagePercent}%`,
-                              backgroundColor: getBackgroundColor(
-                                card.warehouseColor
-                              ),
-                            }}
-                          >
-                            {" "}
-                            {`${card.usagePercent}%`}
-                          </div>
+                          {" "}
+                          {`${card.usagePercent}%`}
                         </div>
                       </div>
+                    </div>
 
-                      <div className={classes.cardFooter}>
-                        <div className={classes.pcsContainer}>
-                          <img
-                            src="/img/box.png"
-                            alt="pcsContainer"
-                            className={classes.containerImage}
-                          />
-                          <div className="pcsCnt">{card.pcsCount}</div>
-                        </div>
-
-                        <div className={classes.locationContainer}>
-                          <img
-                            src="/img/location.png"
-                            alt="location"
-                            className={classes.containerImage}
-                          />
-                          <div className="locationCnt">
-                            {card.locationCount}
-                          </div>
-                        </div>
+                    <div className={classes.cardFooter}>
+                      <div className={classes.pcsContainer}>
+                        <img
+                          src="/img/box.png"
+                          alt="pcsContainer"
+                          className={classes.containerImage}
+                        />
+                        <div className="pcsCnt">{card.pcsCount}</div>
                       </div>
+
+                      <div className={classes.locationContainer}>
+                        <img
+                          src="/img/location.png"
+                          alt="location"
+                          className={classes.containerImage}
+                        />
+                        <div className="locationCnt">{card.locationCount}</div>
+                      </div>
+                    </div>
                   </CardSelect>
                 </Link>
               </GridItem>

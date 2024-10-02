@@ -217,7 +217,8 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
     barcode: "",
     name: "",
     quantity: "",
-    expirationDate: dayjs(), // Initialize with current date
+    originalPrice: "",
+    salesPrice: "",
   });
   const [expectedImportList, setExpectedImportList] = useState([]); // Store expected import list
 
@@ -1399,7 +1400,8 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
       barcode: "",
       name: "",
       quantity: "",
-      expirationDate: dayjs(), // Reset to current date
+      originalPrice: "",
+      salesPrice: "",
     });
   };
 
@@ -1751,7 +1753,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               [classes.activeButton]: activeButton === 2,
             })}
           >
-            출고하기
+            결제내역
           </Button>
         </div>
         <div className={classes.buttonContainer}>
@@ -1816,7 +1818,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
               [classes.activeButton]: activeButton === 6,
             })}
           >
-            분석
+            ML분석
           </Button>
         </div>
         <div className={classes.buttonContainer}>
@@ -1833,20 +1835,6 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
             })}
           >
             알림함
-          </Button>
-        </div>
-        <div className={classes.buttonContainer}>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleButtonClick(8);
-              handleEncapsulation();
-            }}
-            className={classNames(classes.sidebarButton, {
-              [classes.activeButton]: activeButton === 8,
-            })}
-          >
-            압축하기
           </Button>
         </div>
       </div>
@@ -2355,39 +2343,33 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                         margin="normal"
                       />
                     </td>
-                    <td className={classes.tdImportingTableExpire}>
-                      {!noExpirationDate && (
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DateTimePicker
-                            label="유통기한"
-                            value={newProductData.expirationDate}
-                            onChange={(newValue) =>
-                              handleNewProductInputChange(
-                                "expirationDate",
-                                newValue
-                              )
-                            }
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                fullWidth
-                                margin="normal"
-                              />
-                            )}
-                          />
-                        </LocalizationProvider>
-                      )}
-                      <div>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={noExpirationDate}
-                              onChange={toggleNoExpirationDate}
-                            />
-                          }
-                          label="유통기한 없음"
-                        />
-                      </div>
+                    <td className={classes.tdImportingTablePrice}>
+                      <TextField
+                        label="원가"
+                        value={newProductData.originalPrice}
+                        onChange={(e) =>
+                          handleNewProductInputChange(
+                            "originalPrice",
+                            e.target.value
+                          )
+                        }
+                        fullWidth
+                        margin="normal"
+                      />
+                    </td>
+                    <td className={classes.tdImportingTablePrice}>
+                      <TextField
+                        label="판매가"
+                        value={newProductData.salesPrice}
+                        onChange={(e) =>
+                          handleNewProductInputChange(
+                            "salesPrice",
+                            e.target.value
+                          )
+                        }
+                        fullWidth
+                        margin="normal"
+                      />
                     </td>
                     <td className={classes.tdImportingTable}>
                       <Button
@@ -2443,7 +2425,8 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                     <th className={classes.thExpectedImportTable}>이름</th>
                     <th className={classes.thExpectedImportTable}>바코드</th>
                     <th className={classes.thExpectedImportTable}>수량</th>
-                    <th className={classes.thExpectedImportTable}>유통기한</th>
+                    <th className={classes.thExpectedImportTable}>원가</th>
+                    <th className={classes.thExpectedImportTable}>판매가</th>
                     <th className={classes.thExpectedImportTable}>비고</th>
                   </tr>
                 </thead>
@@ -2460,7 +2443,10 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                         {product.quantity}
                       </td>
                       <td className={classes.thExpectedImportTable}>
-                        {product.expirationDateDisplay}
+                        {product.originalPrice}
+                      </td>
+                      <td className={classes.thExpectedImportTable}>
+                        {product.salesPrice}
                       </td>
                       <td className={classes.thExpectedImportTable}>
                         <IconButton
