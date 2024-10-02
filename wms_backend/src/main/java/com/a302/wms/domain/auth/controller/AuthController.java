@@ -3,7 +3,8 @@ package com.a302.wms.domain.auth.controller;
 
 import com.a302.wms.domain.auth.dto.request.DeviceSignInRequest;
 import com.a302.wms.domain.auth.dto.request.SignInRequest;
-import com.a302.wms.domain.auth.dto.response.AccessTokenResponse;
+import com.a302.wms.domain.auth.dto.response.DeviceSignInResponse;
+import com.a302.wms.domain.auth.dto.response.UserSignInResponse;
 import com.a302.wms.domain.auth.service.AuthServiceImpl;
 import com.a302.wms.domain.auth.service.OtpServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
@@ -42,7 +43,7 @@ public class AuthController {
      * @return
      */
     @GetMapping("/devices/sign-in")
-    public BaseSuccessResponse<AccessTokenResponse> deviceSignIn(
+    public BaseSuccessResponse<DeviceSignInResponse> deviceSignIn(
             @RequestBody DeviceSignInRequest deviceOtpSingInRequest
     ) {
         return new BaseSuccessResponse<>(authService.deviceSignIn(deviceOtpSingInRequest));
@@ -55,7 +56,7 @@ public class AuthController {
      * @return
      */
     @PostMapping("/sign-in")
-    public BaseSuccessResponse<AccessTokenResponse> signIn(
+    public BaseSuccessResponse<UserSignInResponse> signIn(
             @RequestBody @Valid SignInRequest signInRequest
     ) {
         return new BaseSuccessResponse<>(authService.signIn(signInRequest));
@@ -72,15 +73,5 @@ public class AuthController {
         authService.signOut(header);
         return new BaseSuccessResponse<>(null);
     }
-
-    /**
-     * 토큰 재발급
-     *
-     * @param header
-     * @return
-     */
-    @GetMapping("/refresh-token")
-    public BaseSuccessResponse<AccessTokenResponse> refreshToken(@RequestHeader("Authorization") String header) {
-        return new BaseSuccessResponse<>(authService.refreshToken(header));
-    }
+    
 }
