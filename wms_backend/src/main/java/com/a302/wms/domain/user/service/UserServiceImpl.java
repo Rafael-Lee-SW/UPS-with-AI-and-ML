@@ -8,7 +8,9 @@ import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.mapper.UserMapper;
 import com.a302.wms.domain.user.repository.UserRepository;
 import com.a302.wms.domain.util.PasswordUtil;
+import com.a302.wms.global.constant.ResponseEnum;
 import com.a302.wms.global.constant.SocialLoginTypeEnum;
+import com.a302.wms.global.handler.CommonException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -101,4 +103,12 @@ public class UserServiceImpl {
         return UserMapper.toUserResponse(user);
     }
 
+
+    public void emailDuplicateCheck(String email) {
+        log.info("[Service] email duplicate check");
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user != null) throw new CommonException(ResponseEnum.DUPLICATE_EMAIL, "이메일 중복");
+
+    }
 }
