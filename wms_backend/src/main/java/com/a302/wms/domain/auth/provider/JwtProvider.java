@@ -2,19 +2,28 @@ package com.a302.wms.domain.auth.provider;
 
 
 import com.a302.wms.global.constant.TokenRoleTypeEnum;
+import com.a302.wms.global.handler.CommonException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys; // Keys 클래스를 import 합니다.
+import io.jsonwebtoken.security.Keys;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.Date;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
-import static com.a302.wms.global.constant.TokenRoleTypeEnum.USER;
+import static com.a302.wms.global.constant.ResponseEnum.INVALID_TOKEN;
+
 
 @Component
 public class JwtProvider {
@@ -22,13 +31,14 @@ public class JwtProvider {
     @Value("${secret-key}")
     private String secretKey;
 
-    /** JWT 토큰을 생성합니다.
+    /**
+     * JWT 토큰을 생성합니다.
      *
      * @param type user, device, cctv 타입
-     * @param id userId, deviceId, cctvId 중 하나
+     * @param id   userId, deviceId, cctvId 중 하나
      * @return
      */
-    public String create(TokenRoleTypeEnum type, String id){
+    public String create(TokenRoleTypeEnum type, String id) {
         // 토큰 만료 시간을 현재 시간에서 1시간 후로 설정
         Date expiredDate = Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
 
@@ -48,7 +58,7 @@ public class JwtProvider {
          * { "iat" : 1551515,  // 발행 시간
          *   "exp" : 12355454  // 만료 시간
          *   "sub" : "id"  // 사용자 ID
-         *   "type" : ,eusrId cctvId, deviceId 저장
+         *   "type" : ,user, cctv, device 저장
          * }
          */
         return jwt;
@@ -60,27 +70,60 @@ public class JwtProvider {
      * @param jwt 검증할 JWT 토큰
      * @return 토큰이 유효하면 사용자 ID, 유효하지 않으면 null
      */
-    public String validate(String jwt){
-        String subject = null;
+    public Map<String, Object> validate(String jwt) {
+        Long id = null;
+        String type = null;
 
         // secretKey를 사용하여 HMAC SHA 키를 생성
         Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)); // 수정: Keys 클래스의 hmacShaKeyFor 메서드 사용
 
-        try{
-            // JWT 토큰을 파싱하고 서명 검증
-            subject = Jwts.parserBuilder()
-                    .setSigningKey(key) // 수정: setSigningKey 메서드 사용
-                    .build()
-                    .parseClaimsJws(jwt) // JWT 토큰을 파싱하여 클레임 추출
-                    .getBody()
-                    .getSubject(); // 클레임의 subject(사용자 ID)를 가져옴
 
-        }catch (Exception exception){
+        if(isTokenExpired(jwt)) throw new CommonException(INVALID_TOKEN, null);
+
+        try {
+            // JWT 토큰을 파싱하고 서명 검증
+            Claims claims = extractAllClaims(jwt);
+
+            id = Long.parseLong(claims.getSubject());
+            type = claims.get("type", String.class);
+
+        } catch (Exception exception) {
             // 검증 실패 시 예외 출력
-            exception.printStackTrace();
-            return null;
+            throw new CommonException(INVALID_TOKEN, null);
         }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", id);
+        result.put("type", TokenRoleTypeEnum.fromValue(type));
+
         // 검증 성공 시 사용자 ID 반환
-        return subject;
+        return result;
+    }
+
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolvers) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolvers.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+
+    private @NotNull SecretKey getSecretKey() {
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 }

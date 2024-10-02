@@ -4,7 +4,7 @@ import com.a302.wms.global.constant.ResponseEnum;
 import lombok.Getter;
 
 @Getter
-public class CommonException extends Throwable {
+public class CommonException extends RuntimeException {
 
     private final ResponseEnum responseEnum;
     private final String exceptionMessage;

@@ -24,14 +24,10 @@ public class Device {
     @Column(name = "device_type", nullable = false)
     private DeviceTypeEnum deviceType;
 
-    @Column(nullable = false)
-    private String deviceKey;
-
 
     @Builder
-    public Device(Store store, String deviceKey, DeviceTypeEnum deviceType) {
+    public Device(Store store, DeviceTypeEnum deviceType) {
         this.store = store;
-        this.deviceKey = deviceKey;
         this.deviceType = deviceType;
     }
 }

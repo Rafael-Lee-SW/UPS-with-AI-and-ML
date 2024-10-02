@@ -6,17 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
 
-public class IdCheckRequest {
+public record IdCheckRequest(
+        @Email(message = "이메일 형식이 잘못되었습니다.")
+        @NotBlank(message = "이메일은 비워둘 수 없습니다.")
+        String email,
 
-    @Email(message = "이메일 형식이 잘못되었습니다.")
-    @NotBlank(message = "이메일은 비워둘 수 없습니다.")
-    private String email;
+        @NotBlank(message = "인증 번호는 비워둘 수 없습니다.")
+        String certificationNumber
 
-    @NotBlank(message = "인증 번호는 비워둘 수 없습니다.")
-    private String certificationNumber;
-
+) {
 }

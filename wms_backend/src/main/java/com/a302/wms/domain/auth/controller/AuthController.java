@@ -1,50 +1,86 @@
 package com.a302.wms.domain.auth.controller;
 
 
-import com.a302.wms.domain.auth.dto.request.CheckCertificationRequest;
-import com.a302.wms.domain.auth.dto.request.EmailCertificationRequest;
-import com.a302.wms.domain.auth.dto.response.auth.CheckCertificationResponse;
-import com.a302.wms.domain.auth.dto.response.auth.EmailCertificationResponse;
-import com.a302.wms.domain.auth.dto.response.auth.IdCheckResponse;
+import com.a302.wms.domain.auth.dto.request.DeviceSignInRequest;
+import com.a302.wms.domain.auth.dto.request.SignInRequest;
+import com.a302.wms.domain.auth.dto.response.AccessTokenResponse;
 import com.a302.wms.domain.auth.service.AuthServiceImpl;
+import com.a302.wms.domain.auth.service.OtpServiceImpl;
+import com.a302.wms.global.response.BaseSuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/oauth")
+@RequestMapping("/auths")
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
 
     private final AuthServiceImpl authService;
+    private final OtpServiceImpl otpService;
 
-    @PostMapping("/email-check")
-    public ResponseEntity<? super IdCheckResponse> idCheck(
-            @RequestBody @Valid EmailCertificationRequest requestBody
+    /**
+     * deviceId로 해당 device에 해당하는 otp 키 생성하여 반환
+     *
+     * @param deviceId
+     * @return
+     */
+    @GetMapping("/device-otps/{deviceId}")
+    public BaseSuccessResponse<String> createDeviceOtp(
+            @PathVariable Long deviceId
     ) {
-        return authService.idCheck(requestBody);
+        log.info("[Controller] get device otp for store {}", deviceId);
+        return new BaseSuccessResponse<>(otpService.createDeviceOtp(deviceId));
     }
 
-    @PostMapping("/email-certification")
-    public ResponseEntity<? super EmailCertificationResponse> emailCertification(
-            @RequestBody @Valid EmailCertificationRequest requestBody
-    ){
-        ResponseEntity<? super EmailCertificationResponse> response =
-                authService.emailCertification(requestBody);
-        return response;
+    /**
+     * otp string을 받아 device ID를 return
+     *
+     * @param deviceOtpSingInRequest
+     * @return
+     */
+    @GetMapping("/devices/sign-in")
+    public BaseSuccessResponse<AccessTokenResponse> deviceSignIn(
+            @RequestBody DeviceSignInRequest deviceOtpSingInRequest
+    ) {
+        return new BaseSuccessResponse<>(authService.deviceSignIn(deviceOtpSingInRequest));
     }
 
-    @PostMapping("/check-certification")
-    public ResponseEntity<? super CheckCertificationResponse> checkCertification(
-            @RequestBody @Valid CheckCertificationRequest requestBody
-    ){
-        ResponseEntity<? super CheckCertificationResponse> response =authService.checkCertification(requestBody);
-        return response;
+    /**
+     * 유저 로그인
+     *
+     * @param signInRequest
+     * @return
+     */
+    @PostMapping("/sign-in")
+    public BaseSuccessResponse<AccessTokenResponse> signIn(
+            @RequestBody @Valid SignInRequest signInRequest
+    ) {
+        return new BaseSuccessResponse<>(authService.signIn(signInRequest));
+    }
+
+    /**
+     * 유저 및 디바이스 로그아웃
+     *
+     * @param header
+     * @return
+     */
+    @DeleteMapping("/sign-out")
+    public BaseSuccessResponse<Void> signOut(@RequestHeader("Authorization") String header) {
+        authService.signOut(header);
+        return new BaseSuccessResponse<>(null);
+    }
+
+    /**
+     * 토큰 재발급
+     *
+     * @param header
+     * @return
+     */
+    @GetMapping("/refresh-token")
+    public BaseSuccessResponse<AccessTokenResponse> refreshToken(@RequestHeader("Authorization") String header) {
+        return new BaseSuccessResponse<>(authService.refreshToken(header));
     }
 }
