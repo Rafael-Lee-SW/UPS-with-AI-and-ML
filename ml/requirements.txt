@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+numpy
+tensorflow
+scikit-learn
+# Add other dependencies as needed
