@@ -112,8 +112,8 @@ const ProductStyles = {
   tdImportingTable: {
     padding: "8px",
   },
-  tdImportingTableExpire: {
-    paddingTop: "51px",
+  tdImportingTablePrice: {
+    
   },
   // Global Button Style
   buttonStyle: {
@@ -191,16 +191,17 @@ const ProductStyles = {
       zIndex: 1000, // Ensure it stays above other content
     },
     topButtonContainer: {
-      marginBottom: "10px",
+      marginBottom: "5px",
       marginTop: "0vh",
       textAlign: "center",
     },
     buttonContainer: {
-      marginBottom: "10px",
+      marginBottom: "5px",
       textAlign: "center",
     },
     // 선택되기 이전 상태
     sidebarButton: {
+      height : "33px",
       width: "100%",
       backgroundColor: "transparent", // Default inactive background
       color: "#7D4A1A",

@@ -122,19 +122,22 @@ export default function Login() {
   });
 
   const handleLogin = async (e) => {
+    console.log("작동중?")
     e.preventDefault();
     try {
-      const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/sign-in', {
+      const response = await axios.post('https://j11a302.p.ssafy.io/api/auths/sign-in', {
         email,
         password,
       });
 
-      if (response.status === 200 && response.data.code === 'SU') {
-        const { user, token } = response.data;
+      console.log(response)
 
-        login(user, token); // 전역 상태에 사용자 정보와 토큰 저장
-        notify(`${user.name}님 환영합니다!`);
-        router.push('/'); // 메인 페이지로 이동
+      if (response.status === 200) {
+        const token = response.data.result.accessToken;
+        const user = response.data.result.userResponse;
+        login(user, token); // Save user and token in auth state
+        notify(`${user.userName}님 환영합니다!`);
+        router.push('/'); // Navigate to the main page
       }
     } catch (error) {
       if (error.response) {

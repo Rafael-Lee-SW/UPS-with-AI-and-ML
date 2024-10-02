@@ -392,6 +392,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   };
 
   const postLocationAPI = async (requests, warehouseId) => {
+    
     const total = { requests, warehouseId };
 
     try {
