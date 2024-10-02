@@ -24,6 +24,7 @@ public class CertificationController {
     public BaseSuccessResponse<Void> emailCertification(
             @RequestBody @Valid EmailCertificationRequest requestBody
     ) {
+        log.info("[Controller] email certification");
         certificationService.emailCertification(requestBody);
         return new BaseSuccessResponse<>(null);
     }
