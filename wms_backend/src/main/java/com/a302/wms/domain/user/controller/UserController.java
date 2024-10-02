@@ -90,4 +90,20 @@ public class UserController {
         userService.delete(userId);
         return new BaseSuccessResponse<>(null);
     }
+
+
+    /**
+     * 이메일 중복 체크 메서드
+     *
+     * @param email
+     * @return
+     */
+    @GetMapping("/check-email")
+    public BaseSuccessResponse<Void> checkEmail(
+            @RequestParam(value = "email") String email
+    ) {
+        log.info("[Controller] check email");
+        userService.emailDuplicateCheck(email);
+        return new BaseSuccessResponse<>(null);
+    }
 }
