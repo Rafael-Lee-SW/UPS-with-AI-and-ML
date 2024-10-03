@@ -1,10 +1,36 @@
-// 사업체 회원가입 추가 필요
-
 import axios from 'axios';
 
 const instance = axios.create({
     baseURL: 'https://j11a302.p.ssafy.io/api/',
 });
+
+instance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token'); 
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// 응답 인터셉터 설정
+instance.interceptors.response.use(
+  response => {
+    const newAccessToken = response.headers['accesstoken']; 
+    if (newAccessToken) {
+      localStorage.setItem('accessToken', newAccessToken);
+    }
+    return response;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
 // 유저 조회
 function fetchUser(id) {
     return instance.get(`/users/${id}`)
@@ -23,6 +49,11 @@ function createBusiness(id, data = {}) {
 // 특정 사업체 조회
 function fetchBusiness(id) {
     return instance.get(`/businesses/${id}`);
+}
+
+// 매장 조회
+function fetchStores() {
+  return instance.get('/stores');
 }
 
 // 사업체 정보 수정
@@ -283,4 +314,5 @@ export {
     deleteLocation,
     fetchFloors,
     fetchLocationFloors,
+    fetchStores,
 }   

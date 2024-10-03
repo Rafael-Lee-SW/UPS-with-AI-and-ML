@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { fetchBusiness, fetchUser } from './api';
+import { fetchBusiness, fetchUser } from '../pages/api/index';
 import EditInfo from '../components/MyPage/EditInfo';
-import SubInfo from '../components/MyPage/SubInfo';
-import ManageBusiness from '../components/MyPage/ManageBusiness';
-import ManageEmployees from '../components/MyPage/ManageEmployees';
 import Info from '../components/MyPage/Info';
 import Alarm from '../components/MyPage/Alarm';
+import Device from '../components/MyPage/Device';
 import styles from "/styles/jss/nextjs-material-kit/pages/componentsSections/mypageStyle.js";
 import { useRouter } from 'next/router'; 
 
@@ -23,18 +21,25 @@ export default function Mypage() {
   const [userId, setUserId] = useState();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [businessId, setBusinessId] = useState();
-  const [roleTypeEnum, setRoleTypeEnum] = useState('');
-  const [nickname, setNickname] = useState('');
-  const [businessName, setBusinessName] = useState('');
-  const [businessNumber, setBusinessNumber] = useState('');
   const [createdDate, setCreatedDate] = useState('');
+
+  const defaultUser = {
+    id: 1,
+    name: "홍길동",
+    email: "hong@example.com",
+    nickname: "길동",
+    businessId: 101,
+    roleTypeEnum: "BUSINESS",
+    businessName: "홍길동 상사",
+    businessNumber: "123-45-67890",
+    createdDate: "2020-01-01"
+  };
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
-    const token = localStorage.getItem('token');
+    const accessToken = localStorage.getItem('accessToken');
 
-    if (user && token) {
+    if (user && accessToken) {
       setUserId(user.id);
     } else {
       alert("로그인이 필요합니다.");
@@ -48,54 +53,13 @@ export default function Mypage() {
     }
   }, [userId, selectedComponent]);
 
-  useEffect(() => {
-    if (businessId && roleTypeEnum === 'BUSINESS') {
-      getBusinessInfo();
-    }
-  }, [businessId]);
-
-  const updateBusinessInfo = (newBusinessData) => {
-    setBusinessName(newBusinessData.name);
-    setBusinessNumber(newBusinessData.businessNumber);
-  }
-
-  const updateRoleType = (newRoleType) => {
-    setRoleTypeEnum(newRoleType);
-  }
-
   const getUserInfo = async () => {
     try {
       const response = await fetchUser(userId);
-      const { id, name, email, nickname, roleTypeEnum, businessId } = response.data.result;
-
+      const { id, name, email } = response.data.result;
       setUserId(id);
       setName(name);
       setEmail(email);
-      setBusinessId(businessId);
-      setRoleTypeEnum(roleTypeEnum);
-      setNickname(nickname);
-
-    } catch (error) {
-      router.push('/404');
-    }
-  }
-
-  const getBusinessInfo = async () => {
-    if (!businessId || businessId === -1) { // 비즈니스 ID가 null이거나 -1일 경우
-      setBusinessName('');
-      setBusinessNumber('');
-      setCreatedDate('');
-      return; // 함수 종료
-    }
-  
-    try {
-      const response = await fetchBusiness(businessId);
-      const { name, businessNumber, createdDate } = response.data.result;
-    
-      setBusinessName(name);
-      setBusinessNumber(businessNumber);
-      setCreatedDate(createdDate);
-  
     } catch (error) {
       router.push('/404');
     }
@@ -104,25 +68,22 @@ export default function Mypage() {
   const handleCloseModal = () => {
     setOpenModal(false);
   }
+  
 
   const renderComponent = () => {
     switch (selectedComponent) {
       case 'alarm':
         return <Alarm businessId={businessId} />;
       case 'edit':
-        return <EditInfo userId={userId} name={name} email={email} nickname={nickname} businessId={businessId} businessName={businessName} businessNumber={businessNumber} roleTypeEnum={roleTypeEnum}/>;
-      case 'license':
-        return <ManageBusiness businessId={businessId} businessName={businessName} businessNumber={businessNumber} updateBusinessInfo={updateBusinessInfo} updateRoleType={updateRoleType}/>;
-      case 'subscriptions':
-        return <SubInfo businessId={businessId} />;
-      case 'employees':
-        return <ManageEmployees businessId={businessId}/>;
+        return <EditInfo userId={userId} name={name} email={email} createdDate={createdDate}/>;
       case 'info':
-        return <Info name={name} email={email} nickname={nickname} businessId={businessId} businessName={businessName} businessNumber={businessNumber} createdDate={createdDate} roleTypeEnum={roleTypeEnum} />;
+        return <Info name={name} email={email} createdDate={createdDate}/>;
+      case 'device':
+        return <Device userId={userId}/>
       default:
         return (
           <div>
-            <Info name={name} email={email} nickname={nickname} businessId={businessId} businessName={businessName} businessNumber={businessNumber} createdDate={createdDate} roleTypeEnum={roleTypeEnum} />
+            <Info name={name} email={email} createdDate={createdDate}/>
           </div>
         );
     }
@@ -130,42 +91,16 @@ export default function Mypage() {
 
   return (
   <div className={classes.container}>
-    {roleTypeEnum === 'BUSINESS' ? (
-      <div className={classes.leftPanel}>
+    <div className={classes.leftPanel}>
         <div className={classes.titleContainer}>
           <h2 className={classes.h2} onClick={() => setSelectedComponent('info')}>마이페이지</h2>
         </div>
         <div className={classes.divContainer}>
           <h4 onClick={() => setSelectedComponent('alarm')}>알람</h4>
           <h4 onClick={() => setSelectedComponent('edit')}>내 정보 수정</h4>
-          <h4 onClick={() => setSelectedComponent('license')}>사업자 등록/수정</h4>
-          <h4 onClick={() => setSelectedComponent('employees')}>직원 관리</h4>
-          <h4 onClick={() => setSelectedComponent('subscriptions')}>구독 정보</h4>
+          <h4 onClick={() => setSelectedComponent('device')}>기기 관리</h4>
         </div>
       </div>
-    ) : roleTypeEnum === 'EMPLOYEE' ? (
-      <div className={classes.leftPanel}>
-        <div className={classes.titleContainer}>
-          <h2 className={classes.h2} onClick={() => setSelectedComponent('info')}>마이페이지</h2>
-        </div>
-        <div className={classes.divContainer}>
-          <h4 onClick={() => setSelectedComponent('alarm')}>알람</h4>
-          <h4 onClick={() => setSelectedComponent('edit')}>내 정보 수정</h4>
-          <h4 onClick={() => setSelectedComponent('license')}>소속 사업체</h4>
-        </div>
-      </div>
-    ) : (
-      <div className={classes.leftPanel}>
-        <div className={classes.titleContainer}>
-          <h2 className={classes.h2} onClick={() => setSelectedComponent('info')}>마이페이지</h2>
-        </div>
-        <div className={classes.divContainer}>
-          <h4 onClick={() => setSelectedComponent('alarm')}>알람</h4>
-          <h4 onClick={() => setSelectedComponent('edit')}>내 정보 수정</h4>
-          <h4 onClick={() => setSelectedComponent('license')}>사업자 등록/수정</h4>
-        </div>
-      </div>
-    )}
     <div className={classes.rightPanel}>
       <div className={classes.rendering}>
         {renderComponent()}

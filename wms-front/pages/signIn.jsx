@@ -124,25 +124,30 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/sign-in', {
-        email,
-        password,
+      const response = await axios.post('https://j11a302.p.ssafy.io/api/auths/sign-in', {
+        'email' : email,
+        'password' : password,
       });
 
-      if (response.status === 200 && response.data.code === 'SU') {
-        const { user, token } = response.data;
+      if (response.data.httpStatus === 200 && response.data.statusCode === 1000) {
+        const accessToken = response.data.result.accessToken;
+        const user = response.data.result.userResponse;
 
-        login(user, token); // 전역 상태에 사용자 정보와 토큰 저장
-        notify(`${user.name}님 환영합니다!`);
-        router.push('/'); // 메인 페이지로 이동
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('user', user);
+
+        login(user, accessToken); 
+        notify(`${user.userName}님 환영합니다!`);
+        router.push('/'); 
       }
     } catch (error) {
+      console.log(error)
       if (error.response) {
-        if (error.response.status === 400 && error.response.data.code === 'VF') {
+        if (error.response.httpStatus === 400 && error.response.data.statusCode === 4000) {
           notify('로그인에 실패하였습니다. 입력한 정보를 확인하세요.');
-        } else if (error.response.status === 401 && error.response.data.code === 'SF') {
+        } else if (error.response.httpStatus === 401 && error.response.data.code === 4000) {
           notify('로그인 정보가 맞지 않습니다. 다시 시도해주세요.');
-        } else if (error.response.status === 500 && error.response.data.code === 'DBE') {
+        } else if (error.response.httpStatus === 500 && error.response.data.code === 'DBE') {
           notify('서버가 불안정합니다. 잠시 후 다시 시도해주세요.');
         } else {
           notify('알 수 없는 오류가 발생했습니다. 관리자에게 문의하세요.');
@@ -150,7 +155,7 @@ export default function Login() {
       } else {
         notify('네트워크 오류가 발생했습니다. 인터넷 연결을 확인하세요.');
       }
-      // 로그인 페이지에 머무름
+      
     }
   };
 
