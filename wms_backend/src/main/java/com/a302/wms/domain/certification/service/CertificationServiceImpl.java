@@ -3,14 +3,16 @@ package com.a302.wms.domain.certification.service;
 import com.a302.wms.domain.auth.dto.request.CheckCertificationRequest;
 import com.a302.wms.domain.auth.dto.request.EmailCertificationRequest;
 import com.a302.wms.domain.certification.common.CertificationNumber;
-import com.a302.wms.domain.certification.dto.Certification;
 import com.a302.wms.domain.certification.provider.EmailProvider;
-import com.a302.wms.domain.certification.repository.CertificationRepository;
 import com.a302.wms.global.constant.ResponseEnum;
 import com.a302.wms.global.handler.CommonException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 import static com.a302.wms.global.constant.ResponseEnum.*;
 
@@ -19,8 +21,11 @@ import static com.a302.wms.global.constant.ResponseEnum.*;
 @Slf4j
 public class CertificationServiceImpl {
 
-    private CertificationRepository certificationRepository;
+    //    private CertificationRepository certificationRepository;
     private final EmailProvider emailProvider;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    final int CERTIFICATION_TTL = 60 * 5;
 
 
     /**
@@ -40,10 +45,11 @@ public class CertificationServiceImpl {
             log.info("Received certification check request for email");
 
             // 사용자 이메일을 기반으로 가장 최신 인증 정보를 데이터베이스에서 조회
-            Certification certificationEntity = certificationRepository.findByEmail(email).get();
+//            Certification certificationEntity = certificationRepository.findByEmail(email).get(
+            String certificateEmail = redisTemplate.opsForValue().get(inputCertificationNumber);
 
             // 인증 정보가 없을 경우 인증 실패 응답 반환
-            if (certificationEntity == null) {
+            if (certificateEmail == null) {
                 log.info("No certification information found for email");
                 throw new CommonException(CERTIFICATION_FAILED, "인증정보가 없습니다.");
             }
@@ -51,8 +57,7 @@ public class CertificationServiceImpl {
             log.info("Certification information retrieved for email");
 
             // 저장된 이메일과 인증 번호가 입력된 이메일과 인증 번호와 일치하는지 검증
-            boolean isSuccessed = certificationEntity.email().equals(email) &&
-                    certificationEntity.certificationNumber().equals(inputCertificationNumber);
+            boolean isSuccessed = certificateEmail.equals(email);
 
             // 인증 실패 시 응답 반환
             if (!isSuccessed) {
@@ -106,9 +111,10 @@ public class CertificationServiceImpl {
                 throw new CommonException(ResponseEnum.MAIL_SEND_FAILED, "메일 발송에 실패하였습니다.");
             }
 
-            // 인증 정보를 저장
-            Certification certification = new Certification(email, certificationNumber);
-            certificationRepository.save(certification);
+            // 인증 정보를 저장);
+            ValueOperations<String, String> ops = redisTemplate.opsForValue();
+            ops.set(certificationNumber, email, CERTIFICATION_TTL, TimeUnit.SECONDS); // redis set 명령어
+
             log.info("Saved certification info for email: {}", email);
 
         } catch (NumberFormatException e) {
