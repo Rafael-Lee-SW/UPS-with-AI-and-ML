@@ -31,7 +31,7 @@ public class JwtProvider {
     @Value("${secret-key}")
     private String secretKey;
 
-    final int ACCESS_TOKEN_EXPIRE = 30;
+    final int ACCESS_TOKEN_EXPIRE = 60 * 60 * 6;
     final int REFRESH_TOKEN_EXPIRE = 60 * 60 * 24 * 7;
 
 

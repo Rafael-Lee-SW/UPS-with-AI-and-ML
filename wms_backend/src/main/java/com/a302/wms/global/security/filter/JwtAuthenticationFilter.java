@@ -87,7 +87,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Tokens tokens = jwtProvider.create((TokenRoleTypeEnum) claims.get("type"), ((Long) claims.get("id")).toString());
                 ops.set(tokens.accessToken(), tokens.refreshToken(), jwtProvider.getRefreshTokenExpire(), TimeUnit.SECONDS);
                 redisTemplate.delete(accessToken);
-                response.setHeader("accessToken", tokens.accessToken());
+                response.setHeader("Authorization", "Bearer " + tokens.accessToken());
                 accessToken = tokens.accessToken();
             }
 
