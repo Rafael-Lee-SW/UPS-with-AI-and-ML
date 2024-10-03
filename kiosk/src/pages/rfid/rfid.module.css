@@ -1,35 +1,91 @@
 /* RFID 페이지의 스타일 */
 .container {
   text-align: center;
-  padding: 20px;
+  padding: 5vw; /* 뷰포트 너비에 따라 padding 조정 */
   background-color: #f0f0f0;
 }
 
 .beforeScan h2 {
-  font-size: 24px;
+  font-size: 5vw; /* 뷰포트 너비에 따라 글씨 크기 조정 */
   color: #333;
 }
 
 .cartContainer {
   position: relative;
+  margin-top: 2vh; /* 화면 높이에 따라 위쪽 여백 조정 */
 }
 
 .cartImage {
-  width: 150px;
-  height: 150px;
+  width: 20vw; /* 뷰포트 너비에 따라 이미지 크기 조정 */
+  height: auto; /* 비율 유지 */
 }
 
 @keyframes addToCart {
   0% {
-      transform: scale(0.5);
-      opacity: 0;
+    transform: scale(0.5);
+    opacity: 0;
   }
   100% {
-      transform: scale(1);
-      opacity: 1;
+    transform: scale(1);
+    opacity: 1;
   }
 }
 
 .product {
   animation: addToCart 0.5s ease-in-out;
+  margin: 2vh 0; /* 화면 높이에 따라 상하 여백 조정 */
+}
+
+.product h3 {
+  font-size: 4vw; /* 뷰포트 너비에 따라 글씨 크기 조정 */
+}
+
+.product p {
+  font-size: 3.5vw; /* 뷰포트 너비에 따라 가격 글씨 크기 조정 */
+}
+
+.actions {
+  margin-top: 3vh; /* 화면 높이에 따라 위쪽 여백 조정 */
+}
+
+.paymentButton,
+.cancelButton {
+  font-size: 3.5vw; /* 뷰포트 너비에 따라 버튼 텍스트 크기 조정 */
+  padding: 2vw 4vw; /* 뷰포트 너비에 따라 버튼 padding 조정 */
+  margin: 1vw;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.paymentButton:hover,
+.cancelButton:hover {
+  background-color: #005bb5;
+}
+
+@media (max-width: 768px) {
+  .cartImage {
+    width: 30vw; /* 작은 화면에서 이미지 크기 조정 */
+  }
+
+  .beforeScan h2 {
+    font-size: 6vw; /* 작은 화면에서 글씨 크기 조정 */
+  }
+
+  .product h3 {
+    font-size: 5vw;
+  }
+
+  .product p {
+    font-size: 4.5vw;
+  }
+
+  .paymentButton,
+  .cancelButton {
+    font-size: 5vw;
+    padding: 3vw 6vw;
+  }
 }

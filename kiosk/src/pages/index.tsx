@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { fetchProducts } from "@/api/index"; // API 함수 호출
+import styles from "./pages.module.css"; // 스타일 파일 임포트
 
 // 상품 정보 타입 정의
 interface Product {
@@ -63,16 +64,19 @@ export default function Home() {
   }, [products]);
 
   return (
-    <div>
-      <h1>Enter your storeId or use RFID</h1>
-      <form onSubmit={handleSubmit}>
+    <div className={styles.container}>
+      <h1 className={styles.welcome}>환영합니다. 매장 KEY를 입력해주세요.</h1>
+      <form className={styles.form} onSubmit={handleSubmit}>
         <input
           type="text"
+          className={styles.inputBox}
           value={storeId}
           onChange={(e) => setStoreId(e.target.value)}
-          placeholder="Enter storeId or use RFID"
+          placeholder="매장 키를 입력해주세요."
         />
-        <button type="submit">Submit</button>
+        <button type="submit" className={styles.submitButton}>
+          확인
+        </button>
       </form>
 
       {error && <p style={{ color: "red" }}>{error}</p>}

@@ -1,6 +1,6 @@
-import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
-import styles from './select.module.css'; // CSS 모듈 가져오기
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+import styles from "./select.module.css"; // CSS 모듈 가져오기
 
 export default function SelectMethod() {
   const router = useRouter();
@@ -16,20 +16,20 @@ export default function SelectMethod() {
 
   // 바코드 인식을 선택했을 때, 상품 정보를 바코드 페이지로 전달
   const handleBarcodeClick = () => {
-    setIsDisabled(true);  // 버튼 비활성화
+    setIsDisabled(true); // 버튼 비활성화
     router.push({
-      pathname: '/barcode',
-      query: { products: JSON.stringify(products) }
-    });  // 바코드 페이지로 이동하며 상품 정보를 전달
+      pathname: "/barcode",
+      query: { products: JSON.stringify(products) },
+    }); // 바코드 페이지로 이동하며 상품 정보를 전달
   };
 
   // RFID 인식을 선택했을 때, 상품 정보를 RFID 페이지로 전달
   const handleRFIDClick = () => {
-    setIsDisabled(true);  // 버튼 비활성화
+    setIsDisabled(true); // 버튼 비활성화
     router.push({
-      pathname: '/rfid',
-      query: { products: JSON.stringify(products) }
-    });  // RFID 페이지로 이동하며 상품 정보를 전달
+      pathname: "/rfid",
+      query: { products: JSON.stringify(products) },
+    }); // RFID 페이지로 이동하며 상품 정보를 전달
   };
 
   return (
@@ -64,7 +64,11 @@ export default function SelectMethod() {
           <img src="/korea.png" alt="Korean" className={styles.languageIcon} />
           <img src="/usa.png" alt="English" className={styles.languageIcon} />
           <img src="/china.png" alt="Chinese" className={styles.languageIcon} />
-          <img src="/japan.png" alt="Japanese" className={styles.languageIcon} />
+          <img
+            src="/japan.png"
+            alt="Japanese"
+            className={styles.languageIcon}
+          />
         </div>
       </div>
     </div>

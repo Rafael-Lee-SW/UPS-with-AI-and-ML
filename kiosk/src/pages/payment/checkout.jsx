@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
 import { useEffect, useState } from "react";
 
-const clientKey = "test_ck_yZqmkKeP8gxBDajBEZqY3bQRxB9l";
+const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
 const customerKey = "test_sk_yZqmkKeP8g70JMxG44l48bQRxB9l";
 
 export function CheckoutPage() {
@@ -15,7 +15,9 @@ export function CheckoutPage() {
   useEffect(() => {
     if (router.query.products && router.query.totalPrice) {
       // products 쿼리 데이터를 파싱
-      const parsedProducts = JSON.parse(decodeURIComponent(router.query.products));
+      const parsedProducts = JSON.parse(
+        decodeURIComponent(router.query.products)
+      );
       setProducts(parsedProducts);
       setTotalPrice(Number(router.query.totalPrice));
     }
@@ -36,8 +38,14 @@ export function CheckoutPage() {
       await widgets.setAmount({ currency: "KRW", value: totalPrice });
 
       await Promise.all([
-        widgets.renderPaymentMethods({ selector: "#payment-method", variantKey: "DEFAULT" }),
-        widgets.renderAgreement({ selector: "#agreement", variantKey: "AGREEMENT" }),
+        widgets.renderPaymentMethods({
+          selector: "#payment-method",
+          variantKey: "DEFAULT",
+        }),
+        widgets.renderAgreement({
+          selector: "#agreement",
+          variantKey: "AGREEMENT",
+        }),
       ]);
 
       setReady(true);
@@ -53,7 +61,8 @@ export function CheckoutPage() {
         <ul>
           {products.map((product) => (
             <li key={product.productId}>
-              {product.productName} - {product.quantity}개 - {product.sellingPrice}원
+              {product.productName} - {product.quantity}개 -{" "}
+              {product.sellingPrice}원
             </li>
           ))}
         </ul>

@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const pcsclite = require("pcsclite");
 
+app.commandLine.appendSwitch("high-dpi-support", "true");
+app.commandLine.appendSwitch("force-device-scale-factor", "1");
 let mainWindow = null;
 let pcsc = null;
 
@@ -9,10 +11,12 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1080,
     height: 1920,
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
+      zoomFactor: 0.75,
     },
   });
 

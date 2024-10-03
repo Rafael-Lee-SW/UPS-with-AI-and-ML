@@ -1,128 +1,97 @@
+/* 전체 페이지 배경 이미지 설정 */
 .container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background-color: #f0f0f0;  /* 전체 페이지에 밝은 그레이 배경색 적용 */
-  }
-  
-  .topSection {
-    flex: 8;  /* 상단 영역 8/10 */
-    background-image: url('/poster1.jpg');
-    background-size: cover;  /* 화면의 너비에 꽉 차게 설정 */
-    background-position: center;
-    background-repeat: no-repeat;  /* 이미지 반복 방지 */
-  }
-  
-  .bottomSection {
-    flex: 2;  /* 하단 영역 2/10 */
-    background-color: transparent;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-  }
-  
-  .buttonGroup {
-    display: flex;
-    gap: 2vw; /* 화면 너비의 백분율로 버튼 간격 조정 */
-    margin-bottom: 2vh; /* 화면 높이의 백분율로 하단 간격 조정 */
-  }
-  
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* 위와 아래 요소 간격을 설정 */
+  align-items: center;
+  height: 100vh;
+  background-image: url("/poster1.jpg");
+  background-size: cover; /* 배경 이미지가 화면 전체를 덮도록 설정 */
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* 버튼들을 하단에 배치하고 중앙 정렬 */
+.buttonGroup {
+  display: flex;
+  gap: 2vw; /* 버튼 사이 간격 */
+  margin-bottom: 5vh; /* 하단 간격을 좀 더 넉넉하게 설정 */
+  justify-content: center; /* 버튼을 중앙에 배치 */
+}
+
+/* 버튼 스타일 */
+.circleButton {
+  width: 15vw; /* 버튼 크기가 화면 너비에 따라 유동적으로 변함 */
+  height: 15vw;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.8); /* 투명 배경 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  font-size: 1vw; /* 텍스트 크기 조정 */
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+  overflow: hidden; /* 버튼 내부에서 이미지나 텍스트가 넘치지 않도록 설정 */
+  padding: 10px; /* 여백 추가로 내부 간격 조정 */
+}
+
+.circleButton img {
+  width: 6vw; /* 이미지를 화면 너비에 맞춰 조정 */
+  height: auto; /* 비율을 유지하면서 자동으로 높이 조정 */
+  margin-bottom: 5px; /* 이미지와 텍스트 사이 간격 조정 */
+}
+
+.circleButton:hover {
+  transform: scale(1.05); /* 버튼에 마우스를 올렸을 때 살짝 확대 */
+}
+
+/* 언어 선택 아이콘 그룹 */
+.languageSelector {
+  display: flex;
+  justify-content: center;
+  gap: 1vw;
+  margin-top: 20px;
+}
+
+.languageIcon {
+  width: 5vw; /* 아이콘 크기를 화면 너비에 맞춰 조정 */
+  height: auto; /* 비율을 유지하면서 자동으로 높이 조정 */
+  cursor: pointer;
+}
+
+/* 화면 크기에 따라 버튼과 아이콘 크기 조정 */
+@media (max-width: 768px) {
   .circleButton {
-    width: 15vw;  /* 너비를 뷰포트 너비(vw)로 설정해 화면에 맞추기 */
-    height: 15vw; /* 높이도 뷰포트 너비(vw)로 설정 */
-    border-radius: 50%;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: black;
-    font-size: 1.5vw;  /* 폰트 크기를 화면 너비 기준으로 조정 */
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s;
+    width: 20vw;
+    height: 20vw;
+    font-size: 2.5vw; /* 텍스트 크기 조정 */
   }
-  
+
   .circleButton img {
-    width: 5vw;  /* 이미지 크기를 화면 너비 기준으로 설정 */
-    height: 5vw;
-    margin-bottom: 10px;
+    width: 10vw; /* 작은 화면에서 이미지 크기 조정 */
   }
-  
-  .circleButton:hover {
-    transform: scale(1.05);
-  }
-  
-  .languageSelector {
-    display: flex;
-    justify-content: center;
-    gap: 1vw;
-    margin-top: 10px;
-  }
-  
+
   .languageIcon {
-    width: 5vw;  /* 언어 아이콘 크기를 화면 너비에 맞추기 */
-    height: 5vw;
-    cursor: pointer;
+    width: 8vw;
   }
-  
-  /* 미디어 쿼리 사용: 큰 화면 (1800x1920 이상) 스타일 조정 */
-  @media (min-width: 1800px) {
-    .circleButton {
-      width: 10vw;
-      height: 10vw;
-      font-size: 1.2vw;
-    }
-  
-    .circleButton img {
-      width: 4vw;
-      height: 4vw;
-    }
-  
-    .languageIcon {
-      width: 4vw;
-      height: 4vw;
-    }
+}
+
+@media (max-width: 480px) {
+  .circleButton {
+    width: 30vw;
+    height: 30vw;
+    font-size: 3.5vw; /* 텍스트 크기 조정 */
   }
-  
-  /* 미디어 쿼리 사용: 화면이 작을 때 (모바일 화면) 스타일 변경 */
-  @media (max-width: 768px) {
-    .circleButton {
-      width: 20vw;
-      height: 20vw;
-      font-size: 3vw;
-    }
-  
-    .circleButton img {
-      width: 8vw;
-      height: 8vw;
-    }
-  
-    .languageIcon {
-      width: 8vw;
-      height: 8vw;
-    }
+
+  .circleButton img {
+    width: 15vw;
   }
-  
-  /* 미디어 쿼리 사용: 화면이 더 작을 때 */
-  @media (max-width: 480px) {
-    .circleButton {
-      width: 30vw;
-      height: 30vw;
-      font-size: 4vw;
-    }
-  
-    .circleButton img {
-      width: 10vw;
-      height: 10vw;
-    }
-  
-    .languageIcon {
-      width: 10vw;
-      height: 10vw;
-    }
+
+  .languageIcon {
+    width: 10vw;
   }
-  
+}

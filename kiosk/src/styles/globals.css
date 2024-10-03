@@ -1,0 +1,32 @@
+@font-face {
+  font-family: "GmarketSans";
+  src: url("/fonts/GmarketSansTTFBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "GmarketSans";
+  src: url("/fonts/GmarketSansTTFMedium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "GmarketSans";
+  src: url("/fonts/GmarketSansTTFLight.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+/* 전역 폰트 설정 */
+body {
+  font-family: "GmarketSans", sans-serif; /* 폰트를 전역으로 적용 */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+button {
+  font-family: "GmarketSans", sans-serif; /* 모든 버튼에 전역 폰트 적용 */
+}
