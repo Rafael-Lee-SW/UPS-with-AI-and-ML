@@ -43,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final RedisTemplate<String, String> redisTemplate;
     private final DeviceRepository deviceRepository;
 
+
     /**
      * 1. 토큰값이 null이 아니고
      * 2. 유효성이 null이 아니라면
