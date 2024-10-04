@@ -46,6 +46,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	// Redis 관련
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation(platform("software.amazon.awssdk:bom:2.27.21"))
+	implementation("software.amazon.awssdk:s3")
 }
 
 tasks.named('test') {
