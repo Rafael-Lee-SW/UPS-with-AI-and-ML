@@ -1,5 +1,7 @@
 package com.a302.wms.domain.store.service;
 
+import com.a302.wms.domain.device.dto.DeviceResponse;
+import com.a302.wms.domain.device.mapper.DeviceMapper;
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.repository.FloorRepository;
 import com.a302.wms.domain.floor.service.FloorServiceImpl;
@@ -27,6 +29,8 @@ import com.a302.wms.domain.structure.service.LocationServiceImpl;
 import com.a302.wms.domain.structure.service.StructureServiceImpl;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.repository.UserRepository;
+import com.a302.wms.global.constant.ResponseEnum;
+import com.a302.wms.global.handler.CommonException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -97,13 +101,18 @@ public class StoreServiceImpl {
 
         return storeRepository.findAllByUserId(userId)
                 .stream()
-                .map(StoreMapper::toResponseDto)
+                .map(store -> {
+                    List<DeviceResponse> deviceResponses = store.getDevices().stream().map(DeviceMapper::toResponseDto).toList();
+                    return StoreMapper.toResponseDto(store, deviceResponses);
+                })
                 .toList();
     }
 
     public StoreResponse findById(Long storeId) {
         log.info("[Service] find store");
-        return StoreMapper.toResponseDto(storeRepository.findById(storeId).orElseThrow());
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new CommonException(ResponseEnum.STORE_NOT_FOUND, "매장을 찾을 수 없습니다."));
+        List<DeviceResponse> deviceResponses = store.getDevices().stream().map(DeviceMapper::toResponseDto).toList();
+        return StoreMapper.toResponseDto(store, deviceResponses);
     }
 
     /**

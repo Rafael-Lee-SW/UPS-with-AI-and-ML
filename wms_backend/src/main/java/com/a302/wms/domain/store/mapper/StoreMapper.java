@@ -1,5 +1,6 @@
 package com.a302.wms.domain.store.mapper;
 
+import com.a302.wms.domain.device.dto.DeviceResponse;
 import com.a302.wms.domain.store.dto.StoreCreateRequest;
 import com.a302.wms.domain.store.dto.StoreDetailResponse;
 import com.a302.wms.domain.store.dto.StoreResponse;
@@ -35,11 +36,12 @@ public class StoreMapper {
      * @param store : 변환될 Store 객체
      * @return : 변환된 Dto
      */
-    public static StoreResponse toResponseDto(Store store) {
+    public static StoreResponse toResponseDto(Store store, List<DeviceResponse> deviceResponses) {
         return StoreResponse.builder()
                 .id(store.getId())
                 .userId(store.getUser().getId())
                 .storeName(store.getStoreName())
+                .devices(deviceResponses)
                 .size(store.getSize())
                 .createdDate(store.getCreatedDate())
                 .updatedDate(store.getUpdatedDate())
