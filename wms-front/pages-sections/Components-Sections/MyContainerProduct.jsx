@@ -603,7 +603,6 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
 
   // 사장님이 갖고 있는 상품들을 가져오는 API
   const productGetAPI = async () => {
-    
     // 토큰에서 유저정보를 가져온다.(중요)
     const token = localStorage.getItem("token");
 
@@ -613,7 +612,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
       return;
     }
 
-    console.log(token)
+    console.log(token);
 
     try {
       const response = await fetch(
@@ -628,13 +627,15 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         }
       );
 
-      console.log(response);
+      // console.log(response);
 
       if (response.ok) {
         //성공
-        const apiConnection = await response.json();
+        const apiConnection = await response.clone().json(); // clone the response to avoid consuming the body
         const products = apiConnection.result;
 
+        console.log("Parsed response:", apiConnection);
+        
         // Extract only the required columns
         const formattedData = products.map((product) => ({
           hiddenId: product.id,
@@ -732,9 +733,11 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
     EXPORT: "출고",
     FLOW: "이동",
   };
+  // 새로운 알림 API
+  const getNotificationsAPI = 
 
   // 모든 알림(변동내역)을 가져오는 메서드
-  const getNotificationsAPI = async (businessId) => {
+  const getNotificationsAPI_old = async (businessId) => {
     try {
       const response = await fetch(
         `https://j11a302.p.ssafy.io/api/products/notification?businessId=${businessId}`,
