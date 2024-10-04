@@ -1,4 +1,4 @@
-package com.a302.wms.domain.video.service;
+package com.a302.wms.domain.camera.service;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VideoSplitter {
+public class CameraSplitter {
 
     /**
      * FFmpeg를 사용하여 동영상을 분할합니다 (스트림 복사 방식).
@@ -82,9 +82,9 @@ public class VideoSplitter {
     }
 
     public static void main(String[] args) {
-        VideoSplitter splitter = new VideoSplitter();
-        String inputVideo = "video/test.mp4"; // 원본 동영상 경로
-        String outputDirectory = "video/split"; // 분할된 동영상 저장 경로
+        CameraSplitter splitter = new CameraSplitter();
+        String inputVideo = "camera/test.mp4"; // 원본 동영상 경로
+        String outputDirectory = "camera/split"; // 분할된 동영상 저장 경로
         int segmentLength = 10; // 각 분할의 길이 (초 단위)
 
         try {
