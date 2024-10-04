@@ -71,9 +71,10 @@ public enum ResponseEnum {
 
     //Subscription 오류
     SUBSCRIPTION_NOT_FOUND(false, 11000, HttpStatus.BAD_REQUEST.value(), "구독 정보를 찾을수 없습니다."),
-    SUBSCRIPTION_DELETED(false, 11001, HttpStatus.BAD_REQUEST.value(), "삭제된 구독정보 입니다.");
+    SUBSCRIPTION_DELETED(false, 11001, HttpStatus.BAD_REQUEST.value(), "삭제된 구독정보 입니다."),
 
-
+    //Camera 오류
+    CAMERA_NOT_FOUND(false, 12000, HttpStatus.BAD_REQUEST.value(), "CCTV를 찾을 수 없습니다.");
     private final boolean success;  //성공여부
     private final int statusCode;
     private final int httpStatus; //HTTP 상태코드
