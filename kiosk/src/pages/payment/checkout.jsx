@@ -3,7 +3,7 @@ import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
 import { useEffect, useState } from "react";
 
 const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
-const customerKey = "test_sk_yZqmkKeP8g70JMxG44l48bQRxB9l";
+const customerKey = "EeNPZPYSwnohr7iITJk9n";
 
 export function CheckoutPage() {
   const router = useRouter();

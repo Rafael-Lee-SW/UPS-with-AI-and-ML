@@ -47,7 +47,7 @@ export default function SelectMethod() {
             disabled={isDisabled}
             className={styles.circleButton}
           >
-            <img src="/barcord.png" alt="바코드 인식" />
+            <img src="/barcode.png" alt="바코드 인식" />
             바코드로 상품 결제
           </button>
           <button
