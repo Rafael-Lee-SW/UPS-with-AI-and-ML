@@ -15,29 +15,31 @@ class PredictionRequest(BaseModel):
     feature2: float
     # Add more features as required
 
-
 app = FastAPI(root_path="/ml")
 
-# Load your ML model
-model = tf.keras.models.load_model("lstm_sales_forecast_model.h5")
 # Replace with your model file
+data = pd.read_csv('prepared_sales_data.csv', parse_dates=['purchase_date'], dtype={'product_code': str})
+lstm_model = tf.keras.models.load_model('lstm_sales_forecast_model.h5')
 
 @app.get("/health")
 async def health_check():
     return {"status": "OK"}
 
+# Load data and models at startup
+
+# Pass data and model to functions
 @app.get("/forecasting")
 async def get_forecasting_data():
     try:
-        data = generate_forecasting_data()
-        return data
+        data_output = generate_forecasting_data(data, lstm_model)
+        return data_output
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/products/{product_code}")
 async def get_product_forecast(product_code: str):
     try:
-        result = search_and_forecast(product_code)
+        result = search_and_forecast(product_code, data, lstm_model)
         if result is None:
             raise HTTPException(status_code=404, detail="Product not found.")
         return result
@@ -47,7 +49,7 @@ async def get_product_forecast(product_code: str):
 @app.get("/top100products")
 async def get_top_100_products_endpoint():
     try:
-        top_products = get_top_100_products()
+        top_products = get_top_100_products(data)
         return {"top_100_products": top_products}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

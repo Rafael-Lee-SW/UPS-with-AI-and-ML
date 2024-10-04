@@ -3,11 +3,11 @@ import numpy as np
 import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
 
-# Load data and models
-data = pd.read_csv('prepared_sales_data.csv', parse_dates=['purchase_date'])
-lstm_model = tf.keras.models.load_model('lstm_sales_forecast_model.h5')
-
 def generate_forecasting_data():
+    # Load data and models
+    data = pd.read_csv('prepared_sales_data.csv', parse_dates=['purchase_date'])
+    lstm_model = tf.keras.models.load_model('lstm_sales_forecast_model.h5')
+
     # Prepare data structures to hold the results
     report_data = {
         "top_products_forecasting": [],
@@ -36,13 +36,19 @@ def generate_forecasting_data():
             X.append(scaled_data[i:i+SEQ_LENGTH])
         X = np.array(X)
 
+        # Check if there is enough data
+        if len(X) == 0:
+            continue  # Skip this product if not enough data
+
         # Forecast future sales (next 7 days)
         last_sequence = scaled_data[-SEQ_LENGTH:].reshape(1, SEQ_LENGTH, 1)
         future_forecast = []
         for _ in range(7):
             pred = lstm_model.predict(last_sequence)
             future_forecast.append(pred[0][0])
-            last_sequence = np.append(last_sequence[:, 1:, :], [[pred]], axis=1)
+            # Update last_sequence by appending the prediction at the end and removing the first element
+            last_sequence = np.concatenate([last_sequence[:, 1:, :], pred.reshape(1, 1, 1)], axis=1)
+
         future_forecast = scaler.inverse_transform(np.array(future_forecast).reshape(-1, 1)).flatten().tolist()
 
         # Collect results
@@ -94,6 +100,10 @@ def generate_forecasting_data():
     return report_data
 
 def get_top_100_products():
+    # Load data and models
+data = pd.read_csv('prepared_sales_data.csv', parse_dates=['purchase_date'])
+lstm_model = tf.keras.models.load_model('lstm_sales_forecast_model.h5')
+
     # Calculate total sales for each product
     product_sales = data.groupby('item_description')['price'].sum().sort_values(ascending=False).head(100)
     top_products = product_sales.reset_index().to_dict(orient='records')
