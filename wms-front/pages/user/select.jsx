@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
 import Header from "../../components/Header/HomeHeader";
-import HeaderLinks from "/components/Header/HomeHeaderLinks.js";
+import HeaderLinks from "/components/Header/LogInHomeHeaderLinks.js";
 import { makeStyles } from "@material-ui/core/styles";
 import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
 import GridContainer from "/components/Grid/GridContainer.js";
@@ -53,14 +53,16 @@ const Select = (props) => {
   const [validationErrors, setValidationErrors] = useState({});
 
   const handleOpen = async () => {
-    const { presentCount, MaxCount } = await fetchWarehouseCounts(businessId);
+    // const { presentCount, MaxCount } = await fetchWarehouseCounts(businessId);
 
-    if (presentCount >= MaxCount) {
-      alert("추가 생성을 위한 결제가 필요합니다.");
-      router.push("/payment");
-    } else {
-      setOpen(true);
-    }
+    // if (presentCount >= MaxCount) {
+    //   alert("추가 생성을 위한 결제가 필요합니다.");
+    //   router.push("/payment");
+    // } else {
+    //   setOpen(true);
+    // }
+
+    setOpen(true);
   };
 
   const handleClose = () => {
@@ -177,74 +179,86 @@ const Select = (props) => {
       return;
     }
 
-    if (!businessId) {
-      router.push("/404");
+    //에러 컨트롤
+
+    // if (!businessId) {
+    //   router.push("/404");
+    //   return;
+    // }
+
+    //창고 생성을 위한 데이터
+    const postData = {
+      size: parseInt(formData.containerSize),
+      // 후추 수정
+      // columnCount: parseInt(formData.column),
+      // rowCount: parseInt(formData.row),
+      storeName: formData.containerName || `Container ${cards.length + 1}`,
+      // priority: facilityType === "STORE" ? 1 : parseInt(priority),
+      // facilityTypeEnum: facilityType,
+    };
+
+    // const { locationX, locationY, locationZ, row, column } = formData;
+
+    // // Calculate fixed spacing between columns and rows
+    // const columnSpacing = 10; // Fixed spacing of 10px between columns
+    // const rowSpacing = parseInt(locationY); // Distance between rows equal to the height of each location
+
+    // const locationData = [];
+    // for (let i = 0; i < row; i++) {
+    //   for (let j = 0; j < column; j++) {
+    //     // Format row and column numbers as two-digit strings
+    //     const rowNumber = (i + 1).toString().padStart(2, "0"); // Convert to string and pad with zeros
+    //     const columnNumber = (j + 1).toString().padStart(2, "0"); // Convert to string and pad with zeros
+
+    //     // Calculate x and y positions with new spacing logic
+    //     const xPosition = j * (parseInt(locationX) + columnSpacing);
+    //     const yPosition = i * (parseInt(locationY) + rowSpacing);
+
+    //     locationData.push({
+    //       xPosition: xPosition,
+    //       yPosition: yPosition,
+    //       zSize: parseInt(locationZ),
+    //       xSize: Math.round(parseInt(locationX)),
+    //       ySize: Math.round(parseInt(locationY)),
+    //       name: `${rowNumber}-${columnNumber}`,
+    //       productStorageType: "상온",
+    //       rotation: 0,
+    //       touchableFloor: 2,
+    //     });
+    //   }
+    // }
+
+    // const wallData = generateWalls(locationData);
+
+    // 토큰에서 유저정보를 가져온다.(중요)
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // Handle the case where the token is missing (e.g., redirect to login)
+      router.push("/login");
       return;
     }
 
-    const postData = {
-      businessId,
-      size: parseInt(formData.containerSize),
-      columnCount: parseInt(formData.column),
-      rowCount: parseInt(formData.row),
-      name: formData.containerName || `Container ${cards.length + 1}`,
-      priority: facilityType === "STORE" ? 1 : parseInt(priority),
-      facilityTypeEnum: facilityType,
-    };
-
-    const { locationX, locationY, locationZ, row, column } = formData;
-
-    // Calculate fixed spacing between columns and rows
-    const columnSpacing = 10; // Fixed spacing of 10px between columns
-    const rowSpacing = parseInt(locationY); // Distance between rows equal to the height of each location
-
-    const locationData = [];
-    for (let i = 0; i < row; i++) {
-      for (let j = 0; j < column; j++) {
-        // Format row and column numbers as two-digit strings
-        const rowNumber = (i + 1).toString().padStart(2, "0"); // Convert to string and pad with zeros
-        const columnNumber = (j + 1).toString().padStart(2, "0"); // Convert to string and pad with zeros
-
-        // Calculate x and y positions with new spacing logic
-        const xPosition = j * (parseInt(locationX) + columnSpacing);
-        const yPosition = i * (parseInt(locationY) + rowSpacing);
-
-        locationData.push({
-          xPosition: xPosition,
-          yPosition: yPosition,
-          zSize: parseInt(locationZ),
-          xSize: Math.round(parseInt(locationX)),
-          ySize: Math.round(parseInt(locationY)),
-          name: `${rowNumber}-${columnNumber}`,
-          productStorageType: "상온",
-          rotation: 0,
-          touchableFloor: 2,
-        });
-      }
-    }
-
-    const wallData = generateWalls(locationData);
-
     try {
-      const response = await fetch(
-        "https://j11a302.p.ssafy.io/api/warehouses",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(postData),
-        }
-      );
+      const response = await fetch("https://j11a302.p.ssafy.io/api/stores", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Include the token in the Authorization header
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(postData),
+      });
 
       if (response.ok) {
+        console.log("Check the each point6");
         const newWarehouse = await response.json();
         const warehouses = newWarehouse.result;
 
         const warehousesId = warehouses.id;
 
-        await postLocationAPI(locationData, warehousesId);
-        await postWallAPI(wallData, warehousesId);
+        // await postLocationAPI(locationData, warehousesId);
+        // await postWallAPI(wallData, warehousesId);
 
         const newCard = {
           id: newWarehouse.result.id,
@@ -255,13 +269,14 @@ const Select = (props) => {
         await setCards((prev) => [...prev, newCard]);
 
         // 각 창고 카드에 대한 pcsCount 및 locationCount 요청
-        fetchCounts(newCard.id);
+        // fetchCounts(newCard.id);
 
         handleClose();
       } else {
         router.push("/404");
       }
     } catch (error) {
+      console.log(error);
       router.push("/404");
     }
   };
@@ -337,9 +352,9 @@ const Select = (props) => {
   };
 
   // 사용자의 모든 매장 정보를 가져오는 API
-  const getAllStoreInfoAPI = async (userId) => {
+  const getAllStoreInfoAPI = async () => {
     try {
-      // Retrieve the token from localStorage (or wherever it is stored)
+      // 토큰에서 유저정보를 가져온다.
       const token = localStorage.getItem("token");
 
       if (!token) {
@@ -347,8 +362,6 @@ const Select = (props) => {
         router.push("/login");
         return;
       }
-
-      console.log(token)
 
       const response = await fetch(`https://j11a302.p.ssafy.io/api/stores`, {
         method: "GET",
@@ -359,25 +372,22 @@ const Select = (props) => {
         },
       });
 
-      console.log(response)
+      console.log("Response object:", response);
 
+      // Check if the response is OK before reading the body
       if (response.ok) {
-        const apiConnection = await response.json();
-        const warehouses = apiConnection.result;
+        const apiConnection = await response.clone().json(); // clone the response to avoid consuming the body
+        console.log("Parsed response:", apiConnection);
 
-        const warehouseCards = warehouses.map((warehouse) => ({
-          id: warehouse.id,
-          title: warehouse.name,
+        const stores = apiConnection.result;
+        const storeCards = stores.map((store) => ({
+          id: store.id,
+          storeName: store.storeName,
           image: "/img/storeroom.webp",
         }));
 
         // Set the warehouse cards in state (assuming setCards is a useState function)
-        setCards(warehouseCards);
-
-        // After receiving all cards, request pcsCount and locationCount for each warehouse card
-        warehouseCards.forEach((card) => {
-          fetchCounts(card.id); // Ensure this function is defined to handle counts
-        });
+        setCards(storeCards);
       } else {
         router.push("/404");
       }
@@ -406,7 +416,7 @@ const Select = (props) => {
         setBusinessId(businessInfo.businessId);
 
         fetchWarehouseCounts(businessInfo.businessId);
-        getAllStoreInfoAPI(businessInfo.businessId);
+        getAllStoreInfoAPI();
       } else {
         router.push("/404");
       }
@@ -557,7 +567,7 @@ const Select = (props) => {
                       />
                     </div>
                     <div className={classes.cardBody}>
-                      <h3>{card.title}</h3>
+                      <h3>{card.storeName}</h3>
                       <div className={classes.cardMain}>
                         <div
                           className={classes.cardProgress}
@@ -569,7 +579,7 @@ const Select = (props) => {
                           }}
                         >
                           {" "}
-                          {`${card.usagePercent}%`}
+                          {`${card.id}%`}
                         </div>
                       </div>
                     </div>
@@ -616,11 +626,11 @@ const Select = (props) => {
               }}
             >
               <div className={classes.paper}>
-                <h2>새 창고 정보 입력</h2>
+                <h2>새 매장 정보 입력</h2>
                 <form onSubmit={handleSubmit}>
                   <TextField
                     name="containerName"
-                    label="창고 이름"
+                    label="매장 이름"
                     fullWidth
                     variant="outlined"
                     className={classes.formControl}
@@ -638,7 +648,7 @@ const Select = (props) => {
                   />
                   <TextField
                     name="containerSize"
-                    label="창고 크기"
+                    label="매장 크기"
                     fullWidth
                     variant="outlined"
                     className={classes.formControl}
@@ -647,7 +657,7 @@ const Select = (props) => {
                     error={Boolean(validationErrors.containerSize)}
                     helperText={
                       validationErrors.containerSize ||
-                      `창고 부지의 크기: ${formData.containerSize} * ${
+                      `매장 부지의 크기: ${formData.containerSize} * ${
                         formData.containerSize
                       } = ${Math.pow(parseInt(formData.containerSize) || 0, 2)}`
                     }
@@ -659,7 +669,7 @@ const Select = (props) => {
                   />
                   <TextField
                     name="locationX"
-                    label="Location(적재함) 가로 크기"
+                    label="진열대의 평균 가로 크기"
                     fullWidth
                     variant="outlined"
                     className={classes.formControl}
@@ -669,7 +679,7 @@ const Select = (props) => {
                   />
                   <TextField
                     name="locationY"
-                    label="Location(적재함) 세로 크기"
+                    label="진열대의 평균 세로 크기"
                     fullWidth
                     variant="outlined"
                     className={classes.formControl}
@@ -679,7 +689,7 @@ const Select = (props) => {
                   />
                   <TextField
                     name="locationZ"
-                    label="Location(적재함) 층수"
+                    label="진열대 층수"
                     fullWidth
                     variant="outlined"
                     className={classes.formControl}
@@ -698,7 +708,7 @@ const Select = (props) => {
                   />
                   <TextField
                     name="row"
-                    label="행"
+                    label="배치 행"
                     fullWidth
                     variant="outlined"
                     className={classes.formControl}
@@ -717,7 +727,7 @@ const Select = (props) => {
                   />
                   <TextField
                     name="column"
-                    label="열"
+                    label="배치 열"
                     fullWidth
                     variant="outlined"
                     className={classes.formControl}
@@ -729,7 +739,7 @@ const Select = (props) => {
                     component="fieldset"
                     className={classes.formControl}
                   >
-                    <FormLabel component="legend">시설 유형</FormLabel>
+                    <FormLabel component="legend">유형</FormLabel>
                     <RadioGroup
                       aria-label="facilityType"
                       name="facilityType"
@@ -739,19 +749,19 @@ const Select = (props) => {
                       <FormControlLabel
                         value="STORE"
                         control={<Radio />}
-                        label="매장"
+                        label="무인매장"
                       />
                       <FormControlLabel
                         value="WAREHOUSE"
                         control={<Radio />}
-                        label="창고"
+                        label="무인창고"
                       />
                     </RadioGroup>
                   </FormControl>
                   {facilityType === "WAREHOUSE" && (
                     <TextField
                       name="priority"
-                      label="창고 출고 우선순위"
+                      label="매장 우선순위"
                       fullWidth
                       variant="outlined"
                       className={classes.formControl}

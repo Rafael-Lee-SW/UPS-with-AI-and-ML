@@ -392,7 +392,6 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   };
 
   const postLocationAPI = async (requests, warehouseId) => {
-    
     const total = { requests, warehouseId };
 
     try {
@@ -554,19 +553,33 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   };
 
   // API를 통해 해당하는 창고(번호)의 모든 location(적재함)과 wall(벽)을 가져오는 메서드
-  const getWarehouseAPI = async (warehouseId) => {
+  const getWarehouseAPI = async () => {
+    // 토큰에서 유저정보를 가져온다.(중요)
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // Handle the case where the token is missing (e.g., redirect to login)
+      router.push("/login");
+      return;
+    }
+
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}`,
+        `https://j11a302.p.ssafy.io/stores/13/structure`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            // Include the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
+      console.log(response);
+
       if (response.ok) {
+
         const apiConnection = await response.json();
         const warehouseData = apiConnection.result; // 데이터 추출
 
@@ -658,6 +671,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       }
     } catch (error) {
       //에러
+      console.log(error);
     }
   };
 
@@ -1136,13 +1150,13 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     stage.on("contextmenu", function (e) {
       e.evt.preventDefault();
       if (e.target === stage) return;
-    
+
       const precisePos = getPrecisePosition(stage);
-    
+
       // Show the right-click menu at the precise position
       const menuNode = menuRef.current;
       const containerRect = stage.container().getBoundingClientRect();
-    
+
       menuNode.style.top = containerRect.top + precisePos.y + "px";
       menuNode.style.left = containerRect.left + precisePos.x + "px";
     });
@@ -1176,20 +1190,20 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     };
   }, [line, startPos, currentSetting, hoveredAnchor]);
 
-  // // 최초 한번 실행된다.
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       setLoading(true); // Start loading
-  //       await getWarehouseAPI(warehouseId);
-  //     } catch (error) {
-  //       //에러
-  //     } finally {
-  //       setLoading(false); // End loading
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
+  // 최초 한번 실행된다.
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true); // Start loading
+        await getWarehouseAPI();
+      } catch (error) {
+        //에러
+      } finally {
+        setLoading(false); // End loading
+      }
+    };
+    fetchData();
+  }, []);
 
   // 중앙에서 시작하기 위함
   useEffect(() => {
