@@ -337,9 +337,9 @@ const Select = (props) => {
   };
 
   // 사용자의 모든 매장 정보를 가져오는 API
-  const getAllStoreInfoAPI = async (userId) => {
+  const getAllStoreInfoAPI = async () => {
     try {
-      // Retrieve the token from localStorage (or wherever it is stored)
+      // 토큰에서 유저정보를 가져온다.
       const token = localStorage.getItem("token");
 
       if (!token) {
@@ -374,10 +374,6 @@ const Select = (props) => {
         // Set the warehouse cards in state (assuming setCards is a useState function)
         setCards(warehouseCards);
 
-        // After receiving all cards, request pcsCount and locationCount for each warehouse card
-        warehouseCards.forEach((card) => {
-          fetchCounts(card.id); // Ensure this function is defined to handle counts
-        });
       } else {
         router.push("/404");
       }
@@ -406,7 +402,7 @@ const Select = (props) => {
         setBusinessId(businessInfo.businessId);
 
         fetchWarehouseCounts(businessInfo.businessId);
-        getAllStoreInfoAPI(businessInfo.businessId);
+        getAllStoreInfoAPI();
       } else {
         router.push("/404");
       }
