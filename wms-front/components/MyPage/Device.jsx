@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
-import { fetchStores, createDevice, deleteDevice } from '../../pages/api/index'; 
+import { fetchStores, createDevice, deleteDevice, createOtpNumber } from '../../pages/api/index'; 
 import { useRouter } from 'next/router';
 
 const useStyles = makeStyles((theme) => ({
@@ -31,6 +31,7 @@ export default function Device() {
     const [stores, setStores] = useState([]);
     const [currentStore, setCurrentStore] = useState(null); // 선택된 매장
     const [open, setOpen] = useState(false);
+    const [otpState, setOtpState] = useState({}); // 각 기기의 OTP 상태를 저장할 객체
 
     useEffect(() => {
         getStores();
@@ -77,6 +78,28 @@ export default function Device() {
         }
     };
 
+    const createOtp = async (deviceId) => {
+        try {
+            const response = await createOtpNumber(deviceId); 
+            const otp = response.data.result;
+
+            setOtpState(prevState => ({
+                ...prevState,
+                [deviceId]: otp 
+            }));
+
+            setTimeout(() => {
+                setOtpState(prevState => ({
+                    ...prevState,
+                    [deviceId]: null
+                }));
+            }, 300000); 
+
+        } catch (error) {
+            alert("OTP 발급에 실패했습니다.");
+        }
+    };
+
     const handleOpen = (store) => {
         setCurrentStore(store); 
         setOpen(true);
@@ -93,6 +116,10 @@ export default function Device() {
 
     const handleDeleteDevice = (deviceId) => {
         removeDevice(deviceId);
+    };
+
+    const handleOtp = (deviceId) => {
+        createOtp(deviceId); 
     };
 
     return (
@@ -129,6 +156,14 @@ export default function Device() {
                                             >
                                                 삭제
                                             </Button>
+                                            <Button 
+                                                variant="contained" 
+                                                color="primary" 
+                                                onClick={() => handleOtp(device.id)} 
+                                                style={{ marginLeft: '10px' }} 
+                                            >
+                                                {otpState[device.id] ? otpState[device.id] : 'OTP 발급하기'} 
+                                            </Button>
                                         </div>
                                     ))
                                 ) : (
@@ -146,6 +181,14 @@ export default function Device() {
                                                 onClick={() => handleDeleteDevice(device.id)}
                                             >
                                                 삭제
+                                            </Button>
+                                            <Button 
+                                                variant="contained" 
+                                                color="primary" 
+                                                onClick={() => handleOtp(device.id)} // OTP 발급 버튼
+                                                style={{ marginLeft: '10px' }}
+                                            >
+                                                {otpState[device.id] ? otpState[device.id] : 'OTP 발급하기'}
                                             </Button>
                                         </div>
                                     ))

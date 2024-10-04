@@ -57,6 +57,11 @@ function deleteDevice(deviceId) {
     return instance.delete(`/devices/${deviceId}`)
 }
 
+// otp 발급
+function createOtpNumber(deviceId) {
+    return instance.get(`/auths/device-otps/${deviceId}`)
+}
+
 // 특정 사업체 조회
 function fetchBusiness(id) {
     return instance.get(`/businesses/${id}`);
@@ -328,4 +333,5 @@ export {
     fetchStores,
     createDevice,
     deleteDevice,
+    createOtpNumber,
 }   
