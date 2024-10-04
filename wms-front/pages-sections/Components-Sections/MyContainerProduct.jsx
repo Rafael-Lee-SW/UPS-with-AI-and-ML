@@ -602,23 +602,40 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   const [productColumns, setProductColumns] = useState([]);
 
   // 사장님이 갖고 있는 상품들을 가져오는 API
-  const productGetAPI = async (businessId) => {
+  const productGetAPI = async () => {
+    // 토큰에서 유저정보를 가져온다.(중요)
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // Handle the case where the token is missing (e.g., redirect to login)
+      router.push("/login");
+      return;
+    }
+
+    console.log(token);
+
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/products?businessId=${businessId}`,
+        `https://j11a302.p.ssafy.io/api/stores/13/products`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            // Include the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
+      // console.log(response);
+
       if (response.ok) {
         //성공
-        const apiConnection = await response.json();
+        const apiConnection = await response.clone().json(); // clone the response to avoid consuming the body
         const products = apiConnection.result;
 
+        console.log("Parsed response:", apiConnection);
+        
         // Extract only the required columns
         const formattedData = products.map((product) => ({
           hiddenId: product.id,
@@ -701,6 +718,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         setLoading(false);
       }
     } catch (error) {
+      console.log(error);
       //에러
       setLoading(false);
     }
@@ -715,9 +733,11 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
     EXPORT: "출고",
     FLOW: "이동",
   };
+  // 새로운 알림 API
+  const getNotificationsAPI = 
 
   // 모든 알림(변동내역)을 가져오는 메서드
-  const getNotificationsAPI = async (businessId) => {
+  const getNotificationsAPI_old = async (businessId) => {
     try {
       const response = await fetch(
         `https://j11a302.p.ssafy.io/api/products/notification?businessId=${businessId}`,
@@ -1489,7 +1509,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
 
   useEffect(() => {
     //재고 목록과 알림 내역을 불러온다.
-    productGetAPI(businessId); // 실행되면서 같이 부른다.
+    productGetAPI(); // 실행되면서 같이 부른다.
   }, [openModal]);
 
   // Printing logic
