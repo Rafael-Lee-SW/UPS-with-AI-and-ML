@@ -4,7 +4,7 @@ import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
 
 # Load data and model
-data = pd.read_csv('prepared_sales_data.csv', parse_dates=['purchase_date'])
+data = pd.read_csv('prepared_sales_data.csv', parse_dates=['purchase_date'], dtype={'product_code': str})
 lstm_model = tf.keras.models.load_model('lstm_sales_forecast_model.h5')
 
 def search_and_forecast(product_code):
@@ -26,13 +26,23 @@ def search_and_forecast(product_code):
         X.append(scaled_data[i:i+SEQ_LENGTH])
     X = np.array(X)
 
+    # Check if there is enough data
+    if len(X) == 0:
+        return {
+            "product_code": product_code,
+            "product_description": product_desc,
+            "forecast": [],
+            "message": "Not enough data to generate forecast."
+        }
+
     # Forecast future sales (next 7 days)
     last_sequence = scaled_data[-SEQ_LENGTH:].reshape(1, SEQ_LENGTH, 1)
     future_forecast = []
     for _ in range(7):
         pred = lstm_model.predict(last_sequence)
         future_forecast.append(pred[0][0])
-        last_sequence = np.append(last_sequence[:, 1:, :], [[pred]], axis=1)
+        last_sequence = np.concatenate([last_sequence[:, 1:, :], pred.reshape(1, 1, 1)], axis=1)
+
     future_forecast = scaler.inverse_transform(np.array(future_forecast).reshape(-1, 1)).flatten().tolist()
 
     # Prepare the result
