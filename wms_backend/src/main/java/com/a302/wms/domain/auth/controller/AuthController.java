@@ -7,6 +7,7 @@ import com.a302.wms.domain.auth.dto.response.DeviceSignInResponse;
 import com.a302.wms.domain.auth.dto.response.UserSignInResponse;
 import com.a302.wms.domain.auth.service.AuthServiceImpl;
 import com.a302.wms.domain.auth.service.OtpServiceImpl;
+import com.a302.wms.domain.user.dto.UserResponse;
 import com.a302.wms.global.response.BaseSuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +63,15 @@ public class AuthController {
         return new BaseSuccessResponse<>(authService.signIn(signInRequest));
     }
 
+    @GetMapping("/social-sign-in")
+    public BaseSuccessResponse<UserResponse> getUserInfo(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(name = "email") String email
+    ) {
+        log.info("get user email {}", email);
+        return new BaseSuccessResponse<>(authService.socialSignIn(email));
+    }
+
     /**
      * 유저 및 디바이스 로그아웃
      *
@@ -73,5 +83,5 @@ public class AuthController {
         authService.signOut(header);
         return new BaseSuccessResponse<>(null);
     }
-    
+
 }
