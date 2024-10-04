@@ -70,7 +70,7 @@ public class DeviceController {
      * @param deviceId
      * @return
      */
-    @PostMapping("/{deviceId}")
+    @DeleteMapping("/{deviceId}")
     @Operation(summary = "디바이스 삭제", tags = {"디바이스 관리"})
     public BaseSuccessResponse<Void> deleteDevice(
             @AuthenticationPrincipal Long userId,
