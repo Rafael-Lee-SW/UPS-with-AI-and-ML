@@ -66,7 +66,8 @@ public class StoreServiceImpl {
         User user = userRepository.findById(userId).orElseThrow();
 
         Store savedStore = storeRepository.save(StoreMapper.fromCreateRequestDto(storeCreateRequest, user));
-        StoreResponse response = StoreMapper.toResponseDto(savedStore);
+        List<DeviceResponse> deviceResponseList = savedStore.getDevices().stream().map(DeviceMapper::toResponseDto).toList();
+        StoreResponse response = StoreMapper.toResponseDto(savedStore, deviceResponseList);
         log.info("{}", response);
 
         return response;
@@ -87,7 +88,9 @@ public class StoreServiceImpl {
 
         store.update(storeUpdateRequest);
         Store updatedStore = storeRepository.save(store);
-        return StoreMapper.toResponseDto(updatedStore);
+        List<DeviceResponse> deviceResponseList = updatedStore.getDevices().stream().map(DeviceMapper::toResponseDto).toList();
+
+        return StoreMapper.toResponseDto(updatedStore, deviceResponseList);
     }
 
     /**
