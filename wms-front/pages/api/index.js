@@ -53,8 +53,8 @@ function createDevice(data = {}) {
 }
 
 // 디바이스 삭제
-function deleteDevice(data = {}) {
-    return instance.delete('/devices', data)
+function deleteDevice(deviceId) {
+    return instance.delete(`/devices/${deviceId}`)
 }
 
 // 특정 사업체 조회

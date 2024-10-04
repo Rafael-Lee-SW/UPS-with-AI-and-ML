@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
-import { fetchStores, createDevice } from '../../pages/api/index'; 
+import { fetchStores, createDevice, deleteDevice } from '../../pages/api/index'; 
 import { useRouter } from 'next/router';
 
 const useStyles = makeStyles((theme) => ({
@@ -64,13 +64,9 @@ export default function Device() {
         }
     };
 
-    const removeDevice = async (deviceType, deviceId) => {
+    const removeDevice = async (deviceId) => {
         try {
-            const data = {
-                "storeId": currentStore.id,
-                "deviceType": deviceType
-            };
-            await deleteDevice(data); 
+            await deleteDevice(deviceId); 
             
             setCurrentStore(prevStore => ({
                 ...prevStore,
@@ -96,7 +92,7 @@ export default function Device() {
     };
 
     const handleDeleteDevice = (deviceId) => {
-        removeDevice(deviceType, deviceId);
+        removeDevice(deviceId);
     };
 
     return (
