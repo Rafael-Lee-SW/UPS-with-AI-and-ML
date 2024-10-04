@@ -17,5 +17,5 @@ public record StoreDetailResponse(
         LocalDateTime updatedDate,
         List<LocationResponse> locations,
         List<WallResponse> walls
-        ) {
+) {
 }
