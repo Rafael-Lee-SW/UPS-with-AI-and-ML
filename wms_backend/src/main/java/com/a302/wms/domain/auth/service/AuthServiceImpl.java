@@ -11,10 +11,14 @@ import com.a302.wms.domain.device.dto.DeviceResponse;
 import com.a302.wms.domain.device.entity.Device;
 import com.a302.wms.domain.device.mapper.DeviceMapper;
 import com.a302.wms.domain.device.repository.DeviceRepository;
+import com.a302.wms.domain.product.dto.ProductResponse;
+import com.a302.wms.domain.product.mapper.ProductMapper;
+import com.a302.wms.domain.product.repository.ProductRepository;
 import com.a302.wms.domain.user.dto.UserResponse;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.mapper.UserMapper;
 import com.a302.wms.domain.user.repository.UserRepository;
+import com.a302.wms.domain.user.service.UserServiceImpl;
 import com.a302.wms.global.constant.DeviceTypeEnum;
 import com.a302.wms.global.constant.ResponseEnum;
 import com.a302.wms.global.constant.TokenRoleTypeEnum;
@@ -27,6 +31,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -42,6 +47,8 @@ public class AuthServiceImpl {
     private final OtpServiceImpl otpService;
     private final RedisTemplate<String, String> redisTemplate;
     private final DeviceRepository deviceRepository;
+    private final UserServiceImpl userServiceImpl;
+    private final ProductRepository productRepository;
 
 
     /**
@@ -56,7 +63,15 @@ public class AuthServiceImpl {
         DeviceResponse deviceResponse = DeviceMapper.toResponseDto(device);
 
         TokenRoleTypeEnum roleType = (device.getDeviceType() == DeviceTypeEnum.KIOSK) ? TokenRoleTypeEnum.KIOSK : TokenRoleTypeEnum.CAMERA;
-        return AuthMapper.fromDeviceToken(createToken(roleType, deviceId), deviceResponse);
+
+        if (device.getDeviceType().equals(DeviceTypeEnum.KIOSK)) {
+            List<ProductResponse> productResponseList = productRepository.findByStoreId(device.getStore().getId())
+                    .stream()
+                    .map(ProductMapper::toProductResponse)
+                    .toList();
+
+            return AuthMapper.fromDeviceToken(createToken(roleType, deviceId), deviceResponse, productResponseList);
+        } else return AuthMapper.fromDeviceToken(createToken(roleType, deviceId), deviceResponse, null);
     }
 
     /**
@@ -99,7 +114,14 @@ public class AuthServiceImpl {
         String accessToken = header.substring(TOKEN_SPLIT_INDEX);
         redisTemplate.delete(accessToken);
     }
-    
+
+    public UserResponse socialSignIn(String email) {
+        log.info("get user email {}", email);
+        // 토큰과 이메일을 검증하여 사용자 정보 반환
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CommonException(ResponseEnum.USER_NOT_FOUND, "등록된 유저가 없습니다."));
+        return UserMapper.toUserResponse(user);
+    }
+
 }
 
 
