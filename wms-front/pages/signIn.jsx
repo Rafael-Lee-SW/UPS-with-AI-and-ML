@@ -141,7 +141,6 @@ export default function Login() {
         router.push('/'); 
       }
     } catch (error) {
-      console.log(error)
       if (error.response) {
         if (error.response.httpStatus === 400 && error.response.data.statusCode === 4000) {
           notify('로그인에 실패하였습니다. 입력한 정보를 확인하세요.');

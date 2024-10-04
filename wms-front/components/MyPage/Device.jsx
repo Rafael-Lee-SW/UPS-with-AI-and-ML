@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
-import { fetchStores } from '../../pages/api/index'; // API 가져오기
+import { fetchStores, createDevice } from '../../pages/api/index'; 
 import { useRouter } from 'next/router';
 
 const useStyles = makeStyles((theme) => ({
@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function Device({ userId }) {
+export default function Device() {
     const classes = useStyles();
     const router = useRouter();
     const [stores, setStores] = useState([]);
@@ -38,16 +38,51 @@ export default function Device({ userId }) {
 
     const getStores = async () => {
         try {
-            const response = await fetchStores(); // 유저의 매장 정보 가져오기
-            const stores = response.data.result.storeResponseDto;
+            const response = await fetchStores(); 
+            const stores = response.data.result;
             setStores(stores);
         } catch (error) {
-            router.push('/404'); // 에러 발생 시 404 페이지로 이동
+            router.push('/404'); 
+        }
+    };
+
+    const addDevice = async (deviceType) => {
+        try {
+            const data = {
+                "storeId": currentStore.id,
+                "deviceType": deviceType
+            };
+            const response = await createDevice(data); 
+            const newDevice = response.data.result; 
+            
+            setCurrentStore(prevStore => ({
+                ...prevStore,
+                devices: [...prevStore.devices, newDevice] 
+            }));
+                
+        } catch (error) {
+        }
+    };
+
+    const removeDevice = async (deviceType, deviceId) => {
+        try {
+            const data = {
+                "storeId": currentStore.id,
+                "deviceType": deviceType
+            };
+            await deleteDevice(data); 
+            
+            setCurrentStore(prevStore => ({
+                ...prevStore,
+                devices: prevStore.devices.filter(device => device.id !== deviceId) 
+            }));
+        } catch (error) {
+            console.error("기기 삭제 실패:", error);
         }
     };
 
     const handleOpen = (store) => {
-        setCurrentStore(store); // 선택된 매장 정보 저장
+        setCurrentStore(store); 
         setOpen(true);
     };
 
@@ -56,14 +91,12 @@ export default function Device({ userId }) {
         setCurrentStore(null);
     };
 
-    const handleAddDevice = () => {
-        // 기기 추가 로직
-        console.log('기기 추가');
+    const handleAddDevice = (deviceType) => {
+        addDevice(deviceType); 
     };
 
     const handleDeleteDevice = (deviceId) => {
-        // 기기 삭제 로직
-        console.log('기기 삭제', deviceId);
+        removeDevice(deviceType, deviceId);
     };
 
     return (
@@ -73,7 +106,7 @@ export default function Device({ userId }) {
                 {stores.length > 0 ? (
                     stores.map((store) => (
                         <Card key={store.id} onClick={() => handleOpen(store)} className={classes.card}>
-                            <p>{store.name}</p> {/* 매장 이름 표시 */}
+                            <p>{store.storeName}</p> 
                         </Card>
                     ))
                 ) : (
@@ -81,39 +114,64 @@ export default function Device({ userId }) {
                 )}
             </div>
 
-            {/* 매장 상세 정보 모달 */}
             <Dialog open={open} onClose={handleClose}>
                 <div className={classes.modalTitle}><DialogTitle>매장 상세 정보</DialogTitle></div>
                 <DialogContent>
                     {currentStore && (
                         <>
-                            <p>매장 이름: {currentStore.name}</p>
-                            {currentStore.devices && currentStore.devices.length > 0 ? (
-                                <div className={classes.deviceList}>
-                                    <h4>등록된 기기 목록</h4>
-                                    {currentStore.devices.map((device) => (
+                            <p>매장 이름: {currentStore.storeName}</p>
+                            <div className={classes.deviceList}>
+                                <h4>등록된 키오스크 목록</h4>
+                                {currentStore.devices && currentStore.devices.length > 0 ? (
+                                    currentStore.devices.filter(device => device.deviceType === 'KIOSK').map((device) => (
                                         <div key={device.id}>
-                                            <p>기기 이름: {device.name}</p>
+                                            <p>키오스크 ID: {device.id}</p>
                                             <Button 
                                                 variant="contained" 
                                                 color="secondary" 
                                                 onClick={() => handleDeleteDevice(device.id)}
                                             >
-                                                기기 삭제
+                                                삭제
                                             </Button>
                                         </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p>등록된 기기가 없습니다.</p>
-                            )}
+                                    ))
+                                ) : (
+                                    <p>등록된 키오스크가 없습니다.</p>
+                                )}
+                                
+                                <h4>등록된 카메라 목록</h4>
+                                {currentStore.devices && currentStore.devices.length > 0 ? (
+                                    currentStore.devices.filter(device => device.deviceType === 'CAMERA').map((device) => (
+                                        <div key={device.id}>
+                                            <p>카메라 ID: {device.id}</p>
+                                            <Button 
+                                                variant="contained" 
+                                                color="secondary" 
+                                                onClick={() => handleDeleteDevice(device.id)}
+                                            >
+                                                삭제
+                                            </Button>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p>등록된 카메라가 없습니다.</p>
+                                )}
+                            </div>
                             <Button 
                                 variant="contained" 
                                 color="primary" 
                                 className={classes.deviceButton}
-                                onClick={handleAddDevice}
+                                onClick={() => handleAddDevice('KIOSK')}
                             >
-                                기기 추가
+                                KIOSK 추가
+                            </Button>
+                            <Button 
+                                variant="contained" 
+                                color="primary" 
+                                className={classes.deviceButton}
+                                onClick={() => handleAddDevice('CAMERA')}
+                            >
+                                CAMERA 추가
                             </Button>
                         </>
                     )}

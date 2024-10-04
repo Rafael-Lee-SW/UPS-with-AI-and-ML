@@ -7,7 +7,8 @@ import React, { useState, useEffect, useRef } from "react";
 
 // Import MUI components
 import Fab from "@mui/material/Fab";
-import Button from "@mui/material/Button";
+// core components
+import Button from "/components/CustomButtons/Button.js";
 // 모달 페이지를 위한 Import
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -22,6 +23,9 @@ import IconButton from "@mui/material/IconButton";
 //줌인 줌아웃
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
+//모바일 메뉴 아이콘
+import MenuIcon from "@mui/icons-material/Menu";
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
 // Import SheetJS xlsx for Excel operations
 import * as XLSX from "xlsx";
 // Import Handsontable plugins and cell types
@@ -132,6 +136,36 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
       rotation: 0,
       warehouseId: WHId,
     },
+    {
+      id: "1",
+      x: 50,
+      y: 50,
+      z: 50,
+      width: 50,
+      height: 50,
+      fill: "blue",
+      draggable: false,
+      order: 1,
+      name: "임시1",
+      type: "location",
+      rotation: 0,
+      warehouseId: WHId,
+    },
+    {
+      id: "2",
+      x: 500,
+      y: 500,
+      z: 50,
+      width: 200,
+      height: 200,
+      fill: "blue",
+      draggable: false,
+      order: 1,
+      name: "임시2",
+      type: "location",
+      rotation: 0,
+      warehouseId: WHId,
+    },
   ]);
 
   // 마지막으로 클릭한 상자를 추적하는 상태 추가
@@ -163,6 +197,20 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
   const [hoveredAnchor, setHoveredAnchor] = useState(null);
   // 선택된 층을 알려주는 Method
   const [selectedFloor, setSelectedFloor] = useState(1);
+
+  // 모바일 화면에서 우측 사이드바 토글 방식으로 크고/끄는 방식
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+
+  // 모바일 화면에서 우측 사이드바 토글 함수
+  const toggleSidebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
+  };
+
+  const [pendingContentUpdate, setPendingContentUpdate] = useState(false);
+  const [newContentToShow, setNewContentToShow] = useState("inventory");
+
+  // 모바일 화면에서 우측 사이드바의 컨텐츠를 알림 목록, 토글 방식으로 크고/끄는 방식
+  const [contentVisible, setContentVisible] = useState(true);
 
   /**
    * 창고 관련 Const 끝
@@ -1223,6 +1271,60 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
     },
   };
 
+// Button click handler for Inventory (재고목록)
+const handleInventoryClick = () => {
+  if (isSidebarVisible && showDetails) {
+    // If inventory is already showing, close the sidebar
+    setIsSidebarVisible(false);
+  } else if (isSidebarVisible && !showDetails) {
+    // If sidebar is open but showing a different content, close it and update content
+    setIsSidebarVisible(false); // Close sidebar
+    setTimeout(() => {
+      setShowDetails(true)
+      setNewContentToShow("inventory"); // Update content to Inventory
+      setIsSidebarVisible(true); // Reopen sidebar
+    }, 300); // Add slight delay to ensure smooth closing before reopening
+  } else {
+    // If sidebar is closed, update content and open it
+    setNewContentToShow("inventory"); // Set content to Inventory
+    setShowDetails(true);
+    setIsSidebarVisible(true); // Open sidebar
+  }
+};
+
+// Button click handler for Notifications (알림목록)
+const handleNotificationClick = () => {
+  if (isSidebarVisible && !showDetails) {
+    // If notifications are already showing, close the sidebar
+    setIsSidebarVisible(false);
+  } else if (isSidebarVisible && showDetails) {
+    // If sidebar is open but showing different content, close it and update content
+    setIsSidebarVisible(false); // Close sidebar
+    setTimeout(() => {
+      setShowDetails(false)
+      setNewContentToShow("notifications"); // Update content to Notifications
+      setIsSidebarVisible(true); // Reopen sidebar
+    }, 300); // Add slight delay for smooth transition
+  } else {
+    // If sidebar is closed, update content and open it
+    setShowDetails(false);
+    setNewContentToShow("notifications"); // Set content to Notifications
+    setIsSidebarVisible(true); // Open sidebar
+  }
+};
+
+// Effect to handle sidebar content switching when sidebar is closed
+useEffect(() => {
+  if (!isSidebarVisible && pendingContentUpdate) {
+    // Once sidebar is closed, update content and reopen it
+    setTimeout(() => {
+      setContentVisible(newContentToShow === "inventory");
+      setPendingContentUpdate(false);
+      setIsSidebarVisible(true); // Reopen sidebar
+    }, 300); // Delay for smooth transition
+  }
+}, [isSidebarVisible, pendingContentUpdate, newContentToShow, showDetails]);
+
   return (
     <div className={classes.navigationContainer}>
       <Stage
@@ -1268,16 +1370,49 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
         </Layer>
       </Stage>
       <div className={classes.buttonContainer}>
-        <Button round onClick={handleZoomIn} style={{ color: "#7D4A1A" }}>
+        <Button
+          justIcon
+          round
+          onClick={handleZoomIn}
+          style={{ backgroundColor: "#7D4A1A" }}
+        >
           <ZoomInIcon className={classes.icons} />
         </Button>
-        <Button onClick={handleZoomOut} style={{ color: "#7D4A1A" }}>
+        <Button
+          justIcon
+          round
+          onClick={handleZoomOut}
+          style={{ backgroundColor: "#ADAAA5" }}
+        >
           <ZoomOutIcon className={classes.icons} />
+        </Button>
+        {/* This button will be appear at Mobile Screen to control the showing RightSidebar */}
+        <Button
+          justIcon
+          round
+          className={classes.toggleSidebarButton}
+          style={{ backgroundColor: "#999999" }}
+          onClick={handleInventoryClick}
+        >
+          <MenuIcon className={classes.zoomicons} />
+        </Button>
+        {/* This button will be appear at Mobile Screen to control the showing RightSidebar */}
+        <Button
+          justIcon
+          round
+          className={classes.toggleSidebarButton}
+          style={{ backgroundColor: "#999999" }}
+          onClick={handleNotificationClick}
+        >
+          <LightbulbIcon className={classes.zoomicons} />
         </Button>
       </div>
       {/* left Sidebar */}
-      <div className={classes.leftSidebar}>
-        <hr />
+      <div
+        className={`${classes.leftSidebar} ${
+          isSidebarVisible ? classes.sidebarVisible : classes.sidebarHidden
+        }`}
+      >
         <div className={classes.leftSidebarContent}>
           <Button
             className={classes.sidebarButton}
@@ -1367,7 +1502,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                 setHoveredLocations([]); // Reset hovered locations
               }}
             >
-              Close
+              닫기
             </Button>
           </div>
           {showDetails && selectedLocation ? (
@@ -1375,14 +1510,14 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
               <div>
                 <div id="상자 정보" className={classes.infoBox}>
                   <div id="상자 숫자 정보" className={classes.infoBoxNum}>
-                    <h3 style={{ marginTop: 0 }}>
-                      재고함 : {selectedLocation.name}
+                    <h3 className={classes.infoBoxTitle}>
+                      위치: {selectedLocation.name}
                     </h3>
                     <b>가로 : {selectedLocation.width}cm</b>
                     <b>세로 : {selectedLocation.height}cm</b>
                     <b>단수(층) : {selectedLocation.z}단/층</b>
                     <b>
-                      현재 재고율 :{" "}
+                      재고율 :{" "}
                       {extractFillPercentage(selectedLocation.fill)}%{" "}
                     </b>
                   </div>

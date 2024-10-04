@@ -6,7 +6,7 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('accessToken'); 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -20,8 +20,9 @@ instance.interceptors.request.use(
 // 응답 인터셉터 설정
 instance.interceptors.response.use(
   response => {
-    const newAccessToken = response.headers['accesstoken']; 
+    const newAccessToken = response.headers['authorization']; 
     if (newAccessToken) {
+        console.log("새로운 토큰", newAccessToken);
       localStorage.setItem('accessToken', newAccessToken);
     }
     return response;
@@ -38,13 +39,23 @@ function fetchUser(id) {
 
 // 유저 수정
 function editUser(id, data = {}) {
-    return instance.put(`users/${id}`, data)
+    return instance.put(`/users/${id}`, data)
 }
 
 // 사업체 등록
 function createBusiness(id, data = {}) {
     return instance.post(`/businesses?userId=${id}`, data)
 } 
+
+// 디바이스 추가
+function createDevice(data = {}) {
+    return instance.post('/devices', data)
+}
+
+// 디바이스 삭제
+function deleteDevice(data = {}) {
+    return instance.delete('/devices', data)
+}
 
 // 특정 사업체 조회
 function fetchBusiness(id) {
@@ -207,8 +218,8 @@ function fetchExport(businessId) {
 }
 
 // 사업체의 입고, 출고 내역 조회
-function fetchNotifications(businessId) {
-    return instance.get(`products/notification?businessId=${businessId}`)
+function fetchNotifications() {
+    return instance.get('/notifications')
 }
 
 // 특정 상품 정보 조회
@@ -315,4 +326,6 @@ export {
     fetchFloors,
     fetchLocationFloors,
     fetchStores,
+    createDevice,
+    deleteDevice,
 }   

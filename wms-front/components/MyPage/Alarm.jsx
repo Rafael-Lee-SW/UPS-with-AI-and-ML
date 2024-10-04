@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 const useStyles = makeStyles(style)
 
 // 알람 리스트 Component
-export default function Alarm({ businessId }) {
+export default function Alarm({ userId }) {
     const classes = useStyles();
     const router = useRouter();
     const [open, setOpen] = useState(false);
@@ -22,7 +22,7 @@ export default function Alarm({ businessId }) {
     const getNotifications = async () => {
         if ( businessId !== -1 ) {
             try {
-                const response = await fetchNotifications(businessId);
+                const response = await fetchNotifications();
                 const notifications = response.data.result.productFlowResponseDtos;
                 
                 setNotifications(notifications);

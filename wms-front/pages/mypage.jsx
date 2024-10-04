@@ -23,18 +23,6 @@ export default function Mypage() {
   const [email, setEmail] = useState('');
   const [createdDate, setCreatedDate] = useState('');
 
-  const defaultUser = {
-    id: 1,
-    name: "홍길동",
-    email: "hong@example.com",
-    nickname: "길동",
-    businessId: 101,
-    roleTypeEnum: "BUSINESS",
-    businessName: "홍길동 상사",
-    businessNumber: "123-45-67890",
-    createdDate: "2020-01-01"
-  };
-
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     const accessToken = localStorage.getItem('accessToken');
@@ -56,30 +44,26 @@ export default function Mypage() {
   const getUserInfo = async () => {
     try {
       const response = await fetchUser(userId);
-      const { id, name, email } = response.data.result;
+      const { id, userName, email, createdDate } = response.data.result;
       setUserId(id);
-      setName(name);
+      setName(userName);
       setEmail(email);
+      setCreatedDate(createdDate);
     } catch (error) {
       router.push('/404');
     }
   }
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  }
   
-
   const renderComponent = () => {
     switch (selectedComponent) {
       case 'alarm':
-        return <Alarm businessId={businessId} />;
+        return <Alarm userId={userId} />;
       case 'edit':
         return <EditInfo userId={userId} name={name} email={email} createdDate={createdDate}/>;
       case 'info':
         return <Info name={name} email={email} createdDate={createdDate}/>;
       case 'device':
-        return <Device userId={userId}/>
+        return <Device/>
       default:
         return (
           <div>
