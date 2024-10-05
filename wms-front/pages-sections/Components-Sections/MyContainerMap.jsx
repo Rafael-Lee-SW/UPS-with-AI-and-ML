@@ -41,7 +41,7 @@ const useStyles = makeStyles(styles);
  * 창고 관리 Component
  */
 
-const MyContainerMap = ({ warehouseId, businessId }) => {
+const MyContainerMap = ({ storeId, businessId }) => {
   const router = useRouter();
   const classes = useStyles();
   const stageRef = useRef(null);
@@ -172,6 +172,11 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     setIsSidebarVisible(!isSidebarVisible);
   };
 
+  /**
+   * 로딩 파트
+   */
+  const [loading, setLoading] = useState(false); // 수정필수 : 여기를 true 바꿔야 한다.
+
   const notify = (message) =>
     toast(message, {
       position: "top-center",
@@ -183,9 +188,6 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       progress: undefined,
     });
 
-  // 로딩 Loading
-  const [loading, setLoading] = useState(false); // 수정필수 : 여기를 true 바꿔야 한다.
-
   // 창고 배열을 저장하기 위한 초기 세팅
   const initialContainer = Array.from({ length: CANVAS_SIZE }, () =>
     Array.from({ length: CANVAS_SIZE }, () => ({
@@ -193,6 +195,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       code: "air",
     }))
   );
+
   // 창고 전체 배열을 저장하기 위한 Container State
   const [container, setContainer] = useState(initialContainer);
 
@@ -207,17 +210,16 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   const [locations, setLocations] = useState([
     {
       id: "0",
-      x: 0,
-      y: 0,
-      z: 0,
-      width: 0,
-      height: 0,
-      fill: "blue",
+      rotation: 0, // rotation
+      x: 0, // x_position
+      y: 0, // y_position
+      z: 0, // z_size
+      width: 0, // x_size
+      height: 0, // y_size
+      // fill: "blue",
       draggable: false,
-      order: 0,
-      name: "임시",
-      type: "임시",
-      rotation: 0,
+      name: "임시", // name
+      // type: "임시",
     },
   ]);
   // Check if position is within bounds / 캔버스 바운드 안에 들어가는지를 확인
@@ -226,6 +228,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       x >= 0 && y >= 0 && x + width <= CANVAS_SIZE && y + height <= CANVAS_SIZE
     );
   };
+
   // Function to handle dragging
   const handleDragMove = (e, rect) => {
     const node = e.target;
@@ -349,7 +352,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       z: newLocationZIndex,
       width: newLocationWidth,
       height: newLocationHeight,
-      fill: newLocationColor,
+      fill: "blue",
       draggable: true,
       order: locations.length + 1,
       name: newName, // 생성된 name 사용
@@ -362,24 +365,23 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
     // API 요청을 위한 location 데이터를 작성
     const locationData = {
-      xPosition: newLocation.x,
-      yPosition: newLocation.y,
-      zSize: newLocation.z,
-      xSize: newLocation.width,
-      ySize: newLocation.height,
       name: newLocation.name,
-      productStorageType: newLocationType, // 상온, 냉장 등등
+      xPosition : newLocation.x,
+      yPosition : newLocation.y,
+      xSize : newLocation.width, // 가로
+      ySize : newLocation.height, // 세로
+      zSize : newLocation.z, // 높이
       rotation: newLocation.rotation,
-      touchableFloor: 2, // 임시로 2로 설정
+      touchableFloor : 2,
     };
 
     // API 호출 - 생성된 로케이션을 서버에 POST
-    // try {
-    //   await postLocationAPI([locationData], warehouseId);
-    // } catch (error) {
-    //   console.error("Error adding location:", error);
-    //   notify("로케이션 추가 중 오류가 발생했습니다.");
-    // }
+    try {
+      await postLocationAPI([locationData], storeId);
+    } catch (error) {
+      console.error("Error adding location:", error);
+      notify("로케이션 추가 중 오류가 발생했습니다.");
+    }
 
     // 적재함 추가 후 값 초기화
     setNewLocationColor("blue");
@@ -391,24 +393,36 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     setColumnNumber(""); // 행/열 선택 모드 초기화
   };
 
-  const postLocationAPI = async (requests, warehouseId) => {
-    const total = { requests, warehouseId };
+  // 로케이션 추가 API
+  const postLocationAPI = async (requests, storeId) => {
+    const locationListCreateRequest = { requests, storeId };
+
+    // 토큰에서 유저정보를 가져온다.
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // 토큰 유무로 로그인 여부를 판단하여 로그인 상태가 아닐 경우 로그인 창으로
+      router.push("/signIn");
+      return;
+    }
 
     try {
-      const response = await fetch(`https://j11a302.p.ssafy.io/api/locations`, {
+      const response = await fetch(`https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/locations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(total),
+        body: JSON.stringify(locationListCreateRequest),
       });
 
       if (response.ok) {
-        getWarehouseAPI(warehouseId);
+        console.log(response);
       } else {
         router.push("/404");
       }
     } catch (error) {
+      console.log(error);
       router.push("/404");
     }
   };
@@ -455,10 +469,10 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       endY: end.y(),
     }));
 
-    //모든 데이터를 warehouseData로 담아서 전송한다.
-    const warehouseData = { locations: locationData, walls: wallData };
+    //모든 데이터를 storeData로 담아서 전송한다.
+    const storeData = { locations: locationData, walls: wallData };
 
-    console.log(warehouseData);
+    console.log(storeData);
 
     try {
       const response = await fetch(
@@ -468,7 +482,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(warehouseData),
+          body: JSON.stringify(storeData),
         }
       );
 
@@ -554,7 +568,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
   // API를 통해 해당하는 창고(번호)의 모든 location(적재함)과 wall(벽)을 가져오는 메서드
   const getWarehouseAPI = async () => {
-    // 토큰에서 유저정보를 가져온다.(중요)
+    // 토큰에서 유저정보를 가져온다.(로그인 확인)
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -565,7 +579,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/stores/13/structure`,
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}`,
         {
           method: "GET",
           headers: {
@@ -576,17 +590,16 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
         }
       );
 
-      console.log(response);
-
       if (response.ok) {
-
         const apiConnection = await response.json();
-        const warehouseData = apiConnection.result; // 데이터 추출
+        const storeData = apiConnection.result; // 데이터 추출
+
+        console.log("Parsed response:", apiConnection);
 
         // 받아온 데이터 중 로케이션 데이터 처리
-        const locations = warehouseData.locations;
+        const locations = storeData.locations;
         if (!locations) {
-          //에러 발생
+          //로케이션 없음
           return;
         }
 
@@ -622,9 +635,9 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
         });
 
         // 벽 데이터 처리
-        const walls = warehouseData.walls;
+        const walls = storeData.walls;
         if (!walls) {
-          //에러 발생
+          //벽 없음
           return;
         }
 
@@ -1791,7 +1804,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             <p>이름 : {selectedLocation.name}</p>
             <p>타입 : {selectedLocation.type}</p>
             <p>층수 : {selectedLocation.z}</p>
-            <p>현재 재고율 : {extractFillPercentage(selectedLocation.fill)}%</p>
+            <p>현재 재고율 : {extractFillPercentage("blue")}%</p>
             <p>
               가로 : {selectedLocation.width}cm | 세로 :{" "}
               {selectedLocation.height}cm
@@ -2022,7 +2035,7 @@ const RectangleTransformer = ({
         listening={false} // Disable interactions with the text
       />
       <Text
-        text={`${extractFillPercentage(shapeProps.fill)}%`}
+        // text={`${extractFillPercentage(shapeProps.fill)}%`}
         x={shapeProps.x}
         y={shapeProps.y}
         z={shapeProps.z}

@@ -210,7 +210,6 @@ const Select = ({fetchedStores, ...rest}) => {
       });
 
       if (response.ok) {
-        console.log("Check the each point6");
         const newWarehouse = await response.json();
         const warehouses = newWarehouse.result;
 

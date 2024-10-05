@@ -42,36 +42,35 @@ export default function Components({
   const [cards, setCards] = useState(initialCards || []);
   const [userData, setUserData] = useState(initialUserData || null);
   const [businessData, setBusinessData] = useState(initialBusinessData || null);
-  const [selectedWarehouse, setSelectedWarehouse] = useState(id || "");
-  const [selectedWarehouseTitle, setSelectedWarehouseTitle] = useState(""); // State to store the selected warehouse title
-  const [currentIndex, setCurrentIndex] = useState(2);
+  const [selectedStore, setSelectedStore] = useState(id || "");
+  const [selectedStoreTitle, setSelectedStoreTitle] = useState(""); // State to store the selected warehouse title
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // Dynamic component array
   const componentsArray = [
     <DynamicMyContainerMap
-      key={`map-${selectedWarehouse}`}
-      warehouseId={selectedWarehouse}
-      businessId={userData?.businessId}
+      key={`map-${selectedStore}`}
+      storeId={selectedStore}
     />,
     <DynamicMyContainerNavigation
-      key={`nav-${selectedWarehouse}`}
-      WHId={selectedWarehouse}
+      key={`nav-${selectedStore}`}
+      WHId={selectedStore}
       businessId={userData?.businessId}
       warehouses={cards}
     />,
     <DynamicMyContainerProduct
-      key={`product-${selectedWarehouse}`}
-      WHId={selectedWarehouse}
+      key={`product-${selectedStore}`}
+      WHId={selectedStore}
       businessId={userData?.businessId}
       warehouses={cards}
-      warehouseTitle={selectedWarehouseTitle}
+      warehouseTitle={selectedStoreTitle}
     />,
     <DynamicMyStorePrevent
-      key={`product-${selectedWarehouse}`}
-      WHId={selectedWarehouse}
+      key={`product-${selectedStore}`}
+      WHId={selectedStore}
       businessId={userData?.businessId}
       warehouses={cards}
-      warehouseTitle={selectedWarehouseTitle}
+      warehouseTitle={selectedStoreTitle}
     />,
   ];
 
@@ -79,9 +78,9 @@ export default function Components({
     setCurrentIndex(index);
   };
 
-  const handleWarehouseChange = (event) => {
+  const handleStoreChange = (event) => {
     const warehouseId = event.target.value;
-    setSelectedWarehouse(warehouseId);
+    setSelectedStore(warehouseId);
     router.push(`/user/${warehouseId}`, undefined, { shallow: true });
   };
 
@@ -120,12 +119,12 @@ export default function Components({
           </Link>
         </button>
         <br />
-        <div className={classes.currentWarehouseIndex}>현재 창고</div>
+        <div className={classes.currentStoreIndex}>현재 창고</div>
         <div className={classes.warehouseDropdown}>
           <select
             className={classes.warehouseSelect}
-            value={selectedWarehouse}
-            onChange={handleWarehouseChange}
+            value={selectedStore}
+            onChange={handleStoreChange}
           >
             <option value="" disabled>
               창고를 선택하세요
