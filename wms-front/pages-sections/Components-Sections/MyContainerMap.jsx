@@ -559,7 +559,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
     if (!token) {
       // Handle the case where the token is missing (e.g., redirect to login)
-      router.push("/login");
+      router.push("/signIn");
       return;
     }
 

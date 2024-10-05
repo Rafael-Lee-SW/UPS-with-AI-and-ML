@@ -30,7 +30,11 @@ const DynamicMyStorePrevent = dynamic(
 
 const useStyles = makeStyles(styles);
 
-export default function Components({ initialCards, initialUserData, initialBusinessData }) {
+export default function Components({
+  initialCards,
+  initialUserData,
+  initialBusinessData,
+}) {
   const classes = useStyles();
   const router = useRouter();
   const { id } = router.query;
@@ -112,11 +116,7 @@ export default function Components({ initialCards, initialUserData, initialBusin
       <div className={classes.sidebar}>
         <button className={classes.homeButton}>
           <Link href="/components" as="/components">
-            <img
-              className={classes.homeImg}
-              src="/img/logo1.png"
-              alt="logo"
-            />
+            <img className={classes.homeImg} src="/img/logo1.png" alt="logo" />
           </Link>
         </button>
         <br />
@@ -142,36 +142,36 @@ export default function Components({ initialCards, initialUserData, initialBusin
           </select>
         </div>
         <Button
-          className={classNames(classes.buttonStyle,
-            classes.button1,
-            {[classes.selectedButton] : currentIndex === 0})}
+          className={classNames(classes.buttonStyle, classes.button1, {
+            [classes.selectedButton]: currentIndex === 0,
+          })}
           round
           onClick={() => handleNextComponent(0)}
         >
           창고 관리
         </Button>
         <Button
-          className={classNames(classes.buttonStyle,
-            classes.button2,
-            {[classes.selectedButton] : currentIndex === 1})}
+          className={classNames(classes.buttonStyle, classes.button2, {
+            [classes.selectedButton]: currentIndex === 1,
+          })}
           round
           onClick={() => handleNextComponent(1)}
         >
           재고 현황
         </Button>
         <Button
-          className={classNames(classes.buttonStyle,
-            classes.button3,
-            {[classes.selectedButton] : currentIndex === 2})}
+          className={classNames(classes.buttonStyle, classes.button3, {
+            [classes.selectedButton]: currentIndex === 2,
+          })}
           round
           onClick={() => handleNextComponent(2)}
         >
           재고 관리
         </Button>
         <Button
-          className={classNames(classes.buttonStyle,
-            classes.button4,
-            {[classes.selectedButton] : currentIndex === 3})}
+          className={classNames(classes.buttonStyle, classes.button4, {
+            [classes.selectedButton]: currentIndex === 3,
+          })}
           round
           onClick={() => handleNextComponent(3)}
         >
@@ -194,23 +194,39 @@ export default function Components({ initialCards, initialUserData, initialBusin
 // serverSide Rendering이 필요한 곳마다 아래 함수를 사용한다.
 // Use getServerSideProps to fetch data
 export async function getServerSideProps(context) {
-  const { id } = context.params;
+  const { id } = context.params; // 현재 창고 아이디
 
   try {
-    // Fetch user data and warehouse data
-    const userResponse = await fetch(`https://j11a302.p.ssafy.io/api/users/${id}`);
-    const userData = await userResponse.json();
+    // 토큰에서 유저정보를 가져온다.
+    const token = localStorage.getItem("token");
 
-    const warehouseResponse = await fetch(
-      `https://j11a302.p.ssafy.io/api/warehouses?businessId=${userData.result.businessId}`
-    );
-    const warehouseData = await warehouseResponse.json();
+    if (!token) {
+      // 토큰 유무로 로그인 여부를 판단하여 로그인 상태가 아닐 경우 로그인 창으로
+      router.push("/signIn");
+      return;
+    }
+
+    // 유저의 모든 매장 정보를 가져온다.
+    const response = await fetch(`https://j11a302.p.ssafy.io/api/stores`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        // Include the token in the Authorization header
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const apiConnection = await response.clone().json(); // clone the response to avoid consuming the body
+    const stores = apiConnection.result;
+    const storeCards = stores.map((store) => ({
+      id: store.id,
+      storeName: store.storeName,
+    }));
+
+    console.log("Parsed response:", apiConnection);
 
     return {
       props: {
-        initialCards: warehouseData.result || [],
-        initialUserData: userData.result || null,
-        initialBusinessData: userData.result?.businessId || null,
+        initialCards: storeCards || [],
       },
     };
   } catch (error) {
