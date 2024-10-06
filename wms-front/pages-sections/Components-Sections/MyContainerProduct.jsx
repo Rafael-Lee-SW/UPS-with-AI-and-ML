@@ -606,8 +606,8 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
     // 토큰에서 유저정보를 가져온다.(중요)
     const token = localStorage.getItem("token");
 
+    // 로그인 여부 검증 절차
     if (!token) {
-      // Handle the case where the token is missing (e.g., redirect to login)
       router.push("/signIn");
       return;
     }
@@ -616,7 +616,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
 
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/stores/13/products`,
+        `https://j11a302.p.ssafy.io/api/products?storeId=${WHId}`,
         {
           method: "GET",
           headers: {
@@ -627,40 +627,28 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         }
       );
 
-      // console.log(response);
-
       if (response.ok) {
         //성공
         const apiConnection = await response.clone().json(); // clone the response to avoid consuming the body
         const products = apiConnection.result;
 
+        console.log("사장님의 해당 매장 상품 데이터")
         console.log("Parsed response:", apiConnection);
-        
-        // Extract only the required columns
+
+        // Map backend fields to frontend fields
         const formattedData = products.map((product) => ({
-          hiddenId: product.id,
-          name: product.name,
+          hiddenId: product.productId,
+          name: product.productName,
           barcode: product.barcode,
           quantity: product.quantity,
-          locationName:
-            product.locationName === "00-00" ? "임시" : product.locationName,
+          locationName: product.locationName === "00-00" ? "임시" : product.locationName,
           floorLevel: product.floorLevel,
-          expirationDate: product.expirationDate || "없음",
-          warehouseId: product.warehouseId,
+          warehouseId: product.storeId,
+          originalPrice: product.originalPrice,
+          sellingPrice: product.sellingPrice,
         }));
 
         // Define the columns
-        const headers = [
-          "식별자",
-          "이름",
-          "바코드(식별번호)",
-          "수량",
-          "적재함",
-          "단(층)수",
-          "유통기한",
-          "창고",
-        ];
-
         const formattedColumns = [
           { name: "hiddenId", label: "식별자", options: { display: false } },
           { name: "name", label: "상품명" },
@@ -668,8 +656,9 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
           { name: "quantity", label: "수량" },
           { name: "locationName", label: "적재함" },
           { name: "floorLevel", label: "층수" },
-          { name: "expirationDate", label: "유통기한" },
           { name: "warehouseId", label: "창고" },
+          { name: "originalPrice", label: "원가" },
+          { name: "sellingPrice", label: "판매가" },
         ];
 
         // Prepare the data for Handsontable
@@ -680,38 +669,14 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
           product.quantity,
           product.locationName,
           product.floorLevel,
-          product.expirationDate,
           product.warehouseId,
+          product.originalPrice,
+          product.sellingPrice,
         ]);
 
         setProductColumns(formattedColumns);
         setTableData(data);
         setEditData(data); // 둘을 분리할 필요가 있을까?
-
-        // 각 재고함별로 몇개의 데이터가 있는지 계산하는 로직
-        const locationData = products.reduce((acc, product) => {
-          if (product.warehouseId === parseInt(WHId)) {
-            const locationName = product.locationName || "임시";
-            acc[locationName] = (acc[locationName] || 0) + product.quantity;
-          }
-          return acc;
-        }, {});
-
-        const locationLabels = Object.keys(locationData);
-        const locationDataValues = Object.values(locationData);
-
-        setQuantityByLocationData({
-          labels: locationLabels,
-          datasets: [
-            {
-              label: "Total Quantity",
-              data: locationDataValues,
-              backgroundColor: "rgba(75, 192, 192, 0.2)",
-              borderColor: "rgba(75, 192, 192, 1)",
-              borderWidth: 1,
-            },
-          ],
-        });
         setLoading(false);
       } else {
         //에러
@@ -735,7 +700,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   };
   // 새로운 알림 API
   const getNotificationsAPI = async () => {
-    
+
     try {
       const response = await fetch(
         `https://j11a302.p.ssafy.io/api/products/notification?businessId=${businessId}`,
