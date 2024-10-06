@@ -9,13 +9,11 @@ declare global {
       loadProducts: () => Promise<{ name: string; price: number }[]>;
       login: (key: string) => Promise<boolean>;
       navigateToPage: () => Promise<void>;
-      onRFIDDetected: (callback: (rfid: string) => void) => void;
+      onRFIDDetected: (callback: (rfid: string) => void) => () => void; // 리스너 제거 함수 반환
     };
-    // TossPayments 선언
-    TossPayments: (clientKey: string) => TossPaymentsSDK; // 중복되지 않게 한 번만 정의
+    TossPayments: (clientKey: string) => TossPaymentsSDK;
   }
 
-  // TossPaymentsSDK 타입 정의
   interface TossPaymentsSDK {
     requestPayment: (
       method: string,

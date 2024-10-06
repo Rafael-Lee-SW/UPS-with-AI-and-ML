@@ -1,11 +1,14 @@
-import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import styles from "./select.module.css"; // CSS 모듈 가져오기
 
 export default function SelectMethod() {
   const router = useRouter();
   const [isDisabled, setIsDisabled] = useState(false); // 버튼 비활성화 상태 관리
   const [products, setProducts] = useState<any[]>([]); // 상품 정보 상태 관리
+  const [currentIndex, setCurrentIndex] = useState(0); // 현재 보여줄 이미지 인덱스
+
+  const images = ["/poster1.jpg", "/poster2.png", "/poster3.png"]; // 사용할 이미지 목록
 
   // 상품 정보를 받아옴 (이전 페이지에서 전달된 정보)
   useEffect(() => {
@@ -13,6 +16,15 @@ export default function SelectMethod() {
       setProducts(JSON.parse(router.query.products as string));
     }
   }, [router.query]);
+
+  // 5초마다 배경 이미지 인덱스 교체
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length); // 순차적으로 인덱스 변경
+    }, 5000); // 5초마다 실행
+
+    return () => clearInterval(interval); // 컴포넌트 언마운트 시 interval 제거
+  }, []);
 
   // 바코드 인식을 선택했을 때, 상품 정보를 바코드 페이지로 전달
   const handleBarcodeClick = () => {
@@ -34,13 +46,22 @@ export default function SelectMethod() {
 
   return (
     <div className={styles.container}>
-      {/* 상단 7/10 영역 */}
-      <div className={styles.topSection}>
-        {/* 여기에 이미지를 덮는 텍스트나 다른 UI를 추가할 수 있음 */}
+      {/* 슬라이딩 배경 이미지 */}
+      <div
+        className={styles.slidingBackground}
+        style={{ transform: `translateX(-${currentIndex * 100}vw)` }}
+      >
+        {images.map((image, index) => (
+          <div
+            key={index}
+            className={styles.backgroundImage}
+            style={{ backgroundImage: `url(${image})` }}
+          />
+        ))}
       </div>
 
-      {/* 하단 3/10 영역 */}
-      <div className={styles.bottomSection}>
+      {/* 버튼 및 UI 요소 (배경 위에 표시) */}
+      <div className={styles.content}>
         <div className={styles.buttonGroup}>
           <button
             onClick={handleBarcodeClick}

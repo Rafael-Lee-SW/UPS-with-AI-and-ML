@@ -5,7 +5,7 @@ import styles from "./rfid.module.css";
 // 상품 정보 타입 정의
 interface Product {
   productId: number;
-  productName: string;  // 상품명은 productName으로 수정
+  productName: string;
   price: number;
   barcode: string;
   sku: string;
@@ -30,11 +30,12 @@ export default function RFIDPage() {
 
   // 3자리마다 쉼표를 찍는 함수
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ko-KR').format(price);
+    return new Intl.NumberFormat("ko-KR").format(price);
   };
 
   // RFID 데이터가 인식되면 호출될 함수
   const fetchAndSetProducts = (barcode: string) => {
+    console.log(`fetchAndSetProducts 호출됨: ${barcode}`);
     const matchedProduct = products.find(
       (product) => String(product.barcode) === String(barcode)
     );
@@ -46,28 +47,40 @@ export default function RFIDPage() {
         );
 
         if (existingProduct) {
-          existingProduct.quantity += 1;  // 이미 바구니에 존재하는 상품일 경우 수량 증가
+          console.log(`기존 상품 수량 증가: ${existingProduct.productName}`);
+          existingProduct.quantity += 1; // 이미 바구니에 존재하는 상품일 경우 수량 증가
         } else {
-          matchedProduct.quantity = 1;   // 새로운 상품일 경우 수량을 1로 설정
+          console.log(`새로운 상품 추가: ${matchedProduct.productName}`);
+          matchedProduct.quantity = 1; // 새로운 상품일 경우 수량을 1로 설정
           return [...prevScannedProducts, matchedProduct];
         }
 
         return [...prevScannedProducts];
       });
 
-      setTotalPrice((prevTotal) => prevTotal + (matchedProduct.sellingPrice || 0));
+      setTotalPrice(
+        (prevTotal) => prevTotal + (matchedProduct.sellingPrice || 0)
+      );
     }
   };
 
+  // RFID 리스너 등록 및 해제 처리
   useEffect(() => {
-    if (window.electronAPI && window.electronAPI.onRFIDDetected) {
+    // onRFIDDetected 함수가 void를 반환할 수 있음을 명시적으로 허용
+    const removeListener: (() => void) | void =
       window.electronAPI.onRFIDDetected((detectedBarcode: string) => {
+        console.log("RFID 인식된 바코드:", detectedBarcode);
         setBarcode(detectedBarcode);
         fetchAndSetProducts(detectedBarcode);
       });
-    }
-  }, [products]);
 
+    // 컴포넌트 언마운트 시 리스너 해제
+    return () => {
+      if (typeof removeListener === "function") {
+        removeListener(); // 리스너 해제
+      }
+    };
+  }, [products]);
   const removeProduct = (barcode: string) => {
     setScannedProducts((prevScannedProducts) => {
       const updatedProducts = prevScannedProducts.filter(
@@ -91,7 +104,7 @@ export default function RFIDPage() {
     };
 
     router.push({
-      pathname: '/payment/checkout',
+      pathname: "/payment/checkout",
       query,
     });
   };
@@ -115,29 +128,70 @@ export default function RFIDPage() {
             <label className={styles.title}>장바구니</label>
             <div className={styles.products}>
               {scannedProducts.map((product) => (
-                <div key={product.productId} className={styles.product}>  {/* key로 productId 사용 */}
-                  <svg fill="none" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
-                    <rect fill="#FFF6EE" rx="8.25" height="60" width="60"></rect>
+                <div key={product.productId} className={styles.product}>
+                  <svg
+                    fill="none"
+                    viewBox="0 0 60 60"
+                    height="60"
+                    width="60"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <rect
+                      fill="#FFF6EE"
+                      rx="8.25"
+                      height="60"
+                      width="60"
+                    ></rect>
                   </svg>
                   <div>
-                    {/* 3. 상품 이름을 올바르게 출력 (productName 사용) */}
-                    <span>{product.productName}</span> 
+                    <span>{product.productName}</span>
                     <p>{product.sku}</p>
                   </div>
                   <div className={styles.quantity}>
                     <button onClick={() => removeProduct(product.barcode)}>
-                      <svg fill="none" viewBox="0 0 24 24" height="14" width="14" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" stroke="#47484b" d="M20 12L4 12"></path>  {/* camelCase 속성 사용 */}
+                      <svg
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        height="14"
+                        width="14"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinejoin="round"
+                          strokeLinecap="round"
+                          strokeWidth="2.5"
+                          stroke="#47484b"
+                          d="M20 12L4 12"
+                        ></path>
                       </svg>
                     </button>
                     <label>{product.quantity}</label>
-                    <button onClick={() => fetchAndSetProducts(product.barcode)}>
-                      <svg fill="none" viewBox="0 0 24 24" height="14" width="14" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" stroke="#47484b" d="M12 4V20M20 12H4"></path>  {/* camelCase 속성 사용 */}
+                    <button
+                      onClick={() => fetchAndSetProducts(product.barcode)}
+                    >
+                      <svg
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        height="14"
+                        width="14"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinejoin="round"
+                          strokeLinecap="round"
+                          strokeWidth="2.5"
+                          stroke="#47484b"
+                          d="M12 4V20M20 12H4"
+                        ></path>
                       </svg>
                     </button>
                   </div>
-                  <label className={styles.price}>₩{formatPrice((product.sellingPrice || 0) * product.quantity)}</label>
+                  <label className={styles.price}>
+                    ₩
+                    {formatPrice(
+                      (product.sellingPrice || 0) * product.quantity
+                    )}
+                  </label>
                 </div>
               ))}
             </div>
