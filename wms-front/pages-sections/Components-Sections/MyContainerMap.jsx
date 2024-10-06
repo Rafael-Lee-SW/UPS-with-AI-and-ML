@@ -41,7 +41,7 @@ const useStyles = makeStyles(styles);
  * 창고 관리 Component
  */
 
-const MyContainerMap = ({ warehouseId, businessId }) => {
+const MyContainerMap = ({ storeId, businessId }) => {
   const router = useRouter();
   const classes = useStyles();
   const stageRef = useRef(null);
@@ -58,8 +58,8 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     y2: 0,
   });
 
-  // 다중 선택을 위한 State
-  const [selectedIds, setSelectedIds] = useState([]);
+  // 다중 선택을 위한 State(벽과 로케이션 모두 포함)
+  const [selectedShapes, setSelectedShapes] = useState([]);
 
   // 다중 선택을 위한 HandleMouseDown
   const handleMouseDownSelection = (e) => {
@@ -69,7 +69,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     // Check if left-click on empty area
     if (e.evt.button === 0 && e.target === e.target.getStage()) {
       // Left-click on empty area deselects all
-      setSelectedIds([]);
+      setSelectedShapes([]);
       setSelectedLocation(null);
       return;
     }
@@ -128,7 +128,13 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       Konva.Util.haveIntersection(selBox, shape.getClientRect())
     );
 
-    setSelectedIds(selected.map((shape) => shape.id()));
+    // id와 타입을 동시에 저장한다.
+    setSelectedShapes(
+      selected.map((shape) => ({
+        id: shape.id(),
+        type: shape.getAttr("shapeType"),
+      }))
+    );
 
     e.evt.preventDefault();
   };
@@ -146,21 +152,32 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
   // onSelect 함수를 변경한다.
   const onSelect = (e, id) => {
-    // 오른쪽 클릭이면 선택하지 않음
     if (e.evt.button === 2) return;
 
     const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
+    const shapeType = e.target.getAttr("shapeType");
+
     if (metaPressed) {
-      // Multiple selection 다중 선택 상황
-      if (selectedIds.includes(id)) {
-        setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
+      const alreadySelected = selectedShapes.find(
+        (shape) => shape.id === id && shape.type === shapeType
+      );
+      if (alreadySelected) {
+        setSelectedShapes(
+          selectedShapes.filter(
+            (shape) => !(shape.id === id && shape.type === shapeType)
+          )
+        );
       } else {
-        setSelectedIds([...selectedIds, id]);
+        setSelectedShapes([...selectedShapes, { id, type: shapeType }]);
       }
     } else {
-      // Single selection 단일 선택
-      setSelectedIds([id]);
-      setSelectedLocation(locations.find((loc) => loc.id === id));
+      setSelectedShapes([{ id, type: shapeType }]);
+      if (shapeType === "location") {
+        const location = locations.find((loc) => loc.id === id);
+        setSelectedLocation(location || null);
+      } else {
+        setSelectedLocation(null);
+      }
     }
   };
 
@@ -171,6 +188,11 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   const toggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible);
   };
+
+  /**
+   * 로딩 파트
+   */
+  const [loading, setLoading] = useState(false); // 수정필수 : 여기를 true 바꿔야 한다.
 
   const notify = (message) =>
     toast(message, {
@@ -183,9 +205,6 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       progress: undefined,
     });
 
-  // 로딩 Loading
-  const [loading, setLoading] = useState(false); // 수정필수 : 여기를 true 바꿔야 한다.
-
   // 창고 배열을 저장하기 위한 초기 세팅
   const initialContainer = Array.from({ length: CANVAS_SIZE }, () =>
     Array.from({ length: CANVAS_SIZE }, () => ({
@@ -193,6 +212,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       code: "air",
     }))
   );
+
   // 창고 전체 배열을 저장하기 위한 Container State
   const [container, setContainer] = useState(initialContainer);
 
@@ -207,17 +227,16 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   const [locations, setLocations] = useState([
     {
       id: "0",
-      x: 0,
-      y: 0,
-      z: 0,
-      width: 0,
-      height: 0,
-      fill: "blue",
+      rotation: 0, // rotation
+      x: 0, // x_position
+      y: 0, // y_position
+      z: 0, // z_size
+      width: 0, // x_size
+      height: 0, // y_size
+      // fill: "blue",
       draggable: false,
-      order: 0,
-      name: "임시",
-      type: "임시",
-      rotation: 0,
+      name: "임시", // name
+      // type: "임시",
     },
   ]);
   // Check if position is within bounds / 캔버스 바운드 안에 들어가는지를 확인
@@ -226,6 +245,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       x >= 0 && y >= 0 && x + width <= CANVAS_SIZE && y + height <= CANVAS_SIZE
     );
   };
+
   // Function to handle dragging
   const handleDragMove = (e, rect) => {
     const node = e.target;
@@ -349,7 +369,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       z: newLocationZIndex,
       width: newLocationWidth,
       height: newLocationHeight,
-      fill: newLocationColor,
+      fill: "blue",
       draggable: true,
       order: locations.length + 1,
       name: newName, // 생성된 name 사용
@@ -362,24 +382,23 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
     // API 요청을 위한 location 데이터를 작성
     const locationData = {
+      name: newLocation.name,
       xPosition: newLocation.x,
       yPosition: newLocation.y,
-      zSize: newLocation.z,
-      xSize: newLocation.width,
-      ySize: newLocation.height,
-      name: newLocation.name,
-      productStorageType: newLocationType, // 상온, 냉장 등등
+      xSize: newLocation.width, // 가로
+      ySize: newLocation.height, // 세로
+      zSize: newLocation.z, // 높이
       rotation: newLocation.rotation,
-      touchableFloor: 2, // 임시로 2로 설정
+      touchableFloor: 2,
     };
 
     // API 호출 - 생성된 로케이션을 서버에 POST
-    // try {
-    //   await postLocationAPI([locationData], warehouseId);
-    // } catch (error) {
-    //   console.error("Error adding location:", error);
-    //   notify("로케이션 추가 중 오류가 발생했습니다.");
-    // }
+    try {
+      await postLocationAPI([locationData], storeId);
+    } catch (error) {
+      console.error("Error adding location:", error);
+      notify("로케이션 추가 중 오류가 발생했습니다.");
+    }
 
     // 적재함 추가 후 값 초기화
     setNewLocationColor("blue");
@@ -391,29 +410,83 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     setColumnNumber(""); // 행/열 선택 모드 초기화
   };
 
-  const postLocationAPI = async (requests, warehouseId) => {
-    const total = { requests, warehouseId };
+  // 로케이션 추가 API
+  const postLocationAPI = async (requests, storeId) => {
+    const locationListCreateRequest = { requests, storeId };
+
+    // 토큰에서 유저정보를 가져온다.
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // 토큰 유무로 로그인 여부를 판단하여 로그인 상태가 아닐 경우 로그인 창으로
+      router.push("/signIn");
+      return;
+    }
 
     try {
-      const response = await fetch(`https://j11a302.p.ssafy.io/api/locations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(total),
-      });
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/locations`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(locationListCreateRequest),
+        }
+      );
 
       if (response.ok) {
-        getWarehouseAPI(warehouseId);
+        console.log(response);
       } else {
         router.push("/404");
       }
     } catch (error) {
+      console.log(error);
       router.push("/404");
     }
   };
 
-  // 창고 배열 저장
+  //벽 추가 API
+  const postWallsAPI = async (wallData, storeId) => {
+    // Prepare the wall list create request
+    const wallListCreateRequest = {
+      storeId: storeId,
+      wallCreateDtos: wallData,
+    };
+
+    // Get the token from local storage
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/walls`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(wallListCreateRequest),
+        }
+      );
+
+      if (response.ok) {
+        console.log("Wall saved successfully");
+      } else {
+        console.error("Failed to save wall");
+      }
+    } catch (error) {
+      console.error("Error saving wall:", error);
+    }
+  };
+
+  // 창고 배열 저장(아주 옛날용 체크함수)
   const updateContainer = (location, type, code) => {
     const newContainer = container.map((row, x) =>
       row.map((cell, y) => {
@@ -431,56 +504,76 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     setContainer(newContainer);
   };
 
-  // 수정된정보를 API를 통해 보냄
-  const editContainerAPI = async () => {
-    const locationData = locations.map((location) => ({
-      id: parseInt(location.id),
+  // 현재 상태(로케이션, 벽)를 저장하는 API
+  const editStoreAPI = async () => {
+    // 토큰에서 유저정보를 가져온다.(로그인 확인)
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // Handle the case where the token is missing (e.g., redirect to signIn)
+      router.push("/signIn");
+      return;
+    }
+
+    const locationUpdateRequestList = locations.map((location) => ({
+      id: parseInt(location.id), // id
       name: location.name,
-      // fill: location.fill,
-      xposition: location.x,
-      yposition: location.y,
-      xsize: location.width,
-      ysize: location.height,
-      zsize: location.z,
+      xPosition: location.x,
+      yPosition: location.y,
+      xSize: location.width,
+      ySize: location.height,
+      zSize: location.z,
       rotation: location.rotation,
-      storageType: "상온",
+      touchableFloor: 2, // 더미
     }));
 
     // 벽 데이터를 기록합니다.
-    const wallData = anchorsRef.current.map(({ start, end, line }) => ({
-      id: line.attrs.id ? parseInt(line.attrs.id) : null, // Use ID from the API or null for new walls
-      startX: start.x(),
-      startY: start.y(),
-      endX: end.x(),
-      endY: end.y(),
-    }));
+    const wallUpdateRequestList = anchorsRef.current.map(
+      ({ start, end, line }) => ({
+        id: parseInt(line.attrs.id),
+        startX: start.x(),
+        startY: start.y(),
+        endX: end.x(),
+        endY: end.y(),
+      })
+    );
 
-    //모든 데이터를 warehouseData로 담아서 전송한다.
-    const warehouseData = { locations: locationData, walls: wallData };
+    //모든 데이터를 structureUpdateRequest로 담아서 수정된 내역을 전송한다.
+    const structureUpdateRequest = {
+      locationUpdateRequestList,
+      wallUpdateRequestList,
+    };
 
-    console.log(warehouseData);
+    console.log("수정된 내역");
+    console.log(structureUpdateRequest);
 
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}/locatons-and-walls`,
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures`,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            // Include the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(warehouseData),
+          body: JSON.stringify(structureUpdateRequest),
         }
       );
 
       if (response.ok) {
+        console.log("성공 요청");
+        console.log(response);
         // 성공
         notify(`현재 상태가 저장되었습니다.`);
-        getWarehouseAPI(warehouseId); // 초기화하기
+        // await getWarehouseAPI(); // But in UX, it have to be removed
       } else {
         //에러
+        console.error("Failed to save structure");
       }
     } catch (error) {
       //에러
+      console.log(error);
     }
   };
 
@@ -494,78 +587,61 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     anchorsRef.current = [];
   };
 
-  // local public/map directory 에서 location 정보를 받아오는 메서드
-  const loadMapFromLocal = async () => {
+  // 로케이션 혹은 벽을 삭제하는 API
+  const deleteStructuresAPI = async (locationDeleteList, wallDeleteList) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
+    // API 형식에 맞게 재정의
+    const structureDeleteRequest = {
+      locationDeleteList: locationDeleteList.map((id) => ({ id })),
+      wallDeleteList: wallDeleteList.map((id) => ({ id })),
+    };
+
+    console.log(structureDeleteRequest);
+
     try {
-      const response = await fetch("/api/load-map", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/batch-delete`,
+        {
+          method: "POST", // Assuming POST is used for deletion
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(structureDeleteRequest),
+        }
+      );
 
       if (response.ok) {
-        const { locationData, wallData } = await response.json();
-        setLocations(locationData);
-        clearAnchorsAndLines();
-
-        const existingAnchors = [];
-        const newAnchors = [];
-
-        // 벽 속성 중 기준점(anchor)을 생성하거나 기존의 anchor를 가져오는 메서드
-        const getOrCreateAnchor = (id, x, y) => {
-          let existingAnchor = findExistingAnchor(existingAnchors, x, y);
-          if (!existingAnchor) {
-            existingAnchor = buildAnchor(id, x, y);
-            existingAnchors.push(existingAnchor);
-          }
-          return existingAnchor;
-        };
-
-        wallData.forEach(({ startID, startX, startY, endID, endX, endY }) => {
-          const startAnchor = getOrCreateAnchor(startID, startX, startY);
-          const endAnchor = getOrCreateAnchor(endID, endX, endY);
-
-          const newLine = new Konva.Line({
-            points: [startX, startY, endX, endY],
-            stroke: "brown",
-            strokeWidth: 10,
-            lineCap: "round",
-          });
-
-          newAnchors.push({
-            start: startAnchor,
-            end: endAnchor,
-            line: newLine,
-          });
-        });
-
-        anchorsRef.current = newAnchors;
-        newAnchors.forEach(({ line }) => layerRef.current.add(line));
-        layerRef.current.batchDraw();
+        console.log("Structures deleted successfully");
+        await getWarehouseAPI(); // Refresh data
       } else {
-        const errorData = await response.json();
-        // 에러
+        console.error("Failed to delete structures");
       }
     } catch (error) {
-      //에러
+      console.error("Error deleting structures:", error);
     }
   };
 
   // API를 통해 해당하는 창고(번호)의 모든 location(적재함)과 wall(벽)을 가져오는 메서드
   const getWarehouseAPI = async () => {
-    // 토큰에서 유저정보를 가져온다.(중요)
+    // 토큰에서 유저정보를 가져온다.(로그인 확인)
     const token = localStorage.getItem("token");
 
     if (!token) {
-      // Handle the case where the token is missing (e.g., redirect to login)
-      router.push("/login");
+      // Handle the case where the token is missing (e.g., redirect to signIn)
+      router.push("/signIn");
       return;
     }
 
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/stores/13/structure`,
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}`,
         {
           method: "GET",
           headers: {
@@ -576,17 +652,16 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
         }
       );
 
-      console.log(response);
-
       if (response.ok) {
-
         const apiConnection = await response.json();
-        const warehouseData = apiConnection.result; // 데이터 추출
+        const storeData = apiConnection.result; // 데이터 추출
+
+        console.log("Parsed response:", apiConnection);
 
         // 받아온 데이터 중 로케이션 데이터 처리
-        const locations = warehouseData.locations;
+        const locations = storeData.locations;
         if (!locations) {
-          //에러 발생
+          //로케이션 없음
           return;
         }
 
@@ -622,9 +697,9 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
         });
 
         // 벽 데이터 처리
-        const walls = warehouseData.walls;
+        const walls = storeData.walls;
         if (!walls) {
-          //에러 발생
+          //벽 없음
           return;
         }
 
@@ -652,6 +727,8 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             strokeWidth: 10,
             lineCap: "round",
             id: id.toString(), // Preserve the original ID
+            name: "selectableShape", // 선택 가능 객체 표시
+            shapeType: "wall", // 구분을 위한 표시
           });
 
           newAnchors.push({
@@ -960,37 +1037,45 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
   // 로케이션과 벽을 삭제를 하기 위한 메서드
   const handleDelete = () => {
-    if (currentShapeRef.current) {
-      const shapeId = currentShapeRef.current.attrs.id;
+    if (selectedShapes.length > 0) {
+      const locationDeleteList = [];
+      const wallDeleteList = [];
 
-      // Remove the shape from rectangles array
-      setLocations((prevRectangles) =>
-        prevRectangles.filter((rect) => rect.id !== shapeId)
-      );
-
-      // Remove the shape from anchors array if it is an anchor
-      const updatedAnchors = anchorsRef.current.filter((anchorObj) => {
-        if (
-          anchorObj.start.id() === shapeId ||
-          anchorObj.end.id() === shapeId
-        ) {
-          // Destroy the related line
-          anchorObj.line.destroy();
-          // Destroy the related anchor (start or end) if it matches the shapeId
-          if (anchorObj.start.id() === shapeId) {
-            anchorObj.start.destroy();
-          }
-          if (anchorObj.end.id() === shapeId) {
-            anchorObj.end.destroy();
-          }
-          return false;
+      selectedShapes.forEach(({ id, type }) => {
+        if (type === "location") {
+          // Remove the location from state
+          setLocations((prevLocations) =>
+            prevLocations.filter((loc) => loc.id !== id)
+          );
+          locationDeleteList.push(parseInt(id));
+        } else if (type === "wall") {
+          // Remove the wall from state
+          anchorsRef.current = anchorsRef.current.filter(
+            ({ start, end, line }) => {
+              if (line.id() === id) {
+                // Destroy the line and anchors
+                line.destroy();
+                // Optionally, check and remove unused anchors here
+                return false;
+              }
+              return true;
+            }
+          );
+          wallDeleteList.push(parseInt(id));
         }
-        return true;
-      });
-      anchorsRef.current = updatedAnchors;
 
-      // Remove the shape from Konva stage
-      currentShapeRef.current.destroy();
+        // Remove the shape from Konva stage
+        const shape = layerRef.current.findOne(`#${id}`);
+        if (shape) {
+          shape.destroy();
+        }
+      });
+
+      // Call the API to delete the locations and walls
+      deleteStructuresAPI(locationDeleteList, wallDeleteList);
+
+      // Clear the selection
+      setSelectedShapes([]);
       layerRef.current.batchDraw();
     }
   };
@@ -1039,7 +1124,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
     //Event Handler for 'mousemove' stage 위에서 움직일 때,
     const handleMouseMove = () => {
-      if (currentSetting === "wall") {
+      if (currentSetting === "wall" && line) {
         // 정확한 위치를 얻어온다.
         const pos = getPrecisePosition(stageRef.current);
 
@@ -1138,31 +1223,57 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
         });
 
         layer.batchDraw();
+
+        // After adding the wall to the state, make the API call
+        const wallData = [
+          {
+            startX: start.x,
+            startY: start.y,
+            endX: end.x,
+            endY: end.y,
+          },
+        ];
+
+        // Call the API function to save the wall
+        postWallsAPI(wallData, storeId);
       }
     };
 
-    // 우클릭 시에 메뉴가 나오도록 조정
-    const menuNode = menuRef.current;
-    document
-      .getElementById("delete-button")
-      .addEventListener("click", handleDelete);
-    //스테이지 적용
+    //스테이지에 우클릭 메뉴 적용
     stage.on("contextmenu", function (e) {
       e.evt.preventDefault();
-      if (e.target === stage) return;
+      if (e.target === stage) {
+        // Hide the menu if it's open
+        menuRef.current.style.display = "none";
+        return;
+      }
 
+      // Set the current shape reference
+      currentShapeRef.current = e.target;
+      // Get the shape ID and type
+      const clickedId = e.target.id();
+      const shapeType = e.target.getAttr("shapeType");
+
+      if (clickedId && shapeType) {
+        setSelectedShapes([{ id: clickedId, type: shapeType }]);
+        if (shapeType === "location") {
+          setSelectedLocation(locations.find((loc) => loc.id === clickedId));
+        } else {
+          setSelectedLocation(null);
+        }
+      }
+      // 메뉴의 정확한 위치 조정
       const precisePos = getPrecisePosition(stage);
-
-      // Show the right-click menu at the precise position
       const menuNode = menuRef.current;
       const containerRect = stage.container().getBoundingClientRect();
 
-      menuNode.style.top = containerRect.top + precisePos.y + "px";
-      menuNode.style.left = containerRect.left + precisePos.x + "px";
+      menuNode.style.display = "block"; // Make sure to display the menu
+      menuNode.style.top = `${containerRect.top + precisePos.y}px`;
+      menuNode.style.left = `${containerRect.left + precisePos.x}px`;
     });
 
     window.addEventListener("click", () => {
-      menuNode.style.display = "none";
+      menuRef.current.style.display = "none";
     });
 
     /**
@@ -1187,8 +1298,13 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       stage.off("mousedown", handleMouseDown);
       stage.off("mousemove", handleMouseMove);
       stage.off("mouseup", handleMouseUp);
+      // 메뉴 관련
+      stage.off("contextmenu");
+      window.removeEventListener("click", () => {
+        menuRef.current.style.display = "none";
+      });
     };
-  }, [line, startPos, currentSetting, hoveredAnchor]);
+  }, [line, startPos, currentSetting, hoveredAnchor, locations]);
 
   // 최초 한번 실행된다.
   useEffect(() => {
@@ -1219,14 +1335,26 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
   //selectedIds를 최신화하기 위함
   useEffect(() => {
+    // 로케이션 다중 선택
     if (trRef.current && layerRef.current) {
-      const nodes = selectedIds
-        .map((id) => layerRef.current.findOne(`#${id}`))
+      const nodes = selectedShapes
+        .filter((shape) => shape.type === "location") // Only locations can be transformed
+        .map((shape) => layerRef.current.findOne(`#${shape.id}`))
         .filter(Boolean);
       trRef.current.nodes(nodes);
       trRef.current.getLayer().batchDraw();
     }
-  }, [selectedIds, locations]);
+
+    // 벽 다중 선택
+    anchorsRef.current.forEach(({ line }) => {
+      const isSelected = selectedShapes.some(
+        (shape) => shape.id === line.id() && shape.type === "wall"
+      );
+      line.stroke(isSelected ? "red" : "brown"); // Change color when selected
+    });
+
+    layerRef.current.batchDraw();
+  }, [selectedShapes, locations]);
 
   /**
    * 창고 자동 생성 로직을 위한 부분
@@ -1628,7 +1756,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
                   width={rect.width}
                   height={rect.height}
                   fill={rect.fill}
-                  isSelected={selectedIds.includes(rect.id)}
+                  isSelected={selectedShapes.includes(rect.id)}
                   onSelect={onSelect}
                   onChange={(newAttrs) => {
                     const rects = locations.slice();
@@ -1714,7 +1842,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             justIcon
             round
             style={{ backgroundColor: "#C2B6A1" }}
-            onClick={editContainerAPI}
+            onClick={editStoreAPI}
           >
             <SaveIcon className={classes.zoomicons} />
           </Button>
@@ -1753,7 +1881,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
                     key={index}
                     onClick={() => {
                       // Set the selected rectangle
-                      setSelectedIds([location.id]); // Select the rectangle
+                      setSelectedShapes([location.id]); // Select the rectangle
                       setSelectedLocation(location); // Store the selected location
 
                       // Attach the Transformer to this rectangle
@@ -1784,14 +1912,14 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
         <hr />
         <h3>선택된 재고함</h3>
-        {selectedIds.length > 1 ? (
+        {selectedShapes.length > 1 ? (
           <p>다중 선택되었습니다.</p>
         ) : selectedLocation ? (
           <div>
             <p>이름 : {selectedLocation.name}</p>
             <p>타입 : {selectedLocation.type}</p>
             <p>층수 : {selectedLocation.z}</p>
-            <p>현재 재고율 : {extractFillPercentage(selectedLocation.fill)}%</p>
+            <p>현재 재고율 : {extractFillPercentage("blue")}%</p>
             <p>
               가로 : {selectedLocation.width}cm | 세로 :{" "}
               {selectedLocation.height}cm
@@ -1814,6 +1942,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
           <button
             id="delete-button"
             className={classes.delete}
+            onClick={handleDelete} // Attach the handler here
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
@@ -1980,6 +2109,7 @@ const RectangleTransformer = ({
         {...shapeProps}
         id={shapeProps.id}
         name="selectableShape" // 선택 가능하게 id값을 추가해서 속성 추가
+        shapeType="location" // 구분을 위한 표시
         onClick={(e) => onSelect(e, shapeProps.id)}
         onTap={(e) => onSelect(e, shapeProps.id)}
         draggable // 사각형을 드래그 가능하게 함
@@ -2022,7 +2152,7 @@ const RectangleTransformer = ({
         listening={false} // Disable interactions with the text
       />
       <Text
-        text={`${extractFillPercentage(shapeProps.fill)}%`}
+        // text={`${extractFillPercentage(shapeProps.fill)}%`}
         x={shapeProps.x}
         y={shapeProps.y}
         z={shapeProps.z}

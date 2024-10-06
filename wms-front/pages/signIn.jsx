@@ -10,6 +10,7 @@ import Card from '../components/Card/Card';
 import CardBody from '../components/Card/CardBody';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Cookies from 'js-cookie'; // Cookie에 저장하기 위해서
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -122,7 +123,6 @@ export default function Login() {
   });
 
   const handleLogin = async (e) => {
-    console.log("작동중?")
     e.preventDefault();
     try {
       const response = await axios.post('https://j11a302.p.ssafy.io/api/auths/sign-in', {
@@ -130,11 +130,12 @@ export default function Login() {
         password,
       });
 
-      console.log(response)
 
       if (response.status === 200) {
         const token = response.data.result.accessToken;
         const user = response.data.result.userResponse;
+
+        Cookies.set('token', token, { expires: 1 }); // 쿠키에 저장한다.(하루 짜리)
         login(user, token); // Save user and token in auth state
         notify(`${user.userName}님 환영합니다!`);
         router.push('/'); // Navigate to the main page

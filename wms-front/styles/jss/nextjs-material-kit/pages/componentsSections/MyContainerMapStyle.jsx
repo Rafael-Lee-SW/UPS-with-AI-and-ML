@@ -1,5 +1,6 @@
 // styles\jss\nextjs-material-kit\pages\componentsSections\MyContainerStyle.jsx
 
+import zIndex from "@material-ui/core/styles/zIndex";
 import { container, title } from "/styles/jss/nextjs-material-kit.js";
 import customCheckboxRadioSwitch from "/styles/jss/nextjs-material-kit/effect/customCheckboxRadioSwitch.js";
 
@@ -170,6 +171,7 @@ const basicsStyle = {
     backgroundColor: "white",
     boxShadow: "0 0 5px grey",
     borderRadius: "3px",
+    zIndex : "1500",
   },
   pulse: {
     width: "100%",
