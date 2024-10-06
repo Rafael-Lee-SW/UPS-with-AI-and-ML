@@ -124,7 +124,6 @@ export default function SignUp() {
   const [email, setEmail] = useState('');
   const [certificationNumber, setCertificationNumber] = useState('');
   const [name, setName] = useState('');
-  const [nickname, setNickname] = useState('');
   const [emailCheckMessage, setEmailCheckMessage] = useState('');
   const [passwordMessage, setPasswordMessage] = useState('');
   const [showPasswordMessage, setShowPasswordMessage] = useState(false);
@@ -197,16 +196,22 @@ export default function SignUp() {
 
   const handleEmailCheck = async () => {
     try {
-      const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/email-check', { email });
+      const response = await axios.get('https://j11a302.p.ssafy.io/api/users/check-email', { 
+        params: {
+                email: email, 
+            },
+       });
       
-      if (response.data.code === 'SU') { 
+      if (response.data.httpStatus === 200) { 
         setEmailCheckMessage('사용 가능한 이메일입니다.');
         setIsEmailValid(true);
       } else {
+        console.log(response.data)
         setEmailCheckMessage(response.data.message);
         setIsEmailValid(false);
       }
     } catch (error) {
+      console.log(error)
       setEmailCheckMessage('중복된 이메일입니다.');
       setIsEmailValid(false);
     }
@@ -215,16 +220,18 @@ export default function SignUp() {
   const handleSendCertificationEmail = async () => {
     if (isEmailValid) {
       try {
-        const certificationResponse = await axios.post('https://j11a302.p.ssafy.io/api/oauth/email-certification', { email });
+        const certificationResponse = await axios.post('https://j11a302.p.ssafy.io/api/certifications/email-certification', { email });
         
-        if (certificationResponse.data.code === 'SU') {
+        if (certificationResponse.data.httpStatus === 200) {
           setCertificationMessage('인증번호 발송에 성공하였습니다.');
           setIsCertificationButtonEnabled(true);
           setTimer(180); 
         } else {
+          console.log(certificationResponse.data)
           setCertificationMessage('메일 전송에 실패했습니다.');
         }
       } catch (error) {
+        console.log(error)
         setCertificationMessage('네트워크 오류가 발생했습니다.');
       }
     } else {
@@ -235,13 +242,13 @@ export default function SignUp() {
   const handleCertification = async () => {
     if (isCertificationButtonEnabled) {
       try {
-        const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/check-certification', {
+        const response = await axios.post('https://j11a302.p.ssafy.io/api/certifications/check-certification', {
           email,
           certificationNumber,
         });
         const { code } = response.data;
 
-        if (code === 'SU') {
+        if (code === 200) {
           setCertificationMessage('이메일이 인증되었습니다.');
           setIsCertificationButtonEnabled(false);
           setIsCertificationSuccess(true);
@@ -261,12 +268,10 @@ export default function SignUp() {
     e.preventDefault();
     if (isFormValid && isEmailValid) {
       try {
-        const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/sign-up', {
-          email,
-          password,
-          certificationNumber,
-          name,
-          nickname,
+        const response = await axios.post('https://j11a302.p.ssafy.io/api/users/sign-up', {
+          'email': email,
+          'password' : password,
+          'userName' : name,
         });
         const { message, isSuccess } = handleResponse(response);
 
@@ -390,16 +395,6 @@ export default function SignUp() {
                   className={classes.textField}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  required
-                />
-                <TextField
-                  label="닉네임"
-                  type="text"
-                  variant="outlined"
-                  fullWidth
-                  className={classes.textField}
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
                   required
                 />
                 <Button

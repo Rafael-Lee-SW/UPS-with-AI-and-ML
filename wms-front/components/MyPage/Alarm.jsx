@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Card, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
 import style from '/styles/jss/nextjs-material-kit/pages/componentsSections/notificationsStyles.js'
-import { fetchNotifications } from '../../pages/api';
+import { fetchCrimeNotifications } from '../../pages/api/index';
 import { useRouter } from 'next/router';
 
 const useStyles = makeStyles(style)
 
 // 알람 리스트 Component
-export default function Alarm({ businessId }) {
+export default function Alarm({ userId }) {
     const classes = useStyles();
     const router = useRouter();
     const [open, setOpen] = useState(false);
@@ -20,19 +20,13 @@ export default function Alarm({ businessId }) {
     }, []);
 
     const getNotifications = async () => {
-        if ( businessId !== -1 ) {
-            try {
-                const response = await fetchNotifications(businessId);
-                const notifications = response.data.result.productFlowResponseDtos;
-                
-                setNotifications(notifications);
-            } catch (error) {
-                router.push('/404');
-            }
-        } else {
-            setNotifications([]);
-        }
-        
+        try {
+            const response = await fetchCrimeNotifications(userId);
+            const notifications = response.data.result;
+            setNotifications(notifications);
+        } catch (error) {
+            router.push('/404');
+        }   
     }
 
     const handleOpen = (notification) => {

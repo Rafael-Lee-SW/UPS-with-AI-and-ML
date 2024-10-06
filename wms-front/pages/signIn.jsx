@@ -126,8 +126,8 @@ export default function Login() {
     e.preventDefault();
     try {
       const response = await axios.post('https://j11a302.p.ssafy.io/api/auths/sign-in', {
-        email,
-        password,
+        'email' : email,
+        'password' : password,
       });
 
 
@@ -138,15 +138,15 @@ export default function Login() {
         Cookies.set('token', token, { expires: 1 }); // 쿠키에 저장한다.(하루 짜리)
         login(user, token); // Save user and token in auth state
         notify(`${user.userName}님 환영합니다!`);
-        router.push('/'); // Navigate to the main page
+        router.push('/'); 
       }
     } catch (error) {
       if (error.response) {
-        if (error.response.status === 400 && error.response.data.code === 'VF') {
+        if (error.response.httpStatus === 400 && error.response.data.statusCode === 4000) {
           notify('로그인에 실패하였습니다. 입력한 정보를 확인하세요.');
-        } else if (error.response.status === 401 && error.response.data.code === 'SF') {
+        } else if (error.response.httpStatus === 401 && error.response.data.code === 4000) {
           notify('로그인 정보가 맞지 않습니다. 다시 시도해주세요.');
-        } else if (error.response.status === 500 && error.response.data.code === 'DBE') {
+        } else if (error.response.httpStatus === 500 && error.response.data.code === 'DBE') {
           notify('서버가 불안정합니다. 잠시 후 다시 시도해주세요.');
         } else {
           notify('알 수 없는 오류가 발생했습니다. 관리자에게 문의하세요.');
@@ -154,7 +154,7 @@ export default function Login() {
       } else {
         notify('네트워크 오류가 발생했습니다. 인터넷 연결을 확인하세요.');
       }
-      // 로그인 페이지에 머무름
+      
     }
   };
 
