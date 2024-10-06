@@ -488,17 +488,17 @@ const MyContainerMap = ({ storeId, businessId }) => {
   };
 
   // 현재 상태(로케이션, 벽)를 저장하는 API
-  const editContainerAPI = async () => {
+  const editStoreAPI = async () => {
     // 토큰에서 유저정보를 가져온다.(로그인 확인)
     const token = localStorage.getItem("token");
 
     if (!token) {
-      // Handle the case where the token is missing (e.g., redirect to login)
+      // Handle the case where the token is missing (e.g., redirect to signIn)
       router.push("/signIn");
       return;
     }
 
-    const locationData = locations.map((location) => ({
+    const locationUpdateRequestList = locations.map((location) => ({
       id: parseInt(location.id), // id
       name: location.name,
       xPosition: location.x,
@@ -511,39 +511,48 @@ const MyContainerMap = ({ storeId, businessId }) => {
     }));
 
     // 벽 데이터를 기록합니다.
-    const wallData = anchorsRef.current.map(({ start, end, line }) => ({
-      id: line.attrs.id ? parseInt(line.attrs.id) : null, // 벽은 생성 시에 정보가 없을 수 있다.
-      startX: start.x(),
-      startY: start.y(),
-      endX: end.x(),
-      endY: end.y(),
-    }));
+    const wallUpdateRequestList = anchorsRef.current.map(
+      ({ start, end, line }) => ({
+        id: parseInt(line.attrs.id),
+        startX: start.x(),
+        startY: start.y(),
+        endX: end.x(),
+        endY: end.y(),
+      })
+    );
 
-    //모든 데이터를 storeData로 담아서 전송한다.
-    const storeData = { locations: locationData, walls: wallData };
+    //모든 데이터를 structureUpdateRequest로 담아서 수정된 내역을 전송한다.
+    const structureUpdateRequest = {
+      locationUpdateRequestList,
+      wallUpdateRequestList,
+    };
 
-    console.log(storeData);
+    console.log("수정된 내역");
+    console.log(structureUpdateRequest);
 
     try {
       const response = await fetch(
         `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures`,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
             // Include the token in the Authorization header
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(storeData),
+          body: JSON.stringify(structureUpdateRequest),
         }
       );
 
       if (response.ok) {
+        console.log("성공 요청");
+        console.log(response);
         // 성공
         notify(`현재 상태가 저장되었습니다.`);
-        getWarehouseAPI(warehouseId); // 초기화하기
+        await getWarehouseAPI(); // But in UX, it have to be removed
       } else {
         //에러
+        console.error("Failed to save structure");
       }
     } catch (error) {
       //에러
@@ -561,61 +570,41 @@ const MyContainerMap = ({ storeId, businessId }) => {
     anchorsRef.current = [];
   };
 
-  // local public/map directory 에서 location 정보를 받아오는 메서드
-  const loadMapFromLocal = async () => {
+  // 로케이션 혹은 벽을 삭제하는 API
+  const deleteStructuresAPI = async (locationDeleteList, wallDeleteList) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
+    const structureDeleteRequest = {
+      locationDeleteList,
+      wallDeleteList,
+    };
+
     try {
-      const response = await fetch("/api/load-map", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/batch-delete`,
+        {
+          method: "POST", // Assuming POST is used for deletion
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(structureDeleteRequest),
+        }
+      );
 
       if (response.ok) {
-        const { locationData, wallData } = await response.json();
-        setLocations(locationData);
-        clearAnchorsAndLines();
-
-        const existingAnchors = [];
-        const newAnchors = [];
-
-        // 벽 속성 중 기준점(anchor)을 생성하거나 기존의 anchor를 가져오는 메서드
-        const getOrCreateAnchor = (id, x, y) => {
-          let existingAnchor = findExistingAnchor(existingAnchors, x, y);
-          if (!existingAnchor) {
-            existingAnchor = buildAnchor(id, x, y);
-            existingAnchors.push(existingAnchor);
-          }
-          return existingAnchor;
-        };
-
-        wallData.forEach(({ startID, startX, startY, endID, endX, endY }) => {
-          const startAnchor = getOrCreateAnchor(startID, startX, startY);
-          const endAnchor = getOrCreateAnchor(endID, endX, endY);
-
-          const newLine = new Konva.Line({
-            points: [startX, startY, endX, endY],
-            stroke: "brown",
-            strokeWidth: 10,
-            lineCap: "round",
-          });
-
-          newAnchors.push({
-            start: startAnchor,
-            end: endAnchor,
-            line: newLine,
-          });
-        });
-
-        anchorsRef.current = newAnchors;
-        newAnchors.forEach(({ line }) => layerRef.current.add(line));
-        layerRef.current.batchDraw();
+        console.log("Structures deleted successfully");
+        await getWarehouseAPI(); // Refresh data
       } else {
-        const errorData = await response.json();
-        // 에러
+        console.error("Failed to delete structures");
       }
     } catch (error) {
-      //에러
+      console.error("Error deleting structures:", error);
     }
   };
 
@@ -625,7 +614,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      // Handle the case where the token is missing (e.g., redirect to login)
+      // Handle the case where the token is missing (e.g., redirect to signIn)
       router.push("/signIn");
       return;
     }
@@ -1793,7 +1782,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
             justIcon
             round
             style={{ backgroundColor: "#C2B6A1" }}
-            onClick={editContainerAPI}
+            onClick={editStoreAPI}
           >
             <SaveIcon className={classes.zoomicons} />
           </Button>

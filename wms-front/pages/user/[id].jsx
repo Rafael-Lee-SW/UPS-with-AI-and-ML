@@ -10,6 +10,7 @@ import dynamic from "next/dynamic";
 import styles from "/styles/jss/nextjs-material-kit/pages/users.js"; // Let's make a media query for mobile
 import "aos/dist/aos.css";
 import { useRouter } from "next/router";
+import Cookies from "cookies"; // Cookie에 저장하기 위해서
 
 const DynamicMyContainerMap = dynamic(
   () => import("/pages-sections/Components-Sections/MyContainerMap.jsx"),
@@ -129,13 +130,13 @@ export default function Components({
             <option value="" disabled>
               창고를 선택하세요
             </option>
-            {cards.map((warehouse) => (
+            {cards.map((store) => (
               <option
-                key={warehouse.id}
-                value={warehouse.id}
+                key={store.id}
+                value={store.id}
                 className={classes.warehouseOption}
               >
-                {warehouse.title}
+                {store.storeName}
               </option>
             ))}
           </select>
@@ -191,20 +192,22 @@ export default function Components({
 
 // getInitialProps를 _app.js에서 사용하지 않음에 따라
 // serverSide Rendering이 필요한 곳마다 아래 함수를 사용한다.
-// Use getServerSideProps to fetch data
-export async function getServerSideProps(context) {
-  const { id } = context.params; // 현재 창고 아이디
+// getServerSideProps
+export async function getServerSideProps({ req, res }) {
+  //쿠키에서 토큰을 추출한다.
+  const cookies = new Cookies(req, res);
+  const token = cookies.get("token");
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/signIn",
+        permanent: false,
+      },
+    };
+  }
 
   try {
-    // 토큰에서 유저정보를 가져온다.
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      // 토큰 유무로 로그인 여부를 판단하여 로그인 상태가 아닐 경우 로그인 창으로
-      router.push("/signIn");
-      return;
-    }
-
     // 유저의 모든 매장 정보를 가져온다.
     const response = await fetch(`https://j11a302.p.ssafy.io/api/stores`, {
       method: "GET",
@@ -221,14 +224,13 @@ export async function getServerSideProps(context) {
       storeName: store.storeName,
     }));
 
-    console.log("Parsed response:", apiConnection);
-
     return {
       props: {
         initialCards: storeCards || [],
       },
     };
   } catch (error) {
+    console.log(error);
     return {
       props: {
         initialCards: [],
