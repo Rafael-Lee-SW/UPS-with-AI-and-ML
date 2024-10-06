@@ -130,13 +130,13 @@ export default function Login() {
       });
 
       if (response.data.httpStatus === 200 && response.data.statusCode === 1000) {
-        const accessToken = response.data.result.accessToken;
+        const token = response.data.result.accessToken;
         const user = response.data.result.userResponse;
 
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('user', user);
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
 
-        login(user, accessToken); 
+        login(user, token); 
         notify(`${user.userName}님 환영합니다!`);
         router.push('/'); 
       }

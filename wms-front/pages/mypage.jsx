@@ -25,9 +25,9 @@ export default function Mypage() {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
-    const accessToken = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('token');
 
-    if (user && accessToken) {
+    if (user && token) {
       setUserId(user.id);
     } else {
       alert("로그인이 필요합니다.");
@@ -44,6 +44,7 @@ export default function Mypage() {
   const getUserInfo = async () => {
     try {
       const response = await fetchUser(userId);
+      console.log(response)
       const { id, userName, email, createdDate } = response.data.result;
       setUserId(id);
       setName(userName);

@@ -40,6 +40,7 @@ export default function Device() {
     const getStores = async () => {
         try {
             const response = await fetchStores(); 
+            console.log(response)
             const stores = response.data.result;
             setStores(stores);
         } catch (error) {

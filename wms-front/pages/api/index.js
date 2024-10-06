@@ -6,7 +6,7 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken'); 
+    const token = localStorage.getItem('token'); 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,7 +23,7 @@ instance.interceptors.response.use(
     const newAccessToken = response.headers['authorization']; 
     if (newAccessToken) {
         console.log("새로운 토큰", newAccessToken);
-      localStorage.setItem('accessToken', newAccessToken);
+      localStorage.setItem('token', newAccessToken);
     }
     return response;
   },
@@ -227,6 +227,11 @@ function fetchNotifications() {
     return instance.get('/notifications')
 }
 
+// 방범 알람 조회
+function fetchCrimeNotifications(userId) {
+    return instance.get(`/notifications/all?userId=${userId}`)
+}
+
 // 특정 상품 정보 조회
 function fetchProductDetail(id) {
     return instance.get(`/productDetail/${id}`)
@@ -334,4 +339,5 @@ export {
     createDevice,
     deleteDevice,
     createOtpNumber,
+    fetchCrimeNotifications,
 }   

@@ -15,12 +15,13 @@ export default function HeaderLinks(props) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     router.push("/");
   };
 
