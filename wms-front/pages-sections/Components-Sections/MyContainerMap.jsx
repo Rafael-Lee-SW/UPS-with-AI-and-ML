@@ -366,13 +366,13 @@ const MyContainerMap = ({ storeId, businessId }) => {
     // API 요청을 위한 location 데이터를 작성
     const locationData = {
       name: newLocation.name,
-      xPosition : newLocation.x,
-      yPosition : newLocation.y,
-      xSize : newLocation.width, // 가로
-      ySize : newLocation.height, // 세로
-      zSize : newLocation.z, // 높이
+      xPosition: newLocation.x,
+      yPosition: newLocation.y,
+      xSize: newLocation.width, // 가로
+      ySize: newLocation.height, // 세로
+      zSize: newLocation.z, // 높이
       rotation: newLocation.rotation,
-      touchableFloor : 2,
+      touchableFloor: 2,
     };
 
     // API 호출 - 생성된 로케이션을 서버에 POST
@@ -407,14 +407,17 @@ const MyContainerMap = ({ storeId, businessId }) => {
     }
 
     try {
-      const response = await fetch(`https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/locations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(locationListCreateRequest),
-      });
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/locations`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(locationListCreateRequest),
+        }
+      );
 
       if (response.ok) {
         console.log(response);
@@ -427,7 +430,46 @@ const MyContainerMap = ({ storeId, businessId }) => {
     }
   };
 
-  // 창고 배열 저장
+  //벽 추가 API
+  const postWallsAPI = async (wallData, storeId) => {
+    // Prepare the wall list create request
+    const wallListCreateRequest = {
+      storeId: storeId,
+      wallCreateDtos: wallData,
+    };
+
+    // Get the token from local storage
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/walls`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(wallListCreateRequest),
+        }
+      );
+
+      if (response.ok) {
+        console.log("Wall saved successfully");
+      } else {
+        console.error("Failed to save wall");
+      }
+    } catch (error) {
+      console.error("Error saving wall:", error);
+    }
+  };
+
+  // 창고 배열 저장(아주 옛날용 체크함수)
   const updateContainer = (location, type, code) => {
     const newContainer = container.map((row, x) =>
       row.map((cell, y) => {
@@ -445,24 +487,32 @@ const MyContainerMap = ({ storeId, businessId }) => {
     setContainer(newContainer);
   };
 
-  // 수정된정보를 API를 통해 보냄
+  // 현재 상태(로케이션, 벽)를 저장하는 API
   const editContainerAPI = async () => {
+    // 토큰에서 유저정보를 가져온다.(로그인 확인)
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // Handle the case where the token is missing (e.g., redirect to login)
+      router.push("/signIn");
+      return;
+    }
+
     const locationData = locations.map((location) => ({
-      id: parseInt(location.id),
+      id: parseInt(location.id), // id
       name: location.name,
-      // fill: location.fill,
-      xposition: location.x,
-      yposition: location.y,
-      xsize: location.width,
-      ysize: location.height,
-      zsize: location.z,
+      xPosition: location.x,
+      yPosition: location.y,
+      xSize: location.width,
+      ySize: location.height,
+      zSize: location.z,
       rotation: location.rotation,
-      storageType: "상온",
+      touchableFloor: 2, // 더미
     }));
 
     // 벽 데이터를 기록합니다.
     const wallData = anchorsRef.current.map(({ start, end, line }) => ({
-      id: line.attrs.id ? parseInt(line.attrs.id) : null, // Use ID from the API or null for new walls
+      id: line.attrs.id ? parseInt(line.attrs.id) : null, // 벽은 생성 시에 정보가 없을 수 있다.
       startX: start.x(),
       startY: start.y(),
       endX: end.x(),
@@ -476,11 +526,13 @@ const MyContainerMap = ({ storeId, businessId }) => {
 
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}/locatons-and-walls`,
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            // Include the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(storeData),
         }
@@ -495,6 +547,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
       }
     } catch (error) {
       //에러
+      console.log(error);
     }
   };
 
@@ -1151,6 +1204,19 @@ const MyContainerMap = ({ storeId, businessId }) => {
         });
 
         layer.batchDraw();
+
+        // After adding the wall to the state, make the API call
+        const wallData = [
+          {
+            startX: start.x,
+            startY: start.y,
+            endX: end.x,
+            endY: end.y,
+          },
+        ];
+
+        // Call the API function to save the wall
+        postWallsAPI(wallData, storeId);
       }
     };
 
