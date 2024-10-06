@@ -58,8 +58,8 @@ const MyContainerMap = ({ storeId, businessId }) => {
     y2: 0,
   });
 
-  // 다중 선택을 위한 State
-  const [selectedIds, setSelectedIds] = useState([]);
+  // 다중 선택을 위한 State(벽과 로케이션 모두 포함)
+  const [selectedShapes, setSelectedShapes] = useState([]);
 
   // 다중 선택을 위한 HandleMouseDown
   const handleMouseDownSelection = (e) => {
@@ -69,7 +69,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
     // Check if left-click on empty area
     if (e.evt.button === 0 && e.target === e.target.getStage()) {
       // Left-click on empty area deselects all
-      setSelectedIds([]);
+      setSelectedShapes([]);
       setSelectedLocation(null);
       return;
     }
@@ -128,7 +128,13 @@ const MyContainerMap = ({ storeId, businessId }) => {
       Konva.Util.haveIntersection(selBox, shape.getClientRect())
     );
 
-    setSelectedIds(selected.map((shape) => shape.id()));
+    // id와 타입을 동시에 저장한다.
+    setSelectedShapes(
+      selected.map((shape) => ({
+        id: shape.id(),
+        type: shape.getAttr("shapeType"),
+      }))
+    );
 
     e.evt.preventDefault();
   };
@@ -146,21 +152,32 @@ const MyContainerMap = ({ storeId, businessId }) => {
 
   // onSelect 함수를 변경한다.
   const onSelect = (e, id) => {
-    // 오른쪽 클릭이면 선택하지 않음
     if (e.evt.button === 2) return;
 
     const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
+    const shapeType = e.target.getAttr("shapeType");
+
     if (metaPressed) {
-      // Multiple selection 다중 선택 상황
-      if (selectedIds.includes(id)) {
-        setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
+      const alreadySelected = selectedShapes.find(
+        (shape) => shape.id === id && shape.type === shapeType
+      );
+      if (alreadySelected) {
+        setSelectedShapes(
+          selectedShapes.filter(
+            (shape) => !(shape.id === id && shape.type === shapeType)
+          )
+        );
       } else {
-        setSelectedIds([...selectedIds, id]);
+        setSelectedShapes([...selectedShapes, { id, type: shapeType }]);
       }
     } else {
-      // Single selection 단일 선택
-      setSelectedIds([id]);
-      setSelectedLocation(locations.find((loc) => loc.id === id));
+      setSelectedShapes([{ id, type: shapeType }]);
+      if (shapeType === "location") {
+        const location = locations.find((loc) => loc.id === id);
+        setSelectedLocation(location || null);
+      } else {
+        setSelectedLocation(null);
+      }
     }
   };
 
@@ -549,7 +566,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
         console.log(response);
         // 성공
         notify(`현재 상태가 저장되었습니다.`);
-        await getWarehouseAPI(); // But in UX, it have to be removed
+        // await getWarehouseAPI(); // But in UX, it have to be removed
       } else {
         //에러
         console.error("Failed to save structure");
@@ -579,10 +596,13 @@ const MyContainerMap = ({ storeId, businessId }) => {
       return;
     }
 
+    // API 형식에 맞게 재정의
     const structureDeleteRequest = {
-      locationDeleteList,
-      wallDeleteList,
+      locationDeleteList: locationDeleteList.map((id) => ({ id })),
+      wallDeleteList: wallDeleteList.map((id) => ({ id })),
     };
+
+    console.log(structureDeleteRequest);
 
     try {
       const response = await fetch(
@@ -707,6 +727,8 @@ const MyContainerMap = ({ storeId, businessId }) => {
             strokeWidth: 10,
             lineCap: "round",
             id: id.toString(), // Preserve the original ID
+            name: "selectableShape", // 선택 가능 객체 표시
+            shapeType: "wall", // 구분을 위한 표시
           });
 
           newAnchors.push({
@@ -1015,37 +1037,45 @@ const MyContainerMap = ({ storeId, businessId }) => {
 
   // 로케이션과 벽을 삭제를 하기 위한 메서드
   const handleDelete = () => {
-    if (currentShapeRef.current) {
-      const shapeId = currentShapeRef.current.attrs.id;
+    if (selectedShapes.length > 0) {
+      const locationDeleteList = [];
+      const wallDeleteList = [];
 
-      // Remove the shape from rectangles array
-      setLocations((prevRectangles) =>
-        prevRectangles.filter((rect) => rect.id !== shapeId)
-      );
-
-      // Remove the shape from anchors array if it is an anchor
-      const updatedAnchors = anchorsRef.current.filter((anchorObj) => {
-        if (
-          anchorObj.start.id() === shapeId ||
-          anchorObj.end.id() === shapeId
-        ) {
-          // Destroy the related line
-          anchorObj.line.destroy();
-          // Destroy the related anchor (start or end) if it matches the shapeId
-          if (anchorObj.start.id() === shapeId) {
-            anchorObj.start.destroy();
-          }
-          if (anchorObj.end.id() === shapeId) {
-            anchorObj.end.destroy();
-          }
-          return false;
+      selectedShapes.forEach(({ id, type }) => {
+        if (type === "location") {
+          // Remove the location from state
+          setLocations((prevLocations) =>
+            prevLocations.filter((loc) => loc.id !== id)
+          );
+          locationDeleteList.push(parseInt(id));
+        } else if (type === "wall") {
+          // Remove the wall from state
+          anchorsRef.current = anchorsRef.current.filter(
+            ({ start, end, line }) => {
+              if (line.id() === id) {
+                // Destroy the line and anchors
+                line.destroy();
+                // Optionally, check and remove unused anchors here
+                return false;
+              }
+              return true;
+            }
+          );
+          wallDeleteList.push(parseInt(id));
         }
-        return true;
-      });
-      anchorsRef.current = updatedAnchors;
 
-      // Remove the shape from Konva stage
-      currentShapeRef.current.destroy();
+        // Remove the shape from Konva stage
+        const shape = layerRef.current.findOne(`#${id}`);
+        if (shape) {
+          shape.destroy();
+        }
+      });
+
+      // Call the API to delete the locations and walls
+      deleteStructuresAPI(locationDeleteList, wallDeleteList);
+
+      // Clear the selection
+      setSelectedShapes([]);
       layerRef.current.batchDraw();
     }
   };
@@ -1209,28 +1239,41 @@ const MyContainerMap = ({ storeId, businessId }) => {
       }
     };
 
-    // 우클릭 시에 메뉴가 나오도록 조정
-    const menuNode = menuRef.current;
-    document
-      .getElementById("delete-button")
-      .addEventListener("click", handleDelete);
-    //스테이지 적용
+    //스테이지에 우클릭 메뉴 적용
     stage.on("contextmenu", function (e) {
       e.evt.preventDefault();
-      if (e.target === stage) return;
+      if (e.target === stage) {
+        // Hide the menu if it's open
+        menuRef.current.style.display = "none";
+        return;
+      }
 
+      // Set the current shape reference
+      currentShapeRef.current = e.target;
+      // Get the shape ID and type
+      const clickedId = e.target.id();
+      const shapeType = e.target.getAttr("shapeType");
+
+      if (clickedId && shapeType) {
+        setSelectedShapes([{ id: clickedId, type: shapeType }]);
+        if (shapeType === "location") {
+          setSelectedLocation(locations.find((loc) => loc.id === clickedId));
+        } else {
+          setSelectedLocation(null);
+        }
+      }
+      // 메뉴의 정확한 위치 조정
       const precisePos = getPrecisePosition(stage);
-
-      // Show the right-click menu at the precise position
       const menuNode = menuRef.current;
       const containerRect = stage.container().getBoundingClientRect();
 
-      menuNode.style.top = containerRect.top + precisePos.y + "px";
-      menuNode.style.left = containerRect.left + precisePos.x + "px";
+      menuNode.style.display = "block"; // Make sure to display the menu
+      menuNode.style.top = `${containerRect.top + precisePos.y}px`;
+      menuNode.style.left = `${containerRect.left + precisePos.x}px`;
     });
 
     window.addEventListener("click", () => {
-      menuNode.style.display = "none";
+      menuRef.current.style.display = "none";
     });
 
     /**
@@ -1255,8 +1298,13 @@ const MyContainerMap = ({ storeId, businessId }) => {
       stage.off("mousedown", handleMouseDown);
       stage.off("mousemove", handleMouseMove);
       stage.off("mouseup", handleMouseUp);
+      // 메뉴 관련
+      stage.off("contextmenu");
+      window.removeEventListener("click", () => {
+        menuRef.current.style.display = "none";
+      });
     };
-  }, [line, startPos, currentSetting, hoveredAnchor]);
+  }, [line, startPos, currentSetting, hoveredAnchor, locations]);
 
   // 최초 한번 실행된다.
   useEffect(() => {
@@ -1287,14 +1335,26 @@ const MyContainerMap = ({ storeId, businessId }) => {
 
   //selectedIds를 최신화하기 위함
   useEffect(() => {
+    // 로케이션 다중 선택
     if (trRef.current && layerRef.current) {
-      const nodes = selectedIds
-        .map((id) => layerRef.current.findOne(`#${id}`))
+      const nodes = selectedShapes
+        .filter((shape) => shape.type === "location") // Only locations can be transformed
+        .map((shape) => layerRef.current.findOne(`#${shape.id}`))
         .filter(Boolean);
       trRef.current.nodes(nodes);
       trRef.current.getLayer().batchDraw();
     }
-  }, [selectedIds, locations]);
+
+    // 벽 다중 선택
+    anchorsRef.current.forEach(({ line }) => {
+      const isSelected = selectedShapes.some(
+        (shape) => shape.id === line.id() && shape.type === "wall"
+      );
+      line.stroke(isSelected ? "red" : "brown"); // Change color when selected
+    });
+
+    layerRef.current.batchDraw();
+  }, [selectedShapes, locations]);
 
   /**
    * 창고 자동 생성 로직을 위한 부분
@@ -1696,7 +1756,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
                   width={rect.width}
                   height={rect.height}
                   fill={rect.fill}
-                  isSelected={selectedIds.includes(rect.id)}
+                  isSelected={selectedShapes.includes(rect.id)}
                   onSelect={onSelect}
                   onChange={(newAttrs) => {
                     const rects = locations.slice();
@@ -1821,7 +1881,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
                     key={index}
                     onClick={() => {
                       // Set the selected rectangle
-                      setSelectedIds([location.id]); // Select the rectangle
+                      setSelectedShapes([location.id]); // Select the rectangle
                       setSelectedLocation(location); // Store the selected location
 
                       // Attach the Transformer to this rectangle
@@ -1852,7 +1912,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
 
         <hr />
         <h3>선택된 재고함</h3>
-        {selectedIds.length > 1 ? (
+        {selectedShapes.length > 1 ? (
           <p>다중 선택되었습니다.</p>
         ) : selectedLocation ? (
           <div>
@@ -1882,6 +1942,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
           <button
             id="delete-button"
             className={classes.delete}
+            onClick={handleDelete} // Attach the handler here
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
@@ -2048,6 +2109,7 @@ const RectangleTransformer = ({
         {...shapeProps}
         id={shapeProps.id}
         name="selectableShape" // 선택 가능하게 id값을 추가해서 속성 추가
+        shapeType="location" // 구분을 위한 표시
         onClick={(e) => onSelect(e, shapeProps.id)}
         onTap={(e) => onSelect(e, shapeProps.id)}
         draggable // 사각형을 드래그 가능하게 함
