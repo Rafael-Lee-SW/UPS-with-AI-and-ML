@@ -1052,7 +1052,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
 
     //Event Handler for 'mousemove' stage 위에서 움직일 때,
     const handleMouseMove = () => {
-      if (currentSetting === "wall") {
+      if (currentSetting === "wall" && line) {
         // 정확한 위치를 얻어온다.
         const pos = getPrecisePosition(stageRef.current);
 
