@@ -457,7 +457,7 @@ const basicsStyle = {
     },
     infoZindexBox: {
       marginLeft: "10px",
-      height: "200px",
+      height: "150px",
       width: "55%",
       overflowY: "auto",
       border: "1px solid gray",
@@ -469,7 +469,7 @@ const basicsStyle = {
     floorBox: {
       display: "flex",
       width: "90%",
-      height: "30px",
+      height: "10px",
       marginBottom: "5px",
       borderRadius: "5px",
       border: "1px solid black",

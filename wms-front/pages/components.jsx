@@ -41,6 +41,7 @@ const Components = (props) => {
 
     // Check for token in local storage
     const token = localStorage.getItem("token");
+    console.log(token)
     if (token) {
       setIsLoggedIn(true);
     } else {
