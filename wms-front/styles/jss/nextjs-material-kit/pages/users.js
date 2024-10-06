@@ -33,7 +33,7 @@ const componentsStyle = {
     paddingRight: "15px",
   },
   // 창고 선택 파트
-  currentWarehouseIndex: {
+  currentStoreIndex: {
     paddingTop: "25px",
     fontSize: "15px",
     fontWeight: "bold",
@@ -126,7 +126,7 @@ const componentsStyle = {
       paddingRight: "10px",
     },
     // 창고 선택 파트
-    currentWarehouseIndex: {
+    currentStoreIndex: {
       padding: "1px 10px 0 0",
       fontSize: "12px",
       fontWeight: "bold",

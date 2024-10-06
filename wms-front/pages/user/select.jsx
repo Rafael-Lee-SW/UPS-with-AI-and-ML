@@ -21,11 +21,12 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import styles from "/styles/jss/nextjs-material-kit/pages/selectStyle.js";
+import Cookies from 'cookies'; // Cookie에 저장하기 위해서
 
 const useStyles = makeStyles(styles);
 
-const Select = (props) => {
-  const { ...rest } = props;
+const Select = ({fetchedStores, ...rest}) => {
+
   const classes = useStyles();
   const router = useRouter();
 
@@ -43,11 +44,10 @@ const Select = (props) => {
   const [facilityType, setFacilityType] = useState("STORE");
   const [priority, setPriority] = useState(1);
 
-  const [cards, setCards] = useState([]);
-  const [userData, setUserData] = useState(null);
-  const [businessData, setBusinessData] = useState(null);
-  const [businessId, setBusinessId] = useState(null);
-  const [currentWarehouseCount, setCurrentWarehouseCount] = useState(0);
+  const [cards, setCards] = useState(fetchedStores || []); // Use fetchedStores as initial state
+  const [currentWarehouseCount, setCurrentWarehouseCount] = useState(
+    fetchedStores.length || 0
+  );
   const [allowedWarehouseCount, setAllowedWarehouseCount] = useState(0);
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -86,6 +86,7 @@ const Select = (props) => {
     setPriority(e.target.value);
   };
 
+  // 유효값 검증
   const validateForm = (data) => {
     const errors = {};
 
@@ -130,48 +131,7 @@ const Select = (props) => {
     setValidationErrors(errors);
   };
 
-  const fetchWarehouseCounts = async (businessId) => {
-    try {
-      const warehouseCountResponse = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses/cnt/${businessId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const subscriptionResponse = await fetch(
-        `https://j11a302.p.ssafy.io/api/subscriptions?businessId=${businessId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (warehouseCountResponse.ok && subscriptionResponse.ok) {
-        const warehouseCountData = await warehouseCountResponse.json();
-        const subscriptionData = await subscriptionResponse.json();
-        const subscriptionCntDat = subscriptionData.result;
-
-        const presentCount = warehouseCountData.result;
-        const MaxCount = subscriptionCntDat[0].warehouseCount;
-
-        setCurrentWarehouseCount(warehouseCountData.result);
-        setAllowedWarehouseCount(subscriptionCntDat[0].warehouseCount);
-
-        return { presentCount, MaxCount };
-      } else {
-        router.push("/404");
-      }
-    } catch (error) {
-      router.push("/404");
-    }
-  };
-
+  // 창고 생성 이후에 보내는 API functions
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -230,12 +190,11 @@ const Select = (props) => {
 
     // const wallData = generateWalls(locationData);
 
-    // 토큰에서 유저정보를 가져온다.(중요)
+    // 토큰에서 유저정보를 가져온다.(SSR이 아니기에 local에서 그냥 가져온다)
     const token = localStorage.getItem("token");
 
     if (!token) {
-      // Handle the case where the token is missing (e.g., redirect to login)
-      router.push("/login");
+      router.push("/signIn");
       return;
     }
 
@@ -251,7 +210,6 @@ const Select = (props) => {
       });
 
       if (response.ok) {
-        console.log("Check the each point6");
         const newWarehouse = await response.json();
         const warehouses = newWarehouse.result;
 
@@ -351,122 +309,6 @@ const Select = (props) => {
     }
   };
 
-  // 사용자의 모든 매장 정보를 가져오는 API
-  const getAllStoreInfoAPI = async () => {
-    try {
-      // 토큰에서 유저정보를 가져온다.
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        // Handle the case where the token is missing (e.g., redirect to login)
-        router.push("/login");
-        return;
-      }
-
-      const response = await fetch(`https://j11a302.p.ssafy.io/api/stores`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          // Include the token in the Authorization header
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      console.log("Response object:", response);
-
-      // Check if the response is OK before reading the body
-      if (response.ok) {
-        const apiConnection = await response.clone().json(); // clone the response to avoid consuming the body
-        console.log("Parsed response:", apiConnection);
-
-        const stores = apiConnection.result;
-        const storeCards = stores.map((store) => ({
-          id: store.id,
-          storeName: store.storeName,
-          image: "/img/storeroom.webp",
-        }));
-
-        // Set the warehouse cards in state (assuming setCards is a useState function)
-        setCards(storeCards);
-      } else {
-        router.push("/404");
-      }
-    } catch (error) {
-      console.error("Error fetching store info:", error);
-      router.push("/404");
-    }
-  };
-
-  const fetchBusinessData = async (userId) => {
-    try {
-      const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/users/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const userData = await response.json();
-        const businessInfo = userData.result;
-        setBusinessData(businessInfo);
-        setBusinessId(businessInfo.businessId);
-
-        fetchWarehouseCounts(businessInfo.businessId);
-        getAllStoreInfoAPI();
-      } else {
-        router.push("/404");
-      }
-    } catch (error) {
-      router.push("/404");
-    }
-  };
-
-  useEffect(() => {
-    getAllStoreInfoAPI();
-  }, []);
-
-  const fetchCounts = async (warehouseId) => {
-    try {
-      const pcsResponse = await axios.get(
-        `https://j11a302.p.ssafy.io/api/warehouses/pcscnt/${warehouseId}`
-      );
-      const locationResponse = await axios.get(
-        `https://j11a302.p.ssafy.io/api/warehouses/locationcnt/${warehouseId}`
-      );
-      const usageResponse = await axios.get(
-        `https://j11a302.p.ssafy.io/api/warehouses/usage/${warehouseId}`
-      );
-      const warehouseTypeResponse = await axios.get(
-        `https://j11a302.p.ssafy.io/api/warehouses/purpose/${warehouseId}`
-      );
-
-      const pcsCount = pcsResponse.data.result;
-      const locationCount = locationResponse.data.result;
-      const usagePercent = usageResponse.data.result; // 1부터 100까지
-      const warehouseColor = warehouseTypeResponse.data.result; // 1부터 3까지
-
-      setCards((prevCards) =>
-        prevCards.map((card) =>
-          card.id === warehouseId
-            ? {
-                ...card,
-                pcsCount,
-                locationCount,
-                usagePercent,
-                warehouseColor,
-              }
-            : card
-        )
-      );
-    } catch (error) {
-      router.push("/404");
-    }
-  };
-
   // warehouseColor에 따른 배경 색상 및 usagePercent에 따른 색상 높이
   const getBackgroundColor = (color) => {
     switch (color) {
@@ -494,6 +336,7 @@ const Select = (props) => {
     }
   };
 
+  // 매장 삭제
   const handleDelete = async (warehouseId) => {
     try {
       await axios.patch(
@@ -789,5 +632,56 @@ const Select = (props) => {
     </div>
   );
 };
+
+// SSR part
+export async function getServerSideProps({req, res}) {
+
+  //쿠키에서 토큰을 추출한다.
+  const cookies = new Cookies(req, res);
+  const token = cookies.get("token");
+
+  console.log(token)
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/signIn",
+        permanent: false,
+      },
+    };
+  }
+
+  try {
+    const response = await fetch("https://j11a302.p.ssafy.io/api/stores", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const stores = data.result;
+      const storeCards = stores.map((store) => ({
+        id: store.id,
+        storeName: store.storeName,
+        image: "/img/storeroom.webp",
+      }));
+
+      return {
+        props: { fetchedStores: storeCards }, // Pass data as props to the page
+      };
+    } else {
+      return {
+        notFound: true,
+      };
+    }
+  } catch (error) {
+    return {
+      notFound: true,
+    };
+  }
+}
 
 export default Select;
