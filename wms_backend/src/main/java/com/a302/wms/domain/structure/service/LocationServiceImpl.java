@@ -14,12 +14,11 @@ import com.a302.wms.domain.structure.entity.Location;
 import com.a302.wms.domain.structure.mapper.LocationMapper;
 import com.a302.wms.domain.structure.repository.LocationRepository;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -151,5 +150,20 @@ public class LocationServiceImpl {
         return locationRepository.findAllMaxStorage().stream()
                 .map(LocationMapper::toLocationStorageResponseDto)
                 .toList();
+    }
+
+    public Location saveDefaultLocation(Store store) {
+        return locationRepository.save(
+                Location.builder()
+                        .rotation(-1)
+                        .xPosition(-1)
+                        .xSize(-1)
+                        .yPosition(-1)
+                        .ySize(-1)
+                        .zSize(-1)
+                        .store(store)
+                        .name("임시 로케이션")
+                        .build()
+        );
     }
 }
