@@ -11,6 +11,7 @@ import styles from "/styles/jss/nextjs-material-kit/pages/users.js"; // Let's ma
 import "aos/dist/aos.css";
 import { useRouter } from "next/router";
 import Cookies from "cookies"; // Cookie에 저장하기 위해서
+import NotificationBell from "/components/Header/NotificationBell";
 
 const DynamicMyContainerMap = dynamic(
   () => import("/pages-sections/Components-Sections/MyContainerMap.jsx"),
@@ -38,14 +39,21 @@ export default function Components({
 }) {
   const classes = useStyles();
   const router = useRouter();
-  const { id } = router.query;
+  const { id, videoId } = router.query; // videoId 쿼리 파라미터 추가
 
   const [cards, setCards] = useState(initialCards || []);
   const [userData, setUserData] = useState(initialUserData || null);
   const [businessData, setBusinessData] = useState(initialBusinessData || null);
   const [selectedStore, setSelectedStore] = useState(id || "");
   const [selectedStoreTitle, setSelectedStoreTitle] = useState(""); // State to store the selected warehouse title
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(2);
+
+  // videoId가 존재하면 currentIndex를 3으로 설정
+  useEffect(() => {
+    if (videoId) {
+      setCurrentIndex(3);
+    }
+  }, [videoId]);
 
   // Dynamic component array
   const componentsArray = [
@@ -177,6 +185,7 @@ export default function Components({
         >
           방범 관리
         </Button>
+        <NotificationBell userId={userData?.id} />
       </div>
 
       <div className={classes.mainContent}>

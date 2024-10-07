@@ -15,6 +15,7 @@ import IconButton from "@material-ui/core/IconButton";
 // core components
 import CustomDropdown from "/components/CustomDropdown/CustomDropdown.js";
 import Button from "/components/CustomButtons/Button.js";
+import NotificationBell from "./NotificationBell"; // NotificationBell 컴포넌트 추가
 
 import styles from "/styles/jss/nextjs-material-kit/components/headerLinksStyle.js";
 
@@ -22,6 +23,8 @@ const useStyles = makeStyles(styles);
 
 export default function HeaderLinks(props) {
   const router = useRouter();
+  const classes = useStyles();
+
   const handleLogout = () => {
     // Remove the token from local storage
     localStorage.removeItem("token");
@@ -30,12 +33,12 @@ export default function HeaderLinks(props) {
     router.push("/");
   };
 
-  const classes = useStyles();
   return (
     <List className={classes.list}>
       <ListItem className={classes.listItem}>
-        {" "}
-        {/* Correct casing */}
+        <NotificationBell userId={props.userId} /> {/* NotificationBell 추가 */}
+      </ListItem>
+      <ListItem className={classes.listItem}>
         <Button
           onClick={handleLogout}
           color="transparent"

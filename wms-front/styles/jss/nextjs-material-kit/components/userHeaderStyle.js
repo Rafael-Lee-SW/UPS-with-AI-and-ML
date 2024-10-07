@@ -207,6 +207,12 @@ const headerStyle = (theme) => ({
     drawerPaper: {
       width: "240px", // Reduce the drawer width on mobile
     },
+    notificationBell: {
+      position: 'absolute',
+      top: '10px',
+      right: '10px',
+      zIndex: 1200,
+    },
   },
 });
 
