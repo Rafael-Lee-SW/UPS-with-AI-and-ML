@@ -51,7 +51,7 @@ export default function Alarm({ userId }) {
     };
 
     const handleDetail = (notificationId) => {
-        router.push(`/user/${userId}?videoId=${notificationId}`);
+        router.push(`/user/${currentStore.id}?videoId=${notificationId}`);
     }
 
     return (
