@@ -1,24 +1,33 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router"; // router를 통해 쿼리 값을 받음
-import { fetchProductsByRFID } from "@/api/index"; // API 호출
-import styles from "./rfid.module.css"; // CSS 모듈 가져오기
+import { useRouter } from "next/router";
+import debounce from "lodash/debounce";
+import styles from "./rfid.module.css";
 
-// 상품 정보 타입 정의
 interface Product {
-  id: number;
-  name: string;
+  productId: number;
+  productName: string;
   price: number;
-  rfid: string; // RFID 값과 비교하기 위해 상품에 RFID 필드 추가
+  barcode: string;
+  sku: string;
+  quantity: number;
+  sellingPrice: number | null;
 }
 
 export default function RFIDPage() {
   const router = useRouter();
-  const [rfid, setRfid] = useState(""); // RFID 상태
-  const [products, setProducts] = useState<Product[]>([]); // 상품 정보 상태
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]); // RFID로 필터된 상품 정보
-  const [loading, setLoading] = useState(true); // 로딩 상태
-  const [error, setError] = useState(""); // 오류 메시지 상태
-  const [beforeScan, setBeforeScan] = useState(true); // RFID 스캔 전후 상태
+  const [barcode, setBarcode] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [scannedProducts, setScannedProducts] = useState<Product[]>([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalQuantity, setTotalQuantity] = useState(0);
+
+  // 중복 호출 방지를 위해 처리 중 상태 추가
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // 상태 업데이트 시마다 콘솔에 출력
+  useEffect(() => {
+    console.log("scannedProducts 상태가 업데이트되었습니다:", scannedProducts);
+  }, [scannedProducts]);
 
   // 쿼리에서 받은 product 데이터를 상태에 저장
   useEffect(() => {
@@ -28,76 +37,186 @@ export default function RFIDPage() {
     }
   }, [router.query.products]);
 
-  // RFID 값이 인식되면 호출될 함수
-  const fetchAndSetProducts = async (rfidNumber: string) => {
-    setLoading(true);
-    setError(""); // 기존 오류 메시지 초기화
-    try {
-      // 해당 RFID로 일치하는 상품을 필터링
-      const matchedProducts = products.filter(
-        (product) => product.rfid === rfidNumber
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("ko-KR").format(price);
+  };
+
+  // 상품 인식 및 수량 업데이트 함수
+  const fetchAndSetProducts = (barcode: string) => {
+    if (isProcessing) return; // 중복 호출 방지
+    setIsProcessing(true); // 처리 중 플래그 설정
+
+    console.log(`fetchAndSetProducts 호출됨: ${barcode}`);
+
+    // 바코드와 일치하는 상품 찾기
+    const matchedProduct = products.find(
+      (product) => String(product.barcode) === String(barcode)
+    );
+
+    if (matchedProduct) {
+      setScannedProducts((prevScannedProducts) => {
+        const existingProduct = prevScannedProducts.find(
+          (product) => String(product.barcode) === String(barcode)
+        );
+
+        if (existingProduct) {
+          // 기존 상품이 있으면 수량 증가
+          console.log(
+            `기존 상품 수량 증가 직전: ${existingProduct.productName}, 현재 수량: ${existingProduct.quantity}`
+          );
+          const updatedProducts = prevScannedProducts.map((product) =>
+            product.barcode === barcode
+              ? { ...product, quantity: product.quantity + 1 } // 수량 1 증가
+              : product
+          );
+          console.log("업데이트된 상품 리스트:", updatedProducts);
+          setIsProcessing(false); // 처리 완료 후 플래그 해제
+          return updatedProducts;
+        } else {
+          // 새로운 상품 추가
+          console.log(`새로운 상품 추가: ${matchedProduct.productName}`);
+          const newProducts = [
+            ...prevScannedProducts,
+            { ...matchedProduct, quantity: 1 }, // 수량 1로 추가
+          ];
+          console.log("새로 추가된 상품 리스트:", newProducts);
+          setIsProcessing(false); // 처리 완료 후 플래그 해제
+          return newProducts;
+        }
+      });
+
+      // 총 가격 및 총 수량 업데이트
+      setTotalPrice(
+        (prevTotal) => prevTotal + (matchedProduct.sellingPrice || 0)
       );
-      setFilteredProducts(matchedProducts); // 일치하는 상품 정보 설정
-      setLoading(false); // 로딩 상태 비활성화
-    } catch (error) {
-      console.error("상품 정보 로드 중 오류 발생:", error);
-      setError("상품 정보를 불러오는 데 실패했습니다."); // 오류 메시지 설정
-      setLoading(false);
+      setTotalQuantity((prevQuantity) => prevQuantity + 1);
+    } else {
+      setIsProcessing(false); // 처리 중이 아니라고 설정
     }
   };
 
+  // RFID 리스너 등록 및 해제 처리
   useEffect(() => {
-    if (window.electronAPI && window.electronAPI.onRFIDDetected) {
-      // Electron을 통해 RFID 값이 인식되면 그 값을 설정하고 상품 정보를 불러옴
-      window.electronAPI.onRFIDDetected((rfidNumber: string) => {
-        if (rfidNumber) {
-          setRfid(rfidNumber);
-          fetchAndSetProducts(rfidNumber);
-          setBeforeScan(false); // 스캔 후 상태로 변경
+    const debouncedRFIDHandler = debounce((detectedBarcode: string) => {
+      console.log("RFID 인식된 바코드:", detectedBarcode);
+      setBarcode(detectedBarcode);
+      fetchAndSetProducts(detectedBarcode); // 상품 인식 및 업데이트 호출
+    }, 300);
+
+    const removeListener = window.electronAPI.onRFIDDetected(
+      (detectedBarcode: string) => {
+        debouncedRFIDHandler(detectedBarcode);
+      }
+    );
+
+    return () => {
+      if (typeof removeListener === "function") {
+        removeListener();
+      }
+    };
+  }, [products]);
+
+  // 상품 제거 함수
+  const removeProduct = (barcode: string) => {
+    setScannedProducts((prevScannedProducts) => {
+      const existingProduct = prevScannedProducts.find(
+        (product) => String(product.barcode) === String(barcode)
+      );
+
+      if (existingProduct) {
+        if (existingProduct.quantity > 1) {
+          const updatedProducts = prevScannedProducts.map((product) =>
+            product.barcode === barcode
+              ? { ...product, quantity: product.quantity - 1 }
+              : product
+          );
+          setTotalPrice(
+            (prevTotal) => prevTotal - (existingProduct.sellingPrice || 0)
+          );
+          setTotalQuantity((prevQuantity) => prevQuantity - 1);
+          return updatedProducts;
         } else {
-          setError("RFID 값을 인식할 수 없습니다.");
-          setLoading(false);
+          const updatedProducts = prevScannedProducts.filter(
+            (product) => product.barcode !== barcode
+          );
+          setTotalPrice(
+            (prevTotal) => prevTotal - (existingProduct.sellingPrice || 0)
+          );
+          setTotalQuantity((prevQuantity) => prevQuantity - 1);
+          return updatedProducts;
         }
-      });
-    } else {
-      console.error("electronAPI 또는 onRFIDDetected가 정의되지 않았습니다.");
-    }
-  }, [products]); // products가 업데이트될 때마다 호출
+      }
+      return prevScannedProducts;
+    });
+  };
+
+  const handlePayment = () => {
+    const query = {
+      products: encodeURIComponent(JSON.stringify(scannedProducts)),
+      totalPrice: totalPrice,
+    };
+
+    router.push({
+      pathname: "/payment/checkout",
+      query,
+    });
+  };
+
+  const handleCancel = () => {
+    router.push("/select");
+  };
 
   return (
-    <div className={styles.container}>
-      {beforeScan ? (
-        <div className={styles.beforeScan}>
-          <h2>상품을 바구니에 담아주세요</h2>
-          <div className={styles.cartContainer}>
-            <img src="/cart.gif" alt="장바구니" className={styles.cartImage} />
+    <div className={styles.pageContainer}>
+      <header className={styles.header}>
+        <h2>매장 이름</h2>
+      </header>
+      <hr className={styles.divider} />
+      <div className={styles.productsContainer}>
+        {scannedProducts.map((product, index) => (
+          <div
+            key={product.productId}
+            className={`${styles.product} ${
+              index % 2 === 0 ? styles.evenProduct : styles.oddProduct
+            }`}
+          >
+            <img
+              src={`/${product.barcode}.jpg`}
+              alt={product.productName}
+              className={styles.productImg}
+            />
+            <span>
+              {product.productName} & {product.barcode}
+            </span>
+
+            <div className={styles.quantity}>
+              <button onClick={() => removeProduct(product.barcode)}>−</button>
+              <label>{product.quantity}</label> {/* 수량 표시 */}
+              <button onClick={() => fetchAndSetProducts(product.barcode)}>
+                +
+              </button>
+            </div>
+
+            <label className={styles.price}>
+              {formatPrice((product.sellingPrice || 0) * product.quantity)} 원
+            </label>
           </div>
+        ))}
+      </div>
+      <div className={styles.summary}>
+        <div className={styles.totalQuantity}>총 수량: {totalQuantity}개</div>
+        <div className={styles.totalPrice}>
+          총 결제금액: {formatPrice(totalPrice)}원
         </div>
-      ) : loading ? (
-        <div className={styles.loading}>
-          <h2>상품을 인식 중입니다...</h2>
-        </div>
-      ) : error ? (
-        <div className={styles.error}>
-          <h2>{error}</h2>
-        </div>
-      ) : (
-        <div>
-          <h2>인식된 RFID: {rfid}</h2>
-          <div className={styles.productList}>
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => (
-                <div key={product.id} className={styles.product}>
-                  <h3>{product.name}</h3>
-                  <p>가격: {product.price}원</p>
-                </div>
-              ))
-            ) : (
-              <p>해당 RFID로 등록된 상품이 없습니다.</p>
-            )}
-          </div>
-        </div>
-      )}
+      </div>
+      <div className={styles.checkoutFooter}>
+        <button onClick={handleCancel} className={styles.cancelBtn}>
+          주문 취소
+        </button>
+        <button onClick={handlePayment} className={styles.checkoutBtn}>
+          결제하기
+        </button>
+      </div>
     </div>
   );
 }

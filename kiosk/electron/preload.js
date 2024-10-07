@@ -1,5 +1,3 @@
-// preload.js
-
 const { ipcRenderer, contextBridge } = require("electron");
 
 // Electron API를 window.electronAPI에 노출
@@ -10,7 +8,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
       callback(data); // 데이터를 프론트엔드로 전달
     };
 
-    // 이벤트 리스너 등록
+    // NFC 데이터 이벤트 리스너 등록
     ipcRenderer.on("nfc-data", handler);
 
     // 리스너 제거 함수 반환

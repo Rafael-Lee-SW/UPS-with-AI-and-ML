@@ -47,8 +47,8 @@ function connectNFCReader() {
 
             console.log("Card connected, protocol:", protocol);
 
-            // NDEF 메시지 읽기
-            readNdefMessage(reader, protocol);
+            // 12번 블록 읽기
+            readSpecificBlock(reader, protocol, 12);
           }
         );
       } else if (
@@ -80,33 +80,30 @@ function connectNFCReader() {
     console.error("PCSC error:", err);
   });
 }
-
-function readNdefMessage(reader, protocol) {
-  const command = Buffer.from([0xff, 0xb0, 0x00, 0x04, 0x10]); // NFC 태그 읽기
+function readSpecificBlock(reader, protocol, blockNumber) {
+  const command = Buffer.from([0xff, 0xb0, 0x00, blockNumber, 0x10]); // 블록 읽기 명령어
 
   reader.transmit(command, 40, protocol, (err, data) => {
     if (err) {
-      console.error("Error reading tag:", err);
+      console.error(`Error reading block ${blockNumber}:`, err);
       return;
     }
 
-    const fullData = data.slice(0, -2); // SW1, SW2 제외
-    console.log("읽은 전체 데이터 (fullData):", fullData.toString("hex")); // 전체 데이터를 출력
+    let fullData = data.toString("hex"); // hex 데이터를 문자열로 변환
+    console.log(`Block ${blockNumber} data:`, fullData);
 
-    // 바코드 추출 부분
-    const headerLength = 8; // 헤더 길이
-    const barcodeData = fullData.slice(headerLength); // 헤더 제외
-    let barcode = barcodeData.toString("ascii").match(/\d+/g)?.join("") || null;
+    // fe00을 찾아서 제거
+    fullData = fullData.replace("fe00", "");
 
-    if (barcode && barcode.startsWith("4")) {
-      barcode = barcode.slice(1); // 첫 번째 '4' 제거
-    }
+    // ASCII로 변환
+    let barcode = Buffer.from(fullData, "hex").toString("ascii").trim(); // 공백 제거 후 저장
+
+    console.log(`Barcode (fe00 removed): ${barcode}`);
 
     if (barcode) {
-      console.log("Barcode detected:", barcode);
       mainWindow.webContents.send("nfc-data", barcode); // 바코드 프론트엔드로 전송
     } else {
-      console.log("바코드를 찾을 수 없습니다.");
+      console.log("Barcode not found");
     }
   });
 }
