@@ -19,6 +19,22 @@ class PredictionRequest(BaseModel):
 
 app = FastAPI(root_path="/ml")
 
+# Define the list of origins that are allowed to make cross-origin requests
+origins = [
+    "http://localhost:3000",  # Your frontend development server
+    "https://j11a302.p.ssafy.io",  # If your frontend is also served from this domain
+    # Add any other origins as needed
+]
+
+# Add CORS middleware to your FastAPI app
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # List of origins that are allowed
+    allow_credentials=True,
+    allow_methods=["*"],  # Allowed HTTP methods, e.g., GET, POST
+    allow_headers=["*"],  # Allowed HTTP headers
+)
+
 # Replace with your model file
 lstm_model = tf.keras.models.load_model("lstm_sales_forecast_model.h5")
 
