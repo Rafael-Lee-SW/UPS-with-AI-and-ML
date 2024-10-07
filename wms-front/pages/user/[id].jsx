@@ -185,7 +185,7 @@ export default function Components({
         >
           방범 관리
         </Button>
-        <NotificationBell userId={userData?.id} />
+        <NotificationBell userId={userData?.id} className={classes.hiddenMdUp} />
       </div>
 
       <div className={classes.mainContent}>
