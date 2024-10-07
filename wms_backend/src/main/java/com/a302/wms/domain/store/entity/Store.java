@@ -12,13 +12,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@Table(name="store")
+@Table(name = "store")
 @RequiredArgsConstructor
 @ToString
 public class Store extends BaseTimeEntity {
@@ -32,10 +31,10 @@ public class Store extends BaseTimeEntity {
     @ManyToOne
     private User user;
 
-    @OneToMany(mappedBy = "store")
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Location> locations = new ArrayList<>();
 
-    @OneToMany(mappedBy = "store")
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Wall> walls = new ArrayList<>();
 
     @Column(nullable = false)
@@ -44,7 +43,7 @@ public class Store extends BaseTimeEntity {
     @Column(length = 20)
     private String storeName;
 
-    @OneToMany(mappedBy = "store")
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Device> devices = new ArrayList<>();
 
     @Builder
