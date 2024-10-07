@@ -13,6 +13,7 @@ import com.a302.wms.global.constant.SocialLoginTypeEnum;
 import com.a302.wms.global.handler.CommonException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -22,6 +23,7 @@ public class UserServiceImpl {
 
     private final UserRepository userRepository;
     private final UserModuleService userModuleService;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 회원가입
@@ -31,8 +33,8 @@ public class UserServiceImpl {
      */
     public UserResponse save(UserSignUpRequest dto) {
         SocialLoginTypeEnum socialLoginType = SocialLoginTypeEnum.GENERAL;
-        String hashedPassword = PasswordUtil.hashPassword(dto.password()); //TODO 암호화 하기
-        User user = UserMapper.fromUserSignUpRequest(dto, hashedPassword, socialLoginType);
+        String encodedPassword = passwordEncoder.encode(dto.password());
+        User user = UserMapper.fromUserSignUpRequest(dto, encodedPassword, socialLoginType);
         User createdUser = userRepository.save(user);
         return UserMapper.toUserResponse(createdUser);
     }
@@ -77,11 +79,12 @@ public class UserServiceImpl {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         String hashedCurrentPassword = PasswordUtil.hashPassword(userPasswordUpdateRequest.currentPassword());
         if (!user.getPassword().equals(hashedCurrentPassword)) {
+//        if (!passwordEncoder.matches(userPasswordUpdateRequest.currentPassword(), user.getPassword())) {
             throw new IllegalArgumentException("현재 비밀번호가 올바르지 않습니다.");
         }
-        String hashedNewPassword = PasswordUtil.hashPassword(userPasswordUpdateRequest.newPassword());
+        String encodedPassword = passwordEncoder.encode(userPasswordUpdateRequest.newPassword());
 
-        user.setPassword(hashedNewPassword);
+        user.setPassword(encodedPassword);
         userRepository.save(user);
         log.info("사용자의 비밀번호가 성공적으로 변경되었습니다.");
     }
