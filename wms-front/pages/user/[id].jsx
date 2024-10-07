@@ -38,7 +38,7 @@ export default function Components({
 }) {
   const classes = useStyles();
   const router = useRouter();
-  const { id } = router.query;
+  const { id, videoId } = router.query; // videoId 쿼리 파라미터 추가
 
   const [cards, setCards] = useState(initialCards || []);
   const [userData, setUserData] = useState(initialUserData || null);
@@ -46,6 +46,13 @@ export default function Components({
   const [selectedStore, setSelectedStore] = useState(id || "");
   const [selectedStoreTitle, setSelectedStoreTitle] = useState(""); // State to store the selected warehouse title
   const [currentIndex, setCurrentIndex] = useState(2);
+
+  // videoId가 존재하면 currentIndex를 3으로 설정
+  useEffect(() => {
+    if (videoId) {
+      setCurrentIndex(3);
+    }
+  }, [videoId]);
 
   // Dynamic component array
   const componentsArray = [
