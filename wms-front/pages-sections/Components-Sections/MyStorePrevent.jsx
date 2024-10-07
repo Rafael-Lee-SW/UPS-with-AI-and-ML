@@ -174,9 +174,11 @@ const VideoCard = React.memo(({ video, onOpen, onDelete }) => {
 });
 
 const MyStorePrevent = () => {
+  const ITEMS_PER_PAGE = 20;
+
   const [videos, setVideos] = useState([]);
   const [filteredVideos, setFilteredVideos] = useState([]);
-  const [visibleVideos, setVisibleVideos] = useState([]); // 현재 화면에 표시할 비디오
+  const [visibleVideos, setVisibleVideos] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState('all');
@@ -188,27 +190,38 @@ const MyStorePrevent = () => {
   const router = useRouter();
   const observer = useRef();
 
-  const ITEMS_PER_PAGE = 20; // 한 번에 로드할 비디오의 수
-
   // 더미 데이터 생성 시 가장 최근 날짜순으로 정렬
   useEffect(() => {
-    const initialVideos = sortVideosByDate(generateDummyData(100)); // 100개의 더미 데이터를 생성
-    setVideos(initialVideos);
-    setFilteredVideos(initialVideos); // 필터링 전 전체 데이터를 저장
-    setVisibleVideos(initialVideos.slice(0, ITEMS_PER_PAGE)); // 첫 페이지의 비디오만 보여줌
+    const storedVideos = localStorage.getItem('videos');
+    if (storedVideos) {
+      const parsedVideos = JSON.parse(storedVideos);
+      setVideos(parsedVideos);
+      setFilteredVideos(parsedVideos);
+      setVisibleVideos(parsedVideos.slice(0, ITEMS_PER_PAGE));
+    } else {
+      const initialVideos = sortVideosByDate(generateDummyData(200)); // 200개의 더미 데이터를 생성
+      setVideos(initialVideos);
+      setFilteredVideos(initialVideos);
+      setVisibleVideos(initialVideos.slice(0, ITEMS_PER_PAGE));
+      localStorage.setItem('videos', JSON.stringify(initialVideos));
+    }
   }, []);
 
   // videoId 쿼리 파라미터를 통해 모달을 자동으로 열기
   useEffect(() => {
     const { videoId } = router.query;
-    if (videoId && videos.length > 0) { // videos가 로드된 후에 실행
+    if (videoId && videos.length > 0) {
       const videoToOpen = videos.find(video => video.pk === parseInt(videoId, 10));
       if (videoToOpen) {
         setSelectedVideo(videoToOpen);
         setOpen(true);
+      } else {
+        setSelectedVideo(null); // videoId가 변경되었지만 해당 비디오가 없는 경우 초기화
       }
+    } else {
+      setSelectedVideo(null); // videoId가 없을 때 초기화
     }
-  }, [router.query, videos]); // videos가 변경될 때마다 실행
+  }, [router.query.videoId, videos]); // videoId가 변경될 때마다 실행
 
   // 무한 로딩을 위한 IntersectionObserver 설정
   const lastVideoElementRef = useCallback(
@@ -290,7 +303,7 @@ const MyStorePrevent = () => {
 
   const handleClose = useCallback(() => {
     setOpen(false);
-    setSelectedVideo(null);
+    setSelectedVideo(null); // 모달을 닫을 때 selectedVideo 초기화
     const { videoId, ...restQuery } = router.query;
     router.push(
       {
@@ -368,7 +381,7 @@ const MyStorePrevent = () => {
           {visibleVideos.map((video, index) => (
             <div
               key={video.pk}
-              ref={index === visibleVideos.length - 1 ? lastVideoElementRef : null} // 무한 스크롤을 위해 ref 설정
+              ref={index === visibleVideos.length - 1 ? lastVideoElementRef : null}
             >
               <VideoCard video={video} onOpen={handleOpen} onDelete={handleDelete} />
             </div>
