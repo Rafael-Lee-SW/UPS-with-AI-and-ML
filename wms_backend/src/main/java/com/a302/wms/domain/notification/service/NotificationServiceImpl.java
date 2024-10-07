@@ -4,6 +4,7 @@ import com.a302.wms.domain.notification.dto.NotificationResponse;
 import com.a302.wms.domain.notification.entity.Notification;
 import com.a302.wms.domain.notification.mapper.NotificationMapper;
 import com.a302.wms.domain.notification.repository.NotificationRepository;
+import com.a302.wms.global.constant.NotificationTypeEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +18,15 @@ public class NotificationServiceImpl {
     public void save(Notification notification) {
         notificationRepository.save(notification);
     }
+
     public List<NotificationResponse> findAllByUserId(Long userId) {
         return notificationRepository.findAllByUserId(userId)
                 .stream().map(NotificationMapper::toNotificationResponse).toList();
     }
 
+    public List<NotificationResponse> findAllCrimeByStoreId(Long storeId,
+                                                            String type) {
+        return notificationRepository.findAllCrimeByStoreId(storeId, type)
+                .stream().map(NotificationMapper::toNotificationResponse).toList();
+    }
 }

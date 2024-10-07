@@ -7,6 +7,7 @@ import com.a302.wms.domain.floor.mapper.FloorMapper;
 import com.a302.wms.domain.floor.repository.FloorRepository;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.repository.ProductRepository;
+import com.a302.wms.domain.structure.entity.Location;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -58,7 +59,7 @@ public class FloorServiceImpl {
      * @return 해당 warehouse의 default Floor
      */
     public Floor findByStoreIdAndLevel(Long storeId, int floorLevel) {
-        return floorRepository.findByStoreId(storeId, floorLevel);
+        return floorRepository.findByStoreIdAndLevel(storeId, floorLevel);
     }
 
     public Floor findDefaultFloorByStore(Long storeId) {
@@ -122,5 +123,13 @@ public class FloorServiceImpl {
      */
     public void deleteAll(List<Floor> floorList) {
         floorRepository.deleteAll(floorList);
+    }
+
+    public Floor saveDefaultFloor(Location location) {
+        return floorRepository.save(Floor.builder()
+                .floorLevel(-1)
+                .location(location)
+                .product(null)
+                .build());
     }
 }
