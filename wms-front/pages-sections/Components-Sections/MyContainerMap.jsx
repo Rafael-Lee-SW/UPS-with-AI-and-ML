@@ -551,7 +551,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
       const response = await fetch(
         `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures`,
         {
-          method: "PATCH",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             // Include the token in the Authorization header
@@ -566,7 +566,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
         console.log(response);
         // 성공
         notify(`현재 상태가 저장되었습니다.`);
-        // await getWarehouseAPI(); // But in UX, it have to be removed
+        // await getStoreStructureAPI(); // But in UX, it have to be removed
       } else {
         //에러
         console.error("Failed to save structure");
@@ -619,7 +619,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
 
       if (response.ok) {
         console.log("Structures deleted successfully");
-        await getWarehouseAPI(); // Refresh data
+        await getStoreStructureAPI(); // Refresh data
       } else {
         console.error("Failed to delete structures");
       }
@@ -629,7 +629,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
   };
 
   // API를 통해 해당하는 창고(번호)의 모든 location(적재함)과 wall(벽)을 가져오는 메서드
-  const getWarehouseAPI = async () => {
+  const getStoreStructureAPI = async () => {
     // 토큰에서 유저정보를 가져온다.(로그인 확인)
     const token = localStorage.getItem("token");
 
@@ -1273,7 +1273,9 @@ const MyContainerMap = ({ storeId, businessId }) => {
     });
 
     window.addEventListener("click", () => {
-      menuRef.current.style.display = "none";
+      if (menuRef.current) {
+        menuRef.current.style.display = "none";
+      }
     });
 
     /**
@@ -1311,7 +1313,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
     const fetchData = async () => {
       try {
         setLoading(true); // Start loading
-        await getWarehouseAPI();
+        await getStoreStructureAPI();
       } catch (error) {
         //에러
       } finally {

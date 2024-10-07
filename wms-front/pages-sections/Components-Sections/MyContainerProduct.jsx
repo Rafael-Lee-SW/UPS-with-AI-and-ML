@@ -141,14 +141,14 @@ const muiDatatableTheme = createTheme({
   },
 });
 
-const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
+const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
   // 라우팅, 스타일 설정
   const router = useRouter();
   const classes = useStyles();
 
   // Find the selected warehouse from the cards array
-  const selectedWarehouse = warehouses.find(
-    (warehouse) => warehouse.id === parseInt(WHId)
+  const selectedWarehouse = stores.find(
+    (store) => store.id === parseInt(storeId)
   );
 
   // If a warehouse is found, get its title
@@ -468,7 +468,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         quantity: parseInt(product.quantity),
         sellingPrice: parseInt(product.salesPrice) || 0,
         sku: product.sku || null,
-        storeId: parseInt(WHId),
+        storeId: parseInt(storeId),
       }));
 
       console.log(ImportArray);
@@ -485,8 +485,8 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
           body: JSON.stringify(ImportArray),
         }
       );
-      
-      console.log(response)
+
+      console.log(response);
 
       if (response.ok) {
         const result = await response.json();
@@ -499,7 +499,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         handleNextComponent(0);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       notify(`입고에 실패했습니다.`);
       handleNextComponent(0);
     }
@@ -519,7 +519,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
     try {
       // postData에 businessId와 warehouseId를 추가한다.
       const newPostData = {
-        warehouseId: WHId,
+        warehouseId: storeId,
         businessId: businessId,
         data: postData,
       };
@@ -589,14 +589,25 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   };
 
   // 상품 이동 API
-  const productMoveAPI = async (moveDetails) => {
+  const moveProductAPI = async (moveDetails) => {
+    //토큰 검증 과정
+    const token = localStorage.getItem("token");
+    if (!token) {
+      // 토큰 유무로 로그인 여부를 판단하여 로그인 상태가 아닐 경우 로그인 창으로
+      router.push("/signIn");
+      return;
+    }
+
+    console.log("상품 이동 보내주기 : ", moveDetails);
+
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/products/move`,
+        `https://j11a302.p.ssafy.io/api/products/batch`,
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(moveDetails),
         }
@@ -605,6 +616,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
       if (response.ok) {
         // 성공
         const result = await response.json();
+        console.log(result);
         notify(`상품을 이동했습니다.`);
         getStoreProductAPI(); // 정보가 반영된 테이블을 새로 불러온다.
       } else {
@@ -612,6 +624,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         handleNextComponent(0);
       }
     } catch (error) {
+      console.log(error);
       notify(`이동에 실패했습니다.`);
       handleNextComponent(0);
     }
@@ -634,7 +647,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
 
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/products?storeId=${WHId}`,
+        `https://j11a302.p.ssafy.io/api/products?storeId=${storeId}`,
         {
           method: "GET",
           headers: {
@@ -1166,7 +1179,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
     // Use router.replace with shallow routing
     router.replace(
       {
-        pathname: `/user/${WHId}`,
+        pathname: `/user/${storeId}`,
         query: { component: "product" },
       },
       undefined,
@@ -1257,23 +1270,19 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
     });
   };
 
-  // Function to finalize move in bulk mode
+  // 한번에 옮기기 Bulk Move
   const handleFinalizeBulkMove = () => {
-    const quantity = parseInt(bulkMoveDetails.quantity);
-
     const moveDetails = selectedRows.map((rowIndex) => {
       const product = tableData[rowIndex];
       return {
         productId: product[0],
-        locationName: bulkMoveDetails.locationName,
-        floorLevel: bulkMoveDetails.floorLevel,
-        warehouseId: parseInt(bulkMoveDetails.warehouseId),
-        quantity: Math.min(quantity, product[3]), // Move max available if over
+        locationId: parseInt(location.id),
+        floorLevel: parseInt(bulkMoveDetails.floorLevel),
       };
     });
 
     // 대량 이동 성공
-    productMoveAPI(moveDetails);
+    moveProductAPI(moveDetails);
     setOpenMoveModal(false);
   };
 
@@ -1291,7 +1300,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
     }));
 
     // 상세 이동 성공
-    productMoveAPI(moveDetails);
+    moveProductAPI(moveDetails);
     setOpenMoveModal(false);
   };
 
@@ -1702,7 +1711,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         floorLevel: "", // Reset location and floor level when warehouse changes
       }));
       setFloorLevels([]); // Clear floor levels
-      getWarehouseAPI(value); // Fetch locations for the selected warehouse
+      getStoreStructureAPI(value); // Fetch locations for the selected warehouse
     } else {
       setMoveData((prevMoveData) => {
         const newData = [...prevMoveData];
@@ -1712,7 +1721,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         return newData;
       });
       setFloorLevels([]); // Clear floor levels
-      getWarehouseAPI(value); // Fetch locations for the selected warehouse
+      getStoreStructureAPI(value); // Fetch locations for the selected warehouse
     }
   };
 
@@ -1720,15 +1729,26 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   const [locations, setLocations] = useState([]);
   const [floorLevels, setFloorLevels] = useState([]);
 
-  // API call to fetch locations for a specific warehouse
-  const getWarehouseAPI = async (warehouseId) => {
+  // 해당하는 창고의 로케이션 정보를 불러오는 API
+  const getStoreStructureAPI = async (value) => {
+    // 토큰에서 유저정보를 가져온다.(로그인 확인)
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // Handle the case where the token is missing (e.g., redirect to signIn)
+      router.push("/signIn");
+      return;
+    }
+
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}`,
+        `https://j11a302.p.ssafy.io/api/stores/${value}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            // Include the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -1737,17 +1757,19 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         const apiConnection = await response.json();
         const warehouseData = apiConnection.result; // Extract data
 
+        console.log("창고 목록 불러오기 :", apiConnection);
+
         // Process location data from the API response
         const locations = warehouseData.locations;
+
+        console.log("창고 내 로케이션 : ", locations);
+
         if (!locations) {
           //에러
+          console.log("아무것도 없습니다.");
           return;
         }
         const newLocations = locations.map((location, index) => {
-          // Calculate the red and blue components based on the fill value
-          const red = Math.round((location.fill / 100) * 255); // Increase from 0 to 255
-          const blue = Math.round(((100 - location.fill) / 100) * 255); // Decrease from 255 to 0
-
           return {
             id: location.id.toString(),
             x: location.xposition,
@@ -1755,14 +1777,15 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
             width: location.xsize || 50,
             height: location.ysize || 50,
             z: location.zsize,
-            fill: `rgba(${red}, 0, ${blue}, 1)`, // Calculate RGB with alpha as 1
-
+            draggable: true,
             order: index,
             name: location.name || `적재함 ${index}`,
             type: "location",
             rotation: 0,
           };
         });
+
+        console.log(newLocations);
 
         setLocations(newLocations);
       } else {
@@ -1780,7 +1803,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         [field]: value,
         floorLevel: "", // Reset floor level when location changes
       }));
-      // Find the location to get available floor levels
+      // Find the selected location to get the locationId and available floor levels
       const selectedLocation = locations.find(
         (location) => location.name === value
       );
@@ -1790,6 +1813,11 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
           (_, i) => i + 1
         );
         setFloorLevels(newFloorLevels);
+        // Assign the locationId for bulk move
+        setBulkMoveDetails((prevDetails) => ({
+          ...prevDetails,
+          locationId: selectedLocation.id, // Assign locationId here
+        }));
       }
     } else {
       setMoveData((prevMoveData) => {
@@ -1805,6 +1833,8 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
             (_, i) => i + 1
           );
           setFloorLevels(newFloorLevels);
+          // Assign the locationId for individual move
+          newData[index].locationId = selectedLocation.id; // Assign locationId here
         }
         return newData;
       });
@@ -2179,9 +2209,9 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                   <MenuItem value="">
                     <em>선택하세요</em>
                   </MenuItem>
-                  {warehouses.map((warehouse) => (
-                    <MenuItem key={warehouse.id} value={warehouse.id}>
-                      {warehouse.title}
+                  {stores.map((store) => (
+                    <MenuItem key={store.id} value={store.id}>
+                      {store.storeName}
                     </MenuItem>
                   ))}
                 </Select>
@@ -2264,9 +2294,9 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                     <MenuItem value="">
                       <em>선택하세요</em>
                     </MenuItem>
-                    {warehouses.map((warehouse) => (
-                      <MenuItem key={warehouse.id} value={warehouse.id}>
-                        {warehouse.title}
+                    {stores.map((store) => (
+                      <MenuItem key={store.id} value={store.id}>
+                        {store.storeName}
                       </MenuItem>
                     ))}
                   </Select>
@@ -2291,7 +2321,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
                       <em>선택하세요</em>
                     </MenuItem>
                     {locations.map((location) => (
-                      <MenuItem key={location.id} value={location.name}>
+                      <MenuItem key={location.id} value={location.id}>
                         {location.name}
                       </MenuItem>
                     ))}

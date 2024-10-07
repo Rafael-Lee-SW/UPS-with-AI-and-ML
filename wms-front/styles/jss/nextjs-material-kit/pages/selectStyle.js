@@ -235,18 +235,64 @@ const selectStyle = (theme) => ({
       display: "flex",
       flexDirection: "column",
     },
-    cardSelect: {
-
-    },
+    cardSelect: {},
     cardLink: {
-      display: "flex",
+      position: "relative",
       flexDirection: "column",
       height: "450px", // Total height of the card
       width: "300px",
       border: "1px solid #ccc",
       borderRadius: "8px",
+      transition: "transform 0.3s ease",
+      transformOrigin: "center",
+      "&:hover": {
+        transform: "scale(1.2)",
+        zIndex:"1200",
+      },
+      "&::before": {
+        content: '""',
+        position: "absolute",
+        top: "-2px",
+        left: "-2px",
+        width: "calc(100% + 4px)",
+        height: "calc(100% + 4px)",
+        borderRadius: "inherit",
+        border: "2px solid transparent",
+        boxSizing: "border-box",
+        transition: "border-color 0.5s ease",
+        pointerEvents: "none",
+      },
+      "&:hover::before": {
+        animation: "$borderRainbow 0.5s forwards",
+      },
     },
-    cardSelect: {
+    "@keyframes borderRainbow": {
+      "0%": { borderColor: "red" },
+      "25%": { borderColor: "yellow" },
+      "50%": { borderColor: "green" },
+      "75%": { borderColor: "blue" },
+      "100%": { borderColor: "black" },
+    },
+
+    actionButtons: {
+      position: "absolute",
+      top: "150px", // Position above the card
+      left: "50%",
+      transform: "translateX(-50%)",
+      display: "flex",
+      gap: "10px",
+      zIndex: 5, // Ensure buttons appear above other elements
+    },
+    actionButton: {
+      backgroundColor: "rgba(255, 255, 255, 0.8)",
+      "&:hover": {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        color: "#ffffff",
+      },
+    },
+    // Optional: Adjust the card to have a higher z-index when clicked
+    cardLinkClicked: {
+      zIndex: 5,
     },
     imageCard: {
       width: "300px", // Adjusted from the original size
@@ -281,7 +327,7 @@ const selectStyle = (theme) => ({
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      padding : "0",
+      padding: "0",
     },
     buttonCard: {
       height: "450px",
@@ -300,14 +346,6 @@ const selectStyle = (theme) => ({
       position: "absolute",
       bottom: 0,
       width: "100%",
-    },
-    deleteButton: {
-      position: "absolute",
-      top: 10,
-      right: 10,
-      width: "20px",
-      height: "20px",
-      cursor: "pointer",
     },
     cardBody: {
       display: "flex",

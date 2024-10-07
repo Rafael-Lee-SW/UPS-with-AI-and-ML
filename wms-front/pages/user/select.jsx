@@ -4,7 +4,12 @@ import axios from "axios";
 import Header from "../../components/Header/HomeHeader";
 import HeaderLinks from "/components/Header/LogInHomeHeaderLinks.js";
 import { makeStyles } from "@material-ui/core/styles";
+// 아이콘 호출
 import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
+import DeleteIcon from "@material-ui/icons/Delete";
+import EditIcon from "@material-ui/icons/Edit";
+import OpenInNewIcon from "@material-ui/icons/OpenInNew";
+//그리드
 import GridContainer from "/components/Grid/GridContainer.js";
 import GridItem from "/components/Grid/GridItem.js";
 import CardSelect from "/components/Card/CardSelect.js";
@@ -18,19 +23,22 @@ import {
   FormControlLabel,
   FormControl,
   FormLabel,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import styles from "/styles/jss/nextjs-material-kit/pages/selectStyle.js";
-import Cookies from 'cookies'; // Cookie에 저장하기 위해서
+import Cookies from "cookies"; // Cookie에 저장하기 위해서
 
 const useStyles = makeStyles(styles);
 
-const Select = ({fetchedStores, ...rest}) => {
-
+const Select = ({ fetchedStores, ...rest }) => {
   const classes = useStyles();
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
+  // 선택한 카드
+  const [clickedCardId, setClickedCardId] = useState(null);
   const [formData, setFormData] = useState({
     containerName: "",
     containerSize: "",
@@ -337,22 +345,48 @@ const Select = ({fetchedStores, ...rest}) => {
   };
 
   // 매장 삭제
-  const handleDelete = async (warehouseId) => {
+  const handleDelete = async (storeId) => {
+    //토큰 검증
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
     try {
       await axios.patch(
-        `https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}`,
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}`,
+        {}, // Empty body
         {
-          isDeleted: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-
-      // 삭제 후 카드 목록에서 해당 창고 제거
-      setCards((prevCards) =>
-        prevCards.filter((card) => card.id !== warehouseId)
-      );
+      // Remove the deleted store from the cards array
+      setCards((prevCards) => prevCards.filter((card) => card.id !== storeId));
     } catch (error) {
-      router.push("/404");
+      console.error("Error deleting store:", error);
+      // router.push("/404");
     }
+  };
+
+  // 카드 선택 시에 발생하는 function
+  const handleCardClick = (e, cardId) => {
+    e.preventDefault();
+    if (clickedCardId === cardId) {
+      setClickedCardId(null); // Deselect if clicked again
+    } else {
+      setClickedCardId(cardId); // Select the card
+    }
+  };
+
+  const handleGetIn = (storeId) => {
+    router.push(`/user/${storeId}`);
+  };
+
+  const handleEdit = (storeId) => {
+    console.log("수정");
   };
 
   return (
@@ -373,7 +407,7 @@ const Select = ({fetchedStores, ...rest}) => {
       <div className={classes.section}>
         <div className={classes.container}>
           <div className={classes.selectContainer}>
-            창고를 선택하세요. ({currentWarehouseCount}/{allowedWarehouseCount})
+            매장을 선택하세요. ({currentWarehouseCount}/{allowedWarehouseCount})
           </div>
           <GridContainer>
             {cards.map((card) => (
@@ -384,70 +418,98 @@ const Select = ({fetchedStores, ...rest}) => {
                 md={4}
                 className={classes.cardGrid}
               >
-                <Link href={`/user/${card.id}`} passHref>
-                  <CardSelect component="a" className={classes.cardLink}>
-                    <div
-                      className={classes.cardHeader}
-                      style={{
-                        backgroundColor: getBackgroundColor(
-                          card.warehouseColor
-                        ),
-                      }}
-                    >
+                <CardSelect
+                  className={classes.cardLink}
+                  onClick={(e) => handleCardClick(e, card.id)}
+                >
+                  <div
+                    className={classes.cardHeader}
+                    style={{
+                      backgroundColor: getBackgroundColor(card.warehouseColor),
+                    }}
+                  >
+                    <img
+                      src={getWarehouseImage(card.warehouseColor)}
+                      alt="warehouse"
+                      className={classes.cardImage}
+                    />
+                  </div>
+                  <div className={classes.cardBody}>
+                    <h3>{card.storeName}</h3>
+                    <div className={classes.cardMain}>
+                      <div
+                        className={classes.cardProgress}
+                        style={{
+                          width: `${card.usagePercent}%`,
+                          backgroundColor: getBackgroundColor(
+                            card.warehouseColor
+                          ),
+                        }}
+                      >
+                        {" "}
+                        {`${card.id}%`}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={classes.cardFooter}>
+                    <div className={classes.pcsContainer}>
                       <img
-                        src={getWarehouseImage(card.warehouseColor)}
-                        alt="warehouse"
-                        className={classes.cardImage}
+                        src="/img/box.png"
+                        alt="pcsContainer"
+                        className={classes.containerImage}
                       />
+                      <div className="pcsCnt">{card.pcsCount}</div>
+                    </div>
+
+                    <div className={classes.locationContainer}>
                       <img
-                        src="/img/delete.png"
-                        alt="delete"
-                        className={classes.deleteButton}
+                        src="/img/location.png"
+                        alt="location"
+                        className={classes.containerImage}
+                      />
+                      <div className="locationCnt">{card.locationCount}</div>
+                    </div>
+                  </div>
+                  {/* Action Buttons */}
+                  {clickedCardId === card.id && (
+                    <div className={classes.actionButtons}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<OpenInNewIcon />}
                         onClick={(e) => {
-                          e.preventDefault(); // 링크 이동 방지
+                          e.stopPropagation();
+                          handleGetIn(card.id);
+                        }}
+                      >
+                        Get In
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="default"
+                        startIcon={<EditIcon />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(card.id);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        startIcon={<DeleteIcon />}
+                        onClick={(e) => {
+                          e.stopPropagation();
                           handleDelete(card.id);
                         }}
-                      />
+                      >
+                        Delete
+                      </Button>
                     </div>
-                    <div className={classes.cardBody}>
-                      <h3>{card.storeName}</h3>
-                      <div className={classes.cardMain}>
-                        <div
-                          className={classes.cardProgress}
-                          style={{
-                            width: `${card.usagePercent}%`,
-                            backgroundColor: getBackgroundColor(
-                              card.warehouseColor
-                            ),
-                          }}
-                        >
-                          {" "}
-                          {`${card.id}%`}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className={classes.cardFooter}>
-                      <div className={classes.pcsContainer}>
-                        <img
-                          src="/img/box.png"
-                          alt="pcsContainer"
-                          className={classes.containerImage}
-                        />
-                        <div className="pcsCnt">{card.pcsCount}</div>
-                      </div>
-
-                      <div className={classes.locationContainer}>
-                        <img
-                          src="/img/location.png"
-                          alt="location"
-                          className={classes.containerImage}
-                        />
-                        <div className="locationCnt">{card.locationCount}</div>
-                      </div>
-                    </div>
-                  </CardSelect>
-                </Link>
+                  )}
+                </CardSelect>
               </GridItem>
             ))}
             <GridItem xs={12} sm={4} md={4} className={classes.plusCardGrid}>
@@ -634,13 +696,12 @@ const Select = ({fetchedStores, ...rest}) => {
 };
 
 // SSR part
-export async function getServerSideProps({req, res}) {
-
+export async function getServerSideProps({ req, res }) {
   //쿠키에서 토큰을 추출한다.
   const cookies = new Cookies(req, res);
   const token = cookies.get("token");
 
-  console.log(token)
+  console.log(token);
 
   if (!token) {
     return {

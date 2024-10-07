@@ -63,16 +63,14 @@ export default function Components({
     />,
     <DynamicMyContainerNavigation
       key={`nav-${selectedStore}`}
-      WHId={selectedStore}
-      businessId={userData?.businessId}
-      warehouses={cards}
+      storeId={selectedStore}
+      stores={cards}
     />,
     <DynamicMyContainerProduct
       key={`product-${selectedStore}`}
-      WHId={selectedStore}
-      businessId={userData?.businessId}
-      warehouses={cards}
-      warehouseTitle={selectedStoreTitle}
+      storeId={selectedStore}
+      stores={cards}
+      storeTitle={selectedStoreTitle}
     />,
     <DynamicMyStorePrevent
       key={`product-${selectedStore}`}
