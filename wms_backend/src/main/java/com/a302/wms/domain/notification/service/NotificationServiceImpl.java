@@ -26,7 +26,7 @@ public class NotificationServiceImpl {
 
     public List<NotificationResponse> findAllCrimeByStoreId(Long storeId,
                                                             String type) {
-        return notificationRepository.findAllCrimeByStoreId(storeId, type)
+        return notificationRepository.findAllCrimeByStoreId(storeId, NotificationTypeEnum.valueOf(type))
                 .stream().map(NotificationMapper::toNotificationResponse).toList();
     }
 }

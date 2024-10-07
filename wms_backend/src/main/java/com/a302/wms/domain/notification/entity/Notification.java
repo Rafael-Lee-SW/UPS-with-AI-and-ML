@@ -38,4 +38,7 @@ public class Notification extends BaseNotificationEntity {
         this.notificationTypeEnum = notificationTypeEnum;
     }
 
+    public Notification() {
+
+    }
 }
