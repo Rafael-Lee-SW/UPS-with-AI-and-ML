@@ -20,7 +20,10 @@ public class NotificationController {
         else if(storeId != null)
             return new BaseSuccessResponse<>(notificationServiceImpl.findAllByStoreId(storeId));
         else return null;
-
+    }
+    @GetMapping("/{storeId}/not-read")
+    public BaseSuccessResponse<?> findAllNotReadByStoreId(@PathVariable("storeId") Long storeId) {
+        return new BaseSuccessResponse<>(notificationServiceImpl.findAllNotReadByStoreId(storeId));
 
     }
 }

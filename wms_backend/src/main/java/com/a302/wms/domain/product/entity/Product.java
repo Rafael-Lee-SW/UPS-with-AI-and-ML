@@ -20,7 +20,7 @@ public class Product extends BaseTimeEntity {
     @Column(name = "id", nullable = false)
     private Long productId;
 
-    @Column(name = "sku", nullable = false)
+    @Column(name = "sku")
     private String sku;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
