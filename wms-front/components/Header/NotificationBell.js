@@ -92,6 +92,9 @@ const NotificationBell = ({ userId }) => {
           paper: classes.notificationPopover
         }}
       >
+        <div className={classes.notificationHeader}>
+          알림
+        </div>
         <List className={classes.notificationList}>
           {notifications.map(notification => (
             <ListItem 

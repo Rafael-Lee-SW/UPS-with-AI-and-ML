@@ -148,15 +148,23 @@ const headerLinksStyle = (theme) => ({
     width: '300px',
     maxHeight: '400px',
     overflowY: 'auto',
-    borderRadius: '8px',
-    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+    borderRadius: '12px',
+    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
     backgroundColor: '#fff',
+    '&::-webkit-scrollbar': {
+      width: '6px',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0, 0, 0, 0.2)',
+      borderRadius: '3px',
+    },
     [theme.breakpoints.down('sm')]: {
-      width: '90%', // 모바일에서 너비를 90%로 설정
-      maxHeight: '250px', // 모바일에서 최대 높이를 줄임
-      left: '5% !important',
-      right: '5% !important',
-      borderRadius: '8px',
+      width: '90%',
+      maxWidth: '320px',
+      maxHeight: '70vh',
+      left: '50% !important',
+      right: 'auto !important',
+      transform: 'translateX(-50%)',
     },
   },
   notificationList: {
@@ -164,38 +172,74 @@ const headerLinksStyle = (theme) => ({
   },
   notificationItem: {
     borderBottom: "1px solid #e0e0e0",
+    transition: 'background-color 0.3s',
     "&:hover": {
-      backgroundColor: "rgba(200, 200, 200, 0.2)",
+      backgroundColor: "rgba(200, 200, 200, 0.1)",
+    },
+    padding: '12px 16px',
+    [theme.breakpoints.down('sm')]: {
+      padding: '10px 14px',
     },
   },
   notificationItemRead: {
     borderBottom: "1px solid #e0e0e0",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#f8f8f8",
+    transition: 'background-color 0.3s',
     "&:hover": {
       backgroundColor: "rgba(200, 200, 200, 0.2)",
+    },
+    padding: '12px 16px',
+    [theme.breakpoints.down('sm')]: {
+      padding: '10px 14px',
     },
   },
   notificationText: {
     fontSize: "14px",
+    color: '#333',
     [theme.breakpoints.down('sm')]: {
-      fontSize: '12px', // 모바일에서 텍스트 크기를 줄임
+      fontSize: '13px',
     },
   },
   notificationTextTypography: {
     whiteSpace: 'normal',
     wordBreak: 'break-word',
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '12px', // 모바일에서 텍스트 크기를 줄임
-    },
+    lineHeight: '1.4',
   },
   viewAllButton: {
-    margin: "10px",
+    margin: "12px auto", // 상하 여백은 유지하고 좌우는 auto로 설정하여 중앙 정렬
+    display: 'block', // 버튼을 블록 레벨 요소로 변경
+    width: 'calc(100% - 24px)', // 전체 너비에서 좌우 마진을 뺀 값
+    maxWidth: '250px', // 최대 너비 설정
     color: theme.palette.primary.main,
-    [theme.breakpoints.down('sm')]: {
-      margin: '5px',
-      fontSize: '12px', // 모바일에서 버튼 텍스트 크기를 줄임
+    backgroundColor: 'transparent',
+    border: `1px solid ${theme.palette.primary.main}`,
+    borderRadius: '20px',
+    padding: '8px 16px',
+    transition: 'all 0.3s',
+    fontWeight: '500',
+    textTransform: 'none',
+    textAlign: 'center', // 텍스트 중앙 정렬
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main,
+      color: '#fff',
     },
-  }
+    [theme.breakpoints.down('sm')]: {
+      margin: '10px auto',
+      fontSize: '13px',
+      padding: '6px 12px',
+      width: 'calc(100% - 20px)', // 모바일에서 좌우 여백 조정
+    },
+  },
+  notificationHeader: {
+    padding: '16px',
+    borderBottom: '1px solid #e0e0e0',
+    fontWeight: '500',
+    fontSize: '16px',
+    color: '#333',
+    backgroundColor: '#f9f9f9',
+    borderTopLeftRadius: '12px',
+    borderTopRightRadius: '12px',
+  },
 });
 
 export default headerLinksStyle;
