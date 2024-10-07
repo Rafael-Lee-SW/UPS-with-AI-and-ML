@@ -228,8 +228,8 @@ function fetchNotifications() {
 }
 
 // 방범 알람 조회
-function fetchCrimeNotifications(userId) {
-    return instance.get(`/notifications/all?userId=${userId}`)
+function fetchCrimeNotifications(storeId) {
+    return instance.get(`/notifications/${storeId}/CRIME_PREVENTION`)
 }
 
 // 특정 상품 정보 조회

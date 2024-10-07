@@ -1,27 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
-import style from '/styles/jss/nextjs-material-kit/pages/componentsSections/notificationsStyles.js'
-import { fetchCrimeNotifications } from '../../pages/api/index';
+import style from '/styles/jss/nextjs-material-kit/pages/componentsSections/notificationsStyles.js';
+import { fetchCrimeNotifications, fetchStores } from '../../pages/api/index';
 import { useRouter } from 'next/router';
 
-const useStyles = makeStyles(style)
+const useStyles = makeStyles(style);
 
-// 알람 리스트 Component
 export default function Alarm({ userId }) {
     const classes = useStyles();
     const router = useRouter();
     const [open, setOpen] = useState(false);
+    const [stores, setStores] = useState([]);
     const [notifications, setNotifications] = useState([]);
-    const [currentNotification, setCurrentNotification] = useState(null);
+    const [currentStore, setCurrentStore] = useState(null);
 
+    // 매장 정보를 가져오는 useEffect
     useEffect(() => {
-        getNotifications();
+        getStores();
     }, []);
 
-    const getNotifications = async () => {
+    const getStores = async () => {
         try {
-            const response = await fetchCrimeNotifications(userId);
+            const response = await fetchStores(); 
+            const stores = response.data.result;
+            setStores(stores);
+        } catch (error) {
+            router.push('/404'); 
+        }
+    };
+
+    // 선택한 매장의 알림을 가져오는 함수
+    const getNotifications = async (store) => {
+        try {
+            const response = await fetchCrimeNotifications(store.id);
             const notifications = response.data.result;
             setNotifications(notifications);
         } catch (error) {
@@ -29,96 +41,53 @@ export default function Alarm({ userId }) {
         }   
     }
 
-    const handleOpen = (notification) => {
-        setCurrentNotification(notification);
+    // 매장 클릭 시 알림을 가져오고 모달을 여는 함수
+    const handleOpen = (store) => {
+        setCurrentStore(store);
+        getNotifications(store); 
         setOpen(true);
     };
 
     const handleClose = () => {
         setOpen(false);
+        setNotifications([]); // 모달 닫을 때 알림 초기화
     };
 
     return (
-        <div className={classes.section}>
-            <h3>알람 목록</h3>
+        <div className={classes.container}>
+            <h3>매장별 알림</h3>
             <div className={classes.cardContainer}>
-                {notifications.length > 0 ? (
-                    notifications.map((notification) => (
-                    <Card key={notification.id} onClick={() => handleOpen(notification)} className={classes.card}>
-                        <p 
-                            style={{ 
-                                margin: 0, 
-                                color: 
-                                    notification.productFlowType === 'IMPORT' ? 'blue' :
-                                    notification.productFlowType === 'EXPORT' ? 'red' :
-                                    notification.productFlowType === 'FLOW' ? 'green' : 'black'
-                            }}
-                        >
-                            {notification.productFlowType === 'IMPORT' && '입고'}
-                            {notification.productFlowType === 'EXPORT' && '출고'}
-                            {notification.productFlowType === 'FLOW' && '이동'}
-                        </p>
-                        <p style={{ margin: 0 }}>{notification.date.substring(0, 10)}</p>
-                    </Card>
+                {stores.length > 0 ? (
+                    stores.map((store) => (
+                        <Card key={store.id} onClick={() => handleOpen(store)} className={classes.card}>
+                            <p style={{ margin: 0}}>{store.storeName}</p> 
+                        </Card>
                     ))
                 ) : (
-                <h4
-                 style={{ paddingTop: '30px' }}>알림이 없습니다.</h4>
+                    <h4>매장이 없습니다.</h4>
                 )}
             </div>
-            <Dialog 
-            open={open} 
-            onClose={handleClose}
-            >
-    <div className={classes.modalTitle}><DialogTitle>알람 상세 정보</DialogTitle></div>
-    <DialogContent>
-        {currentNotification && currentNotification.productFlowType === 'IMPORT' && (
-            <>
-                <p>이름 : {currentNotification.name}</p>
-                <p>수량 : {currentNotification.quantity}개</p>
-                {currentNotification.currentFloorLevel > 0 ? (
-                    <p>입고 위치 : {currentNotification.currentLocationName} {currentNotification.currentFloorLevel}층</p>
-                ) : (
-                    <p>입고 위치 : {currentNotification.currentLocationName}</p>
-                )}
-                <p>입고 시간 : {currentNotification.date.substring(0, 10)} {currentNotification.date.substring(11, 16)}</p>
-            </>
-        )}
 
-        {currentNotification && currentNotification.productFlowType === 'EXPORT' && (
-            <>
-                <p>이름 : {currentNotification.name}</p>
-                <p>수량 : {currentNotification.quantity}개</p>
-                <p>출고 위치 : {currentNotification.currentLocationName} {currentNotification.currentFloorLevel}층</p>
-                <p>출고 시간 : {currentNotification.date.substring(0, 10)} {currentNotification.date.substring(11, 16)}</p>
-            </>
-        )}
-
-        {currentNotification && currentNotification.productFlowType === 'FLOW' && (
-            <>
-                <p>이름 : {currentNotification.name}</p>
-                <p>수량 : {currentNotification.quantity}개</p>
-                {currentNotification.previousFloorLevel > 0 ? (
-                    <p>이전 위치 : {currentNotification.previousLocationName} {currentNotification.previousFloorLevel}층</p>
-                ) : (
-                    <p>이전 위치 : {currentNotification.previousLocationName}</p>
-                )}
-                {currentNotification.currentFloorLevel > 0 ? (
-                    <p>이동 위치 : {currentNotification.currentLocationName} {currentNotification.currentFloorLevel}층</p>
-                ) : (
-                    <p>이동 위치 : {currentNotification.currentLocationName}</p>
-                )}
-                <p>이동 시간 : {currentNotification.date.substring(0, 10)} {currentNotification.date.substring(11, 16)}</p>
-            </>
-        )}
-    </DialogContent>
-    <DialogActions>
-        <button className={classes.modalCloseButton} onClick={handleClose}>
-            X
-        </button>
-    </DialogActions>
-</Dialog>
-
+            {/* 알림 모달 */}
+            <Dialog open={open} onClose={handleClose}>
+                <DialogTitle>{currentStore ? `${currentStore.storeName}의 알림` : ''}</DialogTitle>
+                <DialogContent>
+                    {notifications.length > 0 ? (
+                        notifications.map((notification) => (
+                            <div key={notification.id}>
+                                <p>{notification.message}</p>
+                                <p>시간: {notification.date.substring(0, 10)} {notification.date.substring(11, 16)}</p>
+                                <hr />
+                            </div>
+                        ))
+                    ) : (
+                        <h4>알림이 없습니다.</h4>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <button onClick={handleClose}>닫기</button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }
