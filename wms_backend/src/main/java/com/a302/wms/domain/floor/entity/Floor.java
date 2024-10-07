@@ -29,7 +29,7 @@ public class Floor extends BaseTimeEntity {
     private Product product;
 
     @Builder
-    public Floor(int floorLevel, Long id, Location location, Product product) {
+    public Floor(Integer floorLevel, Long id, Location location, Product product) {
         this.floorLevel = floorLevel;
         this.id = id;
         this.location = location;

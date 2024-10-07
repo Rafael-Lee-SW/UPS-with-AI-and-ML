@@ -15,7 +15,7 @@ public interface FloorRepository extends JpaRepository<Floor, Long> {
         "JOIN f.location l " +
         "JOIN l.store s " +
         "WHERE s.id = :storeId "
-        + " AND f.floorLevel=:floorLevel")
+        + " AND f.floorLevel=:floorLevel ")
     Floor findByStoreIdAndLevel(@Param("storeId") Long storeId,
                                 @Param("floorLevel") int floorLevel);
 

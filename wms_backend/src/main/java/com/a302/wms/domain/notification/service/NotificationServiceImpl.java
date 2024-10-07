@@ -57,6 +57,10 @@ public class NotificationServiceImpl {
   public List<NotificationResponse> findAllByStoreId(Long storeId) {
     return notificationRepository.findAllByStoreId(storeId).stream()
             .map(NotificationMapper::toNotificationResponse).toList();
-
   }
+  public List<NotificationResponse> findAllNotReadByStoreId(Long storeId) {
+    return notificationRepository.findAllNotReadByStoreId(storeId).stream()
+            .map(NotificationMapper::toNotificationResponse).toList();
+  }
+
 }
