@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @Table(name = "Notification")
 @Getter
+@RequiredArgsConstructor
 public class Notification extends BaseNotificationEntity {
 
     @Id
@@ -38,7 +39,4 @@ public class Notification extends BaseNotificationEntity {
         this.notificationTypeEnum = notificationTypeEnum;
     }
 
-    public Notification() {
-
-    }
 }
