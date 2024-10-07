@@ -4,6 +4,7 @@ import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.exception.FloorException;
 import com.a302.wms.domain.floor.repository.FloorRepository;
 import com.a302.wms.domain.floor.service.FloorServiceImpl;
+import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.store.repository.StoreRepository;
 import com.a302.wms.domain.structure.dto.location.LocationCreateRequest;
 import com.a302.wms.domain.structure.dto.location.LocationListCreateRequest;
@@ -79,14 +80,14 @@ public class LocationServiceImpl {
     @Transactional
     public void save(LocationListCreateRequest saveRequest) throws FloorException {
         log.info("[Service] save Location");
-//        Store store = storeRepository.findById(saveRequest.getStoreId()).get();
-//
-//        for (LocationRequestDto request : saveRequest.getRequests()) {
-//
-//            Location location = LocationMapper.fromLocationRequestDto(request, store);
-//            locationRepository.save(location);
+        Store store = storeRepository.findById(saveRequest.getStoreId()).get();
+
+        for (LocationCreateRequest request : saveRequest.getRequests()) {
+
+            Location location = LocationMapper.fromLocationRequestDto(request, store);
+            locationRepository.save(location);
 //            floorService.saveAllByLocation(request, location);
-//        }
+        }
     }
 
     /**
