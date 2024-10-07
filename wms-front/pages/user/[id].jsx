@@ -45,7 +45,7 @@ export default function Components({
   const [businessData, setBusinessData] = useState(initialBusinessData || null);
   const [selectedStore, setSelectedStore] = useState(id || "");
   const [selectedStoreTitle, setSelectedStoreTitle] = useState(""); // State to store the selected warehouse title
-  const [currentIndex, setCurrentIndex] = useState(1);
+  const [currentIndex, setCurrentIndex] = useState(2);
 
   // Dynamic component array
   const componentsArray = [
@@ -60,10 +60,9 @@ export default function Components({
     />,
     <DynamicMyContainerProduct
       key={`product-${selectedStore}`}
-      WHId={selectedStore}
-      businessId={userData?.businessId}
-      warehouses={cards}
-      warehouseTitle={selectedStoreTitle}
+      storeId={selectedStore}
+      stores={cards}
+      storeTitle={selectedStoreTitle}
     />,
     <DynamicMyStorePrevent
       key={`product-${selectedStore}`}
