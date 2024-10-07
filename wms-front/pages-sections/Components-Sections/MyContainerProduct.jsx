@@ -204,8 +204,8 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
 
   // '상품별로 선택 이동하기' 를 위한 State
   const [bulkMoveDetails, setBulkMoveDetails] = useState({
-    warehouseId: "",
-    locationName: "",
+    storeId: "",
+    locationId: "",
     floorLevel: "",
     quantity: "",
   });
@@ -730,175 +730,54 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     EXPORT: "출고",
     FLOW: "이동",
   };
-  // 새로운 알림 API
+
+  // 알림 API - 신버젼
   const getNotificationsAPI = async () => {
+    // 토큰에서 유저정보를 가져온다.(중요)
+    const token = localStorage.getItem("token");
+
+    // 로그인 여부 검증 절차
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/products/notification?businessId=${businessId}`,
+        `https://j11a302.p.ssafy.io/api/notifications/${storeId}/PRODUCT_FLOW`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            // Include the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
         }
       );
+      setLoading(true);
 
       if (response.ok) {
-        const apiConnection = await response.json();
-        const { productFlowResponseDtos, expirationProductResponseDtos } =
-          apiConnection.result;
+        //성공
+        const apiConnection = await response.clone().json(); // clone the response to avoid consuming the body
+        const products = apiConnection.result;
 
-        // Combine all notifications
-        const combinedData = [...productFlowResponseDtos];
+        console.log("알림 내역");
+        console.log("Parsed response:", apiConnection);
 
-        // Sort combined data by date
-        const sortedData = combinedData.sort(
-          (a, b) => new Date(a.date) - new Date(b.date)
-        );
-
-        // Set the detailed data state
-        setDetailedData(sortedData);
-
-        // Map to formatted data for initial display
-        const formattedData = sortedData.map((item) => {
-          // Determine the content for the 'trackingNumber' field based on 'productFlowType'
-          let trackingOrNote = "";
-          if (item.productFlowType === "EXPORT") {
-            trackingOrNote = item.trackingNumber || "송장없음";
-          } else if (item.productFlowType === "IMPORT") {
-            trackingOrNote = "입고품목";
-          } else if (item.productFlowType === "FLOW") {
-            trackingOrNote = "이동품목";
-          }
-
-          return {
-            date: new Date(item.date).toLocaleDateString(),
-            type: translationMap[item.productFlowType] || item.productFlowType, // Translate type
-            barcode: item.barcode,
-            name: item.name,
-            quantity: item.quantity,
-            locationName: item.currentLocationName,
-            floorLevel: item.currentFloorLevel,
-            trackingOrNote, // Use the new variable here
-          };
-        });
-
-        setAllChangingTableData(formattedData);
-
-        setAllChangingTableColumns([
-          { name: "date", label: "날짜" },
-          { name: "type", label: "유형" },
-          { name: "barcode", label: "바코드" },
-          { name: "name", label: "상품명" },
-          { name: "quantity", label: "수량" },
-          { name: "locationName", label: "적재함" },
-          { name: "floorLevel", label: "층수" },
-          { name: "trackingOrNote", label: "송장번호/비고" },
-        ]);
-
-        // Precompute flow by date data
-        const flowData = sortedData.reduce((acc, item) => {
-          const dateKey = new Date(item.date).toLocaleDateString();
-          if (!acc[dateKey]) {
-            acc[dateKey] = { import: 0, export: 0, flow: 0 };
-          }
-          if (item.productFlowType === "IMPORT") {
-            acc[dateKey].import += item.quantity;
-          } else if (item.productFlowType === "EXPORT") {
-            acc[dateKey].export += item.quantity;
-          } else {
-            acc[dateKey].flow += item.quantity;
-          }
-          return acc;
-        }, {});
-
-        const flowLabels = Object.keys(flowData);
-        const importData = flowLabels.map((label) => flowData[label].import);
-        const exportData = flowLabels.map((label) => flowData[label].export);
-        const flowDataValues = flowLabels.map((label) => flowData[label].flow);
-
-        setFlowByDateData({
-          labels: flowLabels,
-          datasets: [
-            {
-              label: translationMap["IMPORT"],
-              data: importData,
-              backgroundColor: "rgba(54, 162, 235, 0.2)",
-              borderColor: "rgba(54, 162, 235, 1)",
-              borderWidth: 1,
-            },
-            {
-              label: translationMap["EXPORT"],
-              data: exportData,
-              backgroundColor: "rgba(255, 99, 132, 0.2)",
-              borderColor: "rgba(255, 99, 132, 1)",
-              borderWidth: 1,
-            },
-            {
-              label: translationMap["FLOW"],
-              data: flowDataValues,
-              backgroundColor: "rgba(153, 102, 255, 0.2)",
-              borderColor: "rgba(153, 102, 255, 1)",
-              borderWidth: 1,
-            },
-          ],
-        });
-        setNotificationsFetched(true);
-        setAnalyticsFetched(true);
-        //알림 호출 성공
-
-        /**
-         * 알림을 정리해서 날짜별로 분류하는 부분
-         */
-
-        // Group data by date and type
-        const groupedData = sortedData.reduce((acc, item) => {
-          const dateKey = new Date(item.date).toLocaleDateString();
-          const typeKey =
-            translationMap[item.productFlowType] || item.productFlowType;
-          const key = `${dateKey}-${typeKey}`;
-
-          if (!acc[key]) {
-            acc[key] = {
-              date: dateKey,
-              type: typeKey,
-              count: 0,
-            };
-          }
-
-          acc[key].count += 1;
-          return acc;
-        }, {});
-
-        // Format grouped data for table display
-        const SameformattedData = Object.values(groupedData).map((entry) => ({
-          date: entry.date,
-          type: entry.type,
-          count: entry.count,
-        }));
-
-        setNotificationTableData(SameformattedData);
-        setNotificationTableColumns([
-          { name: "date", label: "날짜" },
-          { name: "type", label: "유형" },
-          { name: "count", label: "수량" },
-        ]);
-
-        // 알림 호출 완료
+        setLoading(false)
       } else {
-        // 에러
-        setNotificationsFetched(true);
-        setAnalyticsFetched(true);
+        //에러
+        setLoading(false);
       }
     } catch (error) {
-      // 에러
-      setNotificationsFetched(true);
-      setAnalyticsFetched(true);
+      console.log(error);
+      //에러
+      setLoading(false);
     }
   };
 
-  // // 모든 알림(변동내역)을 가져오는 메서드
-  // const getNotificationsAPI_old = async (businessId) => {
+  // 알림 API - 구버젼
+  // const getNotificationsAPI_old = async () => {
   //   try {
   //     const response = await fetch(
   //       `https://j11a302.p.ssafy.io/api/products/notification?businessId=${businessId}`,
@@ -1200,8 +1079,8 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       locationNameNow: tableData[rowIndex][4],
       floorLevelNow: tableData[rowIndex][5],
       //옮길 값들
-      warehouseId: bulkMoveDetails.warehouseId, // Default to bulk move values
-      locationName: bulkMoveDetails.locationName, // Default to bulk move values
+      storeId: bulkMoveDetails.storeId, // Default to bulk move values
+      locationId: bulkMoveDetails.locationId, // Default to bulk move values
       floorLevel: bulkMoveDetails.floorLevel, // Default to bulk move values
       quantity: bulkMoveDetails.quantity, // Default to bulk move values
       errors: {}, // 에러값 초기화
@@ -1276,7 +1155,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       const product = tableData[rowIndex];
       return {
         productId: product[0],
-        locationId: parseInt(location.id),
+        locationId: parseInt(bulkMoveDetails.locationId),
         floorLevel: parseInt(bulkMoveDetails.floorLevel),
       };
     });
@@ -1295,7 +1174,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       productId: product.productId,
       locationName: product.locationName,
       floorLevel: product.floorLevel,
-      warehouseId: parseInt(product.warehouseId),
+      storeId: parseInt(product.storeId),
       quantity: parseInt(product.quantity),
     }));
 
@@ -1465,7 +1344,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       // Show loading if notifications not yet fetched and user enters '변동내역'
       setLoading(true);
       try {
-        await getNotificationsAPI(businessId);
+        await getNotificationsAPI(); // 새로운 알림 API 들어와야 함
         setNotificationsFetched(true);
       } catch (error) {
         //에러
@@ -1477,7 +1356,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       // Show loading if analytics not yet fetched and user enters '알림함' or '분석'
       setLoading(true);
       try {
-        await getNotificationsAPI(businessId);
+        await getNotificationsAPI(); // 새로운 알림 API 들어와야 함
         setAnalyticsFetched(true);
       } catch (error) {
         // 에러
