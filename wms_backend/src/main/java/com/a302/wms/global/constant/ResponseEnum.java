@@ -62,12 +62,15 @@ public enum ResponseEnum {
             "Default Location을 찾을수 없습니다."),
     INVALID_LOCATION_STORAGE_TYPE(false, 9003, HttpStatus.BAD_REQUEST.value(),
             "해당 로케이션에 속해있는 상품들로 인해 보관 타입을 변경할수 없습니다."),
+    //Wall 오류
+    WALL_NOT_FOUND(false, 9004, HttpStatus.BAD_REQUEST.value(), "벽 정보를 찾을 수 없습니다."),
 
     //Store 오류
     STORE_NOT_FOUND(false, 10000, HttpStatus.BAD_REQUEST.value(), "매장를 찾을수 없습니다."),
     STORE_DELETED(false, 10001, HttpStatus.BAD_REQUEST.value(), "삭제된 매장 입니다."),
     INVALID_STORE_TYPE(false, 10002, HttpStatus.BAD_REQUEST.value(),
             "해당 매장에 속해있는 로케이션들로 인해 store의 타입을 변경할수 없습니다."),
+
 
     //Subscription 오류
     SUBSCRIPTION_NOT_FOUND(false, 11000, HttpStatus.BAD_REQUEST.value(), "구독 정보를 찾을수 없습니다."),
