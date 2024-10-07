@@ -10,6 +10,7 @@ import java.util.List;
 public record DeviceSignInResponse(
         String accessToken,
         DeviceResponse deviceResponse,
-        List<ProductResponse> productResponseList
+        List<ProductResponse> productResponseList,
+        String storeName
 ) {
 }
