@@ -1,15 +1,9 @@
 package com.a302.wms.domain.structure.entity;
 
-import com.a302.wms.domain.structure.dto.wall.WallUpdateRequest;
 import com.a302.wms.domain.store.entity.Store;
+import com.a302.wms.domain.structure.dto.wall.WallUpdateRequest;
 import com.a302.wms.global.BaseTimeEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +12,7 @@ import lombok.ToString;
 @Entity
 @Getter
 @ToString
-
 @RequiredArgsConstructor
-
 public class Wall extends BaseTimeEntity {
 
     @Id
@@ -54,10 +46,10 @@ public class Wall extends BaseTimeEntity {
     }
 
     public void updateFromDto(WallUpdateRequest dto) {
-        this.startX = startX;
-        this.startY = startY;
-        this.endX = endX;
-        this.endY = endY;
+        this.startX = dto.startX();
+        this.startY = dto.startY();
+        this.endX = dto.endX();
+        this.endY = dto.endY();
     }
 
 }

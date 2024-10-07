@@ -100,15 +100,14 @@ public class StoreController {
         return new BaseSuccessResponse<>(null);
     }
 
-    @PatchMapping("/{storeId}/structures")
-    public BaseSuccessResponse<Void> updateStructure(
+    @PutMapping("/{storeId}/structures")
+    public BaseSuccessResponse<StoreDetailResponse> updateStructure(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long storeId,
             @RequestBody StructureUpdateRequest structureUpdateRequest
     ) {
         log.info("[Controller] update Structure");
-        storeService.updateStructure(userId, storeId, structureUpdateRequest);
-        return new BaseSuccessResponse<>(null);
+        return new BaseSuccessResponse<>(storeService.updateStructure(userId, storeId, structureUpdateRequest));
     }
 
     @PostMapping("/{storeId}/structures/batch-delete")
