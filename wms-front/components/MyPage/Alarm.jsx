@@ -15,7 +15,6 @@ export default function Alarm({ userId }) {
     const [notifications, setNotifications] = useState([]);
     const [currentStore, setCurrentStore] = useState(null);
 
-    // 매장 정보를 가져오는 useEffect
     useEffect(() => {
         getStores();
     }, []);
@@ -30,7 +29,6 @@ export default function Alarm({ userId }) {
         }
     };
 
-    // 선택한 매장의 알림을 가져오는 함수
     const getNotifications = async (store) => {
         try {
             const response = await fetchCrimeNotifications(store.id);
@@ -41,7 +39,6 @@ export default function Alarm({ userId }) {
         }   
     }
 
-    // 매장 클릭 시 알림을 가져오고 모달을 여는 함수
     const handleOpen = (store) => {
         setCurrentStore(store);
         getNotifications(store); 
@@ -50,8 +47,12 @@ export default function Alarm({ userId }) {
 
     const handleClose = () => {
         setOpen(false);
-        setNotifications([]); // 모달 닫을 때 알림 초기화
+        setNotifications([]); 
     };
+
+    const handleDetail = (notificationId) => {
+        router.push(`/user/${userId}?videoId=${notificationId}`);
+    }
 
     return (
         <div className={classes.container}>
@@ -68,16 +69,15 @@ export default function Alarm({ userId }) {
                 )}
             </div>
 
-            {/* 알림 모달 */}
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>{currentStore ? `${currentStore.storeName}의 알림` : ''}</DialogTitle>
                 <DialogContent>
                     {notifications.length > 0 ? (
                         notifications.map((notification) => (
-                            <div key={notification.id}>
+                            <div key={notification.id} onClick={handleDetail(notification.id)}>
                                 <p>{notification.message}</p>
                                 <p>시간: {notification.date.substring(0, 10)} {notification.date.substring(11, 16)}</p>
-                                <hr />
+                                <hr/>
                             </div>
                         ))
                     ) : (
