@@ -13,12 +13,15 @@ import com.a302.wms.domain.structure.dto.location.LocationStorageResponse;
 import com.a302.wms.domain.structure.entity.Location;
 import com.a302.wms.domain.structure.mapper.LocationMapper;
 import com.a302.wms.domain.structure.repository.LocationRepository;
+import com.a302.wms.global.constant.ResponseEnum;
+import com.a302.wms.global.handler.CommonException;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -79,9 +82,9 @@ public class LocationServiceImpl {
     @Transactional
     public void save(LocationListCreateRequest saveRequest) throws FloorException {
         log.info("[Service] save Location");
-        Store store = storeRepository.findById(saveRequest.getStoreId()).get();
+        Store store = storeRepository.findById(saveRequest.storeId()).orElseThrow(() -> new CommonException(ResponseEnum.STORE_NOT_FOUND, "해당 매장을 찾을 수 없습니다."));
 
-        for (LocationCreateRequest request : saveRequest.getRequests()) {
+        for (LocationCreateRequest request : saveRequest.requests()) {
 
             Location location = LocationMapper.fromLocationRequestDto(request, store);
             locationRepository.save(location);
