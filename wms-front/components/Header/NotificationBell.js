@@ -56,9 +56,13 @@ const NotificationBell = ({ userId }) => {
 
   return (
     <>
-      <IconButton color="inherit" onClick={handleClick}>
+      <IconButton 
+        color="inherit" 
+        onClick={handleClick}
+        sx={{ marginTop: '5px' }} // 위치 조정
+      >
         <Badge badgeContent={notifications.length} color="error">
-          <NotificationsIcon />
+          <NotificationsIcon sx={{ fontSize: 28 }} /> {/* 아이콘 크기 조정 */}
         </Badge>
       </IconButton>
       <Popover
@@ -74,12 +78,13 @@ const NotificationBell = ({ userId }) => {
           horizontal: 'right',
         }}
       >
-        <List sx={{ width: 300, maxHeight: 400, overflow: 'auto' }}>
+        <List sx={{ width: 300, maxHeight: 400, overflow: 'auto', bgcolor: 'background.paper' }}>
           {notifications.map(notification => (
             <ListItem 
               key={notification.notificationId} 
               button 
               onClick={() => handleNotificationClick(notification.notificationId)}
+              sx={{ bgcolor: notification.isRead ? 'grey.200' : 'white' }} // 읽음 처리
             >
               <ListItemText primary={notification.message} />
             </ListItem>
