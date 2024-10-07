@@ -4,7 +4,7 @@ import com.a302.wms.global.constant.ProductFlowTypeEnum;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
-
+@Builder
 public record ProductFlowResponse(
     String productName,
     Long barcode,
@@ -15,29 +15,8 @@ public record ProductFlowResponse(
     String presentLocationName,
     Integer presentFloorLevel,
     LocalDateTime flowDate,
-    ProductFlowTypeEnum productFlowTypeEnum) {
+    ProductFlowTypeEnum productFlowTypeEnum,
+    Long storeId,
+    String storeName) {
 
-  @Builder
-  public ProductFlowResponse(
-      String productName,
-      Long barcode,
-      Integer quantity,
-      String sku,
-      String previousLocationName,
-      Integer previousFloorLevel,
-      String presentLocationName,
-      Integer presentFloorLevel,
-      LocalDateTime flowDate,
-      ProductFlowTypeEnum productFlowTypeEnum) {
-    this.productName = productName;
-    this.barcode = barcode;
-    this.quantity = quantity;
-    this.sku = sku;
-    this.previousLocationName = previousLocationName;
-    this.previousFloorLevel = previousFloorLevel;
-    this.presentLocationName = presentLocationName;
-    this.presentFloorLevel = presentFloorLevel;
-    this.flowDate = flowDate;
-    this.productFlowTypeEnum = productFlowTypeEnum;
-  }
 }

@@ -13,4 +13,10 @@ public interface ProductFlowRepository extends JpaRepository<ProductFlow, Long> 
             "FROM ProductFlow pf " +
             "WHERE pf.userId = :userId ")
     List<ProductFlow> findAllByUserId(Long userId);
+
+    @Query(value = "SELECT pf.* " +
+            "FROM product_flow pf " +
+            "JOIN store s on pf.user_id = s.user_id " +
+            "WHERE s.id = :storeId ",nativeQuery = true )
+    List<ProductFlow> findAllByStoreId(Long storeId);
 }
