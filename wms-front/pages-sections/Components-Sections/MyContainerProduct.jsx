@@ -6,6 +6,9 @@ import classNames from "classnames";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Section components import
+import MLAnalysis from "../../components/Product/MLAnalysis";
+
 // Import MUI components
 import Grid from "@mui/material/Grid";
 import Fab from "@mui/material/Fab";
@@ -448,15 +451,24 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
 
   // 새로운 엑셀 상품들을 입고시키는 API 메서드
   const importAPI = async (postData) => {
+    // 토큰에서 유저정보를 가져온다.(중요)
+    const token = localStorage.getItem("token"); // 로그인 여부 검증 절차
+
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
     try {
       //  // 입고 시에 사용되는 데이터 양식
       const ImportArray = postData.map((product) => ({
-        name: product.name,
         barcode: parseInt(product.barcode),
+        originalPrice: parseInt(product.originalPrice) || 0,
+        productName: product.name,
         quantity: parseInt(product.quantity),
-        productStorageType: "상온",
-        expirationDate: product.expirationDate || null,
-        warehouseId: parseInt(WHId),
+        sellingPrice: parseInt(product.salesPrice) || 0,
+        sku: product.sku || null,
+        storeId: parseInt(WHId),
       }));
 
       console.log(ImportArray);
@@ -467,21 +479,27 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            // Include the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(ImportArray),
         }
       );
+      
+      console.log(response)
 
       if (response.ok) {
         const result = await response.json();
+        console.log(result);
         notify(`${selectedWarehouseTitle} 창고에 입고되었습니다.`);
-        productGetAPI(businessId);
+        getStoreProductAPI();
         handleNextComponent(0);
       } else {
         notify(`입고에 실패했습니다.`);
         handleNextComponent(0);
       }
     } catch (error) {
+      console.log(error)
       notify(`입고에 실패했습니다.`);
       handleNextComponent(0);
     }
@@ -558,7 +576,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         setPrintableContent({ columns: printColumns, data: printData });
         setExportPrintModalOpen(true);
 
-        productGetAPI(businessId); // 새로 데이터를 불러오고
+        getStoreProductAPI(); // 새로 데이터를 불러오고
         handleNextComponent(0); // Redirect 처리한다.
       } else {
         notify(`출고에 실패했습니다.`);
@@ -588,7 +606,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         // 성공
         const result = await response.json();
         notify(`상품을 이동했습니다.`);
-        productGetAPI(businessId); // 정보가 반영된 테이블을 새로 불러온다.
+        getStoreProductAPI(); // 정보가 반영된 테이블을 새로 불러온다.
       } else {
         notify(`이동에 실패했습니다.`);
         handleNextComponent(0);
@@ -601,8 +619,8 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
 
   const [productColumns, setProductColumns] = useState([]);
 
-  // 사장님이 갖고 있는 상품들을 가져오는 API
-  const productGetAPI = async () => {
+  // 해당 창고의 모든 상품들을 가져오는 API
+  const getStoreProductAPI = async () => {
     // 토큰에서 유저정보를 가져온다.(중요)
     const token = localStorage.getItem("token");
 
@@ -632,7 +650,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         const apiConnection = await response.clone().json(); // clone the response to avoid consuming the body
         const products = apiConnection.result;
 
-        console.log("사장님의 해당 매장 상품 데이터")
+        console.log("사장님의 해당 매장 상품 데이터");
         console.log("Parsed response:", apiConnection);
 
         // Map backend fields to frontend fields
@@ -641,7 +659,8 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
           name: product.productName,
           barcode: product.barcode,
           quantity: product.quantity,
-          locationName: product.locationName === "00-00" ? "임시" : product.locationName,
+          locationName:
+            product.locationName === "00-00" ? "임시" : product.locationName,
           floorLevel: product.floorLevel,
           warehouseId: product.storeId,
           originalPrice: product.originalPrice,
@@ -700,7 +719,6 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
   };
   // 새로운 알림 API
   const getNotificationsAPI = async () => {
-
     try {
       const response = await fetch(
         `https://j11a302.p.ssafy.io/api/products/notification?businessId=${businessId}`,
@@ -1110,7 +1128,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
       if (response.ok) {
         setLoading(false);
         // 수정 성공
-        productGetAPI(businessId);
+        getStoreProductAPI();
         notify(`데이터를 수정하였습니다.`);
         handleNextComponent(0);
       } else {
@@ -1429,53 +1447,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
         options={listOptions}
       />
     </ThemeProvider>,
-    showAnalytics && (
-      <div key="analyticsSection" style={{ padding: "20px" }}>
-        <Typography variant="h6">재고 분석</Typography>
-        <div style={{ marginTop: "20px" }}>
-          <Typography variant="subtitle1">
-            로케이션별 재고 현황 (창고 : {selectedWarehouseTitle})
-          </Typography>
-          {quantityByLocationData && <Bar data={quantityByLocationData} />}
-        </div>
-        <div style={{ marginTop: "40px" }}>
-          <Typography variant="subtitle1">일자별 입-출고-이동 추이</Typography>
-          {flowByDateData && (
-            <Bar
-              data={flowByDateData}
-              options={{
-                plugins: {
-                  tooltip: {
-                    callbacks: {
-                      label: (context) => {
-                        const total = flowByDateData.datasets.reduce(
-                          (sum, dataset) =>
-                            sum + dataset.data[context.dataIndex],
-                          0
-                        );
-                        const percentage = (
-                          (context.raw / total) *
-                          100
-                        ).toFixed(2);
-                        return `${context.dataset.label}: ${context.raw} (${percentage}%)`;
-                      },
-                    },
-                  },
-                },
-                scales: {
-                  x: {
-                    stacked: true,
-                  },
-                  y: {
-                    stacked: true,
-                  },
-                },
-              }}
-            />
-          )}
-        </div>
-      </div>
-    ),
+    <MLAnalysis key="mlAnalysis" />,
   ];
 
   // 해당하는 Section Table을 보여준다.
@@ -1618,7 +1590,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
       if (response.ok) {
         //성공
         const result = await response.json();
-        productGetAPI(businessId); // 새로 상품 불러오기
+        getStoreProductAPI(); // 새로 상품 불러오기
         notify(`상품들을 정렬하였습니다.`);
         handleNextComponent(0);
         // 압축 성공 모달 띄우기
@@ -1639,7 +1611,7 @@ const MyContainerProduct = ({ WHId, businessId, warehouses }) => {
 
   useEffect(() => {
     //재고 목록과 알림 내역을 불러온다.
-    productGetAPI(); // 실행되면서 같이 부른다.
+    getStoreProductAPI(); // 실행되면서 같이 부른다.
   }, [openModal]);
 
   // Printing logic
