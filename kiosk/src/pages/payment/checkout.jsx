@@ -79,8 +79,8 @@ export function CheckoutPage() {
               await widgets.requestPayment({
                 orderId: Math.random().toString(36).slice(2),
                 orderName: "총 결제 상품",
-                successUrl: window.location.origin + "/success",
-                failUrl: window.location.origin + "/fail",
+                successUrl: window.location.origin + "/payment/Success",
+                failUrl: window.location.origin + "/payment/Fail",
                 customerEmail: "customer@example.com",
                 customerName: "고객명",
                 customerMobilePhone: "01012345678",

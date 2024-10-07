@@ -1,156 +1,151 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
-
 .pageContainer {
-  font-family: 'Noto Sans KR', sans-serif;
-  background-color: #f5f5f5;
+  font-family: "GmarketSans", sans-serif !important;
+  background-color: #fff;
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+  padding: 0 10px;
 }
 
 .header {
-  text-align: center;
-  margin-bottom: 3vh;
-}
-
-.header h2 {
-  font-size: 5vw;
-  font-weight: 700;
-  color: #333;
-}
-
-.cartContainer {
-  margin-top: 2vh;
-}
-
-.cartImage {
-  width: 20vw;
-  height: auto;
-}
-
-.checkoutContainer {
-  background-color: #e0e0e0;
-  border-radius: 15px;
-  padding: 3vh 3vw;
-  text-align: center;
-  width: 90vw;
-  max-width: 600px;
-}
-
-.card {
   width: 100%;
-  background: #FFFFFF;
-  box-shadow: 0px 187px 75px rgba(0, 0, 0, 0.01), 0px 105px 63px rgba(0, 0, 0, 0.05), 0px 47px 47px rgba(0, 0, 0, 0.09), 0px 12px 26px rgba(0, 0, 0, 0.1);
-  border-radius: 15px;
-  margin-bottom: 3vh;
+  text-align: center;
+  height: 10vh;
+  font-size: 2rem;
 }
 
-.title {
+.divider {
   width: 100%;
-  height: 6vh;
-  display: flex;
-  align-items: center;
-  padding-left: 5vw;
-  border-bottom: 1px solid #efeff3;
-  font-weight: 700;
-  font-size: 3.5vw;
-  color: #63656b;
-}
-
-.products {
-  display: flex;
-  flex-direction: column;
-  padding: 2vh;
-}
-
-.product {
-  display: grid;
-  grid-template-columns: 60px 1fr 80px;
-  gap: 5vw;
-  margin-bottom: 3vh;
-}
-
-.product span {
-  font-size: 4vw;
-  font-weight: 600;
-  color: #47484b;
+  height: 2px;
+  background-color: #ccc;
   margin-bottom: 2vh;
 }
 
-.product p {
-  font-size: 3.5vw;
-  font-weight: 600;
-  color: #7a7c81;
+.cartContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  text-align: center;
+  transition: opacity 0.5s ease-out;
+  font-size: 1.5rem;
+}
+
+.fadeOut {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.cartImage {
+  width: 50vw;
+  height: auto;
+  margin-bottom: 2vh;
+}
+
+.productsContainer {
+  width: 100%;
+  max-height: 40vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.product {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 1.5rem;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.evenProduct {
+  background-color: #f0f0f0;
+}
+
+.oddProduct {
+  background-color: #ffffff;
 }
 
 .quantity {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  background-color: #ffffff;
-  border: 1px solid #e5e5e5;
-  border-radius: 7px;
-  padding: 1vh;
-}
-
-.quantity label {
-  font-size: 4vw;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
 }
 
 .quantity button {
   border: none;
-  background: none;
-  padding: 0;
+  background-color: transparent;
+  font-size: 2rem;
+  margin: 0 15px;
+  cursor: pointer;
 }
 
 .price {
-  font-size: 4vw;
-  margin-left: auto;
-  font-weight: 600;
+  font-size: 1.5rem;
 }
 
-/* Checkout */
-.checkout {
-  padding: 3vh;
-  border-radius: 15px;
+.summary {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 15px;
+  background-color: #f0f0f0;
+  font-size: 1.5rem;
+  margin-top: 2vh;
 }
 
-.details {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 2vh;
-}
-
-.details span:nth-child(odd) {
-  font-size: 3.5vw;
-  font-weight: 700;
-  color: #707175;
-}
-
-.details span:nth-child(even) {
-  font-size: 4vw;
-  font-weight: 600;
-  color: #47484b;
+.totalQuantity, .totalPrice {
+  padding: 15px;
+  font-size: 1.5rem;
 }
 
 .checkoutFooter {
   display: flex;
-  justify-content: space-between;
-  padding: 2vh 0;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.cancelBtn {
+  padding: 15px 25px;
+  background-color: #5f5f5f;
+  color: white;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
 }
 
 .checkoutBtn {
-  padding: 2vh 3vw;
-  background-color: #4480FF;
-  color: #fff;
-  border-radius: 7px;
+  padding: 15px 25px;
+  background-color: #005bb5;
+  color: white;
+  border-radius: 5px;
   border: none;
   cursor: pointer;
-  font-size: 4vw;
+  font-size: 1.5rem;
 }
 
-.checkoutBtn:hover {
-  background-color: #005bb5;
+/* 모든 img 태그에 적용할 전역 스타일 */
+.productImg {
+  width: 70px;   /* 이미지의 너비 */
+  height: auto;  /* 이미지 비율을 유지한 채 높이 자동 조정 */
+  margin-right: 15px; /* 이미지와 텍스트 사이 여백 */
+}
+
+.cancelBtn:hover, .checkoutBtn:hover {
+  background-color: #003d7a;
 }

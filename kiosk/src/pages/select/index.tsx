@@ -69,7 +69,7 @@ export default function SelectMethod() {
             className={styles.circleButton}
           >
             <img src="/barcode.png" alt="바코드 인식" />
-            바코드로 상품 결제
+            바코드 결제
           </button>
           <button
             onClick={handleRFIDClick}
@@ -79,17 +79,6 @@ export default function SelectMethod() {
             <img src="/rfid.png" alt="RFID 인식" />
             상품 자동 결제
           </button>
-        </div>
-
-        <div className={styles.languageSelector}>
-          <img src="/korea.png" alt="Korean" className={styles.languageIcon} />
-          <img src="/usa.png" alt="English" className={styles.languageIcon} />
-          <img src="/china.png" alt="Chinese" className={styles.languageIcon} />
-          <img
-            src="/japan.png"
-            alt="Japanese"
-            className={styles.languageIcon}
-          />
         </div>
       </div>
     </div>

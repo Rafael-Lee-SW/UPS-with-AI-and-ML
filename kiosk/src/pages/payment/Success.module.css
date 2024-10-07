@@ -1,0 +1,22 @@
+.resultWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .boxSection {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  
+  .heading {
+    font-family: "GmarketSansMedium";
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  

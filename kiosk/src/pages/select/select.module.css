@@ -49,8 +49,8 @@
 
 /* 버튼 스타일 */
 .circleButton {
-  width: 15vw;
-  height: 15vw;
+  width: 20vw;
+  height: 20vw;
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.8);
   display: flex;
@@ -58,7 +58,7 @@
   justify-content: center;
   align-items: center;
   color: black;
-  font-size: 1vw;
+  font-size: 2vw;
   font-weight: bold;
   border: none;
   cursor: pointer;
@@ -66,58 +66,37 @@
 }
 
 .circleButton img {
-  width: 6vw;
+  width: 9vw;
   height: auto;
-  margin-bottom: 5px;
+  margin-bottom: 15px;
 }
 
 .circleButton:hover {
   transform: scale(1.05);
 }
 
-/* 언어 선택 아이콘 그룹 */
-.languageSelector {
-  display: flex;
-  justify-content: center;
-  gap: 1vw;
-  margin-top: 20px;
-}
-
-.languageIcon {
-  width: 5vw;
-  height: auto;
-  cursor: pointer;
-}
 
 /* 화면 크기에 따라 버튼과 아이콘 크기 조정 */
 @media (max-width: 768px) {
   .circleButton {
     width: 20vw;
     height: 20vw;
-    font-size: 2.5vw;
+    font-size: 2vw;
   }
 
   .circleButton img {
     width: 10vw;
-  }
-
-  .languageIcon {
-    width: 8vw;
   }
 }
-
 @media (max-width: 480px) {
   .circleButton {
-    width: 30vw;
-    height: 30vw;
-    font-size: 3.5vw;
+    width: 20vw;
+    height: 20vw;
+    font-size: 2vw;
   }
 
   .circleButton img {
-    width: 15vw;
-  }
-
-  .languageIcon {
     width: 10vw;
   }
+
 }

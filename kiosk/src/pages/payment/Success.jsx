@@ -1,44 +1,72 @@
-import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useRouter } from 'next/router'; // 중복된 useRouter 제거
+import { useEffect, useState } from 'react';
+import Confetti from 'react-confetti';
+import { useWindowSize } from "@/api/index";
+import styles from './success.module.css';
+
+// Firework 함수 정의
+function firework() {
+  var duration = 15 * 100;
+  var animationEnd = Date.now() + duration;
+  var defaults = { startVelocity: 25, spread: 360, ticks: 50, zIndex: 0 };
+
+  function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  var interval = setInterval(function () {
+    var timeLeft = animationEnd - Date.now();
+
+    if (timeLeft <= 0) {
+      return clearInterval(interval);
+    }
+
+    var particleCount = 50 * (timeLeft / duration);
+
+    // 파티클(폭죽)이 두 방향에서 나오도록 설정
+    confetti(
+      Object.assign({}, defaults, {
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+      })
+    );
+    confetti(
+      Object.assign({}, defaults, {
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+      })
+    );
+  }, 250);
+}
 
 export function SuccessPage() {
-  const router = useRouter();
+  const router = useRouter(); // useRouter 한 번만 import
   const { orderId, amount, paymentKey } = router.query;
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const { width, height } = useWindowSize(); // 화면 크기
 
   useEffect(() => {
-    // 결제 성공 시 확인 작업 수행
-    const requestData = { orderId, amount, paymentKey };
+    async function handlePaymentConfirmation() {
+      if (orderId && amount && paymentKey) {
+        const result = await confirmPayment(orderId, Number(amount), paymentKey);
 
-    async function confirmPayment() {
-      const response = await fetch("/api/confirm", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
-
-      const json = await response.json();
-
-      if (!response.ok) {
-        // 결제 실패 로직으로 이동
-        router.push(`/payment/fail?message=${json.message}&code=${json.code}`);
-        return;
+        if (result.success) {
+          setPaymentSuccess(true);
+          firework(); // 결제 성공 시 firework 함수 실행
+        } else {
+          router.push(`/payment/fail?message=${result.message}`);
+        }
       }
-
-      // 결제 성공 처리 로직
-      console.log("결제 성공:", json);
     }
 
-    if (orderId && amount && paymentKey) {
-      confirmPayment();
-    }
+    handlePaymentConfirmation();
   }, [orderId, amount, paymentKey]);
 
   return (
-    <div className="result wrapper">
-      <div className="box_section">
-        <h2>결제 성공</h2>
+    <div className={styles.resultWrapper}>
+      {paymentSuccess && <Confetti width={width} height={height} />} {/* 폭죽 애니메이션 */}
+      <div className={styles.boxSection}>
+        <h2>🎉 결제가 완료되었습니다 🎉</h2>
         <p>{`주문번호: ${orderId}`}</p>
         <p>{`결제 금액: ${Number(amount).toLocaleString()}원`}</p>
         <p>{`Payment Key: ${paymentKey}`}</p>
