@@ -101,7 +101,7 @@ const useStyles = makeStyles(styles);
 // --- 창고 관련 끝
 
 // 복합체 시작
-const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
+const MyContainerNavigation = ({ storeId, businessId, warehouses }) => {
   const classes = useStyles();
   // 로딩 Loading
   const [loading, setLoading] = useState(false); // 수정필수 : true로 바꿀 것
@@ -134,7 +134,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
       name: "임시",
       type: "임시",
       rotation: 0,
-      warehouseId: WHId,
+      warehouseId: storeId,
     },
     {
       id: "1",
@@ -149,7 +149,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
       name: "임시1",
       type: "location",
       rotation: 0,
-      warehouseId: WHId,
+      warehouseId: storeId,
     },
     {
       id: "2",
@@ -164,7 +164,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
       name: "임시2",
       type: "location",
       rotation: 0,
-      warehouseId: WHId,
+      warehouseId: storeId,
     },
   ]);
 
@@ -284,7 +284,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
 
     // Extract the location names and warehouse IDs from the filtered data
     const locationNames = filteredData
-      .filter((item) => item.warehouseId === parseInt(WHId))
+      .filter((item) => item.warehouseId === parseInt(storeId))
       .map((item) => item.currentLocationName);
     // Find the IDs of the locations that match both the location name and warehouse ID
     const matchedLocationIds = locations
@@ -312,10 +312,10 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
   };
 
   // API를 통해 해당하는 창고(번호)의 모든 location(적재함)과 wall(벽)을 가져오는 메서드
-  const getWarehouseAPI = async (WHId) => {
+  const getStoreStructureAPI = async () => {
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses/${WHId}`,
+        `https://j11a302.p.ssafy.io/api/warehouses/${storeId}`,
         {
           method: "GET",
           headers: {
@@ -363,7 +363,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
             name: location.name || `적재함 ${index}`,
             type: "location",
             rotation: 0,
-            warehouseId: WHId,
+            warehouseId: storeId,
           };
         });
 
@@ -1101,7 +1101,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
         (product) =>
           product[4] === rectName &&
           product[5] === selectedFloor &&
-          product[7] === parseInt(WHId)
+          product[7] === parseInt(storeId)
       ) // 같은 위치에 있는 상품만 출력
       .map((product) => ({
         hiddenId: product[0],
@@ -1145,7 +1145,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
     const fetchData = async () => {
       try {
         setLoading(true); // Start loading
-        await getWarehouseAPI(WHId); // 창고 정보를 불러온다.
+        await getStoreStructureAPI(); // 창고 정보를 불러온다.
         //재고 목록과 알림 내역을 불러온다.
         await productGetAPI(businessId);
         await getNotificationsAPI(businessId);
