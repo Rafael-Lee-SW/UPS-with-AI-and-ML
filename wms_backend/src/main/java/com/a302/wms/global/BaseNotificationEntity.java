@@ -25,6 +25,8 @@ public class BaseNotificationEntity extends BaseTimeEntity {
 
 
     public BaseNotificationEntity(Boolean isRead, Boolean isImportant, String message) {
-        super();
+       this.isRead = isRead;
+       this.isImportant = isImportant;
+       this.message = message;
     }
 }
