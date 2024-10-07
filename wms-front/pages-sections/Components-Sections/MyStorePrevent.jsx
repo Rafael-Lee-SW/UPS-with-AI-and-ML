@@ -117,7 +117,7 @@ const CardActions = styled('div')(({ theme }) => ({
 }));
 
 const FavoriteButton = styled(IconButton)(({ theme, isFavorite }) => ({
-  color: isFavorite ? theme.palette.warning.main : theme.palette.grey[400],
+  color: isFavorite ? theme.palette.warning.main : theme.palette.grey[500],
   padding: theme.spacing(0.5),
   '&:hover': {
     backgroundColor: 'transparent',
@@ -125,7 +125,7 @@ const FavoriteButton = styled(IconButton)(({ theme, isFavorite }) => ({
 }));
 
 const DeleteButton = styled(IconButton)(({ theme }) => ({
-  color: theme.palette.error.main,
+  color: theme.palette.grey[500],
   padding: theme.spacing(0.5),
   '&:hover': {
     backgroundColor: 'transparent',
@@ -186,7 +186,7 @@ const sortVideosByDate = (videos) => {
 let uniqueId = 0;
 
 const generateDummyData = (count) => {
-  const categories = ['절도', '파손', '흡연', '방화', '실신', null];
+  const categories = ['절도', '파손', '흡연', '방화', '실신'];
   return Array.from({ length: count }, () => {
     uniqueId++;
     const date = new Date();
@@ -217,8 +217,6 @@ const VideoCard = React.memo(({ video, onOpen, onDelete, isFavorite, onToggleFav
         return '#2196f3';
       case '실신':
         return '#9c27b0';
-      default:
-        return 'transparent';
     }
   };
 
