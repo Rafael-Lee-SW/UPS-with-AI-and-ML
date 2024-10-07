@@ -181,17 +181,14 @@ public class ProductServiceImpl {
 
       Product product = productRepository.findById(productMoveRequest.productId()).orElseThrow();
 
+
       Floor targetFloor =
           floorRepository.findAllByLocationId(productMoveRequest.locationId()).stream()
               .filter((data) -> data.getFloorLevel() == productMoveRequest.floorLevel())
               .findFirst()
               .orElse(null);
-      Product previous = Product.builder().floor(product.getFloor()).build();
-
       Floor presentFloor = product.getFloor();
-      if (targetFloor.getProduct() != null) {
-        throw new ProductException.NotFoundException(product.getProductId());
-      }
+
       presentFloor.updateProduct(null);
       updateIfValid(targetFloor, product::updateFloor);
 
