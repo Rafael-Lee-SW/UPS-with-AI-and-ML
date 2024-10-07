@@ -23,8 +23,7 @@ public class Product extends BaseTimeEntity {
     @Column(name = "sku")
     private String sku;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "floor_id", nullable = false)
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Floor floor;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -93,6 +92,5 @@ public class Product extends BaseTimeEntity {
 
     public void updateFloor(Floor floor) {
         this.floor = floor;
-        floor.updateProduct(this);
     }
 }
