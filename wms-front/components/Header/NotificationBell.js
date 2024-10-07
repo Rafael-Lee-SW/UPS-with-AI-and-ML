@@ -1,12 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Badge, IconButton, Popover, List, ListItem, ListItemText, Button 
 } from '@mui/material';
 import { Notifications as NotificationsIcon } from '@mui/icons-material';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { makeStyles } from "@material-ui/core/styles";
+import styles from "/styles/jss/nextjs-material-kit/components/userHeaderLinksStyle.js";
+
+const useStyles = makeStyles(styles);
 
 const NotificationBell = ({ userId }) => {
+  const classes = useStyles();
   const [notifications, setNotifications] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const router = useRouter();
@@ -59,10 +64,16 @@ const NotificationBell = ({ userId }) => {
       <IconButton 
         color="inherit" 
         onClick={handleClick}
-        sx={{ marginTop: '5px' }} // 위치 조정
-      >
-        <Badge badgeContent={notifications.length} color="error">
-          <NotificationsIcon sx={{ fontSize: 28 }} /> {/* 아이콘 크기 조정 */}
+        className={classes.notificationBell}
+        >
+        <Badge 
+            badgeContent={notifications.length} 
+            color="error"
+            classes={{
+            badge: classes.notificationBadge
+            }}
+        >
+            <NotificationsIcon className={classes.notificationIcon} />
         </Badge>
       </IconButton>
       <Popover
@@ -77,20 +88,32 @@ const NotificationBell = ({ userId }) => {
           vertical: 'top',
           horizontal: 'right',
         }}
+        classes={{
+          paper: classes.notificationPopover
+        }}
       >
-        <List sx={{ width: 300, maxHeight: 400, overflow: 'auto', bgcolor: 'background.paper' }}>
+        <List className={classes.notificationList}>
           {notifications.map(notification => (
             <ListItem 
               key={notification.notificationId} 
               button 
               onClick={() => handleNotificationClick(notification.notificationId)}
-              sx={{ bgcolor: notification.isRead ? 'grey.200' : 'white' }} // 읽음 처리
+              className={notification.isRead ? classes.notificationItemRead : classes.notificationItem}
             >
-              <ListItemText primary={notification.message} />
+              <ListItemText 
+                primary={notification.message} 
+                className={classes.notificationText}
+                primaryTypographyProps={{ className: classes.notificationTextTypography }}
+              />
             </ListItem>
           ))}
         </List>
-        <Button component={Link} href="/notifications" fullWidth>
+        <Button 
+          component={Link} 
+          href="/notifications" 
+          fullWidth 
+          className={classes.viewAllButton}
+        >
           전체 알림 확인
         </Button>
       </Popover>

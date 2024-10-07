@@ -11,6 +11,7 @@ import styles from "/styles/jss/nextjs-material-kit/pages/users.js"; // Let's ma
 import "aos/dist/aos.css";
 import { useRouter } from "next/router";
 import Cookies from "cookies"; // Cookie에 저장하기 위해서
+import NotificationBell from "/components/Header/NotificationBell";
 
 const DynamicMyContainerMap = dynamic(
   () => import("/pages-sections/Components-Sections/MyContainerMap.jsx"),
@@ -184,6 +185,7 @@ export default function Components({
         >
           방범 관리
         </Button>
+        <NotificationBell userId={userData?.id} />
       </div>
 
       <div className={classes.mainContent}>

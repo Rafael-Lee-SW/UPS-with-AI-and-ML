@@ -119,6 +119,82 @@ const headerLinksStyle = (theme) => ({
   ...tooltip,
   marginRight5: {
     marginRight: "5px"
+  },
+  notificationBell: {
+    padding: '8px',
+    marginTop: '10px', // 아이콘을 아래로 내리기 위해 추가
+    [theme.breakpoints.down('sm')]: {
+      padding: '4px',
+      marginTop: '0', // 모바일에서는 원래 위치 유지
+    },
+  },
+  notificationIcon: {
+    fontSize: '24px',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '20px',
+    },
+  },
+  notificationBadge: {
+    fontSize: '0.8rem',
+    height: '18px',
+    minWidth: '18px',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '0.7rem',
+      height: '16px',
+      minWidth: '16px',
+    },
+  },
+  notificationPopover: {
+    width: '300px',
+    maxHeight: '400px',
+    overflowY: 'auto',
+    borderRadius: '8px',
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+    backgroundColor: '#fff',
+    [theme.breakpoints.down('sm')]: {
+      width: '90%', // 모바일에서 너비를 90%로 설정
+      maxHeight: '250px', // 모바일에서 최대 높이를 줄임
+      left: '5% !important',
+      right: '5% !important',
+      borderRadius: '8px',
+    },
+  },
+  notificationList: {
+    padding: "0",
+  },
+  notificationItem: {
+    borderBottom: "1px solid #e0e0e0",
+    "&:hover": {
+      backgroundColor: "rgba(200, 200, 200, 0.2)",
+    },
+  },
+  notificationItemRead: {
+    borderBottom: "1px solid #e0e0e0",
+    backgroundColor: "#f5f5f5",
+    "&:hover": {
+      backgroundColor: "rgba(200, 200, 200, 0.2)",
+    },
+  },
+  notificationText: {
+    fontSize: "14px",
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '12px', // 모바일에서 텍스트 크기를 줄임
+    },
+  },
+  notificationTextTypography: {
+    whiteSpace: 'normal',
+    wordBreak: 'break-word',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '12px', // 모바일에서 텍스트 크기를 줄임
+    },
+  },
+  viewAllButton: {
+    margin: "10px",
+    color: theme.palette.primary.main,
+    [theme.breakpoints.down('sm')]: {
+      margin: '5px',
+      fontSize: '12px', // 모바일에서 버튼 텍스트 크기를 줄임
+    },
   }
 });
 

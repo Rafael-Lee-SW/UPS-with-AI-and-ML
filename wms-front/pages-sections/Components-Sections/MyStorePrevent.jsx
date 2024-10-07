@@ -493,7 +493,7 @@ const MyStorePrevent = () => {
                 </CloseButton>
                 <Video controls autoPlay>
                   <source src={selectedVideo.videoUrl} type="video/mp4" />
-                  Your browser does not support the video tag.
+                  브라우저가 비디오를 지원하지 않습니다.
                 </Video>
                 {selectedVideo.anomalyCategory && (
                   <p>이상 감지: {selectedVideo.anomalyCategory}</p>
