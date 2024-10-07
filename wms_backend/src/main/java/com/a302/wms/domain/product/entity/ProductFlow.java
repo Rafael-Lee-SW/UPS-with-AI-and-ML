@@ -24,7 +24,7 @@ public class ProductFlow extends BaseTimeEntity {
   @Column(name = "barcode", nullable = false)
   private Long barcode;
 
-  @Column(name = "sku", nullable = false)
+  @Column(name = "sku")
   private String sku;
 
   @Column(name = "quantity", nullable = false)
