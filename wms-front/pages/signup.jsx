@@ -246,9 +246,9 @@ export default function SignUp() {
           email,
           certificationNumber,
         });
-        const { code } = response.data;
+        console.log(response.data)
 
-        if (code === 200) {
+        if (response.data.statusCode === 1000) {
           setCertificationMessage('이메일이 인증되었습니다.');
           setIsCertificationButtonEnabled(false);
           setIsCertificationSuccess(true);

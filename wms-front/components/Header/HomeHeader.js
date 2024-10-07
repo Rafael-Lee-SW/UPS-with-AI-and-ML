@@ -85,7 +85,7 @@ export default function Header({
         {/* Show only in mobile */}
         <div className={classes.hiddenMdUp}>
           <IconButton
-            color="#986C58"
+            color="#1187cf"
             aria-label="open drawer"
             onClick={handleDrawerToggle}
           >

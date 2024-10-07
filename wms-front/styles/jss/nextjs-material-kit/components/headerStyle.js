@@ -58,7 +58,7 @@ const headerStyle = (theme) => ({
     fontSize: "18px",
     borderRadius: "3px",
     textTransform: "none",
-    color: "#986C58",
+    color: "#1187cf",
     padding: "8px 0",
     letterSpacing: "unset",
     "&:hover,&:focus": {
