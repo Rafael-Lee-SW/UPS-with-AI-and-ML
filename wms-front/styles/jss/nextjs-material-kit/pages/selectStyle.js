@@ -1,4 +1,3 @@
-import zIndex from "@mui/material/styles/zIndex";
 import { container } from "/styles/jss/nextjs-material-kit.js";
 
 const selectStyle = (theme) => ({
@@ -248,7 +247,7 @@ const selectStyle = (theme) => ({
       transformOrigin: "center",
       "&:hover": {
         transform: "scale(1.2)",
-        zIndex:1200,
+        zIndex:"1200",
       },
       "&::before": {
         content: '""',

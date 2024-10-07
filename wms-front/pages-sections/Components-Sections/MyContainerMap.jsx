@@ -1273,7 +1273,9 @@ const MyContainerMap = ({ storeId, businessId }) => {
     });
 
     window.addEventListener("click", () => {
-      menuRef.current.style.display = "none";
+      if (menuRef.current) {
+        menuRef.current.style.display = "none";
+      }
     });
 
     /**

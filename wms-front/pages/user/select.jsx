@@ -367,7 +367,7 @@ const Select = ({ fetchedStores, ...rest }) => {
       setCards((prevCards) => prevCards.filter((card) => card.id !== storeId));
     } catch (error) {
       console.error("Error deleting store:", error);
-      router.push("/404");
+      // router.push("/404");
     }
   };
 

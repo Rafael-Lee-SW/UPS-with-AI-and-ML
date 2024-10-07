@@ -1,10 +1,11 @@
+//MyContainerNavigation.jsx
 "use client";
 /**
  * 창고 엑셀화 Import
  */
 // fundamental importing about React
 import React, { useState, useEffect, useRef } from "react";
-
+import { useRouter } from "next/router";
 // Import MUI components
 import Fab from "@mui/material/Fab";
 // core components
@@ -101,7 +102,8 @@ const useStyles = makeStyles(styles);
 // --- 창고 관련 끝
 
 // 복합체 시작
-const MyContainerNavigation = ({ storeId, businessId, warehouses }) => {
+const MyContainerNavigation = ({ storeId, stores }) => {
+  const router = useRouter();
   const classes = useStyles();
   // 로딩 Loading
   const [loading, setLoading] = useState(false); // 수정필수 : true로 바꿀 것
@@ -120,54 +122,22 @@ const MyContainerNavigation = ({ storeId, businessId, warehouses }) => {
   const VIEWPORT_HEIGHT = window.innerHeight;
 
   // 사각형을 추가하고 관리하는 State 추가
+  // 사각형을 추가하고 관리하는 State 추가
   const [locations, setLocations] = useState([
     {
-      id: "0",
-      x: 0,
-      y: 0,
-      z: 0,
-      width: 0,
-      height: 0,
-      fill: "blue",
+      id: 0,
+      rotation: 0, // rotation
+      x: 0, // x_position
+      y: 0, // y_position
+      z: 0, // z_size
+      width: 0, // x_size
+      height: 0, // y_size
+      // fill: "blue",
       draggable: false,
-      order: 0,
-      name: "임시",
-      type: "임시",
-      rotation: 0,
-      warehouseId: storeId,
-    },
-    {
-      id: "1",
-      x: 50,
-      y: 50,
-      z: 50,
-      width: 50,
-      height: 50,
-      fill: "blue",
-      draggable: false,
-      order: 1,
-      name: "임시1",
-      type: "location",
-      rotation: 0,
-      warehouseId: storeId,
-    },
-    {
-      id: "2",
-      x: 500,
-      y: 500,
-      z: 50,
-      width: 200,
-      height: 200,
-      fill: "blue",
-      draggable: false,
-      order: 1,
-      name: "임시2",
-      type: "location",
-      rotation: 0,
-      warehouseId: storeId,
+      name: "임시", // name
+      // type: "임시",
     },
   ]);
-
   // 마지막으로 클릭한 상자를 추적하는 상태 추가
   const [selectedLocation, setSelectedLocation] = useState(null);
   // 마지막으로 클릭한 상자를 수정하는 폼을 띄우기 위한 상태 추가
@@ -313,13 +283,24 @@ const MyContainerNavigation = ({ storeId, businessId, warehouses }) => {
 
   // API를 통해 해당하는 창고(번호)의 모든 location(적재함)과 wall(벽)을 가져오는 메서드
   const getStoreStructureAPI = async () => {
+    // 토큰에서 유저정보를 가져온다.(로그인 확인)
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // Handle the case where the token is missing (e.g., redirect to signIn)
+      router.push("/signIn");
+      return;
+    }
+
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses/${storeId}`,
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            // Include the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -328,6 +309,7 @@ const MyContainerNavigation = ({ storeId, businessId, warehouses }) => {
         const apiConnection = await response.json();
         const warehouseData = apiConnection.result; // 데이터 추출
 
+        console.log("Parsed response:", apiConnection);
         // 받아온 데이터 중 로케이션 데이터 처리
         const locations = warehouseData.locations;
         if (!locations) {
@@ -363,7 +345,6 @@ const MyContainerNavigation = ({ storeId, businessId, warehouses }) => {
             name: location.name || `적재함 ${index}`,
             type: "location",
             rotation: 0,
-            warehouseId: storeId,
           };
         });
 
@@ -387,15 +368,18 @@ const MyContainerNavigation = ({ storeId, businessId, warehouses }) => {
           return existingAnchor;
         };
 
-        walls.forEach(({ startID, startX, startY, endID, endX, endY }) => {
-          const startAnchor = getOrCreateAnchor(startID, startX, startY);
-          const endAnchor = getOrCreateAnchor(endID, endX, endY);
+        walls.forEach(({ id, startX, startY, endX, endY }) => {
+          const startAnchor = getOrCreateAnchor(id, startX, startY);
+          const endAnchor = getOrCreateAnchor(id, endX, endY);
 
           const newLine = new Konva.Line({
             points: [startX, startY, endX, endY],
             stroke: "brown",
             strokeWidth: 10,
             lineCap: "round",
+            id: id.toString(), // Preserve the original ID
+            name: "selectableShape", // 선택 가능 객체 표시
+            shapeType: "wall", // 구분을 위한 표시
           });
 
           newAnchors.push({
@@ -415,6 +399,7 @@ const MyContainerNavigation = ({ storeId, businessId, warehouses }) => {
       }
     } catch (error) {
       //에러
+      console.log(error)
     }
   };
 
@@ -1147,8 +1132,8 @@ const MyContainerNavigation = ({ storeId, businessId, warehouses }) => {
         setLoading(true); // Start loading
         await getStoreStructureAPI(); // 창고 정보를 불러온다.
         //재고 목록과 알림 내역을 불러온다.
-        await productGetAPI(businessId);
-        await getNotificationsAPI(businessId);
+        // await productGetAPI(businessId);
+        // await getNotificationsAPI(businessId);
       } catch (error) {
         //에러
       } finally {
@@ -1271,59 +1256,59 @@ const MyContainerNavigation = ({ storeId, businessId, warehouses }) => {
     },
   };
 
-// Button click handler for Inventory (재고목록)
-const handleInventoryClick = () => {
-  if (isSidebarVisible && showDetails) {
-    // If inventory is already showing, close the sidebar
-    setIsSidebarVisible(false);
-  } else if (isSidebarVisible && !showDetails) {
-    // If sidebar is open but showing a different content, close it and update content
-    setIsSidebarVisible(false); // Close sidebar
-    setTimeout(() => {
-      setShowDetails(true)
-      setNewContentToShow("inventory"); // Update content to Inventory
-      setIsSidebarVisible(true); // Reopen sidebar
-    }, 300); // Add slight delay to ensure smooth closing before reopening
-  } else {
-    // If sidebar is closed, update content and open it
-    setNewContentToShow("inventory"); // Set content to Inventory
-    setShowDetails(true);
-    setIsSidebarVisible(true); // Open sidebar
-  }
-};
+  // Button click handler for Inventory (재고목록)
+  const handleInventoryClick = () => {
+    if (isSidebarVisible && showDetails) {
+      // If inventory is already showing, close the sidebar
+      setIsSidebarVisible(false);
+    } else if (isSidebarVisible && !showDetails) {
+      // If sidebar is open but showing a different content, close it and update content
+      setIsSidebarVisible(false); // Close sidebar
+      setTimeout(() => {
+        setShowDetails(true);
+        setNewContentToShow("inventory"); // Update content to Inventory
+        setIsSidebarVisible(true); // Reopen sidebar
+      }, 300); // Add slight delay to ensure smooth closing before reopening
+    } else {
+      // If sidebar is closed, update content and open it
+      setNewContentToShow("inventory"); // Set content to Inventory
+      setShowDetails(true);
+      setIsSidebarVisible(true); // Open sidebar
+    }
+  };
 
-// Button click handler for Notifications (알림목록)
-const handleNotificationClick = () => {
-  if (isSidebarVisible && !showDetails) {
-    // If notifications are already showing, close the sidebar
-    setIsSidebarVisible(false);
-  } else if (isSidebarVisible && showDetails) {
-    // If sidebar is open but showing different content, close it and update content
-    setIsSidebarVisible(false); // Close sidebar
-    setTimeout(() => {
-      setShowDetails(false)
-      setNewContentToShow("notifications"); // Update content to Notifications
-      setIsSidebarVisible(true); // Reopen sidebar
-    }, 300); // Add slight delay for smooth transition
-  } else {
-    // If sidebar is closed, update content and open it
-    setShowDetails(false);
-    setNewContentToShow("notifications"); // Set content to Notifications
-    setIsSidebarVisible(true); // Open sidebar
-  }
-};
+  // Button click handler for Notifications (알림목록)
+  const handleNotificationClick = () => {
+    if (isSidebarVisible && !showDetails) {
+      // If notifications are already showing, close the sidebar
+      setIsSidebarVisible(false);
+    } else if (isSidebarVisible && showDetails) {
+      // If sidebar is open but showing different content, close it and update content
+      setIsSidebarVisible(false); // Close sidebar
+      setTimeout(() => {
+        setShowDetails(false);
+        setNewContentToShow("notifications"); // Update content to Notifications
+        setIsSidebarVisible(true); // Reopen sidebar
+      }, 300); // Add slight delay for smooth transition
+    } else {
+      // If sidebar is closed, update content and open it
+      setShowDetails(false);
+      setNewContentToShow("notifications"); // Set content to Notifications
+      setIsSidebarVisible(true); // Open sidebar
+    }
+  };
 
-// Effect to handle sidebar content switching when sidebar is closed
-useEffect(() => {
-  if (!isSidebarVisible && pendingContentUpdate) {
-    // Once sidebar is closed, update content and reopen it
-    setTimeout(() => {
-      setContentVisible(newContentToShow === "inventory");
-      setPendingContentUpdate(false);
-      setIsSidebarVisible(true); // Reopen sidebar
-    }, 300); // Delay for smooth transition
-  }
-}, [isSidebarVisible, pendingContentUpdate, newContentToShow, showDetails]);
+  // Effect to handle sidebar content switching when sidebar is closed
+  useEffect(() => {
+    if (!isSidebarVisible && pendingContentUpdate) {
+      // Once sidebar is closed, update content and reopen it
+      setTimeout(() => {
+        setContentVisible(newContentToShow === "inventory");
+        setPendingContentUpdate(false);
+        setIsSidebarVisible(true); // Reopen sidebar
+      }, 300); // Delay for smooth transition
+    }
+  }, [isSidebarVisible, pendingContentUpdate, newContentToShow, showDetails]);
 
   return (
     <div className={classes.navigationContainer}>
@@ -1517,8 +1502,7 @@ useEffect(() => {
                     <b>세로 : {selectedLocation.height}cm</b>
                     <b>단수(층) : {selectedLocation.z}단/층</b>
                     <b>
-                      재고율 :{" "}
-                      {extractFillPercentage(selectedLocation.fill)}%{" "}
+                      재고율 : {}%{" "}
                     </b>
                   </div>
                   <div
@@ -1877,7 +1861,7 @@ const RectangleTransformer = ({
         listening={false} // Disable interactions with the text
       />
       <Text
-        text={`${extractFillPercentage(shapeProps.fill)}%`}
+        // text={`${extractFillPercentage(shapeProps.fill)}%`}
         x={shapeProps.x}
         y={shapeProps.y}
         z={shapeProps.z}
