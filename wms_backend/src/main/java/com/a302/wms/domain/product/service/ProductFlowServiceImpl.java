@@ -41,6 +41,7 @@ public class ProductFlowServiceImpl {
                 productFlowTypeEnum));
     }
 
+
     public List<ProductFlowResponse> findAllByUserId(Long userId) {
 
         return productFlowRepository.findAll().stream()
@@ -50,12 +51,6 @@ public class ProductFlowServiceImpl {
                         floorRepository.findById(productFlow.getPresentFloorId()).orElseThrow(),
                         floorRepository.findById(productFlow.getPreviousFloorId()).orElseThrow()
                 ))).toList();
-//        return productFlowRepository.findAll().stream()
-//                .map((productFlow -> ProductFlowMapper.toProductFlowResponseDto(
-//                        productFlow,
-//                        floorRepository.findById(productFlow.getPresentFloorId()).orElseThrow(),
-//                        floorRepository.findById(productFlow.getPreviousFloorId()).orElseThrow()
-//                ))).toList();
 
     }
    }
