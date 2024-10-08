@@ -42,10 +42,11 @@ public class UserController {
      * @return
      */
     @GetMapping("/{userId}")
-    public BaseSuccessResponse<UserResponse> findById(@PathVariable Long userId) {
+    public BaseSuccessResponse<UserResponse> findById(
+            @AuthenticationPrincipal Long userTokenId, @PathVariable Long userId) {
         if (userId != null) {
             log.info("[Controller] find User by userId");
-            return new BaseSuccessResponse<>(userService.findById(userId));
+            return new BaseSuccessResponse<>(userService.findById(userTokenId));
         }
         return new BaseSuccessResponse<>(null);
     }
@@ -59,9 +60,10 @@ public class UserController {
      */
     @PatchMapping("/{userId}")
     public BaseSuccessResponse<UserResponse> update(
+            @AuthenticationPrincipal Long userTokenId,
             @PathVariable("userId") Long userId, @RequestBody UserUpdateRequest userUpdateRequest) {
         log.info("[Controller] update user by userId");
-        return new BaseSuccessResponse<>(userService.update(userId, userUpdateRequest));
+        return new BaseSuccessResponse<>(userService.update(userTokenId, userUpdateRequest));
     }
 
     /**
@@ -71,11 +73,12 @@ public class UserController {
      * @param userPasswordUpdateRequest
      * @return
      */
-    @PatchMapping("/password-change")
+    @PatchMapping("/{userId}/password-change")
     public BaseSuccessResponse<UserResponse> updatePassword(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal Long userTokenId,
+            @PathVariable Long userId,
             @RequestBody UserPasswordUpdateRequest userPasswordUpdateRequest) {
-        userService.updatePassword(userId, userPasswordUpdateRequest);
+        userService.updatePassword(userTokenId, userPasswordUpdateRequest);
         log.info("[Controller] change password by userId");
         return new BaseSuccessResponse<>(null);
     }
@@ -86,9 +89,10 @@ public class UserController {
      * @param userId
      */
     @DeleteMapping("/{userId}")
-    public BaseSuccessResponse<Void> delete(@PathVariable("userId") Long userId) {
+    public BaseSuccessResponse<Void> delete(
+            @AuthenticationPrincipal Long userTokenId, @PathVariable("userId") Long userId) {
         log.info("[Controller] delete user by userId");
-        userService.delete(userId);
+        userService.delete(userTokenId);
         return new BaseSuccessResponse<>(null);
     }
 
