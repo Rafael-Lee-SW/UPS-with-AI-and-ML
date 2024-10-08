@@ -31,10 +31,13 @@ public class UserServiceImpl {
      * @return
      */
     public UserResponse save(UserSignUpRequest dto) {
+        User user = userRepository.findByEmail(dto.email()).orElse(null);
+        if (user != null) throw new CommonException(ResponseEnum.DUPLICATE_EMAIL, "해당 이메일로 가입된 계정이 이미 존재합니다.");
+
         SocialLoginTypeEnum socialLoginType = SocialLoginTypeEnum.GENERAL;
         String encodedPassword = passwordEncoder.encode(dto.password());
-        User user = UserMapper.fromUserSignUpRequest(dto, encodedPassword, socialLoginType);
-        User createdUser = userRepository.save(user);
+        User newUser = UserMapper.fromUserSignUpRequest(dto, hashedPassword, socialLoginType);
+        User createdUser = userRepository.save(newUser);
         return UserMapper.toUserResponse(createdUser);
     }
 
