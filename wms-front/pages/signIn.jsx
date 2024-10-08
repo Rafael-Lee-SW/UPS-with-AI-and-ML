@@ -22,7 +22,7 @@ const useStyles = makeStyles(() => ({
     textAlign: 'center',
   },
   card: {
-    border: "1px solid #7D4A1A", 
+    border: "1px solid #459ab6", 
     maxWidth: '350px',
     marginLeft: '60px'
   },
@@ -52,13 +52,14 @@ const useStyles = makeStyles(() => ({
   textField: {
     marginBottom: '16px',
     '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#7d4a1a',
+      borderColor: '#459ab6',
     },
     '& .MuiInputLabel-root.Mui-focused': {
-      color: '#7d4a1a',
+      color: '#459ab6',
     },
   },
   button: {
+    border: '1px solid #ccc',
     margin: '8px',
     width: '100px',
   },
@@ -73,7 +74,7 @@ const useStyles = makeStyles(() => ({
   divider: {
     height: '1px',
     width: '100px',
-    backgroundColor: '#7d4a1a',
+    backgroundColor: '#459ab6',
     margin: 0
   },
   dividerText: {
@@ -219,13 +220,13 @@ export default function Login() {
                   required
                 />
                 <div>
-                  <Button type="submit" variant="contained" style={{ backgroundColor: "#7D4A1A", color: "white" }} className={classes.button}>
+                  <Button type="submit" variant="contained" style={{ backgroundColor: "#e6f4fa", color: "black" }} className={classes.button}>
                     로그인
                   </Button>
                 </div>
               </form>
               <div className={classes.signUpContainer}>
-                <p className={classes.signUpText}>fit-box가 처음이신가요?</p>
+                <p className={classes.signUpText}>Auto-Store가 처음이신가요?</p>
                 <a className={classes.signUpText} href="/signup">회원가입</a>
               </div>
             </CardBody>
