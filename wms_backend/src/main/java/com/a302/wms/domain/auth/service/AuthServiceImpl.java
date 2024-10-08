@@ -27,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +42,7 @@ public class AuthServiceImpl {
 
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); //password Encorder 인터페이스
+    private final PasswordEncoder passwordEncoder;
     private final OtpServiceImpl otpService;
     private final RedisTemplate<String, String> redisTemplate;
     private final DeviceRepository deviceRepository;
@@ -87,9 +86,7 @@ public class AuthServiceImpl {
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new CommonException(ResponseEnum.INVALID_SIGNIN, null));
         UserResponse userResponse = UserMapper.toUserResponse(user);
 
-        String password = signInRequest.password();
-        String encodedPassword = passwordEncoder.encode(password);
-        if (passwordEncoder.matches(user.getPassword(), encodedPassword)) {
+        if (!passwordEncoder.matches(signInRequest.password(), user.getPassword())) {
             throw new CommonException(ResponseEnum.INVALID_SIGNIN, null);
         }
 
