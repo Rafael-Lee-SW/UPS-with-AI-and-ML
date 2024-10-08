@@ -108,7 +108,7 @@ export default function HeaderLinks(props) {
               color="transparent"
               className={classes.navLink}
             >
-              창고관리
+              매장관리
             </Button>
           </ListItem>
         </>
