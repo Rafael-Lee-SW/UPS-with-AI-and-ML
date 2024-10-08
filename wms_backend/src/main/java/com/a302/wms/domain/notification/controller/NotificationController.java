@@ -12,18 +12,18 @@ public class NotificationController {
 
     private final NotificationServiceImpl notificationServiceImpl;
 
-    @GetMapping("/{storeId}")
+    @GetMapping("/{storeId}/{type}")
     public BaseSuccessResponse<?> findAllByStoreIdAndType(@PathVariable("storeId") Long storeId,
-                                                     @RequestParam(value = "type", required = false) String type) {
+                                                     @PathVariable(value = "type", required = false) String type) {
         if (type != null)
         return new BaseSuccessResponse<>(notificationServiceImpl.findAllByStoreIdAndType(storeId,type));
         else if(storeId != null)
             return new BaseSuccessResponse<>(notificationServiceImpl.findAllByStoreId(storeId));
         else return null;
     }
-    @GetMapping("/{storeId}/not-read")
-    public BaseSuccessResponse<?> findAllNotReadByStoreId(@PathVariable("storeId") Long storeId) {
-        return new BaseSuccessResponse<>(notificationServiceImpl.findAllNotReadByStoreId(storeId));
-
-    }
+//    @GetMapping("/{storeId}/not-read")
+//    public BaseSuccessResponse<?> findAllNotReadByStoreId(@PathVariable("storeId") Long storeId) {
+//        return new BaseSuccessResponse<>(notificationServiceImpl.findAllNotReadByStoreId(storeId));
+//
+//    }
 }
