@@ -27,10 +27,10 @@ export default function HowToUse1() {
             </div>
             <div className={classes.section2}>
                 <h2 className={classes.title} style={{ color: "#4E4544" }}>
-                    창고를 생성합니다.
+                    매장을 생성합니다.
                 </h2>
                 <p style={{ color: "#4E4544" }} className={classes.section2Content}>
-                    구매한 창고 개수만큼 생성할 수 있어요.
+                    구매한 매장 개수만큼 생성할 수 있어요.
                 </p>
             </div>
         </div>

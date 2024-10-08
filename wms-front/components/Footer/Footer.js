@@ -46,7 +46,7 @@ export default function Footer() {
           </List>
         </div>
         <div className={classes.right}>
-          &copy; {1900 + new Date().getYear()} , made with by Team 508
+          &copy; {1900 + new Date().getYear()} , made with by Team 302
         </div>
       </div>
     </footer>

@@ -9,7 +9,7 @@ export default function HowToUseStart() {
     return (
         <div id="how-to-use-start" className={classes.container} style={{ backgroundColor: "white" }}>
             <img className={classes.img} src="/img/logo1.png" alt="logo"/>
-            <p className={classes.title}>Fit-Box 이용 가이드</p>
+            <p className={classes.title}>Auto-Store 이용 가이드</p>
         </div>
     )
 }

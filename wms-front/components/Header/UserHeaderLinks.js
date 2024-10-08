@@ -1,5 +1,5 @@
 /*eslint-disable*/
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
 import { useRouter } from "next/router"; // Import useRouter
@@ -33,9 +33,22 @@ export default function HeaderLinks(props) {
     router.push("/");
   };
 
+    // 상태 정의
+  const [isMobile, setIsMobile] = useState(false);
+
+  // 클라이언트 렌더링 시 화면 크기 감지
+  useEffect(() => {
+    const updateMedia = () => setIsMobile(window.innerWidth <= 960);
+    updateMedia(); // 초기 실행
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", updateMedia);
+    }
+    return () => window.removeEventListener("resize", updateMedia);
+  }, []);
+
   return (
     <List className={classes.list}>
-      <ListItem className={classes.listItem}>
+      <ListItem className={classes.listItem} style={{ display: isMobile ? "none" : "block" }}>
         <NotificationBell userId={props.userId} /> {/* NotificationBell 추가 */}
       </ListItem>
       <ListItem className={classes.listItem}>

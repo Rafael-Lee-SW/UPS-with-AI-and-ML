@@ -63,7 +63,7 @@ const Components = (props) => {
   return (
     <div>
       <Header
-        brand="FIT-BOX"
+        brand="AUTO-STORE"
         rightLinks={isLoggedIn ? <LoginHeaderLinks /> : <HeaderLinks />}
         fixed
         color="transparent"

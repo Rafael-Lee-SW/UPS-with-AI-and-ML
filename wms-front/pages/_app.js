@@ -33,7 +33,7 @@ function MyApp({ Component, pageProps, router }) {
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
-        <title>Fit-Box</title>
+        <title>Auto-Store</title>
       </Head>
       <AuthProvider>
         {shouldDisplayHeader && (

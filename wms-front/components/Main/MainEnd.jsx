@@ -9,7 +9,7 @@ export default function HowToUseStart() {
 
     return (
         <div className={classes.container}>
-            <p className={classes.title}>지금, Fit-Box와 함께 시작하세요</p>
+            <p className={classes.title}>지금, Auto-Store와 함께 시작하세요</p>
             <Link href="/payment">
                 <button className={classes.button}>구매하기</button>
             </Link>

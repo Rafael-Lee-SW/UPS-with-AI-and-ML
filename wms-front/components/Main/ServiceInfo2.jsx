@@ -13,7 +13,7 @@ export default function serviceInfo2() {
             </div>
             <div className={classes.section2}>
                 <h2 className={classes.title}>규모에 관계 없이 누구나</h2>
-                <span className={classes.content}>규모에 관계 없이 창고 개수에 맞춰 구매할 수 있습니다.</span>
+                <span className={classes.content}>규모에 관계 없이 매장 개수에 맞춰 구매할 수 있습니다.</span>
             </div>
         </div>
     )
