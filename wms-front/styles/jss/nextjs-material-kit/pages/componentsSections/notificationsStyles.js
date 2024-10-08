@@ -16,15 +16,16 @@ const notificationsStyles = {
       margin: '40px',
   },
   card: {
+      backgroundColor: "#e6f4fa",
       cursor: "pointer",
       padding: "10px",
-      border: "1px solid lightgray",
+      border: "1px solid #ccc",
       borderRadius: "5px",
-      border: '1px solid #7D4A1A',
       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
       '&:hover': {
           transform: 'scale(1.05)',
-          backgroundColor: '#f5f5f5',
+          backgroundColor: '#e6f4fa',
+          border: "1px solid #9baab1",
       },
   },
   title: {

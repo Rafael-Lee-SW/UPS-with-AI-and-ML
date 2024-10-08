@@ -5,11 +5,12 @@ const mypageStyle = {
     overflow: 'hidden',
   },
   leftPanel: {
+    borderRight: '2px solid #ccc',
     display: 'flex',
     flexDirection: 'column',
     paddingLeft: '50px',
     paddingTop: '70px',
-    backgroundColor: '#D3C7B5', 
+    backgroundColor: 'white', 
   },
   titleContainer: {
     display: 'flex',
@@ -36,7 +37,9 @@ const mypageStyle = {
   h2: {
     marginRight: '50px',
     marginTop: '30px',
-    marginBottom: '30px'
+    marginBottom: '30px',
+    color: '#459ab6',
+    fontWeight: 'bold'
   },
   divHr: {
     width: '90%',
@@ -54,7 +57,15 @@ const mypageStyle = {
     width: '100%',
     top: '20px',
     left: '0',
-  }
+  },
+  selected: {
+    color: '#459ab6', 
+    fontWeight: 'bold'
+  },
+  menuItem: {
+    cursor: 'pointer',
+    padding: '10px 0',
+  },
 };
 
 export default mypageStyle;
