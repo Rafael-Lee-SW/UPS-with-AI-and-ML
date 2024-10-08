@@ -12,8 +12,8 @@ export default function serviceInfo2() {
                 <img className={classes.img} src="/img/sub2.jpg" alt="sub2"/>
             </div>
             <div className={classes.section2}>
-                <h2 className={classes.title}>규모에 관계 없이 누구나</h2>
-                <span className={classes.content}>규모에 관계 없이 매장 개수에 맞춰 구매할 수 있습니다.</span>
+                <h2 className={classes.title}>즉각적인 재고반영</h2>
+                <span className={classes.content}>결제내역이 재고에 즉각적으로 반영됩니다.</span>
             </div>
         </div>
     )

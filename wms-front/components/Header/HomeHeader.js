@@ -60,7 +60,7 @@ export default function Header({
     <Link href="/">
       <Button className={classes.title}>
         <img
-          style={{ height: "30px", width: "60px", paddingRight: "15px" }}
+          style={{ height: "30px", width: "60px", paddingRight: '15px'}}
           src="/img/logo1.png"
           alt="logo"
         />
@@ -85,7 +85,7 @@ export default function Header({
         {/* Show only in mobile */}
         <div className={classes.hiddenMdUp}>
           <IconButton
-            color="#1187cf"
+            color="#459ab6"
             aria-label="open drawer"
             onClick={handleDrawerToggle}
           >

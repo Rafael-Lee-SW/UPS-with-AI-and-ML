@@ -13,14 +13,16 @@ const deviceStyles = makeStyles((theme) => ({
         margin: '40px',
     },
     card: {
+        backgroundColor: '#e6f4fa',
         padding: '10px',
         cursor: 'pointer',
-        border: '1px solid #7D4A1A',
+        border: '1px solid #ccc',
         borderRadius: '4px',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
         '&:hover': {
             transform: 'scale(1.05)',
-            backgroundColor: '#f5f5f5',
+            backgroundColor: '#e6f4fa',
+            border: '1px solid #9baab1',
         },
     },
     modalTitle: {

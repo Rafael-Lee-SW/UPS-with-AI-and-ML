@@ -78,12 +78,32 @@ export default function Mypage() {
   <div className={classes.container}>
     <div className={classes.leftPanel}>
         <div className={classes.titleContainer}>
-          <h2 className={classes.h2} onClick={() => setSelectedComponent('info')}>마이페이지</h2>
+          <h2 
+            className={`${classes.h2} ${selectedComponent === 'info' ? classes.selected : ''}`} 
+            onClick={() => setSelectedComponent('info')}
+          >
+            마이페이지
+          </h2>
         </div>
         <div className={classes.divContainer}>
-          <h4 onClick={() => setSelectedComponent('alarm')}>알람</h4>
-          <h4 onClick={() => setSelectedComponent('edit')}>내 정보 수정</h4>
-          <h4 onClick={() => setSelectedComponent('device')}>기기 관리</h4>
+          <h4 
+            className={`${classes.menuItem} ${selectedComponent === 'alarm' ? classes.selected : ''}`} 
+            onClick={() => setSelectedComponent('alarm')}
+          >
+            알람
+          </h4>
+          <h4 
+            className={`${classes.menuItem} ${selectedComponent === 'edit' ? classes.selected : ''}`} 
+            onClick={() => setSelectedComponent('edit')}
+          >
+            내 정보 수정
+          </h4>
+          <h4 
+            className={`${classes.menuItem} ${selectedComponent === 'device' ? classes.selected : ''}`} 
+            onClick={() => setSelectedComponent('device')}
+          >
+            기기 관리
+          </h4>
         </div>
       </div>
     <div className={classes.rightPanel}>

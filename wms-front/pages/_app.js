@@ -38,7 +38,7 @@ function MyApp({ Component, pageProps, router }) {
       <AuthProvider>
         {shouldDisplayHeader && (
           <Header
-            brand="FIT-BOX"
+            brand={<strong>AUTO-STORE</strong>}
             rightLinks={<HeaderLinks />}
             fixed
             color="transparent"

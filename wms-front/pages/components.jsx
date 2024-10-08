@@ -63,7 +63,7 @@ const Components = (props) => {
   return (
     <div>
       <Header
-        brand="AUTO-STORE"
+        brand={<strong>AUTO-STORE</strong>}
         rightLinks={isLoggedIn ? <LoginHeaderLinks /> : <HeaderLinks />}
         fixed
         color="transparent"
@@ -73,11 +73,11 @@ const Components = (props) => {
         }}
         {...rest}
       />
-        <div style={{ width: '100%', height: '85vh', margin: '0', overflow: 'hidden' }}>
+        <div style={{ width: '80%', height: 'auto', marginLeft: '120px', marginTop: '5%', overflow: 'hidden' }}>
           <Slider {...settings}>
-              <img src="/img/main1.jpg" alt="First slide" style={{ width: '100%', height: 'auto' }} />
-              <img src="/img/main2.jpg" alt="Second slide" style={{ width: '100%', height: 'auto' }} />
-              <img src="/img/main3.jpg" alt="Third slide" style={{ width: '100%', height: 'auto' }} />
+              <img src="/img/main.jpg" alt="First slide" style={{ width: '100%', height: 'auto' }} />
+              {/* <img src="/img/main2.jpg" alt="Second slide" style={{ width: '100%', height: 'auto' }} />
+              <img src="/img/main3.jpg" alt="Third slide" style={{ width: '100%', height: 'auto' }} /> */}
           </Slider>
         </div>
         <div data-aos="fade-up">

@@ -246,7 +246,6 @@ export default function SignUp() {
           email,
           certificationNumber,
         });
-        console.log(response.data)
 
         if (response.data.statusCode === 1000) {
           setCertificationMessage('이메일이 인증되었습니다.');
@@ -273,11 +272,12 @@ export default function SignUp() {
           'password' : password,
           'userName' : name,
         });
-        const { message, isSuccess } = handleResponse(response);
+        const message = response.data.message;
+        const success = response.data.success;
 
-        toast[isSuccess ? 'success' : 'error'](isSuccess ? '회원가입이 완료되었습니다. 로그인 후 이용해주세요.' : message);
+        toast[success ? 'success' : 'error'](success ? '회원가입이 완료되었습니다. 로그인 후 이용해주세요.' : message);
 
-        if (isSuccess) {
+        if (success) {
           router.push('/signIn');
         }
       } catch (error) {
