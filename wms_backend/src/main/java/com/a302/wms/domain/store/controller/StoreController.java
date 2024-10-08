@@ -116,7 +116,7 @@ public class StoreController {
             @PathVariable Long storeId,
             @RequestBody StructureDeleteRequest structureDeleteRequest
     ) {
-        log.info("[Controller] delete structure");
+        log.info("[Controller] delete structure {}", structureDeleteRequest);
         storeService.deleteStructure(userId, storeId, structureDeleteRequest);
         return new BaseSuccessResponse<>(null);
     }

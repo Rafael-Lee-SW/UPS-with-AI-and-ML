@@ -186,9 +186,10 @@ public class StructureServiceImpl {
     public void deleteStructure(Long userId, Long storeId, StructureDeleteRequest structureDeleteRequest) {
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new CommonException(ResponseEnum.STORE_NOT_FOUND, "해당 매장을 찾을 수 없습니다."));
         if (!Objects.equals(store.getUser().getId(), userId)) {
+            log.error("{} 유저는 {} 매장에 대한 권한이 없습니다.", userId, storeId);
             throw new CommonException(ResponseEnum.BAD_REQUEST, "매장에 대한 권한이 없습니다.");
         }
-        
+
         deleteLocations(storeId, structureDeleteRequest.locationDeleteList());
         deleteWalls(storeId, structureDeleteRequest.wallDeleteList());
     }
@@ -200,6 +201,7 @@ public class StructureServiceImpl {
                 return;
             }
             if (!Objects.equals(location.getStore().getId(), storeId)) {
+                log.error("해당 로케이션에 대한 권한이 없습니다.");
                 throw new CommonException(ResponseEnum.BAD_REQUEST, "해당 로케이션에 대한 권한이 없습니다.");
             }
             locationRepository.delete(location);
@@ -213,6 +215,7 @@ public class StructureServiceImpl {
                 return;
             }
             if (!Objects.equals(wall.getStore().getId(), storeId)) {
+                log.error("해당 벽에 대한 권한이 없습니다.");
                 throw new CommonException(ResponseEnum.BAD_REQUEST, "해당 벽에 대한 권한이 없습니다.");
             }
             wallRepository.delete(wall);

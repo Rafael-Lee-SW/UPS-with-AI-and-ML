@@ -1,10 +1,13 @@
 package com.a302.wms.domain.structure.entity;
 
 import com.a302.wms.domain.floor.entity.Floor;
-import com.a302.wms.global.BaseTimeEntity;
 import com.a302.wms.domain.store.entity.Store;
+import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +21,7 @@ public class Location extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
     @Column(nullable = false, length = 10)
@@ -35,7 +38,7 @@ public class Location extends BaseTimeEntity {
     private int ySize = -1;
     @Column(nullable = false)
     private int zSize = -1;
-    @OneToMany(mappedBy = "location")
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Floor> floorList = new ArrayList<>();
 
     @Builder
@@ -56,14 +59,17 @@ public class Location extends BaseTimeEntity {
         this.xPosition = xPosition;
         this.yPosition = yPosition;
     }
+
     public void updateSize(int xSize, int ySize, int zSize) {
         this.xSize = xSize;
         this.ySize = ySize;
         this.zSize = zSize;
     }
+
     public void updateFloors(List<Floor> floors) {
         this.floorList = floors;
     }
+
     public void updateName(String name) {
         this.name = name;
     }
