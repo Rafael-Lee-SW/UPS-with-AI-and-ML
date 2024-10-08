@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import string
 import random
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 # Load the CSV file
 file_path = r'C:\Users\SSAFY\Desktop\data_ML\purchase_transactions_2022_2023.csv'
@@ -63,10 +63,48 @@ print(f"Locations have been saved to {locations_output_file}")
 
 # Filter to the last month
 today = data['purchase_date'].max()
-one_month_ago = today - timedelta(days=180)
+one_month_ago = today - timedelta(days=90)
 data_last_month = data[data['purchase_date'] >= one_month_ago].copy()
 
 # Save the filtered data
 data_last_month_output_file = 'prepared_sales_data_last_month.csv'
 data_last_month.to_csv(data_last_month_output_file, index=False)
 print(f"Data for the last month has been saved to {data_last_month_output_file}")
+
+# 재생산된 호출 모음
+
+# Extract unique products and aggregate data
+products = data.groupby(['product_code', 'item_description']).agg({
+    'price': 'mean',  # Assuming you want the average price if prices vary
+    'sales_unit': 'sum'  # Total units sold
+}).reset_index()
+
+# Calculate selling_price (unit price)
+products['selling_price'] = products['price'] / products['sales_unit']
+
+# Fill in other required fields
+products['original_price'] = products['selling_price'] - 500
+products['quantity'] = 100
+products['barcode'] = products['product_code']
+products['created_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+products['floor_id'] = 6
+products['id'] = 15  # If you need unique IDs, you can generate them
+products['store_id'] = 25
+products['updated_date'] = ''  # Or set to current date/time if needed
+products['product_name'] = products['item_description']
+products['sku'] = None
+
+# Select the required columns
+product_columns = [
+    'original_price', 'quantity', 'selling_price', 'barcode', 'created_date',
+    'floor_id', 'id', 'store_id', 'updated_date', 'product_name', 'sku'
+]
+product_df = products[product_columns]
+
+# Ensure that barcodes are unique
+product_df = product_df.drop_duplicates(subset=['barcode'])
+
+# Save to CSV
+product_output_file = 'product_data.csv'
+product_df.to_csv(product_output_file, index=False)
+print(f"Product data has been saved to {product_output_file}")
