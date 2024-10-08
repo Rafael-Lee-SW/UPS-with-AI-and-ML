@@ -36,7 +36,7 @@ public class UserServiceImpl {
 
         SocialLoginTypeEnum socialLoginType = SocialLoginTypeEnum.GENERAL;
         String encodedPassword = passwordEncoder.encode(dto.password());
-        User newUser = UserMapper.fromUserSignUpRequest(dto, hashedPassword, socialLoginType);
+        User newUser = UserMapper.fromUserSignUpRequest(dto, encodedPassword, socialLoginType);
         User createdUser = userRepository.save(newUser);
         return UserMapper.toUserResponse(createdUser);
     }
