@@ -8,10 +8,8 @@ import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,17 +33,22 @@ public class Floor extends BaseTimeEntity {
   @Column(nullable = false)
   private int floorLevel;
 
-  @OneToMany(mappedBy = "floor")
-  private List<Product> productList = new ArrayList<>();
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Product product;
 
   @Builder
-  public Floor(Integer floorLevel, Long floorId, Location location, List<Product> productList) {
-    this.floorLevel = floorLevel;
+  public Floor(Long floorId, int floorLevel, Location location, Product product) {
     this.floorId = floorId;
+    this.floorLevel = floorLevel;
     this.location = location;
-    this.productList = productList;
+    this.product = product;
   }
 
+
+
+  public void updateProduct(Product product) {
+    this.product = product;
+  }
   // 연관관계 편의 메서드
   public Floor setLocation(Location location) {
     this.location = location;
@@ -60,16 +63,13 @@ public class Floor extends BaseTimeEntity {
     return this.floorLevel == DEFAULT_FLOOR_LEVEL;
   }
   // Product를 Floor에 추가하는 메서드
-  public void addProduct(Product product) {
-    if (!this.productList.contains(product)) {
-      this.productList.add(product);
-    }
+  @Override
+  public String toString() {
+    return "Floor{" +
+            "floorId=" + floorId +
+            ", location=" + location +
+            ", floorLevel=" + floorLevel +
+            ", product=" + product +
+            '}';
   }
-
-  public void removeProduct(Product product) {
-    if (this.productList.contains(product)) {
-      this.productList.remove(product);
-    }
-  }
-
 }
