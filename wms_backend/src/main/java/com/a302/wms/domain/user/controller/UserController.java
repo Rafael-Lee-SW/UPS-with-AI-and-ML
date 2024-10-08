@@ -9,6 +9,7 @@ import com.a302.wms.global.response.BaseSuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -70,9 +71,9 @@ public class UserController {
      * @param userPasswordUpdateRequest
      * @return
      */
-    @PatchMapping("/{userId}/password-change")
+    @PatchMapping("/password-change")
     public BaseSuccessResponse<UserResponse> updatePassword(
-            @PathVariable("userId") Long userId,
+            @AuthenticationPrincipal Long userId,
             @RequestBody UserPasswordUpdateRequest userPasswordUpdateRequest) {
         userService.updatePassword(userId, userPasswordUpdateRequest);
         log.info("[Controller] change password by userId");
