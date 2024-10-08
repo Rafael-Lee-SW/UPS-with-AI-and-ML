@@ -16,6 +16,8 @@ import com.a302.wms.domain.product.mapper.ProductMapper;
 import com.a302.wms.domain.product.repository.ProductRepository;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.store.repository.StoreRepository;
+import com.a302.wms.domain.structure.repository.LocationRepository;
+import com.a302.wms.domain.structure.service.LocationServiceImpl;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.repository.UserRepository;
 import com.a302.wms.domain.user.service.UserServiceImpl;
@@ -23,6 +25,7 @@ import com.a302.wms.global.constant.NotificationTypeEnum;
 import com.a302.wms.global.constant.ProductFlowTypeEnum;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +46,8 @@ public class ProductServiceImpl {
   private final NotificationServiceImpl notificationServiceImpl;
   private final UserServiceImpl userServiceImpl;
   private final UserRepository userRepository;
+  private final LocationServiceImpl locationServiceImpl;
+  private final LocationRepository locationRepository;
 
   /**
    * 특정 유저의 모든 상품 호출
@@ -161,6 +166,7 @@ public class ProductServiceImpl {
    * @param productMoveRequestList : 이동할 상품 리스트
    * @throws ProductException
    */
+
   @Transactional
   public void moveProducts(List<ProductMoveRequest> productMoveRequestList)
       throws ProductException {
@@ -175,31 +181,34 @@ public class ProductServiceImpl {
    * @param productMoveRequest
    * @throws ProductException
    */
-  @Transactional
   public void moveProduct(ProductMoveRequest productMoveRequest) throws ProductException {
     try {
-
-      Product product = productRepository.findById(productMoveRequest.productId()).orElseThrow();
-
-
+      // 이동할 상품
+      Product targetProduct =
+          productRepository.findById(productMoveRequest.productId()).orElse(null);
+      //      이동할 위치의 Floor
       Floor targetFloor =
-          floorRepository.findAllByLocationId(productMoveRequest.locationId()).stream()
-              .filter((data) -> data.getFloorLevel() == productMoveRequest.floorLevel())
-              .findFirst()
-              .orElse(null);
-      Floor presentFloor = product.getFloor();
+          floorRepository.findByLocationIdAndFloorLevel(
+              productMoveRequest.locationId(), productMoveRequest.floorLevel());
+      // 현재 이동할 곳에 위치한 상품
+      Product sourceProduct =
+          productRepository
+              .findById(targetFloor.getProductList().get(0).getProductId())
+              .orElseThrow();
 
-      presentFloor.updateProduct(null);
-      updateIfValid(targetFloor, product::updateFloor);
+      Floor newTargetFloor = targetProduct.getFloor();
+      targetProduct.updateFloor(targetFloor);
+      sourceProduct.updateFloor(newTargetFloor);
 
-      productFlowService.save(product, LocalDateTime.now(), presentFloor, ProductFlowTypeEnum.FLOW);
+      //      productFlowService.save(product, LocalDateTime.now(), presentFloor,
+      // ProductFlowTypeEnum.FLOW);
 
-      Store store = product.getStore();
+      Store store = targetProduct.getStore();
       User user = userRepository.findById(store.getUser().getId()).orElse(null);
 
-      notificationServiceImpl.save(
-              notificationServiceImpl.createNotification(
-                      user, store, NotificationTypeEnum.FLOW));
+      //      notificationServiceImpl.save(
+      //          notificationServiceImpl.createNotification(user, store,
+      // NotificationTypeEnum.FLOW));
     } catch (NullPointerException e) {
       throw new ProductException.NotFoundException(productMoveRequest.productId());
     }
@@ -236,7 +245,6 @@ public class ProductServiceImpl {
     User user = userRepository.findById(store.getUser().getId()).orElse(null);
 
     notificationServiceImpl.save(
-        notificationServiceImpl.createNotification(
-            user, store, NotificationTypeEnum.IMPORT));
+        notificationServiceImpl.createNotification(user, store, NotificationTypeEnum.IMPORT));
   }
 }
