@@ -9,6 +9,7 @@ import com.a302.wms.global.response.BaseSuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -41,10 +42,11 @@ public class UserController {
      * @return
      */
     @GetMapping("/{userId}")
-    public BaseSuccessResponse<UserResponse> findById(@PathVariable Long userId) {
+    public BaseSuccessResponse<UserResponse> findById(
+            @AuthenticationPrincipal Long userTokenId, @PathVariable Long userId) {
         if (userId != null) {
             log.info("[Controller] find User by userId");
-            return new BaseSuccessResponse<>(userService.findById(userId));
+            return new BaseSuccessResponse<>(userService.findById(userTokenId));
         }
         return new BaseSuccessResponse<>(null);
     }
@@ -58,9 +60,10 @@ public class UserController {
      */
     @PatchMapping("/{userId}")
     public BaseSuccessResponse<UserResponse> update(
+            @AuthenticationPrincipal Long userTokenId,
             @PathVariable("userId") Long userId, @RequestBody UserUpdateRequest userUpdateRequest) {
         log.info("[Controller] update user by userId");
-        return new BaseSuccessResponse<>(userService.update(userId, userUpdateRequest));
+        return new BaseSuccessResponse<>(userService.update(userTokenId, userUpdateRequest));
     }
 
     /**
@@ -72,9 +75,10 @@ public class UserController {
      */
     @PatchMapping("/{userId}/password-change")
     public BaseSuccessResponse<UserResponse> updatePassword(
-            @PathVariable("userId") Long userId,
+            @AuthenticationPrincipal Long userTokenId,
+            @PathVariable Long userId,
             @RequestBody UserPasswordUpdateRequest userPasswordUpdateRequest) {
-        userService.updatePassword(userId, userPasswordUpdateRequest);
+        userService.updatePassword(userTokenId, userPasswordUpdateRequest);
         log.info("[Controller] change password by userId");
         return new BaseSuccessResponse<>(null);
     }
@@ -85,9 +89,10 @@ public class UserController {
      * @param userId
      */
     @DeleteMapping("/{userId}")
-    public BaseSuccessResponse<Void> delete(@PathVariable("userId") Long userId) {
+    public BaseSuccessResponse<Void> delete(
+            @AuthenticationPrincipal Long userTokenId, @PathVariable("userId") Long userId) {
         log.info("[Controller] delete user by userId");
-        userService.delete(userId);
+        userService.delete(userTokenId);
         return new BaseSuccessResponse<>(null);
     }
 
