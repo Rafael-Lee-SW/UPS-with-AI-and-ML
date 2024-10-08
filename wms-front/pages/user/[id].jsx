@@ -47,6 +47,19 @@ export default function Components({
   const [selectedStore, setSelectedStore] = useState(id || "");
   const [selectedStoreTitle, setSelectedStoreTitle] = useState(""); // State to store the selected warehouse title
   const [currentIndex, setCurrentIndex] = useState(2);
+  
+  // 상태 정의
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // 클라이언트 렌더링 시 화면 크기 감지
+  useEffect(() => {
+    const updateMedia = () => setIsDesktop(window.innerWidth >= 960);
+    updateMedia(); // 초기 실행
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", updateMedia);
+    }
+    return () => window.removeEventListener("resize", updateMedia);
+  }, []);
 
   // videoId가 존재하면 currentIndex를 3으로 설정
   useEffect(() => {
@@ -183,7 +196,9 @@ export default function Components({
         >
           방범 관리
         </Button>
-        <NotificationBell userId={userData?.id} className={classes.hiddenMdUp} />
+        <div style={{ display: isDesktop ? "none" : "block" }}>
+          <NotificationBell storeId={selectedStore} className={classes.notificationBell} />
+        </div>
       </div>
 
       <div className={classes.mainContent}>
