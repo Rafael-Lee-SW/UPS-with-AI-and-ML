@@ -4,15 +4,15 @@ import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product")
+@ToString
 public class Product extends BaseTimeEntity {
 
   @Id
@@ -23,8 +23,8 @@ public class Product extends BaseTimeEntity {
   @Column(name = "sku")
   private String sku;
 
-  @ManyToOne(cascade = {CascadeType.ALL})
-  @JoinColumn(name = "floor_id", nullable = false)
+  @ManyToOne
+  @JoinColumn(name = "floor_id")
   private Floor floor;
 
   @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -58,9 +58,7 @@ public class Product extends BaseTimeEntity {
       String sku,
       Store store) {
     this.barcode = barcode;
-    if (floor != null) {
-      floor.addProduct(this); // 연관 관계 편의 메서드 호출
-    }
+    this.floor = floor;
     this.originalPrice = originalPrice;
     this.productId = productId;
     this.productName = productName;
@@ -93,9 +91,18 @@ public class Product extends BaseTimeEntity {
   public void updateSku(String sku) {
     this.sku = sku;
   }
+  public void updateFloor(Floor newFloor) {
+    // 기존 Floor에서 자신을 제거
+    if (this.floor != null && !this.floor.equals(newFloor)) {
+      this.floor.getProductList().remove(this);
+    }
 
-  public void updateFloor(Floor floor) {
-    this.floor = floor;
-    floor.updateProduct(this);
+    // 새로운 Floor에 자신을 추가
+    this.floor = newFloor;
+    if (newFloor != null && !newFloor.getProductList().contains(this)) {
+      newFloor.getProductList().add(this);
+    }
   }
+
+
 }

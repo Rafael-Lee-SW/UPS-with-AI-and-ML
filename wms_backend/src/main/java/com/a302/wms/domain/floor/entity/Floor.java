@@ -28,7 +28,7 @@ public class Floor extends BaseTimeEntity {
   @Column(name = "id", nullable = false)
   private Long floorId;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "location_id", nullable = false)
   private Location location;
 
@@ -55,36 +55,21 @@ public class Floor extends BaseTimeEntity {
     return this;
   }
 
-  public void updateProduct(Product product) {
-    if (this.productList != null) {
-      if (!isDefault()) {
-        if (this.productList.size() == 1) {
-          // floor에서 상품 업데이트
-          this.productList.set(0, product);
-        }
-      } else { // 상품 추가
-        this.productList.add(product);
-      }
-    }
-  }
 
   public boolean isDefault() {
     return this.floorLevel == DEFAULT_FLOOR_LEVEL;
   }
-
+  // Product를 Floor에 추가하는 메서드
   public void addProduct(Product product) {
-    log.info("추가하기 전 productList의 size : {}", productList.size());
-    log.info("floor id : {}, 추가할 product의 id : {}", this.getFloorId(), product.getProductId());
-    productList.add(product);
-    log.info("추가한 후 productList의 size : {}", productList.size());
-    product.updateFloor(this); // 연관 관계 설정
+    if (!this.productList.contains(product)) {
+      this.productList.add(product);
+    }
   }
 
   public void removeProduct(Product product) {
-    log.info("삭제하기 전 productList의 size : {}", productList.size());
-    log.info("floor id : {}, 삭제할 product의 id : {}", this.getFloorId(), product.getProductId());
-    productList.remove(product);
-    log.info("삭제한 후의 productList의 size : {}", productList.size());
-    product.updateFloor(null);
+    if (this.productList.contains(product)) {
+      this.productList.remove(product);
+    }
   }
+
 }

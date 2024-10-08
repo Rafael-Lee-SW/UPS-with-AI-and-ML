@@ -1,5 +1,7 @@
 package com.a302.wms.domain.product.service;
 
+import static com.a302.wms.global.constant.ProductConstant.DEFAULT_FLOOR_LEVEL;
+
 import com.a302.wms.domain.device.repository.DeviceRepository;
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.repository.FloorRepository;
@@ -23,13 +25,14 @@ import com.a302.wms.domain.user.repository.UserRepository;
 import com.a302.wms.domain.user.service.UserServiceImpl;
 import com.a302.wms.global.constant.NotificationTypeEnum;
 import com.a302.wms.global.constant.ProductFlowTypeEnum;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -48,6 +51,7 @@ public class ProductServiceImpl {
   private final UserRepository userRepository;
   private final LocationServiceImpl locationServiceImpl;
   private final LocationRepository locationRepository;
+  private final LocalContainerEntityManagerFactoryBean entityManagerFactory;
 
   /**
    * 특정 유저의 모든 상품 호출
@@ -166,13 +170,38 @@ public class ProductServiceImpl {
    * @param productMoveRequestList : 이동할 상품 리스트
    * @throws ProductException
    */
-
   @Transactional
   public void moveProducts(List<ProductMoveRequest> productMoveRequestList)
       throws ProductException {
     for (ProductMoveRequest request : productMoveRequestList) {
-      moveProduct(request);
+      swapProducts(request);
     }
+  }
+  @Transactional
+  public void swapProducts(ProductMoveRequest productMoveRequest) {
+    Product productX = productRepository.findById(productMoveRequest.productId()).orElseThrow();
+    Product productY = floorRepository.findByLocationIdAndFloorLevel(productMoveRequest.locationId(), productMoveRequest.floorLevel()).getProductList().get(0);
+
+    log.info("시작 전 productX 상태 : {}",productX);
+    log.info("시작 전 productY 상태 : {}",productY);
+    // 두 Product의 현재 Floor를 가져온다
+    Floor floorA = productX.getFloor();
+    Floor floorB = productY.getFloor();
+
+    // Product X를 Floor B로, Product Y를 Floor A로 교체
+    productX.updateFloor(floorB);
+    productY.updateFloor(floorA);
+
+    log.info("저장 전 productY 상태 : {}",productX);
+    log.info("저장 전 productY 상태 : {}",productY);
+    // 변경된 Product 엔티티를 저장한다
+    productRepository.save(productX);
+    productRepository.save(productY);
+
+
+    productRepository.flush();
+    floorRepository.flush();
+
   }
 
   /**
@@ -182,36 +211,45 @@ public class ProductServiceImpl {
    * @throws ProductException
    */
   public void moveProduct(ProductMoveRequest productMoveRequest) throws ProductException {
-    try {
-      // 이동할 상품
-      Product targetProduct =
-          productRepository.findById(productMoveRequest.productId()).orElse(null);
-      //      이동할 위치의 Floor
-      Floor targetFloor =
-          floorRepository.findByLocationIdAndFloorLevel(
-              productMoveRequest.locationId(), productMoveRequest.floorLevel());
-      // 현재 이동할 곳에 위치한 상품
-      Product sourceProduct =
-          productRepository
-              .findById(targetFloor.getProductList().get(0).getProductId())
-              .orElseThrow();
 
-      Floor newTargetFloor = targetProduct.getFloor();
-      targetProduct.updateFloor(targetFloor);
-      sourceProduct.updateFloor(newTargetFloor);
+    //      Floor A에 있는 product X, Floor B에 있는 product Y가 있을때
+    //      Floor A에 있는 product X를 Floor B에 있는 product Y와 swap
+    //              => Default Floor에 product를 연결하고,
+    Floor defaultFloor =
+        floorRepository.findByLocationIdAndFloorLevel(
+            productMoveRequest.locationId(), DEFAULT_FLOOR_LEVEL);
+    Product productX = productRepository.findById(productMoveRequest.productId()).orElse(null);
+    Floor floorA = productX.getFloor();
+    //      product x에서 Floor와의 연결을 해제
+    log.info("기존 FloorId : {}", productX.getFloor().getFloorId());
+    productX.updateFloor(defaultFloor);
+    log.info("바꾼 후 FloorID : {}", productX.getFloor().getFloorId());
 
-      //      productFlowService.save(product, LocalDateTime.now(), presentFloor,
-      // ProductFlowTypeEnum.FLOW);
+    //      product y에서 floor와의 연결을 해제
+    Floor floorB =
+        floorRepository.findByLocationIdAndFloorLevel(
+            productMoveRequest.locationId(), productMoveRequest.floorLevel());
+    Product productY = floorB.getProductList().get(0);
+    //      product y를 floor A와 연결
+    productY.updateFloor(floorA);
+//    log.info("바꾸기 전 size : {}", defaultFloor.getProductList().size());
+//    defaultFloor.addProduct(productX);
+//    log.info("바꾸고 size : {}", defaultFloor.getProductList().size());
+    //      product x를 floor B와 연결
+    productX.updateFloor(floorB);
+//    floorA.setProductList(List.of(productY));
+//    floorB.setProductList(List.of(productX));
+    //
 
-      Store store = targetProduct.getStore();
-      User user = userRepository.findById(store.getUser().getId()).orElse(null);
+    //      productFlowService.save(
+    //          targetProduct, LocalDateTime.now(), targetFloor, ProductFlowTypeEnum.FLOW);
 
-      //      notificationServiceImpl.save(
-      //          notificationServiceImpl.createNotification(user, store,
-      // NotificationTypeEnum.FLOW));
-    } catch (NullPointerException e) {
-      throw new ProductException.NotFoundException(productMoveRequest.productId());
-    }
+    //      Store store = targetProduct.getStore();
+    //      User user = userRepository.findById(store.getUser().getId()).orElse(null);
+    //
+    //      notificationServiceImpl.save(
+    //          notificationServiceImpl.createNotification(user, store, NotificationTypeEnum.FLOW));
+
   }
 
   /**
