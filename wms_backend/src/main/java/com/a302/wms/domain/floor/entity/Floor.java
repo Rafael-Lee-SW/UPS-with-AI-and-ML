@@ -1,10 +1,13 @@
 package com.a302.wms.domain.floor.entity;
 
+import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.structure.entity.Location;
 import com.a302.wms.global.BaseTimeEntity;
-import com.a302.wms.domain.product.entity.Product;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -17,7 +20,7 @@ public class Floor extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
@@ -29,7 +32,7 @@ public class Floor extends BaseTimeEntity {
     private Product product;
 
     @Builder
-    public Floor(int floorLevel, Long id, Location location, Product product) {
+    public Floor(Integer floorLevel, Long id, Location location, Product product) {
         this.floorLevel = floorLevel;
         this.id = id;
         this.location = location;
