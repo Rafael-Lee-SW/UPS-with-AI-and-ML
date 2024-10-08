@@ -40,9 +40,9 @@ const deviceStyles = makeStyles((theme) => ({
     },
     deviceContainer: {  
         display: 'flex',
-        justifyContent: 'space-between', // 각 버튼 사이의 좌우 간격
+        justifyContent: 'space-between', 
         alignItems: 'center',
-        marginBottom: '20px', // 리스트 사이의 상하 간격
+        marginBottom: '20px', 
         padding: '10px',
     },
     deviceList: {
@@ -66,16 +66,17 @@ const deviceStyles = makeStyles((theme) => ({
     },
     button: {
         margin: '10px',
-        backgroundColor: '#7D4A1A',
-        width: '100px',
-        color: 'white',
-        height: '40px',
-        border: '1px solid #7D4A1A',
+        backgroundColor: '#e6f4fa',
+        width: 'auto',
+        color: 'black',
+        height: '30px',
+        border: '1px solid #ccc',
         borderRadius: '4px',
         '&:hover': {
             transform: 'scale(1.05)',
-            backgroundColor: '#5C3A1D',
-            color: 'white',
+            color: 'black',
+            border: "1px solid #9baab1"
+
         },
     },
     modalCloseButton: {
@@ -86,7 +87,8 @@ const deviceStyles = makeStyles((theme) => ({
     listTitle: {
         fontWeight: 'bold',
         fontSize: '18px',
-        margin: '20px'
+        margin: '20px',
+        color: '#459ab6'
     },
     listContainer: {
         display: 'flex',
@@ -114,6 +116,18 @@ const deviceStyles = makeStyles((theme) => ({
     deviceId: {
         margin: 0,
         marginRight: '10px',
+    },
+    img: {
+        width: '40px',
+        height: '30px'
+    },
+    imgC: {
+        width: '20px',
+        height: '20px',
+        marginRight: '5px'
+    },
+    p: {
+        color: '#459ab6'
     }
 }));
 
@@ -122,9 +136,9 @@ export default function Device() {
     const classes = deviceStyles();
     const router = useRouter();
     const [stores, setStores] = useState([]);
-    const [currentStore, setCurrentStore] = useState(null); // 선택된 매장
+    const [currentStore, setCurrentStore] = useState(null); 
     const [open, setOpen] = useState(false);
-    const [otpState, setOtpState] = useState({}); // 각 기기의 OTP 상태를 저장할 객체
+    const [otpState, setOtpState] = useState({}); 
 
     useEffect(() => {
         getStores();
@@ -232,21 +246,22 @@ export default function Device() {
             </div>
 
             <Dialog open={open} onClose={handleClose}>
-                <div className={classes.modalTitle}><DialogTitle>매장 상세 정보</DialogTitle></div>
+                
                 <DialogContent>
                     {currentStore && (
                         <>
-                            <p className={classes.modalSubTitle}>{currentStore.storeName}</p>
+                        <div className={classes.modalTitle}><DialogTitle>{currentStore.storeName}</DialogTitle></div>
                             <div className={classes.deviceList}>
                                 <h4 className={classes.listTitle}>등록된 키오스크 목록</h4>
                                 {currentStore.devices && currentStore.devices.length > 0 ? (
                                     currentStore.devices.filter(device => device.deviceType === 'KIOSK').map((device) => (
                                         <div key={device.id} className={classes.deviceContainer}>
-                                            <p className={classes.deviceId}>키오스크 ID: {device.id}</p>
+                                            <p className={classes.deviceId}><img className={classes.img} src="/img/kiosk.png" alt="kiosk"/>{device.id}번 기기</p>
                                             <button 
                                                 variant="contained" 
                                                 color="secondary" 
                                                 onClick={() => handleDeleteDevice(device.id)}
+                                                className={classes.button}
                                             >
                                                 삭제
                                             </button>
@@ -255,24 +270,26 @@ export default function Device() {
                                                 color="primary" 
                                                 onClick={() => handleOtp(device.id)} 
                                                 style={{ marginLeft: '10px' }} 
+                                                className={classes.button}
                                             >
                                                 {otpState[device.id] ? otpState[device.id] : 'OTP 발급하기'} 
                                             </button>
                                         </div>
                                     ))
                                 ) : (
-                                    <p>등록된 키오스크가 없습니다.</p>
+                                    <p className={classes.p}>등록된 키오스크가 없습니다.</p>
                                 )}
                                 
                                 <h4 className={classes.listTitle}>등록된 카메라 목록</h4>
                                 {currentStore.devices && currentStore.devices.length > 0 ? (
                                     currentStore.devices.filter(device => device.deviceType === 'CAMERA').map((device) => (
                                         <div key={device.id} className={classes.deviceContainer}>
-                                            <p className={classes.deviceId}>카메라 ID: {device.id}</p>
+                                            <p className={classes.deviceId}><img className={classes.imgC} src="/img/cctv.png" alt="cctv"/>{device.id}번 기기</p>
                                             <button 
                                                 variant="contained" 
                                                 color="secondary" 
                                                 onClick={() => handleDeleteDevice(device.id)}
+                                                className={classes.button}
                                             >
                                                 삭제
                                             </button>
@@ -281,13 +298,14 @@ export default function Device() {
                                                 color="primary" 
                                                 onClick={() => handleOtp(device.id)} // OTP 발급 버튼
                                                 style={{ marginLeft: '10px' }}
+                                                className={classes.button}
                                             >
                                                 {otpState[device.id] ? otpState[device.id] : 'OTP 발급하기'}
                                             </button>
                                         </div>
                                     ))
                                 ) : (
-                                    <p>등록된 카메라가 없습니다.</p>
+                                    <p className={classes.p}>등록된 카메라가 없습니다.</p>
                                 )}
                             </div>
                             <div className={classes.addButtonContainer}>
@@ -296,6 +314,7 @@ export default function Device() {
                                     color="primary" 
                                     onClick={() => handleAddDevice('KIOSK')}
                                     style={{ marginRight: '10px' }}
+                                    className={classes.button}
                                 >
                                     KIOSK 추가
                                 </button>
@@ -304,6 +323,7 @@ export default function Device() {
                                     color="primary" 
                                     onClick={() => handleAddDevice('CAMERA')}
                                     style={{ marginRight: '10px' }}
+                                    className={classes.button}
                                 >
                                     CAMERA 추가
                                 </button>
@@ -312,7 +332,9 @@ export default function Device() {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <button onClick={handleClose}>닫기</button>
+                    <button 
+                    onClick={handleClose}
+                    className={classes.button}>닫기</button>
                 </DialogActions>
             </Dialog>
         </div>

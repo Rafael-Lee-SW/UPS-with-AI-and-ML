@@ -139,7 +139,7 @@ export default function Components({
           </Link>
         </button>
         <br />
-        <div className={classes.currentStoreIndex}>현재 창고</div>
+        <div className={classes.currentStoreIndex}>현재 매장</div>
         <div className={classes.warehouseDropdown}>
           <select
             className={classes.warehouseSelect}
@@ -147,7 +147,7 @@ export default function Components({
             onChange={handleStoreChange}
           >
             <option value="" disabled>
-              창고를 선택하세요
+              매장을 선택하세요
             </option>
             {cards.map((store) => (
               <option
@@ -167,7 +167,7 @@ export default function Components({
           round
           onClick={() => handleNextComponent(0)}
         >
-          창고 관리
+          매장 관리
         </Button>
         <Button
           className={classNames(classes.buttonStyle, classes.button2, {

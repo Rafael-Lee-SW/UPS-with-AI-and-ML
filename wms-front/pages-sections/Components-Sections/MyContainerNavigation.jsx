@@ -926,7 +926,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
           "적재함",
           "단(층)수",
           "유통기한",
-          "창고",
+          "매장",
         ];
 
         const formattedColumns = [
@@ -937,7 +937,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
           { name: "locationName", label: "적재함" },
           { name: "floorLevel", label: "층수" },
           { name: "expirationDate", label: "유통기한" },
-          { name: "warehouseId", label: "창고" },
+          { name: "warehouseId", label: "매장" },
         ];
 
         // Prepare the data for Handsontable
@@ -1612,7 +1612,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
                         <th className={classes.thTypeNotificationTable}>
                           {/* Different headers based on type */}
                           {selectedType === "IMPORT"
-                            ? "입고된 창고"
+                            ? "입고된 매장"
                             : selectedType === "EXPORT"
                             ? "출고 위치"
                             : "이동한 위치"}
@@ -1650,7 +1650,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
                                   {item.currentFloorLevel}층
                                 </span>
                                 <span className={classes.exportStoreTitle}>
-                                  창고 : {item.warehouseTitle}
+                                  매장 : {item.warehouseTitle}
                                 </span>
                               </div>
                             )}
@@ -1662,7 +1662,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
                                   {item.currentFloorLevel}층
                                 </span>
                                 <span className={classes.exportStoreTitle}>
-                                  창고 : {item.warehouseTitle}
+                                  매장 : {item.warehouseTitle}
                                 </span>
                               </div>
                             )}
@@ -1704,7 +1704,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
                       "수량",
                       "적재함",
                       "층수",
-                      "창고",
+                      "매장",
                       "송장번호",
                     ]
                   : detailedNotificationData[0].previousLocationName &&
@@ -1716,7 +1716,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
                       "수량",
                       "적재함",
                       "층수",
-                      "창고",
+                      "매장",
                       "이전 적재함",
                       "이전 층수",
                     ]
@@ -1727,7 +1727,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
                       "수량",
                       "적재함",
                       "층수",
-                      "창고",
+                      "매장",
                     ]
               }
               data={detailedNotificationData.map((item) => {

@@ -491,7 +491,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       if (response.ok) {
         const result = await response.json();
         console.log(result);
-        notify(`${selectedWarehouseTitle} 창고에 입고되었습니다.`);
+        notify(`${selectedWarehouseTitle} 매장에 입고되었습니다.`);
         getStoreProductAPI();
         handleNextComponent(0);
       } else {
@@ -560,7 +560,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
 
         // Prepare columns for printing
         const printColumns = [
-          { name: "warehouseName", label: "창고 이름" },
+          { name: "warehouseName", label: "매장 이름" },
           { name: "productName", label: "상품명" },
           { name: "barcode", label: "바코드" },
           { name: "quantity", label: "수량" },
@@ -688,7 +688,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
           { name: "quantity", label: "수량" },
           { name: "locationName", label: "적재함" },
           { name: "floorLevel", label: "층수" },
-          { name: "warehouseId", label: "창고" },
+          { name: "warehouseId", label: "매장" },
           { name: "originalPrice", label: "원가" },
           { name: "sellingPrice", label: "판매가" },
         ];
@@ -2078,7 +2078,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
           {isBulkMove ? (
             <>
               <FormControl fullWidth margin="normal">
-                <InputLabel>창고 선택</InputLabel>
+                <InputLabel>매장 선택</InputLabel>
                 <Select
                   value={bulkMoveDetails.warehouseId}
                   onChange={(e) =>
@@ -2159,7 +2159,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
                   {product.quantityNow}개
                 </h3>
                 <FormControl fullWidth margin="normal">
-                  <InputLabel>물건이 옮겨질 창고 선택</InputLabel>
+                  <InputLabel>물건이 옮겨질 매장 선택</InputLabel>
                   <Select
                     value={product.warehouseId}
                     onChange={(e) =>

@@ -85,7 +85,7 @@ export default function HeaderLinks(props) {
           color="transparent"
           className={classes.navLink}
         >
-          창고목록
+          매장목록
         </Button>
       </ListItem>
     </List>

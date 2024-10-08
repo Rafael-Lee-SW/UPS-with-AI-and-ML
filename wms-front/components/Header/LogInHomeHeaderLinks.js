@@ -60,7 +60,7 @@ export default function HeaderLinks(props) {
           onClick={handleWarehouseManagement} // 클릭 시 handleWarehouseManagement 함수 호출
           color="transparent"
           className={classes.navLink}>
-          창고 관리
+        매장 관리
         </Button>
       </ListItem>
       <ListItem className={classes.listItem}> {/* Correct casing */}

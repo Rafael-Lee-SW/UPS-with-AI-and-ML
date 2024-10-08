@@ -34,6 +34,7 @@ const serviceInfo3 = {
     },
     mainImg: {
         width: '100%',
+        height: '100%'
     }
 }
 
