@@ -130,7 +130,6 @@ public class FloorServiceImpl {
         return floorRepository.save(Floor.builder()
                 .floorLevel(-1)
                 .location(location)
-                .productList(new ArrayList<>())
                 .build());
     }
 }

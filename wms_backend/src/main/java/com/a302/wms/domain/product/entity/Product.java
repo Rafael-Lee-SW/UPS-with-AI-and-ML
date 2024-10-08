@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product")
-@ToString
+
 public class Product extends BaseTimeEntity {
 
   @Id
@@ -23,7 +23,7 @@ public class Product extends BaseTimeEntity {
   @Column(name = "sku")
   private String sku;
 
-  @ManyToOne
+  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JoinColumn(name = "floor_id")
   private Floor floor;
 
@@ -92,17 +92,21 @@ public class Product extends BaseTimeEntity {
     this.sku = sku;
   }
   public void updateFloor(Floor newFloor) {
-    // 기존 Floor에서 자신을 제거
-    if (this.floor != null && !this.floor.equals(newFloor)) {
-      this.floor.getProductList().remove(this);
-    }
-
-    // 새로운 Floor에 자신을 추가
     this.floor = newFloor;
-    if (newFloor != null && !newFloor.getProductList().contains(this)) {
-      newFloor.getProductList().add(this);
-    }
   }
 
-
+  @Override
+  public String toString() {
+    return "Product{"
+            +"floor.id: " + floor.getFloorId() +
+            "barcode=" + barcode +
+            ", productId=" + productId +
+            ", sku='" + sku + '\'' +
+            ", store=" + store +
+            ", quantity=" + quantity +
+            ", productName='" + productName + '\'' +
+            ", originalPrice=" + originalPrice +
+            ", sellingPrice=" + sellingPrice +
+            '}';
+  }
 }
