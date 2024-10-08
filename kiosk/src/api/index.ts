@@ -1,8 +1,18 @@
 import axios from 'axios';
 
+// API URL 설정
 const API_URL = 'https://j11a302.p.ssafy.io/api';
+let accessToken = ''; // 토큰을 저장할 변수
+let storedProducts: any[] = []; // 상품 정보를 저장할 변수
+let storeName = ''; // 스토어 이름을 저장할 변수
 
-// 상품 리스트 가져오는 함수
+// 1. 토큰을 저장하는 함수
+export function setAuthToken(token: string) {
+  accessToken = token; // 메모리 변수에 토큰 저장
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // axios 기본 헤더에 토큰 추가
+}
+
+// 2. 상품 리스트와 스토어 이름을 가져오는 함수 (토큰을 받아와 저장)
 export async function fetchProducts(deviceOtp: string): Promise<{
   valid: boolean;
   products: any[];
@@ -18,11 +28,18 @@ export async function fetchProducts(deviceOtp: string): Promise<{
 
     if (data.success) {
       // API 응답에서 accessToken과 storeName을 추가로 받아옴
-      const accessToken = data.result.accessToken;
-      const storeName = data.result.storeName;
+      const token = data.result.accessToken;
+      const storeNameFromAPI = data.result.storeName;
       const products = data.result.productResponseList || [];
 
-      return { valid: true, products, storeName, accessToken };
+      // accessToken 저장 (setAuthToken을 사용해 토큰 저장)
+      setAuthToken(token);
+
+      // 상품 정보 및 스토어 이름 저장하는 메서드 호출
+      storeProducts(products);
+      storeStoreName(storeNameFromAPI);
+
+      return { valid: true, products, storeName: storeNameFromAPI, accessToken: token };
     } else {
       return { valid: false, products: [], storeName: "", accessToken: "" };
     }
@@ -32,29 +49,77 @@ export async function fetchProducts(deviceOtp: string): Promise<{
   }
 }
 
-// RFID로 상품 정보를 가져오는 함수
-export async function fetchProductsByRFID(rfid: string): Promise<any[]> {
-  try {
-    const response = await axios.post(`${API_URL}/get-products-by-rfid`, { rfid });
-    return response.data.result;
-  } catch (error) {
-    console.error('RFID 상품 조회 실패:', error);
-    return [];
-  }
+// 3. 상품 정보를 저장하는 메서드
+function storeProducts(products: any[]) {
+  storedProducts = products; // 상품 정보를 메모리 변수에 저장
+  console.log('상품 정보가 저장되었습니다:', storedProducts);
 }
 
-// 결제 확인 함수 추가
-export async function confirmPayment(orderId: string, amount: number, paymentKey: string): Promise<{ success: boolean; message: string; }> {
+// 4. 스토어 이름을 저장하는 메서드
+function storeStoreName(name: string) {
+  storeName = name; // 스토어 이름을 메모리 변수에 저장
+  console.log('스토어 이름이 저장되었습니다:', storeName);
+}
+
+// 5. 저장된 상품 정보를 가져오는 메서드
+export function getStoredProducts(): any[] {
+  return storedProducts; // 저장된 상품 정보를 반환
+}
+
+// 6. 저장된 스토어 이름을 가져오는 메서드
+export function getStoredStoreName(): string {
+  return storeName; // 저장된 스토어 이름을 반환
+}
+
+// 7. 결제 확인 및 결제 정보 전송 함수
+export async function confirmPayment(
+  orderId: string, 
+  amount: number, 
+  paymentKey: string, 
+  payedProducts: any[]
+): Promise<{ success: boolean; message: string; }> {
   try {
+    // 결제 확인 요청
     const response = await axios.post(`${API_URL}/confirm-payment`, { orderId, amount, paymentKey });
     
     if (response.data.success) {
-      return { success: true, message: 'Payment confirmed successfully' };
+      // 결제 성공 시 백엔드로 결제 정보 전송
+      await sendPaymentDataToBackend(orderId, amount, payedProducts);
+      
+      return { success: true, message: 'Payment confirmed and data sent to backend successfully' };
     } else {
       return { success: false, message: response.data.message || 'Payment failed' };
     }
   } catch (error) {
     console.error('Payment confirmation failed:', error);
     return { success: false, message: 'Error occurred during payment confirmation' };
+  }
+}
+
+// 8. 결제 정보 백엔드로 전송하는 함수
+async function sendPaymentDataToBackend(orderId: string, totalPrice: number, payedProducts: any[]) {
+  try {
+    const response = await axios.post(
+      `${API_URL}/payments`, 
+      {
+        payedProducts: payedProducts.map((product) => ({
+          orderId: orderId,
+          barcode: product.barcode,
+          productName: product.productName,
+          quantity: product.quantity,
+          sellingPrice: product.sellingPrice,
+        })),
+        totalPrice: totalPrice
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,  // 저장된 토큰 사용
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+    console.log('Payment data sent successfully:', response.data);
+  } catch (error) {
+    console.error('Failed to send payment data:', error);
   }
 }

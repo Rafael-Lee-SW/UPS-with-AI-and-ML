@@ -1,10 +1,9 @@
-import { useRouter } from 'next/router'; // 중복된 useRouter 제거
+import { useRouter } from 'next/router'; 
 import { useEffect, useState } from 'react';
 import Confetti from 'react-confetti';
-import { useWindowSize } from "@/api/index";
+import useWindowSize from '../../hooks/useWindowSize'; // 커스텀 훅 가져오기
 import styles from './success.module.css';
 
-// Firework 함수 정의
 function firework() {
   var duration = 15 * 100;
   var animationEnd = Date.now() + duration;
@@ -40,10 +39,10 @@ function firework() {
 }
 
 export function SuccessPage() {
-  const router = useRouter(); // useRouter 한 번만 import
+  const router = useRouter();
   const { orderId, amount, paymentKey } = router.query;
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const { width, height } = useWindowSize(); // 화면 크기
+  const { width, height } = useWindowSize(); // 커스텀 훅 사용해 화면 크기 가져오기
 
   useEffect(() => {
     async function handlePaymentConfirmation() {
@@ -52,7 +51,7 @@ export function SuccessPage() {
 
         if (result.success) {
           setPaymentSuccess(true);
-          firework(); // 결제 성공 시 firework 함수 실행
+          firework(); // 결제 성공 시 폭죽 애니메이션 실행
         } else {
           router.push(`/payment/fail?message=${result.message}`);
         }

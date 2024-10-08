@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import debounce from "lodash/debounce"; // 디바운스 함수 가져오기
+import axios from "axios"; // axios 인스턴스 활용
 import styles from "./rfid.module.css";
 
 // 상품 정보 타입 정의
@@ -13,6 +14,14 @@ interface Product {
   quantity: number;
   sellingPrice: number | null;
 }
+
+// API 인스턴스 설정
+const api = axios.create({
+  baseURL: "https://j11a302.p.ssafy.io/api", // API URL
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 export default function RFIDPage() {
   const router = useRouter();
@@ -162,18 +171,22 @@ export default function RFIDPage() {
     });
   };
 
-  // 결제 페이지로 리다이렉트
-  const handlePayment = () => {
-    const query = {
-      products: JSON.stringify(products),
-      scanedProducts: encodeURIComponent(JSON.stringify(scannedProducts)),
-      totalPrice: totalPrice,
-    };
+  // 결제 페이지로 리다이렉트 - API 요청을 통해 결제 예정인 상품 전송
+  const handlePayment = async () => {
+    try {
+      const paymentData = {
+        scanedProducts: scannedProducts, // 스캔된 상품 리스트
+        totalPrice: totalPrice,
+      };
 
-    router.push({
-      pathname: "/payment/checkout",
-      query,
-    });
+      const response = await api.post("/payment/checkout", paymentData); // 결제 API 호출
+      console.log("결제 정보가 성공적으로 전송되었습니다:", response.data);
+
+      router.push("/payment/Success"); // 결제 성공 시 페이지 이동
+    } catch (error) {
+      console.error("결제 정보 전송 중 오류 발생:", error);
+      router.push("/payment/Fail"); // 결제 실패 시 페이지 이동
+    }
   };
 
   const handleCancel = () => {

@@ -21,17 +21,16 @@ export default function Home() {
     }
 
     // API 호출 및 응답 처리
-    const { valid, products, storeName, accessToken } = await fetchProducts(finalStoreId);
+    const { valid, products, storeName } = await fetchProducts(finalStoreId);
 
     if (valid) {
       console.log("불러온 제품 리스트:", products);
-      // accessToken과 storeName을 쿼리에 추가로 전달
+      // 쿼리에 storeName과 products만 전달
       router.push({
         pathname: "/select",
         query: {
           products: JSON.stringify(products),
           storeName: storeName,
-          accessToken: accessToken,
         },
       });
     } else {
