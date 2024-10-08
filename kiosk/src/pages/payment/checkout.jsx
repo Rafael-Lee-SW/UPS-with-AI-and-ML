@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
+import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import { useEffect, useState } from "react";
 
 const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
@@ -7,34 +7,43 @@ const customerKey = "EeNPZPYSwnohr7iITJk9n";
 
 export function CheckoutPage() {
   const router = useRouter();
-  const [products, setProducts] = useState([]);
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [ready, setReady] = useState(false);
+  const [products, setProducts] = useState([]); // 결제할 상품 목록
+  const [totalPrice, setTotalPrice] = useState(0); // 총 가격
+  const [ready, setReady] = useState(false); // 결제 준비 상태
   const [widgets, setWidgets] = useState(null); // TossPayments SDK의 widgets
 
   useEffect(() => {
-    if (router.query.products && router.query.totalPrice) {
-      // products 쿼리 데이터를 파싱
-      const parsedProducts = JSON.parse(
-        decodeURIComponent(router.query.products)
-      );
-      setProducts(parsedProducts);
-      setTotalPrice(Number(router.query.totalPrice));
+    if (router.query.scanedProducts && router.query.totalPrice) {
+      // 쿼리에서 받은 값 로그 출력
+      const decodedScannedProducts = decodeURIComponent(router.query.scanedProducts);
+      const decodedTotalPrice = router.query.totalPrice;
+
+      console.log("Scanned Products (decoded): ", decodedScannedProducts);
+      console.log("Total Price: ", decodedTotalPrice);
+
+      // scanedProducts 데이터를 파싱하여 상태에 저장
+      const parsedProducts = JSON.parse(decodedScannedProducts);
+      setProducts(parsedProducts); // 상품 데이터 설정
+      setTotalPrice(Number(decodedTotalPrice)); // 총 가격 설정
     }
   }, [router.query]);
 
   useEffect(() => {
+    // Toss 결제 위젯을 불러오는 함수
     async function fetchPaymentWidgets() {
       const tossPayments = await loadTossPayments(clientKey);
       const widgets = tossPayments.widgets({ customerKey });
-      setWidgets(widgets);
+      setWidgets(widgets); // 위젯 설정
     }
     fetchPaymentWidgets();
   }, []);
 
   useEffect(() => {
+    // 결제 위젯 렌더링 함수
     async function renderPaymentWidgets() {
       if (widgets == null) return;
+
+      // 결제 금액 설정
       await widgets.setAmount({ currency: "KRW", value: totalPrice });
 
       await Promise.all([
@@ -48,7 +57,7 @@ export function CheckoutPage() {
         }),
       ]);
 
-      setReady(true);
+      setReady(true); // 결제 준비 완료
     }
     renderPaymentWidgets();
   }, [widgets, totalPrice]);
@@ -76,6 +85,9 @@ export function CheckoutPage() {
           disabled={!ready}
           onClick={async () => {
             try {
+              // 결제 요청 로그
+              console.log("Requesting payment...");
+
               await widgets.requestPayment({
                 orderId: Math.random().toString(36).slice(2),
                 orderName: "총 결제 상품",
@@ -96,4 +108,5 @@ export function CheckoutPage() {
     </div>
   );
 }
+
 export default CheckoutPage;

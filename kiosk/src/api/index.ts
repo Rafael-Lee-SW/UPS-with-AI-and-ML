@@ -3,19 +3,32 @@ import axios from 'axios';
 const API_URL = 'https://j11a302.p.ssafy.io/api';
 
 // 상품 리스트 가져오는 함수
-export async function fetchProducts(storeId: string): Promise<{ valid: boolean; products: any[] }> {
+export async function fetchProducts(deviceOtp: string): Promise<{
+  valid: boolean;
+  products: any[];
+  storeName: string;
+  accessToken: string;
+}> {
   try {
-    const response = await axios.get(`${API_URL}/stores/${storeId}/products`);
+    const response = await axios.post(`${API_URL}/auths/devices/sign-in`, {
+      deviceOtp: deviceOtp,
+    });
+
     const data = response.data;
-    
+
     if (data.success) {
-      return { valid: true, products: data.result };
+      // API 응답에서 accessToken과 storeName을 추가로 받아옴
+      const accessToken = data.result.accessToken;
+      const storeName = data.result.storeName;
+      const products = data.result.productResponseList || [];
+
+      return { valid: true, products, storeName, accessToken };
     } else {
-      return { valid: false, products: [] };
+      return { valid: false, products: [], storeName: "", accessToken: "" };
     }
   } catch (error) {
-    console.error('상품 조회 API 요청 실패:', error);
-    return { valid: false, products: [] };
+    console.error("상품 조회 API 요청 실패:", error);
+    return { valid: false, products: [], storeName: "", accessToken: "" };
   }
 }
 

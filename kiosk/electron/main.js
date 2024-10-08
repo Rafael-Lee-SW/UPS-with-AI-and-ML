@@ -1,11 +1,10 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const pcsclite = require("pcsclite");
 
 app.commandLine.appendSwitch("high-dpi-support", "true");
 app.commandLine.appendSwitch("force-device-scale-factor", "1");
 let mainWindow = null;
-let pcsc = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -80,6 +79,7 @@ function connectNFCReader() {
     console.error("PCSC error:", err);
   });
 }
+
 function readSpecificBlock(reader, protocol, blockNumber) {
   const command = Buffer.from([0xff, 0xb0, 0x00, blockNumber, 0x10]); // 블록 읽기 명령어
 
@@ -100,13 +100,30 @@ function readSpecificBlock(reader, protocol, blockNumber) {
 
     console.log(`Barcode (fe00 removed): ${barcode}`);
 
+    // 바코드의 각 문자와 ASCII 코드를 확인 (디버깅용)
+    for (let i = 0; i < barcode.length; i++) {
+      console.log(`Character at ${i}: "${barcode[i]}", ASCII Code: ${barcode.charCodeAt(i)}`);
+    }
+
+    // 숫자만 남기는 정규식 적용
+    const numericBarcode = barcode.replace(/\D/g, ""); // 숫자가 아닌 모든 문자를 제거
+    console.log(`정규식으로 숫자만 추출한 바코드: "${numericBarcode}", 길이: ${numericBarcode.length}`);
+
+    // 숫자만 비교
+    if (numericBarcode === "8801043015141") {
+      console.log("바코드가 8801043015141과 정확히 일치합니다.");
+    } else {
+      console.log("바코드가 8801043015141과 일치하지 않습니다.");
+    }
+
     if (barcode) {
-      mainWindow.webContents.send("nfc-data", barcode); // 바코드 프론트엔드로 전송
+      mainWindow.webContents.send("nfc-data", numericBarcode); // 정제된 바코드를 프론트엔드로 전송
     } else {
       console.log("Barcode not found");
     }
   });
 }
+
 
 app.whenReady().then(() => {
   createWindow();

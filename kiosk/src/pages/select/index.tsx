@@ -6,14 +6,22 @@ export default function SelectMethod() {
   const router = useRouter();
   const [isDisabled, setIsDisabled] = useState(false); // 버튼 비활성화 상태 관리
   const [products, setProducts] = useState<any[]>([]); // 상품 정보 상태 관리
+  const [accessToken, setAccessToken] = useState(""); // 액세스 토큰 상태
+  const [storeName, setStoreName] = useState(""); // 스토어 이름 상태
   const [currentIndex, setCurrentIndex] = useState(0); // 현재 보여줄 이미지 인덱스
 
   const images = ["/poster1.jpg", "/poster2.png", "/poster3.png"]; // 사용할 이미지 목록
 
-  // 상품 정보를 받아옴 (이전 페이지에서 전달된 정보)
+  // 상품 정보, accessToken, storeName을 받아옴 (이전 페이지에서 전달된 정보)
   useEffect(() => {
     if (router.query.products) {
       setProducts(JSON.parse(router.query.products as string));
+    }
+    if (router.query.accessToken) {
+      setAccessToken(router.query.accessToken as string);
+    }
+    if (router.query.storeName) {
+      setStoreName(router.query.storeName as string);
     }
   }, [router.query]);
 
@@ -31,8 +39,12 @@ export default function SelectMethod() {
     setIsDisabled(true); // 버튼 비활성화
     router.push({
       pathname: "/barcode",
-      query: { products: JSON.stringify(products) },
-    }); // 바코드 페이지로 이동하며 상품 정보를 전달
+      query: {
+        products: JSON.stringify(products),
+        accessToken: accessToken,
+        storeName: storeName,
+      }, // 바코드 페이지로 상품 정보, accessToken, storeName 전달
+    });
   };
 
   // RFID 인식을 선택했을 때, 상품 정보를 RFID 페이지로 전달
@@ -40,8 +52,12 @@ export default function SelectMethod() {
     setIsDisabled(true); // 버튼 비활성화
     router.push({
       pathname: "/rfid",
-      query: { products: JSON.stringify(products) },
-    }); // RFID 페이지로 이동하며 상품 정보를 전달
+      query: {
+        products: JSON.stringify(products),
+        accessToken: accessToken,
+        storeName: storeName,
+      }, // RFID 페이지로 상품 정보, accessToken, storeName 전달
+    });
   };
 
   return (
