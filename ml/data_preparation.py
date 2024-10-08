@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import string
 import random
+from datetime import timedelta
 
 # Load the CSV file
 file_path = r'C:\Users\SSAFY\Desktop\data_ML\purchase_transactions_2022_2023.csv'
@@ -59,3 +60,13 @@ locations_df.to_csv(locations_output_file, index=False)
 
 print(f"Data has been saved to {data_output_file}")
 print(f"Locations have been saved to {locations_output_file}")
+
+# Filter to the last month
+today = data['purchase_date'].max()
+one_month_ago = today - timedelta(days=180)
+data_last_month = data[data['purchase_date'] >= one_month_ago].copy()
+
+# Save the filtered data
+data_last_month_output_file = 'prepared_sales_data_last_month.csv'
+data_last_month.to_csv(data_last_month_output_file, index=False)
+print(f"Data for the last month has been saved to {data_last_month_output_file}")
