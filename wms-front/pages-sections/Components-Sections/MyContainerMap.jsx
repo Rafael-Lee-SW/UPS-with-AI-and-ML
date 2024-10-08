@@ -598,8 +598,8 @@ const MyContainerMap = ({ storeId, businessId }) => {
 
     // API 형식에 맞게 재정의
     const structureDeleteRequest = {
-      locationDeleteList: locationDeleteList.map((id) => ({ id })),
-      wallDeleteList: wallDeleteList.map((id) => ({ id })),
+      locationDeleteList,
+      wallDeleteList,
     };
 
     console.log(structureDeleteRequest);

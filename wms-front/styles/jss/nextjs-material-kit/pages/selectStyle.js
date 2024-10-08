@@ -247,7 +247,7 @@ const selectStyle = (theme) => ({
       transformOrigin: "center",
       "&:hover": {
         transform: "scale(1.2)",
-        zIndex:"1200",
+        zIndex: "1200",
       },
       "&::before": {
         content: '""',
@@ -283,8 +283,25 @@ const selectStyle = (theme) => ({
       gap: "10px",
       zIndex: 5, // Ensure buttons appear above other elements
     },
-    actionButton: {
-      backgroundColor: "rgba(255, 255, 255, 0.8)",
+    actionButtonSee: {
+      backgroundColor: "brown",
+      flexDirection: "column",
+      "&:hover": {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        color: "#ffffff",
+      },
+    },
+    actionButtonEdit: {
+      backgroundColor: "blue",
+      flexDirection: "column",
+      "&:hover": {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        color: "#ffffff",
+      },
+    },
+    actionButtonDel: {
+      backgroundColor: "red",
+      flexDirection: "column",
       "&:hover": {
         backgroundColor: "rgba(0, 0, 0, 0.8)",
         color: "#ffffff",

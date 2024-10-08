@@ -475,37 +475,37 @@ const Select = ({ fetchedStores, ...rest }) => {
                   {clickedCardId === card.id && (
                     <div className={classes.actionButtons}>
                       <Button
+                        className={classes.actionButtonSee}
                         variant="contained"
-                        color="primary"
                         startIcon={<OpenInNewIcon />}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleGetIn(card.id);
                         }}
                       >
-                        Get In
+                        보기
                       </Button>
                       <Button
+                        className={classes.actionButtonEdit}
                         variant="contained"
-                        color="default"
                         startIcon={<EditIcon />}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEdit(card.id);
                         }}
                       >
-                        Edit
+                        수정
                       </Button>
                       <Button
+                        className={classes.actionButtonDel}
                         variant="contained"
-                        color="secondary"
                         startIcon={<DeleteIcon />}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(card.id);
                         }}
                       >
-                        Delete
+                        삭제
                       </Button>
                     </div>
                   )}
