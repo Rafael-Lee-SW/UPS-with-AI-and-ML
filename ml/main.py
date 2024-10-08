@@ -26,9 +26,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load data and models
-data = pd.read_csv('prepared_sales_data.csv', parse_dates=['purchase_date'])
+# Load the full data
+# full_data = pd.read_csv('prepared_sales_data.csv', parse_dates=['purchase_date'])
+
+# # Filter data to the last month
+# today = full_data['purchase_date'].max()
+# one_month_ago = today - timedelta(days=30)
+# data = full_data[full_data['purchase_date'] >= one_month_ago].copy()
+data = pd.read_csv('prepared_sales_data_last_month.csv', parse_dates=['purchase_date'])
+
 locations = pd.read_csv('locations.csv')
+# load the model
 lstm_model = tf.keras.models.load_model('lstm_sales_forecast_model.h5')
 lstm_scaler = joblib.load('lstm_scaler.pkl')
 rf_model = joblib.load('random_forest_sales_model.pkl')
