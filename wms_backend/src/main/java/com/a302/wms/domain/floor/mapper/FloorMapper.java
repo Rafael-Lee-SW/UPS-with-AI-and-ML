@@ -15,7 +15,7 @@ public class FloorMapper {
      */
     public static FloorResponse toResponseDto(Floor floor) {
         return FloorResponse.builder()
-            .id(floor.getId())
+            .id(floor.getFloorId())
             .locationId(floor.getLocation().getId())
             .floorLevel(floor.getFloorLevel())
             .createdDate(floor.getCreatedDate())
