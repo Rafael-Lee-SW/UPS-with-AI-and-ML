@@ -87,11 +87,11 @@ export default function HeaderLinks(props) {
               color="transparent"
               className={classes.navLink}
             >
-              창고관리
+              매장관리
             </Button>
           </ListItem>
         </>
-      ) : isLoggedIn && isMypage ? (  // 마이페이지일 때 로그아웃과 창고관리 링크만 표시
+      ) : isLoggedIn && isMypage ? (  
         <>
           <ListItem className={classes.listItem}>
             <Button

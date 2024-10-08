@@ -1966,12 +1966,12 @@ const MyContainerMap = ({ storeId, businessId }) => {
           }}
         >
           <div className={classes.paper}>
-            <h2>새 창고 정보 입력</h2>
+            <h2>새 매장 정보 입력</h2>
             <form onSubmit={handleSubmit}>
               <TextField
                 className={classes.formControl}
                 name="containerName"
-                label="창고 이름"
+                label="매장 이름"
                 fullWidth
                 variant="outlined"
                 value={formData.containerName}
@@ -1980,7 +1980,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
               <TextField
                 className={classes.formControl}
                 name="containerXSize"
-                label="창고 가로 크기"
+                label="매장 가로 크기"
                 fullWidth
                 variant="outlined"
                 value={formData.containerXSize}
@@ -1989,7 +1989,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
               <TextField
                 className={classes.formControl}
                 name="containerYSize"
-                label="창고 세로 크기"
+                label="매장 세로 크기"
                 fullWidth
                 variant="outlined"
                 value={formData.containerYSize}

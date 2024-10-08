@@ -132,7 +132,7 @@ const Select = ({ fetchedStores, ...rest }) => {
       const totalWidth = column * locationX;
       const totalHeight = row * locationY;
       if (totalWidth > containerSize || totalHeight > containerSize) {
-        errors.locations = "적재함이 창고 크기를 초과합니다.";
+        errors.locations = "적재함이 매장 크기를 초과합니다.";
       }
     }
 
@@ -622,7 +622,7 @@ const Select = ({ fetchedStores, ...rest }) => {
                     error={Boolean(validationErrors.locations)}
                     helperText={
                       validationErrors.locations ||
-                      "적재함 크기와 개수가 창고 크기를 초과할 수 없습니다."
+                      "적재함 크기와 개수가 매장 크기를 초과할 수 없습니다."
                     }
                     FormHelperTextProps={{
                       style: {
@@ -659,7 +659,7 @@ const Select = ({ fetchedStores, ...rest }) => {
                       <FormControlLabel
                         value="WAREHOUSE"
                         control={<Radio />}
-                        label="무인창고"
+                        label="무인매장"
                       />
                     </RadioGroup>
                   </FormControl>
