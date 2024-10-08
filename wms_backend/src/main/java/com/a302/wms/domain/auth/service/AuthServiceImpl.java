@@ -86,9 +86,9 @@ public class AuthServiceImpl {
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new CommonException(ResponseEnum.INVALID_SIGNIN, null));
         UserResponse userResponse = UserMapper.toUserResponse(user);
 
-//        if (!passwordEncoder.matches(signInRequest.password(), user.getPassword())) {
-//            throw new CommonException(ResponseEnum.INVALID_SIGNIN, null);
-//        }
+        if (!passwordEncoder.matches(signInRequest.password(), user.getPassword())) {
+            throw new CommonException(ResponseEnum.INVALID_SIGNIN, null);
+        }
 
         return AuthMapper.fromUserToken(createToken(TokenRoleTypeEnum.USER, user.getId()), userResponse);
     }

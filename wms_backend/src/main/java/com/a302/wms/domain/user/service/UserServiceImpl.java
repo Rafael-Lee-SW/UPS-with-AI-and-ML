@@ -7,7 +7,6 @@ import com.a302.wms.domain.user.dto.UserUpdateRequest;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.mapper.UserMapper;
 import com.a302.wms.domain.user.repository.UserRepository;
-import com.a302.wms.domain.util.PasswordUtil;
 import com.a302.wms.global.constant.ResponseEnum;
 import com.a302.wms.global.constant.SocialLoginTypeEnum;
 import com.a302.wms.global.handler.CommonException;
@@ -76,14 +75,11 @@ public class UserServiceImpl {
      */
     public void updatePassword(Long userId, UserPasswordUpdateRequest userPasswordUpdateRequest) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-        String hashedCurrentPassword = PasswordUtil.hashPassword(userPasswordUpdateRequest.currentPassword());
-        if (!user.getPassword().equals(hashedCurrentPassword)) {
-//        if (!passwordEncoder.matches(userPasswordUpdateRequest.currentPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("현재 비밀번호가 올바르지 않습니다.");
+                .orElseThrow(() -> new CommonException(ResponseEnum.USER_NOT_FOUND, "존재하지 않는 사용자입니다."));
+        if (!passwordEncoder.matches(userPasswordUpdateRequest.currentPassword(), user.getPassword())) {
+            throw new CommonException(ResponseEnum.INVALID_SIGNIN, "현재 비밀번호가 올바르지 않습니다.");
         }
         String encodedPassword = passwordEncoder.encode(userPasswordUpdateRequest.newPassword());
-
         user.setPassword(encodedPassword);
         userRepository.save(user);
         log.info("사용자의 비밀번호가 성공적으로 변경되었습니다.");
