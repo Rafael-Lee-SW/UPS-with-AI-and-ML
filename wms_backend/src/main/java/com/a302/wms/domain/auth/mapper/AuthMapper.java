@@ -19,11 +19,12 @@ public class AuthMapper {
                 .build();
     }
 
-    public static DeviceSignInResponse fromDeviceToken(String deviceToken, DeviceResponse deviceResponse, List<ProductResponse> productResponseList) {
+    public static DeviceSignInResponse fromDeviceToken(String deviceToken, DeviceResponse deviceResponse, List<ProductResponse> productResponseList, String storeName) {
         return DeviceSignInResponse.builder()
                 .accessToken(deviceToken)
                 .deviceResponse(deviceResponse)
                 .productResponseList(productResponseList)
+                .storeName(storeName)
                 .build();
     }
 }

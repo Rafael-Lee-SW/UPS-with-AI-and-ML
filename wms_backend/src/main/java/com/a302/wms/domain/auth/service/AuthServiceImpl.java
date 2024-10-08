@@ -70,8 +70,9 @@ public class AuthServiceImpl {
                     .map(ProductMapper::toProductResponse)
                     .toList();
 
-            return AuthMapper.fromDeviceToken(createToken(roleType, deviceId), deviceResponse, productResponseList);
-        } else return AuthMapper.fromDeviceToken(createToken(roleType, deviceId), deviceResponse, null);
+            return AuthMapper.fromDeviceToken(createToken(roleType, deviceId), deviceResponse, productResponseList, device.getStore().getStoreName());
+        } else
+            return AuthMapper.fromDeviceToken(createToken(roleType, deviceId), deviceResponse, null, device.getStore().getStoreName());
     }
 
     /**
