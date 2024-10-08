@@ -14,14 +14,12 @@ export function CheckoutPage() {
 
   useEffect(() => {
     if (router.query.scanedProducts && router.query.totalPrice) {
-      // 쿼리에서 받은 값 로그 출력
       const decodedScannedProducts = decodeURIComponent(router.query.scanedProducts);
       const decodedTotalPrice = router.query.totalPrice;
 
       console.log("Scanned Products (decoded): ", decodedScannedProducts);
       console.log("Total Price: ", decodedTotalPrice);
 
-      // scanedProducts 데이터를 파싱하여 상태에 저장
       const parsedProducts = JSON.parse(decodedScannedProducts);
       setProducts(parsedProducts); // 상품 데이터 설정
       setTotalPrice(Number(decodedTotalPrice)); // 총 가격 설정
@@ -29,7 +27,6 @@ export function CheckoutPage() {
   }, [router.query]);
 
   useEffect(() => {
-    // Toss 결제 위젯을 불러오는 함수
     async function fetchPaymentWidgets() {
       const tossPayments = await loadTossPayments(clientKey);
       const widgets = tossPayments.widgets({ customerKey });
@@ -39,7 +36,6 @@ export function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    // 결제 위젯 렌더링 함수
     async function renderPaymentWidgets() {
       if (widgets == null) return;
 
@@ -76,7 +72,6 @@ export function CheckoutPage() {
           ))}
         </ul>
 
-        {/* 결제 UI */}
         <div id="payment-method" />
         <div id="agreement" />
 
@@ -85,14 +80,15 @@ export function CheckoutPage() {
           disabled={!ready}
           onClick={async () => {
             try {
-              // 결제 요청 로그
               console.log("Requesting payment...");
+
+              const encodedProducts = encodeURIComponent(JSON.stringify(products));
 
               await widgets.requestPayment({
                 orderId: Math.random().toString(36).slice(2),
                 orderName: "총 결제 상품",
-                successUrl: window.location.origin + "/payment/Success",
-                failUrl: window.location.origin + "/payment/Fail",
+                successUrl: `${window.location.origin}/payment/success?products=${encodedProducts}&totalPrice=${totalPrice}`,
+                failUrl: window.location.origin + "/payment/fail",
                 customerEmail: "customer@example.com",
                 customerName: "고객명",
                 customerMobilePhone: "01012345678",

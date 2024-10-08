@@ -172,21 +172,17 @@ export default function RFIDPage() {
   };
 
   // 결제 페이지로 리다이렉트 - API 요청을 통해 결제 예정인 상품 전송
-  const handlePayment = async () => {
-    try {
-      const paymentData = {
-        scanedProducts: scannedProducts, // 스캔된 상품 리스트
-        totalPrice: totalPrice,
-      };
+  const handlePayment = () => {
+    const query = {
+      products: JSON.stringify(products),
+      scanedProducts: encodeURIComponent(JSON.stringify(scannedProducts)),
+      totalPrice: totalPrice,
+    };
 
-      const response = await api.post("/payment/checkout", paymentData); // 결제 API 호출
-      console.log("결제 정보가 성공적으로 전송되었습니다:", response.data);
-
-      router.push("/payment/Success"); // 결제 성공 시 페이지 이동
-    } catch (error) {
-      console.error("결제 정보 전송 중 오류 발생:", error);
-      router.push("/payment/Fail"); // 결제 실패 시 페이지 이동
-    }
+    router.push({
+      pathname: "/payment/checkout",
+      query,
+    });
   };
 
   const handleCancel = () => {

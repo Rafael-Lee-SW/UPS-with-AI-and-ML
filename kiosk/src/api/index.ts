@@ -71,45 +71,24 @@ export function getStoredStoreName(): string {
   return storeName; // 저장된 스토어 이름을 반환
 }
 
-// 7. 결제 확인 및 결제 정보 전송 함수
-export async function confirmPayment(
+// 7. 결제 정보 백엔드로 전송하는 함수
+export async function sendPaymentDataToBackend(
   orderId: string, 
-  amount: number, 
-  paymentKey: string, 
+  totalPrice: number, 
   payedProducts: any[]
-): Promise<{ success: boolean; message: string; }> {
-  try {
-    // 결제 확인 요청
-    const response = await axios.post(`${API_URL}/confirm-payment`, { orderId, amount, paymentKey });
-    
-    if (response.data.success) {
-      // 결제 성공 시 백엔드로 결제 정보 전송
-      await sendPaymentDataToBackend(orderId, amount, payedProducts);
-      
-      return { success: true, message: 'Payment confirmed and data sent to backend successfully' };
-    } else {
-      return { success: false, message: response.data.message || 'Payment failed' };
-    }
-  } catch (error) {
-    console.error('Payment confirmation failed:', error);
-    return { success: false, message: 'Error occurred during payment confirmation' };
-  }
-}
-
-// 8. 결제 정보 백엔드로 전송하는 함수
-async function sendPaymentDataToBackend(orderId: string, totalPrice: number, payedProducts: any[]) {
+): Promise<void> {
   try {
     const response = await axios.post(
       `${API_URL}/payments`, 
       {
-        payedProducts: payedProducts.map((product) => ({
-          orderId: orderId,
+        paymentCreateRequestList: payedProducts.map((product) => ({
           barcode: product.barcode,
           productName: product.productName,
           quantity: product.quantity,
           sellingPrice: product.sellingPrice,
         })),
-        totalPrice: totalPrice
+        orderId: orderId,
+        totalPrice: totalPrice // 총 결제 금액
       },
       {
         headers: {
