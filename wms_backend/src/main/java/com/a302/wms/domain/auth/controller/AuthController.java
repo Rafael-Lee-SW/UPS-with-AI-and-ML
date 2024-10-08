@@ -43,7 +43,7 @@ public class AuthController {
      * @param deviceOtpSingInRequest
      * @return
      */
-    @GetMapping("/devices/sign-in")
+    @PostMapping("/devices/sign-in")
     public BaseSuccessResponse<DeviceSignInResponse> deviceSignIn(
             @RequestBody DeviceSignInRequest deviceOtpSingInRequest
     ) {
