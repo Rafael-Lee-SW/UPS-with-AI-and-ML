@@ -7,6 +7,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
+import joblib
 
 # Load prepared data
 data = pd.read_csv('prepared_sales_data.csv', parse_dates=['purchase_date'])
@@ -36,17 +37,23 @@ def prepare_product_data(product_code, data, target_column, seq_length):
     return X_train, X_test, y_train, y_test, scaler
 
 # Parameters
-SEQ_LENGTH = 30
-TARGET_COLUMN = 'price'  # Change to 'sales_unit' for units prediction
+SEQ_LENGTH = 7  # Since we need last week's data
+TARGET_COLUMN = 'price'  # Target is price
 
-# Get unique product codes
+# Prepare data for all products
 product_codes = data['product_code'].unique()
+all_X_train, all_y_train = [], []
 
-# We'll demonstrate with the top-selling product
-top_product_code = data.groupby('product_code')['price'].sum().idxmax()
+for product_code in product_codes:
+    X_train, X_test, y_train, y_test, scaler = prepare_product_data(product_code, data, TARGET_COLUMN, SEQ_LENGTH)
+    if len(X_train) == 0:
+        continue
+    all_X_train.append(X_train)
+    all_y_train.append(y_train)
 
-# Prepare data for the top product
-X_train, X_test, y_train, y_test, scaler = prepare_product_data(top_product_code, data, TARGET_COLUMN, SEQ_LENGTH)
+# Concatenate all data
+X_train = np.concatenate(all_X_train, axis=0)
+y_train = np.concatenate(all_y_train, axis=0)
 
 # Build LSTM model
 model = Sequential()
@@ -59,21 +66,9 @@ history = model.fit(
     X_train, y_train,
     epochs=20,
     batch_size=32,
-    validation_data=(X_test, y_test)
+    validation_split=0.1
 )
 
-# Evaluate the model
-y_pred = model.predict(X_test)
-y_test_inv = scaler.inverse_transform(y_test)
-y_pred_inv = scaler.inverse_transform(y_pred)
-
-mse = mean_squared_error(y_test_inv, y_pred_inv)
-rmse = np.sqrt(mse)
-mean_actual = np.mean(y_test_inv)
-accuracy = 100 - (rmse / mean_actual) * 100
-
-print(f"LSTM Model MSE: {mse}")
-print(f"LSTM Model Accuracy: {accuracy:.2f}%")
-
-# Save the model
+# Save the model and scaler
 model.save('lstm_sales_forecast_model.h5')
+joblib.dump(scaler, 'lstm_scaler.pkl')
