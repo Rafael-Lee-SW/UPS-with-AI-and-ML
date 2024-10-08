@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @NoArgsConstructor
@@ -22,20 +20,28 @@ public class Payment extends BaseTimeEntity {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
-    @Column(name = "paid_amount", nullable = false)
-    private Long paidAmount;
+    @Column(name = "order_id", nullable = false)
+    private String orderId;
 
-    @Column(name = "total_amount", nullable = false)
-    private Long totalAmount;
+    @Column(name = "product_name")
+    private String productName;
 
-    @Column(name = "paid_at", nullable = false)
-    private LocalDateTime paidAt;
+    @Column(name = "barcode")
+    private Long barcode;
+
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
+
+    @Column(name = "selling_price", nullable = false)
+    private Long sellingPrice;
 
     @Builder
-    public Payment(Store store, Long paidAmount, Long totalAmount, LocalDateTime paidAt) {
+    public Payment(Store store, String orderId, Long barcode, Integer quantity, Long sellingPrice, String productName) {
         this.store = store;
-        this.paidAmount = paidAmount;
-        this.totalAmount = totalAmount;
-        this.paidAt = paidAt;
+        this.orderId = orderId;
+        this.barcode = barcode;
+        this.quantity = quantity;
+        this.sellingPrice = sellingPrice;
+        this.productName = productName;
     }
 }
