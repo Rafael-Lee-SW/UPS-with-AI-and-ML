@@ -25,7 +25,6 @@ import com.a302.wms.domain.structure.dto.wall.WallResponse;
 import com.a302.wms.domain.structure.entity.Location;
 import com.a302.wms.domain.structure.mapper.LocationMapper;
 import com.a302.wms.domain.structure.mapper.WallMapper;
-import com.a302.wms.domain.structure.repository.LocationRepository;
 import com.a302.wms.domain.structure.service.LocationServiceImpl;
 import com.a302.wms.domain.structure.service.StructureServiceImpl;
 import com.a302.wms.domain.user.entity.User;
@@ -38,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -51,8 +51,6 @@ public class StoreServiceImpl {
     private final ProductRepository productRepository;
     private final StructureServiceImpl structureService;
     private final LocationServiceImpl locationServiceImpl;
-    private final LocationRepository locationRepository;
-    private final FloorServiceImpl floorServiceImpl;
 
 
     /**
@@ -74,7 +72,7 @@ public class StoreServiceImpl {
 
         // 디폴트 로케이션 추가
         Location location = locationServiceImpl.saveDefaultLocation(savedStore);
-        Floor floor = floorServiceImpl.saveDefaultFloor(location);
+        Floor floor = floorService.saveDefaultFloor(location);
         log.info("{}", response);
 
         return response;
@@ -90,8 +88,8 @@ public class StoreServiceImpl {
     public StoreResponse update(Long userId, StoreUpdateRequest storeUpdateRequest) {
         log.info("[Service] update store {}", storeUpdateRequest);
         User user = userRepository.findById(userId).orElseThrow();
-        Store store = storeRepository.findById(storeUpdateRequest.storeId()).orElseThrow();
-//        if(store.getUser().getId()!= user.getId()) throw
+        Store store = storeRepository.findById(storeUpdateRequest.storeId()).orElseThrow(() -> new CommonException(ResponseEnum.STORE_NOT_FOUND, "해당 매장을 찾을 수 없습니다."));
+
 
         store.update(storeUpdateRequest);
         Store updatedStore = storeRepository.save(store);
@@ -135,10 +133,9 @@ public class StoreServiceImpl {
     @Transactional
     public StoreDetailResponse findStoreDetailedInfo(Long userId, Long storeId) {
         log.info("[Service] find store:");
-
-        Store store = storeRepository.findById(storeId).orElseThrow();
-//        if(store.getUser().getId()!=userId) throw
-
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new CommonException(ResponseEnum.STORE_NOT_FOUND, "해당 매장을 찾을 수 없습니다."));
+        if (!Objects.equals(store.getUser().getId(), userId))
+            throw new CommonException(ResponseEnum.BAD_REQUEST, "매장에 대한 권한이 없습니다.");
         List<LocationResponse> locationList = store.getLocations().stream()
                 .map(location ->
                         LocationMapper.toLocationResponseDto(location, getMaxFloorCapacity(location))
@@ -159,7 +156,9 @@ public class StoreServiceImpl {
     @Transactional
     public void delete(Long userId, Long storeId) {
         log.info("[Service] delete store by id");
-        Store store = storeRepository.findById(storeId).orElseThrow();
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new CommonException(ResponseEnum.STORE_NOT_FOUND, "해당 매장을 찾을 수 없습니다."));
+        if (!Objects.equals(store.getUser().getId(), userId))
+            throw new CommonException(ResponseEnum.BAD_REQUEST, "매장에 대한 권한이 없습니다.");
         storeRepository.delete(store);
     }
 
@@ -185,12 +184,11 @@ public class StoreServiceImpl {
      * @param storeId
      * @param structureUpdateRequest
      */
-    public void updateStructure(Long userId, Long storeId, StructureUpdateRequest structureUpdateRequest) {
+    public StoreDetailResponse updateStructure(Long userId, Long storeId, StructureUpdateRequest structureUpdateRequest) {
         log.info("[Service] update store structure");
         Store store = storeRepository.findById(storeId).orElseThrow();
 
-        structureService.updateStructure(userId, storeId, structureUpdateRequest);
-        Store savedStore = storeRepository.save(store);
+        return structureService.updateStructure(userId, storeId, structureUpdateRequest);
     }
 
     /**
@@ -216,10 +214,10 @@ public class StoreServiceImpl {
     public void saveAllLocations(Long userId, LocationListCreateRequest locationListCreateRequest) {
         log.info("[Service] save all location");
         User user = userRepository.findById(userId).orElseThrow();
-        Store store = storeRepository.findById(locationListCreateRequest.getStoreId()).orElseThrow();
-//        if(store.getUser().getId()!=user.getId()) throw
+        Store store = storeRepository.findById(locationListCreateRequest.storeId()).orElseThrow(() -> new CommonException(ResponseEnum.STORE_NOT_FOUND, "해당 매장을 찾을 수 없습니다."));
 
-        structureService.saveAllLocations(userId, locationListCreateRequest.getStoreId(), locationListCreateRequest.getRequests());
+
+        structureService.saveAllLocations(userId, locationListCreateRequest.storeId(), locationListCreateRequest.requests());
     }
 
     /**
@@ -229,7 +227,11 @@ public class StoreServiceImpl {
      */
     public void saveAllWall(Long userId, WallListCreateRequest wallListCreateRequest) {
         log.info("[Service] save all walls by storeId");
-        Store store = storeRepository.findById(wallListCreateRequest.storeId()).orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(ResponseEnum.USER_NOT_FOUND, "일치하는 사용자를 찾을 수 없습니다."));
+        Store store = storeRepository.findById(wallListCreateRequest.storeId()).orElseThrow(() -> new CommonException(ResponseEnum.STORE_NOT_FOUND, "해당 매장을 찾을 수 없습니다."));
+        if (!Objects.equals(store.getUser().getId(), user.getId()))
+            throw new CommonException(ResponseEnum.BAD_REQUEST, "해당 매장에 대한 권한이 없습니다.");
+
         structureService.saveAllWalls(userId, wallListCreateRequest.storeId(), wallListCreateRequest.wallCreateDtos());
     }
 
