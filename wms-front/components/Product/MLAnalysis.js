@@ -95,7 +95,7 @@ const MLAnalysis = () => {
     try {
       // Fetch last week's sales data
       const salesResponse = await fetch(
-        `http://127.0.0.1:8000/ml/sales/last_week/${productCode}`
+        `https://j11a302.p.ssafy.io/ml/sales/last_week/${productCode}`
       );
       if (salesResponse.ok) {
         const salesData = await salesResponse.json();
@@ -106,7 +106,7 @@ const MLAnalysis = () => {
 
       // Fetch forecasted sales data
       const forecastResponse = await fetch(
-        `http://127.0.0.1:8000/ml/sales/forecast/${productCode}`
+        `https://j11a302.p.ssafy.io/ml/sales/forecast/${productCode}`
       );
       if (forecastResponse.ok) {
         const forecastData = await forecastResponse.json();
@@ -117,7 +117,7 @@ const MLAnalysis = () => {
 
       // Fetch related products
       const relatedResponse = await fetch(
-        `http://127.0.0.1:8000/ml/products/related/${productCode}`
+        `https://j11a302.p.ssafy.io/ml/products/related/${productCode}`
       );
       if (relatedResponse.ok) {
         const relatedData = await relatedResponse.json();
@@ -129,7 +129,7 @@ const MLAnalysis = () => {
       // Fetch product information (you can create an endpoint or extract from data)
       // For now, let's assume we have a way to get the product description
       const productInfoResponse = await fetch(
-        `http://127.0.0.1:8000/ml/products/info/${productCode}`
+        `https://j11a302.p.ssafy.io/ml/products/info/${productCode}`
       );
       if (productInfoResponse.ok) {
         const productInfo = await productInfoResponse.json();
@@ -158,7 +158,7 @@ const MLAnalysis = () => {
       try {
         // Fetch top products last week
         const topLastWeekResponse = await fetch(
-          "http://127.0.0.1:8000/ml/report/top_products/last_week"
+          "https://j11a302.p.ssafy.io/ml/report/top_products/last_week"
         );
         if (topLastWeekResponse.ok) {
           const topLastWeekData = await topLastWeekResponse.json();
@@ -169,7 +169,7 @@ const MLAnalysis = () => {
 
         // Fetch top forecasted products
         const topForecastResponse = await fetch(
-          "http://127.0.0.1:8000/ml/report/top_products/forecast"
+          "https://j11a302.p.ssafy.io/ml/report/top_products/forecast"
         );
         if (topForecastResponse.ok) {
           const topForecastData = await topForecastResponse.json();
@@ -180,7 +180,7 @@ const MLAnalysis = () => {
 
         // Fetch customer preferences
         const customerPreferencesResponse = await fetch(
-          "http://127.0.0.1:8000/ml/report/customer_preferences"
+          "https://j11a302.p.ssafy.io/ml/report/customer_preferences"
         );
         if (customerPreferencesResponse.ok) {
           const customerPreferencesData = await customerPreferencesResponse.json();
@@ -191,7 +191,7 @@ const MLAnalysis = () => {
 
         // Fetch product placement recommendations
         const productPlacementResponse = await fetch(
-          "http://127.0.0.1:8000/ml/report/product_placement"
+          "https://j11a302.p.ssafy.io/ml/report/product_placement"
         );
         if (productPlacementResponse.ok) {
           const productPlacementData = await productPlacementResponse.json();
