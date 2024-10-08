@@ -76,6 +76,11 @@ public enum ResponseEnum {
     SUBSCRIPTION_NOT_FOUND(false, 11000, HttpStatus.BAD_REQUEST.value(), "구독 정보를 찾을수 없습니다."),
     SUBSCRIPTION_DELETED(false, 11001, HttpStatus.BAD_REQUEST.value(), "삭제된 구독정보 입니다."),
 
+
+    //Payment 오류
+    INVALID_PAYMENT(false, 12000, HttpStatus.BAD_REQUEST.value(), "결제 정보가 올바르지 않습니다."),
+    PAYMENT_NOT_FOUND(false, 12001, HttpStatus.BAD_REQUEST.value(), "해당 결제 정보를 찾을 수 없습니다."),
+
     //Camera 오류
     CAMERA_NOT_FOUND(false, 12000, HttpStatus.BAD_REQUEST.value(), "CCTV를 찾을 수 없습니다.");
     private final boolean success;  //성공여부
