@@ -1,6 +1,6 @@
 package com.a302.wms.domain.payment.controller;
 
-import com.a302.wms.domain.payment.dto.PaymentCreateRequest;
+import com.a302.wms.domain.payment.dto.OrderCreateRequest;
 import com.a302.wms.domain.payment.dto.PaymentResponse;
 import com.a302.wms.domain.payment.service.PaymentServiceImpl;
 import com.a302.wms.global.response.BaseSuccessResponse;
@@ -30,9 +30,9 @@ public class PaymentController {
      */
     @PostMapping
     @Operation(summary = "새 결제내역 생성")
-    public BaseSuccessResponse<PaymentResponse> save(
+    public BaseSuccessResponse<List<PaymentResponse>> save(
             @AuthenticationPrincipal Long deviceId,
-            @RequestBody PaymentCreateRequest dto
+            @RequestBody OrderCreateRequest dto
     ) {
         log.info("[Controller] save payment for device in store: {}", deviceId);
         return new BaseSuccessResponse<>(paymentService.save(deviceId, dto));

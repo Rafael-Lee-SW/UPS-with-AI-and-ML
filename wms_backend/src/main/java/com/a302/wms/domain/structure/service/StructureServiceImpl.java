@@ -93,6 +93,10 @@ public class StructureServiceImpl {
     protected void saveLocations(Store store, List<LocationCreateRequest> locationCreateRequestList) {
         List<Location> locationList = locationCreateRequestList.stream()
                 .map(locationCreateRequest -> LocationMapper.fromLocationRequestDto(locationCreateRequest, store))
+                .map(location -> {
+                    floorService.saveDefaultFloor(location);
+                    return location;
+                })
                 .toList();
         store.getLocations().addAll(locationList);
         locationRepository.saveAll(locationList);

@@ -14,8 +14,11 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query(value = "SELECT p FROM Payment p " +
             "WHERE p.store = :storeId " +
-            "AND p.paidAt " +
+            "AND p.createdDate " +
             "BETWEEN :startDateTime and :endDateTime " +
-            "ORDER BY p.paidAt DESC")
+            "ORDER BY p.createdDate DESC")
     List<Payment> findPaymentsByStoreIdAndPaidAtBetween(@Param("storeId") Long storeId, LocalDateTime startDateTime, LocalDateTime endDateTime);
+
+
+    List<Payment> findPaymentsByOrderId(String orderId);
 }
