@@ -20,7 +20,7 @@ const useStyles = makeStyles(() => ({
     textAlign: 'center',
   },
   card: {
-    border: "1px solid #7D4A1A",
+    border: "1px solid #459ab6",
     maxWidth: '400px',
     marginLeft: '60px'
   },
@@ -50,15 +50,21 @@ const useStyles = makeStyles(() => ({
     minWidth: '100px',
     flex: 1,
     '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#7d4a1a', 
+      borderColor: '#459ab6', 
     },
     '& .MuiInputLabel-root.Mui-focused': {
-      color: '#7d4a1a', 
+      color: '#459ab6', 
     },
   },
   button: {
+    border: '1px solid #ccc',
     margin: '8px',
     height: '56px',
+    '&hover': {
+      transform: 'scale(1.05)',
+      color: 'black',
+      border: "1px solid #9baab1"
+    }
   },
   buttonSmall: {
     margin: '8px',
@@ -75,7 +81,7 @@ const useStyles = makeStyles(() => ({
   divider: {
     height: '1px',
     width: '100px',
-    backgroundColor: '#7d4a1a',
+    backgroundColor: '#459ab6',
     margin: 0
   },
   dividerText: {
@@ -224,6 +230,7 @@ export default function SignUp() {
         
         if (certificationResponse.data.httpStatus === 200) {
           setCertificationMessage('인증번호 발송에 성공하였습니다.');
+          setIsCertificationSuccess(true);
           setIsCertificationButtonEnabled(true);
           setTimer(180); 
         } else {
@@ -311,7 +318,7 @@ export default function SignUp() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
-                  <Button variant="contained" style={{ backgroundColor: "#7D4A1A", color: "white" }} onClick={handleEmailCheck} className={classes.button}>
+                  <Button variant="contained" style={{ backgroundColor: "#e6f4fa", color: "black" }} onClick={handleEmailCheck} className={classes.button}>
                     이메일 인증
                   </Button>
                 </div>
@@ -332,8 +339,8 @@ export default function SignUp() {
                   <Button
                     variant="contained"
                     style={{
-                      backgroundColor: isEmailValid ? "#7D4A1A" : "#c0c0c0",
-                      color: "white",
+                      backgroundColor: isEmailValid ? "#e6f4fa" : "#c0c0c0",
+                      color: "black",
                     }} 
                     onClick={handleSendCertificationEmail}
                     className={classes.button}
@@ -346,8 +353,8 @@ export default function SignUp() {
                   <Button
                     variant="contained"
                     style={{
-                      backgroundColor: isCertificationButtonEnabled ? "#7D4A1A" : "#c0c0c0",
-                      color: "white"
+                      backgroundColor: isCertificationButtonEnabled ? "#e6f4fa" : "#c0c0c0",
+                      color: "black"
                     }} 
                     onClick={handleCertification}
                     className={classes.buttonSmall}
@@ -403,8 +410,8 @@ export default function SignUp() {
                   color="primary"
                   className={classes.buttonSmall}
                   style={{
-                    backgroundColor: isFormValid && isEmailValid ? "#7D4A1A" : "#c0c0c0",
-                    color: "white",
+                    backgroundColor: isFormValid && isEmailValid ? "#e6f4fa" : "#c0c0c0",
+                    color: "black",
                     marginTop: '20px'
                   }} 
                   disabled={!isFormValid || !isEmailValid}
