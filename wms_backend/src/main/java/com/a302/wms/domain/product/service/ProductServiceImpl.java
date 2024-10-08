@@ -1,5 +1,6 @@
 package com.a302.wms.domain.product.service;
 
+
 import com.a302.wms.domain.device.repository.DeviceRepository;
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.repository.FloorRepository;
@@ -16,17 +17,21 @@ import com.a302.wms.domain.product.mapper.ProductMapper;
 import com.a302.wms.domain.product.repository.ProductRepository;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.store.repository.StoreRepository;
+import com.a302.wms.domain.structure.repository.LocationRepository;
+import com.a302.wms.domain.structure.service.LocationServiceImpl;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.repository.UserRepository;
 import com.a302.wms.domain.user.service.UserServiceImpl;
 import com.a302.wms.global.constant.NotificationTypeEnum;
 import com.a302.wms.global.constant.ProductFlowTypeEnum;
+import com.a302.wms.global.constant.ResponseEnum;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -43,6 +48,9 @@ public class ProductServiceImpl {
   private final NotificationServiceImpl notificationServiceImpl;
   private final UserServiceImpl userServiceImpl;
   private final UserRepository userRepository;
+  private final LocationServiceImpl locationServiceImpl;
+  private final LocationRepository locationRepository;
+  private final LocalContainerEntityManagerFactoryBean entityManagerFactory;
 
   /**
    * 특정 유저의 모든 상품 호출
@@ -86,6 +94,7 @@ public class ProductServiceImpl {
    *
    * @param productUpdateRequest 수정할 상품 정보
    */
+  @Transactional
   public void update(ProductUpdateRequest productUpdateRequest) {
     log.info("[Service] update Product by productId ");
     try {
@@ -97,6 +106,8 @@ public class ProductServiceImpl {
       updateIfValid(productUpdateRequest.quantity(), product::updateQuantity);
       updateIfValid(productUpdateRequest.originalPrice(), product::updateOriginalPrice);
       updateIfValid(productUpdateRequest.sellingPrice(), product::updateSellingPrice);
+      log.info("[Service] update Product : {}, DTO : {}",product.getSku(),productUpdateRequest.toString());
+      productRepository.save(product);
     } catch (IllegalArgumentException e) {
       throw new ProductInvalidRequestException("productUpdateRequestDto", productUpdateRequest);
     }
@@ -128,17 +139,17 @@ public class ProductServiceImpl {
    * @return 유효하면 true / 아니면 false
    */
   public <T> boolean isValid(T value) {
-    if (value == null) {
-      return false;
-    }
-
-    if (value instanceof String) {
-      return !((String) value).isBlank();
-    }
-
-    if (value instanceof LocalDateTime) {
-      return !((LocalDateTime) value).isAfter(LocalDateTime.now());
-    }
+//    if (value == null) {
+//      return false;
+//    }
+//
+//    if (value instanceof String) {
+//      return !((String) value).isBlank();
+//    }
+//
+//    if (value instanceof LocalDateTime) {
+//      return !((LocalDateTime) value).isAfter(LocalDateTime.now());
+//    }
     return true;
   }
 
@@ -168,6 +179,32 @@ public class ProductServiceImpl {
       moveProduct(request);
     }
   }
+  @Transactional
+  public void swapProducts(ProductMoveRequest productMoveRequest) {
+    Product productX = productRepository.findById(productMoveRequest.productId()).orElseThrow();
+    Floor floorA = floorRepository.findByLocationIdAndFloorLevel(productMoveRequest.locationId(), productMoveRequest.floorLevel());
+    Floor floorB = productX.getFloor();
+    Product productY = floorA.getProduct();
+    log.info("시작 전 productX 상태 : {}",productX);
+    log.info("시작 전 productY 상태 : {}",productY);
+    // 두 Product의 현재 Floor를 가져온다
+
+    // Product X를 Floor A로, Product Y를 Floor B로 교체
+    productX.updateFloor(floorA);
+    productY.updateFloor(floorB);
+
+    log.info("저장 전 productX 상태 : {}",productX);
+    log.info("저장 전 productY 상태 : {}",productY);
+    // 변경된 Product 엔티티를 저장한다
+    floorA.updateProduct(productX);
+    floorB.updateProduct(productY);
+
+    log.info("현재 floorA 상태 : {}",floorA);
+    log.info("현재 floorB 상태 : {}",floorB);
+    productRepository.flush();
+    floorRepository.flush();
+
+  }
 
   /**
    * 단일 상품 이동
@@ -177,32 +214,31 @@ public class ProductServiceImpl {
    */
   @Transactional
   public void moveProduct(ProductMoveRequest productMoveRequest) throws ProductException {
-    try {
 
-      Product product = productRepository.findById(productMoveRequest.productId()).orElseThrow();
-
-
-      Floor targetFloor =
-          floorRepository.findAllByLocationId(productMoveRequest.locationId()).stream()
-              .filter((data) -> data.getFloorLevel() == productMoveRequest.floorLevel())
-              .findFirst()
-              .orElse(null);
-      Floor presentFloor = product.getFloor();
-
-      presentFloor.updateProduct(null);
-      updateIfValid(targetFloor, product::updateFloor);
-
-      productFlowService.save(product, LocalDateTime.now(), presentFloor, ProductFlowTypeEnum.FLOW);
-
-      Store store = product.getStore();
-      User user = userRepository.findById(store.getUser().getId()).orElse(null);
-
-      notificationServiceImpl.save(
-              notificationServiceImpl.createNotification(
-                      user, store, NotificationTypeEnum.FLOW));
-    } catch (NullPointerException e) {
-      throw new ProductException.NotFoundException(productMoveRequest.productId());
+    Product productX = productRepository.findById(productMoveRequest.productId()).orElseThrow();
+    Floor floorA = floorRepository.findByLocationIdAndFloorLevel(productMoveRequest.locationId(), productMoveRequest.floorLevel());
+    if(floorA == null) {
+      throw new ProductException(ResponseEnum.BAD_REQUEST,"해당 층은 없는 층입니다.");
     }
+    Floor floorB = productX.getFloor();
+    if (floorA.getProduct() == null) {
+      productX.updateFloor(floorA);
+      floorA.updateProduct(productX);
+
+      productRepository.flush();
+      floorRepository.flush();
+    } else {
+      swapProducts(productMoveRequest);
+    }
+          productFlowService.save(
+              productX, LocalDateTime.now(), floorB, ProductFlowTypeEnum.FLOW);
+
+          Store store = productX.getStore();
+          User user = userRepository.findById(store.getUser().getId()).orElse(null);
+
+          notificationServiceImpl.save(
+              notificationServiceImpl.createNotification(user, store, NotificationTypeEnum.FLOW));
+
   }
 
   /**
@@ -236,7 +272,6 @@ public class ProductServiceImpl {
     User user = userRepository.findById(store.getUser().getId()).orElse(null);
 
     notificationServiceImpl.save(
-        notificationServiceImpl.createNotification(
-            user, store, NotificationTypeEnum.IMPORT));
+        notificationServiceImpl.createNotification(user, store, NotificationTypeEnum.IMPORT));
   }
 }

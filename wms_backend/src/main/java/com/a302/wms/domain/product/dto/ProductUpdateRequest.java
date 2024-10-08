@@ -28,4 +28,17 @@ public record ProductUpdateRequest(
     this.originalPrice = originalPrice;
     this.sellingPrice = sellingPrice;
   }
+
+  @Override
+  public String toString() {
+    return "ProductUpdateRequest{" +
+            "barcode=" + barcode +
+            ", productId=" + productId +
+            ", sku='" + sku + '\'' +
+            ", productName='" + productName + '\'' +
+            ", quantity=" + quantity +
+            ", originalPrice=" + originalPrice +
+            ", sellingPrice=" + sellingPrice +
+            '}';
+  }
 }

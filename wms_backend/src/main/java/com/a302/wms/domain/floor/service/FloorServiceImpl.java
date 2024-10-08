@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.a302.wms.global.constant.ProductConstant.CONVERT_SIZE;
@@ -129,7 +130,6 @@ public class FloorServiceImpl {
         return floorRepository.save(Floor.builder()
                 .floorLevel(-1)
                 .location(location)
-                .product(null)
                 .build());
     }
 }
