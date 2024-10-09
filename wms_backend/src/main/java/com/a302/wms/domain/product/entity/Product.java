@@ -6,8 +6,6 @@ import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,11 +21,11 @@ public class Product extends BaseTimeEntity {
   @Column(name = "sku")
   private String sku;
 
-  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "floor_id")
   private Floor floor;
 
-  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "store_id", nullable = false)
   private Store store;
 
@@ -98,7 +96,7 @@ public class Product extends BaseTimeEntity {
   @Override
   public String toString() {
     return "Product{"
-            +"floor.id: " + floor.getFloorId() +
+            +"floor.id: " + floor.getId() +
             "barcode=" + barcode +
             ", productId=" + productId +
             ", sku='" + sku + '\'' +

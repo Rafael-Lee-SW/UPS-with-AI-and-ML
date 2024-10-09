@@ -4,5 +4,6 @@ import lombok.Builder;
 
 @Builder
 public record CameraResponse(Long id,
+                             String title,
                              String url) {
 }

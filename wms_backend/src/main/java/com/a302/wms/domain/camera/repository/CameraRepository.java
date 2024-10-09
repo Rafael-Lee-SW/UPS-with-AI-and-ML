@@ -9,4 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public interface CameraRepository extends JpaRepository<Camera, Long> {
     @Query("SELECT c FROM Camera c WHERE c.notification.id = :notificationId")
     Camera findByNotificationId(Long notificationId);
+
+    @Query("SELECT c FROM Camera c WHERE c.title = :title")
+    Camera findByTitle(String title);
 }

@@ -10,12 +10,12 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 import java.time.Duration;
 
 @Service
-public class S3Service {
+public class S3ServiceImpl {
 
     private final S3Presigner s3Presigner;
     private final String bucketName;
 
-    public S3Service(S3Presigner s3Presigner, @Value("${aws.s3.bucket}") String bucketName) {
+    public S3ServiceImpl(S3Presigner s3Presigner, @Value("${aws.s3.bucket}") String bucketName) {
         this.s3Presigner = s3Presigner;
         this.bucketName = bucketName;
     }
