@@ -6,8 +6,6 @@ import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.structure.entity.Location;
 import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 import lombok.*;
 import org.slf4j.Logger;
@@ -24,9 +22,9 @@ public class Floor extends BaseTimeEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
-  private Long floorId;
+  private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "location_id", nullable = false)
   private Location location;
 
@@ -37,8 +35,8 @@ public class Floor extends BaseTimeEntity {
   private Product product;
 
   @Builder
-  public Floor(Long floorId, int floorLevel, Location location, Product product) {
-    this.floorId = floorId;
+  public Floor(Long id, int floorLevel, Location location, Product product) {
+    this.id = id;
     this.floorLevel = floorLevel;
     this.location = location;
     this.product = product;
@@ -66,7 +64,7 @@ public class Floor extends BaseTimeEntity {
   @Override
   public String toString() {
     return "Floor{" +
-            "floorId=" + floorId +
+            "floorId=" + id +
             ", location=" + location +
             ", floorLevel=" + floorLevel +
             ", product=" + product +

@@ -55,4 +55,9 @@ public class CameraController {
         BaseSuccessResponse<CameraResponse> successResponse = new BaseSuccessResponse<>(cameraServiceImpl.findCameraByNotificationId(notificationId));
         return ResponseEntity.ok(successResponse);
     }
+    @GetMapping
+    public ResponseEntity<?> getCameraByTitle(@RequestParam String title) {
+        BaseSuccessResponse<CameraResponse> successResponse = new BaseSuccessResponse<>(cameraServiceImpl.findCameraByTitle(title));
+        return ResponseEntity.ok(successResponse);
+    }
 }
