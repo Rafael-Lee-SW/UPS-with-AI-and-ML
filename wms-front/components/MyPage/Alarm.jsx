@@ -33,6 +33,7 @@ export default function Alarm({ userId }) {
         try {
             const response = await fetchCrimeNotifications(store.id);
             const notifications = response.data.result;
+            console.log(notifications);
             setNotifications(notifications);
         } catch (error) {
             router.push('/404');
@@ -70,14 +71,13 @@ export default function Alarm({ userId }) {
             </div>
 
             <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>{currentStore ? `${currentStore.storeName}의 알림` : ''}</DialogTitle>
+                <DialogTitle className={classes.modalTitle}>{currentStore ? `${currentStore.storeName}` : ''}</DialogTitle>
                 <DialogContent>
                     {notifications.length > 0 ? (
                         notifications.map((notification) => (
-                            <div key={notification.id} onClick={handleDetail(notification.id)}>
-                                <p>{notification.message}</p>
-                                {/* <p>시간: {notification.date.substring(0, 10)} {notification.date.substring(11, 16)}</p> */}
-                                <hr/>
+                            <div key={notification.id} className={classes.noticeContainer} onClick={() => handleDetail(notification.id)}>
+                                <span style={{ margin: 0}}>{notification.message}</span>
+                                <span style={{ margin: '0px 5px', fontSize: '13px', color: notification.isRead ? 'blue' : 'red' }}>{ notification.isRead ? '읽음' : '안읽음' }</span>
                             </div>
                         ))
                     ) : (
@@ -85,7 +85,7 @@ export default function Alarm({ userId }) {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <button onClick={handleClose}>닫기</button>
+                    <button className={classes.button} onClick={handleClose}>닫기</button>
                 </DialogActions>
             </Dialog>
         </div>
