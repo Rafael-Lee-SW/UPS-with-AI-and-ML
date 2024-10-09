@@ -2,6 +2,7 @@ package com.a302.wms.domain.product.service;
 
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.repository.FloorRepository;
+import com.a302.wms.domain.notification.entity.Notification;
 import com.a302.wms.domain.product.dto.ProductFlowResponse;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.mapper.ProductFlowMapper;
@@ -32,12 +33,14 @@ public class ProductFlowServiceImpl {
    * @param flowDate : (입고 | 이동 ) 일시
    */
   public void save(
-      Product present,
-      LocalDateTime flowDate,
-      Floor previousFloor,
-      ProductFlowTypeEnum productFlowTypeEnum) {
+          Product present,
+          LocalDateTime flowDate,
+          Floor previousFloor,
+          ProductFlowTypeEnum productFlowTypeEnum,
+          Notification notification) {
     productFlowRepository.save(
-        ProductFlowMapper.fromProduct(present, flowDate, previousFloor, productFlowTypeEnum));
+        ProductFlowMapper.fromProduct(present, flowDate, previousFloor, productFlowTypeEnum,notification));
+
   }
 
   public List<ProductFlowResponse> findAllByUserId(Long userId) {
@@ -63,5 +66,41 @@ public class ProductFlowServiceImpl {
                     floorRepository.findById(productFlow.getPreviousFloorId()).orElseThrow(),
                     storeRepository.findById(productFlow.getStoreId()).orElseThrow())))
         .toList();
+  }
+
+  public List<ProductFlowResponse> findAllByNotificationId(Long notificationId) {
+    return productFlowRepository.findAllByNotificationId(notificationId).stream()
+            .map(
+                    (productFlow ->
+                            ProductFlowMapper.toProductFlowResponseDto(
+                                    productFlow,
+                                    floorRepository.findById(productFlow.getPresentFloorId()).orElseThrow(),
+                                    floorRepository.findById(productFlow.getPreviousFloorId()).orElseThrow(),
+                                    storeRepository.findById(productFlow.getStoreId()).orElseThrow())))
+            .toList();
+  }
+
+  public List<ProductFlowResponse> findAllByProductIdAndType(Long productId, String type) {
+    return productFlowRepository.findAllByProductIdAndType(productId,ProductFlowTypeEnum.valueOf(type)).stream()
+            .map(
+                    (productFlow ->
+                            ProductFlowMapper.toProductFlowResponseDto(
+                                    productFlow,
+                                    floorRepository.findById(productFlow.getPresentFloorId()).orElseThrow(),
+                                    floorRepository.findById(productFlow.getPreviousFloorId()).orElseThrow(),
+                                    storeRepository.findById(productFlow.getStoreId()).orElseThrow())))
+            .toList();
+  }
+
+  public List<ProductFlowResponse> findAllByProductId(Long productId) {
+    return productFlowRepository.findAllByProductId(productId).stream()
+            .map(
+                    (productFlow ->
+                            ProductFlowMapper.toProductFlowResponseDto(
+                                    productFlow,
+                                    floorRepository.findById(productFlow.getPresentFloorId()).orElseThrow(),
+                                    floorRepository.findById(productFlow.getPreviousFloorId()).orElseThrow(),
+                                    storeRepository.findById(productFlow.getStoreId()).orElseThrow())))
+            .toList();
   }
 }

@@ -1,6 +1,7 @@
 package com.a302.wms.domain.product.mapper;
 
 import com.a302.wms.domain.floor.entity.Floor;
+import com.a302.wms.domain.notification.entity.Notification;
 import com.a302.wms.domain.product.dto.ProductFlowResponse;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.entity.ProductFlow;
@@ -15,7 +16,8 @@ public class ProductFlowMapper {
     public static ProductFlow fromProduct(Product product,
                                           LocalDateTime flowDate,
                                           Floor previousFloor,
-                                          ProductFlowTypeEnum productFlowTypeEnum) {
+                                          ProductFlowTypeEnum productFlowTypeEnum,
+                                          Notification notification) {
         return ProductFlow.builder()
                 .barcode(product.getBarcode())
                 .flowDate(flowDate)
@@ -27,6 +29,7 @@ public class ProductFlowMapper {
                 .sku(product.getSku())
                 .userId(product.getStore().getUser().getId())
                 .storeId(product.getStore().getId())
+                .notification(notification)
                 .build();
     }
 
