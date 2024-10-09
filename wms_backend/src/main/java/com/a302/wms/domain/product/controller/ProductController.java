@@ -31,14 +31,18 @@ public class ProductController {
    */
   @GetMapping
   public BaseSuccessResponse<List<ProductResponse>> getProducts(
-      @RequestParam(required = false) Long storeId, @RequestParam(required = false) Long userId) {
+      @RequestParam(required = false) Long storeId, @RequestParam(required = false) Long userId,
+      @RequestParam(required = false) Long locationId) {
     if (storeId != null) {
       log.info("[Controller] find Products by storeId");
       return new BaseSuccessResponse<>(productService.findAllByStoreId(storeId));
     } else if (userId != null) {
       log.info("[Controller] find Products by userId");
       return new BaseSuccessResponse<>(productService.findAllByUserId(userId));
-    } else {
+    } else if (locationId != null) {
+      log.info("[Controller] find Products by locationId");
+      return new BaseSuccessResponse<>(productService.findAllByLocationId(locationId));
+    }else {
       throw new ProductInvalidRequestException("no Variable", "null");
     }
   }

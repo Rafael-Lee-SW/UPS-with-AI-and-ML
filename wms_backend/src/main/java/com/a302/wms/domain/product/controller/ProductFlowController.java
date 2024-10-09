@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @RestController
 @RequestMapping("/product-flows")
@@ -52,5 +54,25 @@ public class ProductFlowController {
             return ResponseEntity.badRequest().body(new BaseExceptionResponse(false, ResponseEnum.SERVER_ERROR.getStatusCode(),
                     HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     ResponseEnum.SERVER_ERROR.getMessage()));
-    }}
+    }
+    @GetMapping("/date")
+    public ResponseEntity<?> getAllProductFlowsByDate(@RequestParam(name = "startDate", required = false) LocalDateTime startDate,
+                                                      @RequestParam(name = "endDate", required = false) LocalDateTime endDate) {
+        if(startDate != null && endDate != null) {
+            return ResponseEntity.ok(new BaseSuccessResponse<>(productFlowServiceImpl.findAllByStartDateAndEndDate(startDate,endDate)));
+        } else if (startDate != null) {
+            return ResponseEntity.ok(new BaseSuccessResponse<>(productFlowServiceImpl.findAllByStartDate(startDate)));
+        } else if (endDate != null) {
+            return ResponseEntity.ok(new BaseSuccessResponse<>(productFlowServiceImpl.findAllByEndDate(endDate)));
+        }
+        else
+            return ResponseEntity.badRequest().body(new BaseExceptionResponse(false, ResponseEnum.SERVER_ERROR.getStatusCode(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    ResponseEnum.SERVER_ERROR.getMessage()));
+    }
+}
+
+
+
+
 
