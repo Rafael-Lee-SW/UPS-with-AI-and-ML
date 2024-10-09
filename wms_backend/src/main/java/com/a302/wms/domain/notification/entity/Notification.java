@@ -31,11 +31,12 @@ public class Notification extends BaseNotificationEntity {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
-    @OneToMany(mappedBy = "notification")
+    @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Camera> cameraList;
 
-    @OneToMany(mappedBy = "notification")
+    @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductFlow> productFlowList;
+
     @Enumerated(EnumType.STRING)
     private NotificationTypeEnum notificationTypeEnum;
 

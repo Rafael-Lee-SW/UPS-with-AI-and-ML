@@ -16,19 +16,23 @@ import com.a302.wms.global.constant.NotificationTypeEnum;
 import com.a302.wms.global.constant.ProductConstant;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.channel.ChannelOption;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
 import java.io.IOException;
 
@@ -61,6 +65,7 @@ public class CameraServiceImpl {
     public String processVideoUpload(MultipartFile file,
                                      Long userId,
                                      Long storeId) throws Exception {
+        log.info("[Service] processVideoUpload ");
         // 비디오 업로드
         String uploadResponse = uploadVideo(file);
         Notification notification = Notification.builder()
@@ -91,9 +96,16 @@ public class CameraServiceImpl {
      * @throws Exception 업로드 중 발생한 예외
      */
     public String uploadVideo(MultipartFile file) throws Exception {
-        WebClient client = WebClient.create(cctvBaseUrl);
-        MultiValueMap<String, Object> body = createBody(file);
+        log.info("[Service] uploadVideo by file : {}",file.getOriginalFilename());
+        WebClient client = WebClient.builder()
+                .baseUrl(cctvBaseUrl)
+                .defaultHeader("Content-Type", MediaType.MULTIPART_FORM_DATA_VALUE)
+                .clientConnector(new ReactorClientHttpConnector(HttpClient.create()
+                        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60000)))
+                .build();
 
+        MultiValueMap<String, Object> body = createBody(file);
+        log.info("[Service] body Data : {}",body.get("data"));
         String response = client
                 .post()
                 .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -156,6 +168,7 @@ public class CameraServiceImpl {
     public MultiValueMap<String, Object> createBody(MultipartFile file) throws IOException {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         Resource fileResource = new MultipartInputStreamFileResource(file.getInputStream(), file.getOriginalFilename());
+        log.info("[Service] createBody, file length : {}",fileResource.contentLength());
         body.add("data", fileResource);
         return body;
     }
