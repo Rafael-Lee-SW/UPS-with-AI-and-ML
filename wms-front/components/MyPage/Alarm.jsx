@@ -76,7 +76,7 @@ export default function Alarm({ userId }) {
                         notifications.map((notification) => (
                             <div key={notification.id} onClick={handleDetail(notification.id)}>
                                 <p>{notification.message}</p>
-                                <p>시간: {notification.date.substring(0, 10)} {notification.date.substring(11, 16)}</p>
+                                {/* <p>시간: {notification.date.substring(0, 10)} {notification.date.substring(11, 16)}</p> */}
                                 <hr/>
                             </div>
                         ))
