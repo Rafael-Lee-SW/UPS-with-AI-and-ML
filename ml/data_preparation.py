@@ -1,5 +1,3 @@
-# data_preparation.py
-
 import pandas as pd
 import numpy as np
 import string
@@ -7,7 +5,8 @@ import random
 from datetime import datetime, timedelta
 
 # Load the CSV file
-file_path = r'C:\Users\SSAFY\Desktop\data_ML\purchase_transactions_2022_2023.csv'
+file_path = r'C:\Users\ale78\OneDrive\바탕 화면\data_ML\purchase_transactions_2022_2023.csv'
+# file_path = r'C:\Users\SSAFY\desktop\data_ML\purchase_transactions_2022_2023.csv' // in SSAFY
 print("Loading data...")
 
 data = pd.read_csv(file_path, parse_dates=['purchase_date'])
@@ -61,29 +60,30 @@ locations_df.to_csv(locations_output_file, index=False)
 print(f"Data has been saved to {data_output_file}")
 print(f"Locations have been saved to {locations_output_file}")
 
-# Filter to the last month
+# Filter to the last 45 days
 today = data['purchase_date'].max()
-one_month_ago = today - timedelta(days=90)
+one_month_ago = today - timedelta(days=45)
 data_last_month = data[data['purchase_date'] >= one_month_ago].copy()
 
 # Save the filtered data
 data_last_month_output_file = 'prepared_sales_data_last_month.csv'
 data_last_month.to_csv(data_last_month_output_file, index=False)
-print(f"Data for the last month has been saved to {data_last_month_output_file}")
-
-# 재생산된 호출 모음
+print(f"Data for the last 45 days has been saved to {data_last_month_output_file}")
 
 # Extract unique products and aggregate data
 products = data.groupby(['product_code', 'item_description']).agg({
-    'price': 'mean',  # Assuming you want the average price if prices vary
+    'price': 'mean',  # Average price if prices vary
     'sales_unit': 'sum'  # Total units sold
 }).reset_index()
 
 # Calculate selling_price (unit price)
 products['selling_price'] = products['price'] / products['sales_unit']
 
-# Fill in other required fields
+# Ensure original_price is not below 100 and calculate it
 products['original_price'] = products['selling_price'] - 500
+products['original_price'] = products['original_price'].apply(lambda x: max(x, 100))
+
+# Fill in other required fields
 products['quantity'] = 100
 products['barcode'] = products['product_code']
 products['created_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -108,3 +108,40 @@ product_df = product_df.drop_duplicates(subset=['barcode'])
 product_output_file = 'product_data.csv'
 product_df.to_csv(product_output_file, index=False)
 print(f"Product data has been saved to {product_output_file}")
+
+# Extract top 100 products by total sales amount for the last 45 days
+data_last_month_aggregated = data_last_month.groupby(['product_code', 'item_description']).agg({
+    'price': 'sum',  # Total sales amount
+    'sales_unit': 'sum'  # Total units sold
+}).reset_index()
+
+# Sort by total sales amount and calculate sales price
+data_last_month_aggregated['total_sales_amount'] = data_last_month_aggregated['price']
+data_last_month_aggregated['selling_price'] = data_last_month_aggregated['price'] / data_last_month_aggregated['sales_unit']
+
+# Ensure original price is calculated correctly for last 45 days and not below 100
+data_last_month_aggregated['original_price'] = data_last_month_aggregated['selling_price'] - 500
+data_last_month_aggregated['original_price'] = data_last_month_aggregated['original_price'].apply(lambda x: max(x, 100))
+
+# Sort by total sales amount in descending order
+top_100_products_last_month = data_last_month_aggregated.sort_values(by='total_sales_amount', ascending=False).head(100)
+
+# Add additional information
+top_100_products_last_month['quantity'] = 100
+top_100_products_last_month['created_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+top_100_products_last_month['store_id'] = 25
+top_100_products_last_month['updated_date'] = ''
+top_100_products_last_month['product_name'] = top_100_products_last_month['item_description']
+top_100_products_last_month['sku'] = None
+
+# Select required columns
+top_100_columns = [
+    'product_code', 'product_name', 'sales_unit', 'original_price', 'selling_price', 'total_sales_amount',
+    'quantity', 'created_date', 'store_id', 'updated_date', 'sku'
+]
+top_100_df = top_100_products_last_month[top_100_columns]
+
+# Save the top 100 product list for the last 45 days
+top_100_output_file = 'top_100_product_list_last45.csv'
+top_100_df.to_csv(top_100_output_file, index=False)
+print(f"Top 100 products list for the last 45 days has been saved to {top_100_output_file}")
