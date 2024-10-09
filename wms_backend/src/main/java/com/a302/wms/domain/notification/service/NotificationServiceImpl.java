@@ -39,13 +39,13 @@ public class NotificationServiceImpl {
 
   public List<NotificationResponse> findAllByStoreIdAndType(Long storeId, String type) {
     log.info("[Service] findAllByStoreIdAndType ");
-    if (NotificationTypeEnum.isExist(type))
+    if (NotificationTypeEnum.isExist(type)) {
       return notificationRepository
           .findAllByStoreIdAndType(storeId, NotificationTypeEnum.valueOf(type))
           .stream()
           .map(NotificationMapper::toNotificationResponse)
           .toList();
-    else return null;
+    } else return null;
   }
 
   public Notification createNotification(User user, Store store, NotificationTypeEnum type) {
