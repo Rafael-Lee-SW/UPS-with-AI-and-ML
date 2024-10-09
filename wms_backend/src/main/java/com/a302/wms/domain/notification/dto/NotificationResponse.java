@@ -4,6 +4,8 @@ import com.a302.wms.global.constant.NotificationTypeEnum;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Builder
 public record NotificationResponse(
         Long id,
@@ -12,5 +14,6 @@ public record NotificationResponse(
         Boolean isRead,
         Boolean isImportant,
         String message,
+        LocalDateTime createdDate,
         NotificationTypeEnum notificationTypeEnum) {
 }
