@@ -3,6 +3,7 @@ package com.a302.wms.domain.structure.service;
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.repository.FloorRepository;
 import com.a302.wms.domain.floor.service.FloorServiceImpl;
+import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.store.dto.StoreDetailResponse;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.store.mapper.StoreMapper;
@@ -222,7 +223,12 @@ public class StructureServiceImpl {
 
             //location 삭제 시 해당 위치의 상품을 default floor로 옮기는 로직 추가
             location.getFloorList().forEach(floor -> {
-                defaultFloor.getProductList().addAll(floor.getProductList());
+                List<Product> floorProductList = floor.getProductList();
+                floorProductList.forEach(product -> {
+                    product.updateFloor(defaultFloor);
+                    defaultFloor.getProductList().add(product);
+                });
+                floor.getProductList().clear();
             });
             locationRepository.delete(location);
             floorRepository.save(defaultFloor);
