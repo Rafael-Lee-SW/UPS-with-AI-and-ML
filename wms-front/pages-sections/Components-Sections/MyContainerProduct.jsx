@@ -311,216 +311,115 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
   };
 
   // 알림 API - 신버젼
+  /**
+   * Fetch notifications from the backend using the updated API
+   */
+
+  const [detailedData, setDetailedData] = useState([]);
+
   const getNotificationsAPI = async () => {
-    // 토큰에서 유저정보를 가져온다.(중요)
     const token = localStorage.getItem("token");
 
-    // 로그인 여부 검증 절차
     if (!token) {
       router.push("/signIn");
       return;
     }
 
     try {
+      setLoading(true);
+      // Build the query parameters
+      let query = `?storeId=${storeId}`;
+
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/notifications/${storeId}/PRODUCT_FLOW`,
+        `https://j11a302.p.ssafy.io/api/notifications${query}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            // Include the token in the Authorization header
             Authorization: `Bearer ${token}`,
           },
         }
       );
-      setLoading(true);
 
       if (response.ok) {
-        //성공
-        const apiConnection = await response.clone().json(); // clone the response to avoid consuming the body
-        const products = apiConnection.result;
+        const apiConnection = await response.json();
+        const notifications = apiConnection.result;
 
-        console.log("알림 내역");
-        console.log("Parsed response:", apiConnection);
+        console.log("Notifications:", notifications);
 
-        setLoading(false)
-      } else {
-        //에러
+        // Map notifications to the format expected by the frontend
+        const formattedNotifications = notifications.map((notification) => ({
+          id: notification.id,
+          userId: notification.userId,
+          storeId: notification.storeId,
+          isRead: notification.isRead,
+          isImportant: notification.isImportant,
+          message: notification.message,
+          type: notification.notificationTypeEnum,
+          // Assuming there is a 'createdDate' field in the notification object
+          date: notification.createdDate,
+        }));
+
+        // Store notifications in state
+        setDetailedData(formattedNotifications);
+
+        // Process notifications to group by date and type
+        processNotifications(formattedNotifications);
+
         setLoading(false);
+      } else {
+        // Handle error
+        setLoading(false);
+        notify("알림을 불러오는 데 실패했습니다.");
       }
     } catch (error) {
       console.log(error);
-      //에러
       setLoading(false);
+      notify("알림을 불러오는 중 오류가 발생했습니다.");
     }
   };
 
-  // 알림 API - 구버젼
-  // const getNotificationsAPI_old = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       `https://j11a302.p.ssafy.io/api/products/notification?businessId=${businessId}`,
-  //       {
-  //         method: "GET",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
+  /**
+  * Process notifications to group them by date and type
+  */
+  const processNotifications = (notifications) => {
+    // Group data by date and type
+    const groupedData = notifications.reduce((acc, item) => {
+      const dateKey = item.date
+        ? new Date(item.date).toLocaleDateString()
+        : "N/A";
+      const typeKey = mapEnumToKorean(item.type);
+      const key = `${dateKey}-${typeKey}`;
 
-  //     if (response.ok) {
-  //       const apiConnection = await response.json();
-  //       const { productFlowResponseDtos, expirationProductResponseDtos } =
-  //         apiConnection.result;
+      if (!acc[key]) {
+        acc[key] = {
+          date: dateKey,
+          type: typeKey,
+          count: 0,
+          notifications: [],
+        };
+      }
 
-  //       // Combine all notifications
-  //       const combinedData = [...productFlowResponseDtos];
+      acc[key].count += 1;
+      acc[key].notifications.push(item);
 
-  //       // Sort combined data by date
-  //       const sortedData = combinedData.sort(
-  //         (a, b) => new Date(a.date) - new Date(b.date)
-  //       );
+      return acc;
+    }, {});
 
-  //       // Set the detailed data state
-  //       setDetailedData(sortedData);
+    // Format grouped data for table display
+    const formattedData = Object.values(groupedData).map((entry) => ({
+      date: entry.date,
+      type: entry.type,
+      count: entry.count,
+    }));
 
-  //       // Map to formatted data for initial display
-  //       const formattedData = sortedData.map((item) => {
-  //         // Determine the content for the 'trackingNumber' field based on 'productFlowType'
-  //         let trackingOrNote = "";
-  //         if (item.productFlowType === "EXPORT") {
-  //           trackingOrNote = item.trackingNumber || "송장없음";
-  //         } else if (item.productFlowType === "IMPORT") {
-  //           trackingOrNote = "입고품목";
-  //         } else if (item.productFlowType === "FLOW") {
-  //           trackingOrNote = "이동품목";
-  //         }
-
-  //         return {
-  //           date: new Date(item.date).toLocaleDateString(),
-  //           type: translationMap[item.productFlowType] || item.productFlowType, // Translate type
-  //           barcode: item.barcode,
-  //           name: item.name,
-  //           quantity: item.quantity,
-  //           locationName: item.currentLocationName,
-  //           floorLevel: item.currentFloorLevel,
-  //           trackingOrNote, // Use the new variable here
-  //         };
-  //       });
-
-  //       setAllChangingTableData(formattedData);
-
-  //       setAllChangingTableColumns([
-  //         { name: "date", label: "날짜" },
-  //         { name: "type", label: "유형" },
-  //         { name: "barcode", label: "바코드" },
-  //         { name: "name", label: "상품명" },
-  //         { name: "quantity", label: "수량" },
-  //         { name: "locationName", label: "적재함" },
-  //         { name: "floorLevel", label: "층수" },
-  //         { name: "trackingOrNote", label: "송장번호/비고" },
-  //       ]);
-
-  //       // Precompute flow by date data
-  //       const flowData = sortedData.reduce((acc, item) => {
-  //         const dateKey = new Date(item.date).toLocaleDateString();
-  //         if (!acc[dateKey]) {
-  //           acc[dateKey] = { import: 0, export: 0, flow: 0 };
-  //         }
-  //         if (item.productFlowType === "IMPORT") {
-  //           acc[dateKey].import += item.quantity;
-  //         } else if (item.productFlowType === "EXPORT") {
-  //           acc[dateKey].export += item.quantity;
-  //         } else {
-  //           acc[dateKey].flow += item.quantity;
-  //         }
-  //         return acc;
-  //       }, {});
-
-  //       const flowLabels = Object.keys(flowData);
-  //       const importData = flowLabels.map((label) => flowData[label].import);
-  //       const exportData = flowLabels.map((label) => flowData[label].export);
-  //       const flowDataValues = flowLabels.map((label) => flowData[label].flow);
-
-  //       setFlowByDateData({
-  //         labels: flowLabels,
-  //         datasets: [
-  //           {
-  //             label: translationMap["IMPORT"],
-  //             data: importData,
-  //             backgroundColor: "rgba(54, 162, 235, 0.2)",
-  //             borderColor: "rgba(54, 162, 235, 1)",
-  //             borderWidth: 1,
-  //           },
-  //           {
-  //             label: translationMap["EXPORT"],
-  //             data: exportData,
-  //             backgroundColor: "rgba(255, 99, 132, 0.2)",
-  //             borderColor: "rgba(255, 99, 132, 1)",
-  //             borderWidth: 1,
-  //           },
-  //           {
-  //             label: translationMap["FLOW"],
-  //             data: flowDataValues,
-  //             backgroundColor: "rgba(153, 102, 255, 0.2)",
-  //             borderColor: "rgba(153, 102, 255, 1)",
-  //             borderWidth: 1,
-  //           },
-  //         ],
-  //       });
-  //       setNotificationsFetched(true);
-  //       setAnalyticsFetched(true);
-  //       //알림 호출 성공
-
-  //       /**
-  //        * 알림을 정리해서 날짜별로 분류하는 부분
-  //        */
-
-  //       // Group data by date and type
-  //       const groupedData = sortedData.reduce((acc, item) => {
-  //         const dateKey = new Date(item.date).toLocaleDateString();
-  //         const typeKey =
-  //           translationMap[item.productFlowType] || item.productFlowType;
-  //         const key = `${dateKey}-${typeKey}`;
-
-  //         if (!acc[key]) {
-  //           acc[key] = {
-  //             date: dateKey,
-  //             type: typeKey,
-  //             count: 0,
-  //           };
-  //         }
-
-  //         acc[key].count += 1;
-  //         return acc;
-  //       }, {});
-
-  //       // Format grouped data for table display
-  //       const SameformattedData = Object.values(groupedData).map((entry) => ({
-  //         date: entry.date,
-  //         type: entry.type,
-  //         count: entry.count,
-  //       }));
-
-  //       setNotificationTableData(SameformattedData);
-  //       setNotificationTableColumns([
-  //         { name: "date", label: "날짜" },
-  //         { name: "type", label: "유형" },
-  //         { name: "count", label: "수량" },
-  //       ]);
-
-  //       // 알림 호출 완료
-  //     } else {
-  //       // 에러
-  //       setNotificationsFetched(true);
-  //       setAnalyticsFetched(true);
-  //     }
-  //   } catch (error) {
-  //     // 에러
-  //     setNotificationsFetched(true);
-  //     setAnalyticsFetched(true);
-  //   }
-  // };
+    setNotificationTableData(formattedData);
+    setNotificationTableColumns([
+      { name: "date", label: "날짜" },
+      { name: "type", label: "유형" },
+      { name: "count", label: "수량" },
+    ]);
+  };
 
   // 변동 내역 / 알림함에서 쓰이는 data Table state
   const [notificationTableColumns, setNotificationTableColumns] = useState([]);
@@ -532,56 +431,41 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
   const [notificationDetailTableData, setNotificationDetailTableData] =
     useState([]);
 
-  // 알림함에서 상세 내역을 보기 위해 해당 열을 클릭했을 시에 작동하는 메서드
+  /**
+     * 알림함에서 상세 내역을 조회할 때 사용되는 것들
+     */
   const handleRowClick = (rowData) => {
     const [selectedDate, selectedType] = rowData;
-
-    let transType;
-    if (selectedType === "입고") {
-      transType = "IMPORT";
-    } else if (selectedType === "출고") {
-      transType = "EXPORT";
-    } else if (selectedType === "이동") {
-      transType = "FLOW";
-    } else {
-      transType = selectedType;
-    }
 
     // Filter detailed data for the selected date and type
     const filteredData = detailedData.filter(
       (item) =>
-        new Date(item.date).toLocaleDateString() === selectedDate &&
-        item.productFlowType === transType
+        (item.date
+          ? new Date(item.date).toLocaleDateString()
+          : "N/A") === selectedDate &&
+        mapEnumToKorean(item.type) === selectedType
     );
 
     // Define columns for the detailed view
     const detailedColumns = [
       { name: "date", label: "날짜" },
+      { name: "message", label: "메시지" },
       { name: "type", label: "유형" },
-      { name: "barcode", label: "바코드" },
-      { name: "name", label: "상품명" },
-      { name: "quantity", label: "수량" },
-      { name: "locationName", label: "적재함" },
-      { name: "floorLevel", label: "층수" },
-      { name: "trackingNumber", label: "송장번호" },
+      { name: "isRead", label: "읽음 여부" },
     ];
 
     // Map filtered data to the table format
     const formattedData = filteredData.map((item) => ({
-      date: new Date(item.date).toLocaleDateString(),
-      type: translationMap[item.productFlowType] || item.productFlowType, // Translate type
-      barcode: item.barcode,
-      name: item.name,
-      quantity: item.quantity,
-      locationName: item.currentLocationName,
-      floorLevel: item.currentFloorLevel,
-      trackingNumber: item.trackingNumber,
+      date: item.date ? new Date(item.date).toLocaleDateString() : "N/A",
+      message: item.message,
+      type: mapEnumToKorean(item.type),
+      isRead: item.isRead ? "읽음" : "안읽음",
     }));
 
     // Update table with detailed data
     setNotificationDetailTableData(formattedData);
     setNotificationDetailTableColumns(detailedColumns);
-    setCurrentIndex(4);
+    setCurrentIndex(7); // Assuming index 7 is the detailed notification component
   };
 
   // 상품 정보를 수정하는 API 호출 메서드
@@ -912,16 +796,17 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     </div>
   );
 
-/**
- * UseEffect Part
- */
+  /**
+   * UseEffect Part
+   */
   // 재고 목록을 불러온다.
   useEffect(() => {
     getStoreProductAPI(); // 실행되면서 같이 부른다.
+    getNotificationsAPI();
     // openModal 기점으로 함으로써 변동 내역이 생길 때마다 불러온다.
   }, [openModal]);
 
-// 프린트 모달을 위한 UseEffect
+  // 프린트 모달을 위한 UseEffect
   useEffect(() => {
     if (printModalOpen) {
       const timer = setTimeout(() => {
@@ -942,6 +827,23 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     }
   }, [exportPrintModalOpen]);
 
+  // 영한 번역
+  const mapEnumToKorean = (enumValue) => {
+    switch (enumValue) {
+      case "FLOW":
+        return "이동";
+      case "IMPORT":
+        return "입고";
+      case "MODIFY":
+        return "수정";
+      case "CRIME_PREVENTION":
+        return "방범";
+      case "PAYMENT":
+        return "결제";
+      default:
+        return enumValue;
+    }
+  };
 
   return (
     <div className={classes.productContainer}>
