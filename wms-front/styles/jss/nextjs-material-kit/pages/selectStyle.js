@@ -276,7 +276,7 @@ const selectStyle = (theme) => ({
 
     actionButtons: {
       position: "absolute",
-      top: "150px", // Position above the card
+      top: "395px", // Position above the card
       left: "50%",
       transform: "translateX(-50%)",
       display: "flex",
@@ -284,24 +284,45 @@ const selectStyle = (theme) => ({
       zIndex: 5, // Ensure buttons appear above other elements
     },
     actionButtonSee: {
-      backgroundColor: "brown",
-      flexDirection: "column",
+      backgroundColor: "#ccc",
+      padding: '6px 12px',
+      minWidth: '80px',
+      height: '40px',
+      display: 'flex',
+      alignItems: 'center',
+      '& .MuiSvgIcon-root': {
+        fontSize: '18px',
+      },
       "&:hover": {
         backgroundColor: "rgba(0, 0, 0, 0.8)",
         color: "#ffffff",
       },
     },
     actionButtonEdit: {
-      backgroundColor: "blue",
-      flexDirection: "column",
+      backgroundColor: "#cce8f4",
+      padding: '6px 12px',
+      minWidth: '80px',
+      height: '40px',
+      display: 'flex',
+      alignItems: 'center',
+      '& .MuiSvgIcon-root': {
+        fontSize: '18px',
+      },
       "&:hover": {
         backgroundColor: "rgba(0, 0, 0, 0.8)",
         color: "#ffffff",
       },
     },
     actionButtonDel: {
-      backgroundColor: "red",
-      flexDirection: "column",
+      backgroundColor: "#2f5a69",
+      padding: '6px 12px',
+      minWidth: '80px',
+      height: '40px',
+      display: 'flex',
+      alignItems: 'center',
+      '& .MuiSvgIcon-root': {
+        fontSize: '18px',
+      },
       "&:hover": {
         backgroundColor: "rgba(0, 0, 0, 0.8)",
         color: "#ffffff",
@@ -425,12 +446,14 @@ const selectStyle = (theme) => ({
       },
     },
     pcsContainer: {
+      height: '90px',
       display: "flex",
       flexDirection: "column", // 이미지와 텍스트를 세로로 정렬
       alignItems: "center", // 중앙 정렬
       gap: "5px", // 이미지와 텍스트 사이의 간격
     },
     locationContainer: {
+      height: '90px',
       display: "flex",
       flexDirection: "column", // 이미지와 텍스트를 세로로 정렬
       alignItems: "center", // 중앙 정렬

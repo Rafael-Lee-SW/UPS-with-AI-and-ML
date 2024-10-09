@@ -293,15 +293,6 @@ export default function Device() {
                                             >
                                                 삭제
                                             </button>
-                                            <button 
-                                                variant="contained" 
-                                                color="primary" 
-                                                onClick={() => handleOtp(device.id)} // OTP 발급 버튼
-                                                style={{ marginLeft: '10px' }}
-                                                className={classes.button}
-                                            >
-                                                {otpState[device.id] ? otpState[device.id] : 'OTP 발급하기'}
-                                            </button>
                                         </div>
                                     ))
                                 ) : (

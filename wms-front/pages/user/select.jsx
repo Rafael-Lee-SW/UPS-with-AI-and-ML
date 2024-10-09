@@ -321,13 +321,13 @@ const Select = ({ fetchedStores, ...rest }) => {
   const getBackgroundColor = (color) => {
     switch (color) {
       case 1:
-        return "#D6CABA";
+        return "#459ab6";
       case 2:
-        return "#C2B6A1";
+        return "#459ab6";
       case 3:
-        return "#918166";
+        return "#459ab6";
       default:
-        return "#D6CABA";
+        return "#459ab6";
     }
   };
 
