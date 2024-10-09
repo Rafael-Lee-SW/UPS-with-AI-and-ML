@@ -17,9 +17,6 @@ public class Camera {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @OneToMany(mappedBy = "camera", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<Notification> notificationList = new ArrayList<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notification_id")
     private Notification notification;
@@ -27,19 +24,20 @@ public class Camera {
     @Column(name = "url")
     private String url;
 
+    @Column(name = "title")
+    private String title;
+
     @Builder
-    public Camera(Long id, Notification notification, String url) {
+    public Camera(Long id, Notification notification, String url, String title) {
         this.id = id;
         this.notification = notification;
         this.url = url;
+        this.title = title;
     }
+
 
     public void setNotification(Notification notification) {
         this.notification = notification;
         notification.getCameraList().add(this);
     }
-    //  동영상 1개 업로드 -> 알림 1개 생성
-    // 알림 1개 -> 여러개의 동영상, 여러개의 상품정보
-    // 한 개의 상품정보: 알림 1개
-    // 알림 1 / 영상, 상품정보 다
 }

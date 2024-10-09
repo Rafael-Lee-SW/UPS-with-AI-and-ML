@@ -55,7 +55,7 @@ public class ProductFlow extends BaseTimeEntity {
     @Column(name = "store_id", nullable = false)
     private Long storeId;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Notification notification;
 
     @Builder
