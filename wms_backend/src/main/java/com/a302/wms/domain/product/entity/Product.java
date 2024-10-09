@@ -6,6 +6,8 @@ import com.a302.wms.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,13 +23,13 @@ public class Product extends BaseTimeEntity {
   @Column(name = "sku")
   private String sku;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "floor_id")
-  private Floor floor;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "floor_id")
+    private Floor floor;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "store_id", nullable = false)
-  private Store store;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 
   @Column(name = "quantity", nullable = false)
   private Integer quantity;

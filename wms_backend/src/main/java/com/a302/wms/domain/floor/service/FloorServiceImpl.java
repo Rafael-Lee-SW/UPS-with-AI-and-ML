@@ -128,17 +128,25 @@ public class FloorServiceImpl {
     }
 
     public Floor saveDefaultFloor(Location location) {
+        return floorRepository.save(buildDefaultFloor(location));
+    }
+
+    public Floor saveOtherFloor(Location location, Integer floorLevel) {
+        return floorRepository.save(buildOtherFloor(location, floorLevel));
+    }
+
+    public Floor buildDefaultFloor(Location location) {
         return floorRepository.save(Floor.builder()
                 .floorLevel(-1)
                 .location(location)
                 .build());
     }
 
-    public Floor saveOtherFloor(Location location, Integer floorLevel) {
-        return floorRepository.save(Floor.builder()
+    public Floor buildOtherFloor(Location location, Integer floorLevel) {
+        return Floor.builder()
                 .floorLevel(floorLevel)
                 .location(location)
-                .build());
+                .build();
     }
 
 }

@@ -32,7 +32,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.a302.wms.global.constant.ProductConstant.DEFAULT_FLOOR_LEVEL;
 
@@ -95,22 +94,20 @@ public class StructureServiceImpl {
 
     @Transactional
     protected void saveLocations(Store store, List<LocationCreateRequest> locationCreateRequestList) {
-        List<Location> locationList = new ArrayList<>();
-
-        for (LocationCreateRequest locationCreateRequest : locationCreateRequestList) {
-            Location location = LocationMapper.fromLocationRequestDto(locationCreateRequest, store);
-            if (location.getZSize() == DEFAULT_FLOOR_LEVEL)
-            {
-                floorService.saveDefaultFloor(location);
-            }
-            for (int floorLevel = 1; floorLevel <= location.getZSize(); floorLevel++) {
-                    floorService.saveOtherFloor(location, floorLevel);
-            }
-                locationList.add(location);
-        }
-
+        List<Location> locationList = locationCreateRequestList.stream()
+                .map(request -> {
+                    Location location = LocationMapper.fromLocationRequestDto(request, store, new ArrayList<>());
+                    List<Floor> locationFloorList = location.getFloorList();
+                    if (location.getZSize() == DEFAULT_FLOOR_LEVEL) {
+                        locationFloorList.add(floorService.buildDefaultFloor(location));
+                    }
+                    for (int floorLevel = 1; floorLevel <= location.getZSize(); floorLevel++) {
+                        locationFloorList.add(floorService.buildOtherFloor(location, floorLevel));
+                    }
+                    return location;
+                }).toList();
         store.getLocations().addAll(locationList);
-        locationRepository.saveAll(locationList);
+        storeRepository.save(store);
     }
 
 
@@ -211,6 +208,8 @@ public class StructureServiceImpl {
     }
 
     protected void deleteLocations(Long storeId, List<Long> locationIdList) {
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new CommonException(ResponseEnum.STORE_NOT_FOUND, "매장을 찾을 수 없습니다."));
+        Floor defaultFloor = floorService.findDefaultFloorByStore(storeId);
         locationIdList.forEach(locationId -> {
             Location location = locationRepository.findById(locationId).orElse(null);
             if (location == null) {
@@ -220,7 +219,13 @@ public class StructureServiceImpl {
                 log.error("해당 로케이션에 대한 권한이 없습니다.");
                 throw new CommonException(ResponseEnum.BAD_REQUEST, "해당 로케이션에 대한 권한이 없습니다.");
             }
+
+            //location 삭제 시 해당 위치의 상품을 default floor로 옮기는 로직 추가
+            location.getFloorList().forEach(floor -> {
+                defaultFloor.getProductList().addAll(floor.getProductList());
+            });
             locationRepository.delete(location);
+            floorRepository.save(defaultFloor);
         });
     }
 
