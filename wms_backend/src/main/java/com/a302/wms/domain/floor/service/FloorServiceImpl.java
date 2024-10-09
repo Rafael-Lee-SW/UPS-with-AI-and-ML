@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.a302.wms.global.constant.ProductConstant.CONVERT_SIZE;
@@ -108,6 +107,7 @@ public class FloorServiceImpl {
 
     /**
      * floorSize 계산 메서드
+     *
      * @param floor
      * @return
      */
@@ -120,6 +120,7 @@ public class FloorServiceImpl {
 
     /**
      * floorList로 주어진 floor 모두 삭제
+     *
      * @param floorList
      */
     public void deleteAll(List<Floor> floorList) {
@@ -132,4 +133,12 @@ public class FloorServiceImpl {
                 .location(location)
                 .build());
     }
+
+    public Floor saveOtherFloor(Location location, Integer floorLevel) {
+        return floorRepository.save(Floor.builder()
+                .floorLevel(floorLevel)
+                .location(location)
+                .build());
+    }
+
 }

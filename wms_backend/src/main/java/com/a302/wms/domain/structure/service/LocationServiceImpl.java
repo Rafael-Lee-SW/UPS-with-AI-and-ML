@@ -18,6 +18,7 @@ import com.a302.wms.global.handler.CommonException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ public class LocationServiceImpl {
      * @param saveRequest : 프론트에서 넘어오는 location 정보 모든 작업이 하나의 트랜잭션에서 일어나야하므로 @Transactional 추가
      */
     @Transactional
-    public void save(LocationListCreateRequest saveRequest) throws FloorException {
+    public void save(@NotNull LocationListCreateRequest saveRequest) throws FloorException {
         log.info("[Service] save Location");
         Store store = storeRepository.findById(saveRequest.storeId()).orElseThrow(() -> new CommonException(ResponseEnum.STORE_NOT_FOUND, "해당 매장을 찾을 수 없습니다."));
 

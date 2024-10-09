@@ -29,8 +29,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.a302.wms.global.constant.ProductConstant.DEFAULT_FLOOR_LEVEL;
 
 @Service
 @RequiredArgsConstructor
@@ -91,16 +95,24 @@ public class StructureServiceImpl {
 
     @Transactional
     protected void saveLocations(Store store, List<LocationCreateRequest> locationCreateRequestList) {
-        List<Location> locationList = locationCreateRequestList.stream()
-                .map(locationCreateRequest -> LocationMapper.fromLocationRequestDto(locationCreateRequest, store))
-                .map(location -> {
-                    floorService.saveDefaultFloor(location);
-                    return location;
-                })
-                .toList();
+        List<Location> locationList = new ArrayList<>();
+
+        for (LocationCreateRequest locationCreateRequest : locationCreateRequestList) {
+            Location location = LocationMapper.fromLocationRequestDto(locationCreateRequest, store);
+            if (location.getZSize() == DEFAULT_FLOOR_LEVEL)
+            {
+                floorService.saveDefaultFloor(location);
+            }
+            for (int floorLevel = 1; floorLevel <= location.getZSize(); floorLevel++) {
+                    floorService.saveOtherFloor(location, floorLevel);
+            }
+                locationList.add(location);
+        }
+
         store.getLocations().addAll(locationList);
         locationRepository.saveAll(locationList);
     }
+
 
     @Transactional
     protected void saveWalls(Store store, List<WallCreateRequest> wallCreateRequestList) {
