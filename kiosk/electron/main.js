@@ -19,7 +19,7 @@ function createWindow() {
     },
   });
   const path = require('path');
-  const startFilePath = path.join(__dirname, 'out', 'index.html'); // 'build/index.html' 경로
+  const startFilePath = path.join(__dirname, 'out', 'index.html'); 
   mainWindow.loadFile(startFilePath);
 }
 
