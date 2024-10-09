@@ -198,12 +198,21 @@ public class ProductServiceImpl {
         // 현재 위치에서 옮길 상품을 제거
         currentFloor.getProductList().remove(product);
 
-        // 목적지 위치에 있는 상품을 현재 위치로 옮김
-        if (productInTarget != null) currentFloor.getProductList().add(productInTarget);
 
         // 목적지 위치에 옮기려는 상품 추가
         targetFloor.getProductList().add(product);
 
+        // 목적지 위치에 있는 상품을 현재 위치로 옮김
+        if (productInTarget != null) {
+            currentFloor.getProductList().add(productInTarget);
+            productInTarget.updateFloor(currentFloor);
+//            productRepository.save(productInTarget);
+        }
+        product.updateFloor(targetFloor);
+
+//        floorRepository.save(currentFloor);
+//        floorRepository.save(targetFloor);
+//        productRepository.save(product);
     }
 
     /**
@@ -226,11 +235,13 @@ public class ProductServiceImpl {
             productX.updateFloor(targetFloor);
             targetFloor.getProductList().add(productX);
 
-            productRepository.flush();
-            floorRepository.flush();
+//            floorRepository.save(currentFloor);
+//            floorRepository.save(targetFloor);
+//            productRepository.save(productX);
         } else {
             swapProducts(productMoveRequest);
         }
+
 
         Store store = productX.getStore();
         User user = userRepository.findById(store.getUser().getId()).orElse(null);
