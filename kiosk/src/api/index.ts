@@ -3,12 +3,12 @@ import axios from 'axios';
 // API URL 설정
 const API_URL = 'https://j11a302.p.ssafy.io/api';
 let accessToken = ''; // 토큰을 저장할 변수
-let storedProducts: any[] = []; // 상품 정보를 저장할 변수
-let storeName = ''; // 스토어 이름을 저장할 변수
 
 // 1. 토큰을 저장하는 함수
 export function setAuthToken(token: string) {
   accessToken = token; // 메모리 변수에 토큰 저장
+  console.log('Authorization Token:', accessToken);
+  localStorage.setItem('accessToken', token); // 로컬스토리지에 토큰 저장
   axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // axios 기본 헤더에 토큰 추가
 }
 
@@ -35,9 +35,9 @@ export async function fetchProducts(deviceOtp: string): Promise<{
       // accessToken 저장 (setAuthToken을 사용해 토큰 저장)
       setAuthToken(token);
 
-      // 상품 정보 및 스토어 이름 저장하는 메서드 호출
-      storeProducts(products);
-      storeStoreName(storeNameFromAPI);
+      // 상품 정보 및 스토어 이름을 로컬스토리지에 저장
+      localStorage.setItem('products', JSON.stringify(products));
+      localStorage.setItem('storeName', storeNameFromAPI);
 
       return { valid: true, products, storeName: storeNameFromAPI, accessToken: token };
     } else {
@@ -49,35 +49,36 @@ export async function fetchProducts(deviceOtp: string): Promise<{
   }
 }
 
-// 3. 상품 정보를 저장하는 메서드
-function storeProducts(products: any[]) {
-  storedProducts = products; // 상품 정보를 메모리 변수에 저장
-  console.log('상품 정보가 저장되었습니다:', storedProducts);
-}
-
-// 4. 스토어 이름을 저장하는 메서드
-function storeStoreName(name: string) {
-  storeName = name; // 스토어 이름을 메모리 변수에 저장
-  console.log('스토어 이름이 저장되었습니다:', storeName);
-}
-
-// 5. 저장된 상품 정보를 가져오는 메서드
+// 3. 로컬스토리지에 저장된 상품 정보를 가져오는 함수
 export function getStoredProducts(): any[] {
-  return storedProducts; // 저장된 상품 정보를 반환
+  const products = localStorage.getItem('products');
+  return products ? JSON.parse(products) : []; // 저장된 상품 정보를 반환
 }
 
-// 6. 저장된 스토어 이름을 가져오는 메서드
+// 4. 로컬스토리지에 저장된 스토어 이름을 가져오는 함수
 export function getStoredStoreName(): string {
-  return storeName; // 저장된 스토어 이름을 반환
+  return localStorage.getItem('storeName') || ''; // 저장된 스토어 이름을 반환
 }
 
-// 7. 결제 정보 백엔드로 전송하는 함수
+// 5. 결제 정보 백엔드로 전송하는 함수
 export async function sendPaymentDataToBackend(
   orderId: string, 
   totalPrice: number, 
   payedProducts: any[]
 ): Promise<void> {
   try {
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+      console.error('No access token found. Please log in again.');
+      return;
+    }
+    // 전송될 데이터를 콘솔에 출력
+    console.log('Sending payment data to backend...');
+    console.log('Order ID:', orderId);
+    console.log('Total Price:', totalPrice);
+    console.log('Payed Products:', payedProducts);
+    console.log('Authorization Token:', accessToken);
+    
     const response = await axios.post(
       `${API_URL}/payments`, 
       {
@@ -97,8 +98,11 @@ export async function sendPaymentDataToBackend(
         }
       }
     );
+
+    // 성공적으로 전송되었을 때의 응답을 콘솔에 출력
     console.log('Payment data sent successfully:', response.data);
   } catch (error) {
+    // 오류 발생 시 오류 메시지 출력
     console.error('Failed to send payment data:', error);
   }
 }

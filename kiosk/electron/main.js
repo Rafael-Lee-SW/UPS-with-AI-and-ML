@@ -18,9 +18,9 @@ function createWindow() {
       zoomFactor: 0.75,
     },
   });
-
-  const startURL = "http://localhost:3000";
-  mainWindow.loadURL(startURL);
+  const path = require('path');
+  const startFilePath = path.join(__dirname, 'out', 'index.html'); // 'build/index.html' 경로
+  mainWindow.loadFile(startFilePath);
 }
 
 function connectNFCReader() {

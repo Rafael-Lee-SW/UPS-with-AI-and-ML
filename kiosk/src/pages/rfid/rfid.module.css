@@ -8,6 +8,22 @@
   align-items: center;
   padding: 0 10px;
 }
+.label {
+  text-align: center; /* 수평 중앙 정렬 */
+  display: block; /* 블록 요소로 변경 */
+  margin-top: auto; /* 수직 중앙 정렬을 위한 추가 설정 */
+  margin-bottom: auto; /* 수직 중앙 정렬을 위한 추가 설정 */
+}
+.product {
+  display: flex;
+  align-items: center; /* 수직 중앙 정렬 */
+  justify-content: space-between; /* 좌우 정렬 */
+  margin: 5px 0;
+  padding: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 1.5rem;
+  animation: slideUp 0.5s ease-out;
+}
 
 .header {
   width: 100%;
@@ -27,11 +43,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 50vh;
+  justify-content: flex-start; /* 상단에 배치 */
   text-align: center;
   transition: opacity 0.5s ease-out;
   font-size: 1.5rem;
+  margin: 1vh 0; /* 위아래 공백 조절 */
+  padding: 2vh 0; /* 필요에 따라 패딩 추가 */
 }
 
 .fadeOut {
@@ -45,31 +62,56 @@
   margin-bottom: 2vh;
 }
 
+.body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* 상품이 없을 경우 영역 스타일 */
+.noProducts {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 250px; /* 높이를 250px로 늘림 */
+  font-size: 1.5rem;
+  color: #555;
+  border: 2px dashed #ccc;
+  margin: 20px 0;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+/* 페이지 컨테이너 스타일 설정 */
+.pageContainer {
+  width: 100%;
+  max-width: 1200px; /* 최대 너비 설정 */
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* 남는 공간을 차지하도록 설정 */
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+/* 상품 리스트 영역을 유연하게 조정 */
 .productsContainer {
   width: 100%;
-  max-height: 40vh;
+  max-height: calc(60vh - 20px); /* 총 높이를 60vh로 설정, 적절한 공간 고려 */
   overflow-y: auto;
   display: flex;
   flex-direction: column-reverse;
+  border: 1px solid #e0e0e0;
 }
 
 .product {
   display: flex;
   justify-content: space-between;
-  margin: 15px 0;
-  padding: 20px;
+  margin: 5px 0;
+  padding: 15px;
   border-bottom: 1px solid #e0e0e0;
   font-size: 1.5rem;
   animation: slideUp 0.5s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
 }
 
 .evenProduct {
@@ -78,6 +120,12 @@
 
 .oddProduct {
   background-color: #ffffff;
+}
+
+.productImg {
+  width: 70px;
+  height: auto;
+  margin-right: 15px;
 }
 
 .quantity {
@@ -97,55 +145,64 @@
   font-size: 1.5rem;
 }
 
-/* 새로운 상단 div 스타일 */
-.summaryHeader {
-  width: 100%;
-  padding: 15px;
-  background-color: #f0f0f0;
-  font-size: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.totalQuantity, .totalPrice {
-  font-size: 1.5rem;
-}
-
+/* 푸터 스타일 */
 .summaryFooter {
   display: flex;
+  flex-direction: column; /* 세로 방향으로 정렬 */
+  align-items: center; /* 가운데 정렬 */
   justify-content: center;
-  align-items: center;
   width: 100%;
   position: fixed;
   bottom: 0;
   background-color: white;
-  padding: 10px 20px;
+  padding: 20px 40px;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  height: 80px;
 }
 
+.summury {
+  display: flex;
+  flex-direction: column; /* 세로 방향으로 정렬 */
+  align-items: flex-start; /* 가운데 정렬 */
+  width: 100%; /* 가로폭을 100%로 설정 */
+  background-color: white; /* 배경색 설정 */
+  padding: 10px; /* 적당한 패딩 추가 */
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* 상단 그림자 효과 */
+}
+
+/* 총 수량 및 결제 금액 스타일 */
+.totalQuantity, .totalPrice {
+  font-size: 1.5rem;
+}
+
+/* 버튼 스타일 */
 .checkoutFooter {
   display: flex;
   justify-content: center;
   gap: 20px;
 }
 
-.cancelBtn, .checkoutBtn {
-  padding: 15px 25px;
-  font-size: 1.5rem;
+.cancelBtn,
+.checkoutBtn {
+  padding: 20px 45px; /* 버튼의 내부 패딩을 키워서 크기를 증가 */
+  font-size: 1.5rem; /* 폰트 크기를 키워서 버튼의 텍스트 크기 증가 */
   border: none;
   border-radius: 5px;
   background-color: #5f5f5f;
   color: white;
   cursor: pointer;
+  width: 100%; /* 필요에 따라 버튼의 너비를 늘릴 수 있음 */
+  max-width: 400px; /* 버튼의 최대 너비를 설정 */
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  text-align: center; /* 텍스트 가운데 정렬 */
 }
 
 .checkoutFooter .checkoutBtn {
   background-color: #005bb5;
 }
 
-.checkoutFooter .cancelBtn:hover, .checkoutFooter .checkoutBtn:hover {
+.checkoutFooter .cancelBtn:hover,
+.checkoutFooter .checkoutBtn:hover {
   background-color: #003d7a;
 }
 
@@ -154,4 +211,3 @@
   height: auto;
   margin-right: 15px;
 }
-

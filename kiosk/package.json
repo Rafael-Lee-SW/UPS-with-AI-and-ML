@@ -2,11 +2,13 @@
   "name": "kiosk",
   "version": "1.0.0",
   "description": "Kiosk application using Electron and Next.js",
+  "author": "Your Name <your.email@example.com>",
   "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently \"next dev\" \"npm run electron\"",
     "build": "next build && electron-builder build",
     "start": "next start",
+    "export": "next export", 
     "electron": "electron .",
     "package": "electron-builder"
   },
@@ -36,20 +38,30 @@
     "@types/react": "18.3.7",
     "concurrently": "^7.0.0",
     "electron": "^25.0.0",
-    "electron-builder": "^25.0.5",
+    "electron-builder": "^25.1.7",
     "electron-rebuild": "^3.2.9",
     "eslint": "^9.11.1",
     "typescript": "5.6.2"
   },
   "build": {
     "appId": "com.kiosk.app",
-    "productName": "KioskApp",
+    "productName": "AutoStoreKiosk",
     "files": [
       "build/**/*",
       "electron/**/*"
     ],
+    
     "directories": {
       "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        }
+      ],
+      "icon": "public/icon.ico"  
     }
   }
 }

@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import { useEffect, useState } from "react";
+import styles from "./checkout.module.css"; // CSS 모듈 가져오기
 
 const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
 const customerKey = "EeNPZPYSwnohr7iITJk9n";
@@ -61,7 +62,8 @@ export function CheckoutPage() {
   return (
     <div className="wrapper">
       <div className="box_section">
-        <h2>총 가격: {totalPrice}원</h2>
+        <h2>결제 방식을 선택해 주세요</h2>
+        
         <h3>상품 목록</h3>
         <ul>
           {products.map((product) => (
@@ -71,35 +73,41 @@ export function CheckoutPage() {
             </li>
           ))}
         </ul>
+        <h3>총 가격: {totalPrice}원</h3>
 
         <div id="payment-method" />
         <div id="agreement" />
 
-        <button
-          className="button"
-          disabled={!ready}
-          onClick={async () => {
-            try {
-              console.log("Requesting payment...");
+        <div className={styles.checkoutFooter}>
+          <button className={styles.cancelBtn} onClick={() => router.push("/select")}>
+            주문 취소
+          </button>
+          <button
+            className={styles.checkoutBtn}
+            disabled={!ready}
+            onClick={async () => {
+              try {
+                console.log("Requesting payment...");
 
-              const encodedProducts = encodeURIComponent(JSON.stringify(products));
+                const encodedProducts = encodeURIComponent(JSON.stringify(products));
 
-              await widgets.requestPayment({
-                orderId: Math.random().toString(36).slice(2),
-                orderName: "총 결제 상품",
-                successUrl: `${window.location.origin}/payment/success?products=${encodedProducts}&totalPrice=${totalPrice}`,
-                failUrl: window.location.origin + "/payment/fail",
-                customerEmail: "customer@example.com",
-                customerName: "고객명",
-                customerMobilePhone: "01012345678",
-              });
-            } catch (error) {
-              console.error("결제 중 오류 발생:", error);
-            }
-          }}
-        >
-          결제하기
-        </button>
+                await widgets.requestPayment({
+                  orderId: Math.random().toString(36).slice(2),
+                  orderName: "총 결제 상품",
+                  successUrl: `${window.location.origin}/payment/success?products=${encodedProducts}&totalPrice=${totalPrice}`,
+                  failUrl: window.location.origin + "/payment/fail",
+                  customerEmail: "customer@example.com",
+                  customerName: "고객명",
+                  customerMobilePhone: "01012345678",
+                });
+              } catch (error) {
+                console.error("결제 중 오류 발생:", error);
+              }
+            }}
+          >
+            결제하기
+          </button>
+        </div>
       </div>
     </div>
   );

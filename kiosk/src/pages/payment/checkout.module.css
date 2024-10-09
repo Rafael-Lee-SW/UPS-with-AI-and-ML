@@ -1,0 +1,31 @@
+/* checkout.module.css */
+
+.cancelBtn,
+.checkoutBtn {
+  padding: 20px 30px; /* 버튼의 내부 패딩을 조정하여 크기 감소 */
+  font-size: 1.5rem; /* 폰트 크기 */
+  border: none;
+  border-radius: 5px;
+  background-color: #5f5f5f;
+  color: white;
+  cursor: pointer;
+  width: 100%; /* 필요에 따라 버튼의 너비를 늘릴 수 있음 */
+  max-width: 200px; /* 버튼의 최대 너비를 300px로 변경 */
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  text-align: center; /* 텍스트 가운데 정렬 */
+}
+
+.checkoutBtn {
+  background-color: #005bb5;
+}
+
+.cancelBtn:hover,
+.checkoutBtn:hover {
+  background-color: #003d7a;
+}
+
+.checkoutFooter {
+  display: flex;
+  justify-content: center; /* 양쪽 끝 정렬 */
+  gap: 20px; /* 버튼 간 간격 조절 */
+}

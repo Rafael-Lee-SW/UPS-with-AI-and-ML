@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router"; // Next.js의 라우터 사용
 import { sendPaymentDataToBackend } from "@/api"; // 결제 정보 전송 API 함수
+import styles from "./success.module.css"; // CSS 모듈 가져오기
 
 export function SuccessPage() {
   const router = useRouter();
@@ -77,29 +78,38 @@ export function SuccessPage() {
     }
   }, [products, orderId, totalPrice]);
 
+  // 숫자에 , 찍기
+  const formatPrice = (price) => {
+    const numericPrice = Number(price); // 형변환
+  
+    if (isNaN(numericPrice)) {
+      return "0"; // 형변환에 실패한 경우 기본값 반환
+    }
+  
+    return numericPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
   return (
-    <div className="result wrapper">
-      <div className="box_section">
-        <h2>결제 성공</h2>
-        <p>{`주문번호: ${orderId}`}</p>
-        <p>{`결제 금액: ${Number(amount).toLocaleString()}원`}</p>
-        <p>{`paymentKey: ${paymentKey}`}</p>
+    <div className={styles.resultWrapper}>
+      <div className={styles.boxSection}>
+        <img src="/successPayment.png" alt="결제 성공 이미지" className={styles.successImage} />
+        <h2 className={styles.heading}>결제가 완료되었습니다.</h2>
 
-        <h3>구매 상품 목록</h3>
-        <ul>
-          {products.map((product, index) => (
-            <li key={index}>
-              {product.productName} - {product.quantity}개 - {product.sellingPrice}원
-            </li>
-          ))}
-        </ul>
-        <p>{`총 결제 금액: ${totalPrice}원`}</p>
+        <h2>구매 상품 목록</h2>
+        <div className={styles.receipt}>
+          <ul className={styles.productList}>
+            {products.map((product, index) => (
+              <li key={index}>
+                {product.productName} {product.quantity}개 - {product.sellingPrice}원
+              </li>
+            ))}
+          </ul>
+          <hr className={styles.divider} />
+          <p className={styles.totalPrice}>{`총 결제 금액: ${formatPrice(totalPrice)}원`}</p>
+        </div>
 
-        {paymentCompleted ? (
-          <p>결제 정보가 백엔드에 성공적으로 전송되었습니다.</p>
-        ) : (
-          <p>결제 정보를 전송하는 중입니다...</p>
-        )}
+        <button className={styles.mainButton} onClick={() => router.push("/select")}>
+          메인 페이지로 이동
+        </button>
       </div>
     </div>
   );

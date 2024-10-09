@@ -17,11 +17,9 @@ export default function SelectMethod() {
     if (router.query.products) {
       setProducts(JSON.parse(router.query.products as string));
     }
-    if (router.query.accessToken) {
-      setAccessToken(router.query.accessToken as string);
-    }
-    if (router.query.storeName) {
-      setStoreName(router.query.storeName as string);
+    const storedStoreName = localStorage.getItem("storeName");
+    if (storedStoreName) {
+      setStoreName(storedStoreName);
     }
   }, [router.query]);
 
@@ -29,7 +27,7 @@ export default function SelectMethod() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length); // 순차적으로 인덱스 변경
-    }, 5000); // 5초마다 실행
+    }, 3000); // 5초마다 실행
 
     return () => clearInterval(interval); // 컴포넌트 언마운트 시 interval 제거
   }, []);
