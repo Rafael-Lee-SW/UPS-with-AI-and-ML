@@ -12,6 +12,5 @@ public record NotificationResponse(
         Boolean isRead,
         Boolean isImportant,
         String message,
-        NotificationTypeEnum notificationTypeEnum
-) {
+        NotificationTypeEnum notificationTypeEnum) {
 }
