@@ -11,6 +11,10 @@ import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
+import static com.a302.wms.global.constant.ProductConstant.DEFAULT_FLOOR_LEVEL;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,43 +35,44 @@ public class Floor extends BaseTimeEntity {
   @Column(nullable = false)
   private int floorLevel;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  private Product product;
+    @OneToMany(mappedBy = "floor", fetch = FetchType.LAZY)
+    private List<Product> productList;
 
-  @Builder
-  public Floor(Long id, int floorLevel, Location location, Product product) {
-    this.id = id;
-    this.floorLevel = floorLevel;
-    this.location = location;
-    this.product = product;
-  }
-
-
-
-  public void updateProduct(Product product) {
-    this.product = product;
-  }
-  // 연관관계 편의 메서드
-  public Floor setLocation(Location location) {
-    this.location = location;
-    if (!location.getFloorList().contains(this)) {
-      location.getFloorList().add(this);
+    @Builder
+    public Floor(Long id, int floorLevel, Location location, List<Product> productList) {
+        this.id = id;
+        this.floorLevel = floorLevel;
+        this.location = location;
+        this.productList = productList;
     }
-    return this;
-  }
 
 
-  public boolean isDefault() {
-    return this.floorLevel == DEFAULT_FLOOR_LEVEL;
-  }
-  // Product를 Floor에 추가하는 메서드
-  @Override
-  public String toString() {
-    return "Floor{" +
-            "floorId=" + id +
-            ", location=" + location +
-            ", floorLevel=" + floorLevel +
-            ", product=" + product +
-            '}';
-  }
+//    public void updateProduct(Product product) {
+//        this.product = product;
+//    }
+
+    // 연관관계 편의 메서드
+    public Floor setLocation(Location location) {
+        this.location = location;
+        if (!location.getFloorList().contains(this)) {
+            location.getFloorList().add(this);
+        }
+        return this;
+    }
+
+
+    public boolean isDefault() {
+        return this.floorLevel == DEFAULT_FLOOR_LEVEL;
+    }
+
+//    // Product를 Floor에 추가하는 메서드
+//    @Override
+//    public String toString() {
+//        return "Floor{" +
+//                "floorId=" + floorId +
+//                ", location=" + location +
+//                ", floorLevel=" + floorLevel +
+//                ", product=" + product +
+//                '}';
+//    }
 }

@@ -32,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Consumer;
@@ -185,28 +184,25 @@ public class ProductServiceImpl {
 
     @Transactional
     public void swapProducts(ProductMoveRequest productMoveRequest) {
-        Product productX = productRepository.findById(productMoveRequest.productId()).orElseThrow();
-        Floor floorA = floorRepository.findByLocationIdAndFloorLevel(productMoveRequest.locationId(), productMoveRequest.floorLevel());
-        Floor floorB = productX.getFloor();
-        Product productY = floorA.getProduct();
-        log.info("시작 전 productX 상태 : {}", productX);
-        log.info("시작 전 productY 상태 : {}", productY);
-        // 두 Product의 현재 Floor를 가져온다
+        // 옮기려는 상품
+        Product product = productRepository.findById(productMoveRequest.productId()).orElseThrow();
 
-        // Product X를 Floor A로, Product Y를 Floor B로 교체
-        productX.updateFloor(floorA);
-        productY.updateFloor(floorB);
+        // 목적지 floor
+        Floor targetFloor = floorRepository.findByLocationIdAndFloorLevel(productMoveRequest.locationId(), productMoveRequest.floorLevel());
+        // 현재 floor
+        Floor currentFloor = product.getFloor();
 
-        log.info("저장 전 productX 상태 : {}", productX);
-        log.info("저장 전 productY 상태 : {}", productY);
-        // 변경된 Product 엔티티를 저장한다
-        floorA.updateProduct(productX);
-        floorB.updateProduct(productY);
+        // 목적지에 있던 상품
+        Product productInTarget = targetFloor.getProductList().get(0);
 
-        log.info("현재 floorA 상태 : {}", floorA);
-        log.info("현재 floorB 상태 : {}", floorB);
-        productRepository.flush();
-        floorRepository.flush();
+        // 현재 위치에서 옮길 상품을 제거
+        currentFloor.getProductList().remove(product);
+
+        // 목적지 위치에 있는 상품을 현재 위치로 옮김
+        if (productInTarget != null) currentFloor.getProductList().add(productInTarget);
+
+        // 목적지 위치에 옮기려는 상품 추가
+        targetFloor.getProductList().add(product);
 
     }
 
@@ -220,14 +216,15 @@ public class ProductServiceImpl {
     public void moveProduct(ProductMoveRequest productMoveRequest) throws ProductException {
 
         Product productX = productRepository.findById(productMoveRequest.productId()).orElseThrow();
-        Floor floorA = floorRepository.findByLocationIdAndFloorLevel(productMoveRequest.locationId(), productMoveRequest.floorLevel());
-        if (floorA == null) {
+        Floor targetFloor = floorRepository.findByLocationIdAndFloorLevel(productMoveRequest.locationId(), productMoveRequest.floorLevel());
+        if (targetFloor == null) {
             throw new ProductException(ResponseEnum.BAD_REQUEST, "해당 층은 없는 층입니다.");
         }
-        Floor floorB = productX.getFloor();
-        if (floorA.getProduct() == null) {
-            productX.updateFloor(floorA);
-            floorA.updateProduct(productX);
+        Floor currentFloor = productX.getFloor();
+        if (targetFloor.isDefault() || targetFloor.getProductList().isEmpty()) {
+            currentFloor.getProductList().remove(productX);
+            productX.updateFloor(targetFloor);
+            targetFloor.getProductList().add(productX);
 
             productRepository.flush();
             floorRepository.flush();
@@ -238,12 +235,11 @@ public class ProductServiceImpl {
         Store store = productX.getStore();
         User user = userRepository.findById(store.getUser().getId()).orElse(null);
 
-Notification notification = notificationServiceImpl.createNotification(user, store, NotificationTypeEnum.FLOW);
+        Notification notification = notificationServiceImpl.createNotification(user, store, NotificationTypeEnum.FLOW);
 
         notificationServiceImpl.save(notification);
         productFlowService.save(
-                productX, LocalDateTime.now(), floorB, ProductFlowTypeEnum.FLOW,notification);
-
+                productX, LocalDateTime.now(), currentFloor, ProductFlowTypeEnum.FLOW, notification);
 
 
     }
