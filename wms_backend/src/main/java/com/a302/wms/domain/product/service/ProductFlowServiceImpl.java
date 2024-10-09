@@ -103,4 +103,41 @@ public class ProductFlowServiceImpl {
                                     storeRepository.findById(productFlow.getStoreId()).orElseThrow())))
             .toList();
   }
+
+  public List<ProductFlowResponse> findAllByStartDateAndEndDate(LocalDateTime startDate, LocalDateTime endDate) {
+
+    return productFlowRepository.findAllByStartDateAndEndDate(startDate,endDate).stream()
+            .map(
+                    (productFlow ->
+                            ProductFlowMapper.toProductFlowResponseDto(
+                                    productFlow,
+                                    floorRepository.findById(productFlow.getPresentFloorId()).orElseThrow(),
+                                    floorRepository.findById(productFlow.getPreviousFloorId()).orElseThrow(),
+                                    storeRepository.findById(productFlow.getStoreId()).orElseThrow())))
+            .toList();
+  }
+  public List<ProductFlowResponse> findAllByStartDate(LocalDateTime startDate) {
+
+    return productFlowRepository.findAllByStartDate(startDate).stream()
+            .map(
+                    (productFlow ->
+                            ProductFlowMapper.toProductFlowResponseDto(
+                                    productFlow,
+                                    floorRepository.findById(productFlow.getPresentFloorId()).orElseThrow(),
+                                    floorRepository.findById(productFlow.getPreviousFloorId()).orElseThrow(),
+                                    storeRepository.findById(productFlow.getStoreId()).orElseThrow())))
+            .toList();
+  }
+  public List<ProductFlowResponse> findAllByEndDate(LocalDateTime endDate) {
+
+    return productFlowRepository.findAllByEndDate(endDate).stream()
+            .map(
+                    (productFlow ->
+                            ProductFlowMapper.toProductFlowResponseDto(
+                                    productFlow,
+                                    floorRepository.findById(productFlow.getPresentFloorId()).orElseThrow(),
+                                    floorRepository.findById(productFlow.getPreviousFloorId()).orElseThrow(),
+                                    storeRepository.findById(productFlow.getStoreId()).orElseThrow())))
+            .toList();
+  }
 }
