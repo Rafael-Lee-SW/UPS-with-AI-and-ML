@@ -208,6 +208,8 @@ public class StructureServiceImpl {
     }
 
     protected void deleteLocations(Long storeId, List<Long> locationIdList) {
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new CommonException(ResponseEnum.STORE_NOT_FOUND, "매장을 찾을 수 없습니다."));
+        Floor defaultFloor = floorService.findDefaultFloorByStore(storeId);
         locationIdList.forEach(locationId -> {
             Location location = locationRepository.findById(locationId).orElse(null);
             if (location == null) {
@@ -217,6 +219,11 @@ public class StructureServiceImpl {
                 log.error("해당 로케이션에 대한 권한이 없습니다.");
                 throw new CommonException(ResponseEnum.BAD_REQUEST, "해당 로케이션에 대한 권한이 없습니다.");
             }
+
+            //location 삭제 시 해당 위치의 상품을 default floor로 옮기는 로직 추가
+            location.getFloorList().forEach(floor -> {
+                defaultFloor.getProductList().addAll(floor.getProductList());
+            });
             locationRepository.delete(location);
         });
     }
