@@ -225,6 +225,7 @@ public class StructureServiceImpl {
                 defaultFloor.getProductList().addAll(floor.getProductList());
             });
             locationRepository.delete(location);
+            floorRepository.save(defaultFloor);
         });
     }
 
