@@ -32,7 +32,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.a302.wms.global.constant.ProductConstant.DEFAULT_FLOOR_LEVEL;
 
@@ -95,22 +94,20 @@ public class StructureServiceImpl {
 
     @Transactional
     protected void saveLocations(Store store, List<LocationCreateRequest> locationCreateRequestList) {
-        List<Location> locationList = new ArrayList<>();
-
-        for (LocationCreateRequest locationCreateRequest : locationCreateRequestList) {
-            Location location = LocationMapper.fromLocationRequestDto(locationCreateRequest, store);
-            if (location.getZSize() == DEFAULT_FLOOR_LEVEL)
-            {
-                floorService.saveDefaultFloor(location);
-            }
-            for (int floorLevel = 1; floorLevel <= location.getZSize(); floorLevel++) {
-                    floorService.saveOtherFloor(location, floorLevel);
-            }
-                locationList.add(location);
-        }
-
+        List<Location> locationList = locationCreateRequestList.stream()
+                .map(request -> {
+                    Location location = LocationMapper.fromLocationRequestDto(request, store, new ArrayList<>());
+                    List<Floor> locationFloorList = location.getFloorList();
+                    if (location.getZSize() == DEFAULT_FLOOR_LEVEL) {
+                        locationFloorList.add(floorService.buildDefaultFloor(location));
+                    }
+                    for (int floorLevel = 1; floorLevel <= location.getZSize(); floorLevel++) {
+                        locationFloorList.add(floorService.buildOtherFloor(location, floorLevel));
+                    }
+                    return location;
+                }).toList();
         store.getLocations().addAll(locationList);
-        locationRepository.saveAll(locationList);
+        storeRepository.save(store);
     }
 
 

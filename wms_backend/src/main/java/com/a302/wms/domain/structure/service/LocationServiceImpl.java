@@ -87,7 +87,7 @@ public class LocationServiceImpl {
 
         for (LocationCreateRequest request : saveRequest.requests()) {
 
-            Location location = LocationMapper.fromLocationRequestDto(request, store);
+            Location location = LocationMapper.fromLocationRequestDto(request, store, new ArrayList<>());
             locationRepository.save(location);
 //            floorService.saveAllByLocation(request, location);
         }
