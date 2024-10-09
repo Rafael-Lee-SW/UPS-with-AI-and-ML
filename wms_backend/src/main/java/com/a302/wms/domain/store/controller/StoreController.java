@@ -91,7 +91,7 @@ public class StoreController {
 
     @PostMapping("/{storeId}/structures")
     public BaseSuccessResponse<Void> saveStructure(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long storeId,
             @RequestBody StructureCreateRequest structureCreateRequest
     ) {
