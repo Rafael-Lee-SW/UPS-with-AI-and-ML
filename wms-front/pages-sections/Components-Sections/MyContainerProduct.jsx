@@ -1,3 +1,4 @@
+// MyContainerProduct.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import { makeStyles } from "@material-ui/core/styles";
@@ -6,8 +7,12 @@ import classNames from "classnames";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Section components import
+// Section components
 import MLAnalysis from "../../components/Product/MLAnalysis";
+import ImportSection from "../../components/Product/ImportSection";
+import ExportSection from "../../components/Product/ExportSection"; // 사용 X
+// Modal components
+import MoveProduct from "../../components/Product/MoveProduct";
 
 // Import MUI components
 import Grid from "@mui/material/Grid";
@@ -115,11 +120,12 @@ registerPlugin(DropdownMenu);
 registerPlugin(Filters);
 registerPlugin(HiddenRows);
 
+// 스타일 코드
 import styles from "/styles/jss/nextjs-material-kit/pages/componentsSections/MyContainerProductStyle.jsx";
 
 const useStyles = makeStyles(styles);
 
-// Create the theme with the desired overrides
+// muiDatatableTheme을 미리 설정해서 불러온다.
 const muiDatatableTheme = createTheme({
   components: {
     MuiTableBody: {
@@ -167,55 +173,18 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       progress: undefined,
     });
 
-  const [tableData, setTableData] = useState([]);
-  const [detailedData, setDetailedData] = useState([]); // Store all import/export data
-  const [ModalTableData, setModalTableData] = useState([]);
-  const [columns, setColumns] = useState([]);
+  const [tableData, setTableData] = useState([]);;
   const hotTableRef = useRef(null); // HandsonTable 객체 참조
   const [openModal, setOpenModal] = useState(false); // 입고 모달 열기/닫기 상태
-  const [columnSelectionStep, setColumnSelectionStep] = useState(0); // 데이터 선택
-  const [selectedColumns, setSelectedColumns] = useState({
-    barcode: null,
-    name: null,
-    quantity: null,
-    expiration_date: null,
-  });
   // HandsonTable 엑셀 형식에서 수정하기 위한 Modal State
   const [openEditModal, setOpenEditModal] = useState(false); // 수정용 모달 열기/닫기
   const [editData, setEditData] = useState([]); // State to track edited data
 
-  // 출고 데이터를 받기 위한 State
-  const [ModalTableExportData, setModalTableExportData] = useState([]);
-  const [exportColumns, setExportColumns] = useState([]);
-  const hotExportTableRef = useRef(null); // HandsonTable 객체 참조
-  const [openExportModal, setOpenExportModal] = useState(false); // 입고 모달 열기/닫기 상태
-  const [columnExportSelectionStep, setExportColumnSelectionStep] = useState(0); // 데이터 선택
-  const [selectedExportColumns, setSelectedExportColumns] = useState({
-    barcode: null,
-    name: null,
-    quantity: null,
-    expiration_date: null,
-  });
 
   // 선택된 열을 추적하기 위한 State
   const [selectedRows, setSelectedRows] = useState([]);
   const [openMoveModal, setOpenMoveModal] = useState(false); // State for move modal
-  const [moveData, setMoveData] = useState([]); // State to track data for moving products
 
-  // '상품별로 선택 이동하기' 를 위한 State
-  const [bulkMoveDetails, setBulkMoveDetails] = useState({
-    storeId: "",
-    locationId: "",
-    floorLevel: "",
-    quantity: "",
-  });
-  // 에러 메세지 출력을 위한 State
-  const [errors, setErrors] = useState([]);
-  // '상품 한번에 이동하기' 를 위한 State
-  const [isBulkMove, setIsBulkMove] = useState(true);
-
-  // Input Section을 관리하기 위한 State
-  const [showProductInputSection, setShowProductInputSection] = useState(false); // State for showing/hiding product input section
   const [newProductData, setNewProductData] = useState({
     barcode: "",
     name: "",
@@ -223,24 +192,10 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     originalPrice: "",
     salesPrice: "",
   });
-  const [expectedImportList, setExpectedImportList] = useState([]); // Store expected import list
 
-  // Export input section
-  const [showProductExportSection, setShowProductExportSection] =
-    useState(false); // State for showing/hiding product export section
-  const [newExportData, setNewExportData] = useState({
-    barcode: "",
-    quantity: "",
-    trackingNumber: "",
-  });
-  const [expectedExportList, setExpectedExportList] = useState([]); // Store expected export list
 
   // Analytics state
   const [showAnalytics, setShowAnalytics] = useState(false);
-
-  // Precomputed data for analytics
-  const [quantityByLocationData, setQuantityByLocationData] = useState(null);
-  const [flowByDateData, setFlowByDateData] = useState(null);
 
   // Loading states
   const [loading, setLoading] = useState(false); // 수정필수 : true 바꿀 것
@@ -250,77 +205,9 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
   const [activeButton, setActiveButton] = useState(0);
   const handleButtonClick = (index) => {
     setActiveButton(index);
+    handleNextComponent(index);
   };
 
-  // 엑셀로 입고(import)데이터를 받았을 때 이를 변환하는 메서드
-  const convertToArrayOfArraysModal = (data) => {
-    setModalTableData(data);
-    return data;
-  };
-
-  // 엑셀로 출고(export)데이터를 받았을 때 이를 변환하는 메서드
-  const convertToArrayOfArraysExportModal = (data) => {
-    setModalTableExportData(data);
-    return data;
-  };
-
-  // 엑셀을 통해 입고(import)했을 때의 모든 절차를 밟는 메서드
-  const importExcel = (input) => {
-    let file;
-    if (input.target && input.target.files) {
-      file = input.target.files[0];
-    } else {
-      file = input;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const bstr = event.target.result;
-      const workBook = XLSX.read(bstr, { type: "binary" });
-      const workSheetName = workBook.SheetNames[0];
-      const workSheet = workBook.Sheets[workSheetName];
-      const fileData = XLSX.utils.sheet_to_json(workSheet, { header: 1 });
-      const headers = fileData[0];
-      const formattedColumns = headers.map((head) => ({
-        name: head,
-        label: head,
-      }));
-      setColumns(formattedColumns);
-      fileData.splice(0, 1);
-      convertToArrayOfArraysModal(fileData);
-      setOpenModal(true); // Open the modal after importing the file
-    };
-    reader.readAsArrayBuffer(file);
-  };
-
-  // 엑셀을 통해 출고(export)했을 때의 모든 절차를 밟는 메서드
-  const exportExcel = (input) => {
-    let file;
-    if (input.target && input.target.files) {
-      file = input.target.files[0];
-    } else {
-      file = input;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const bstr = event.target.result;
-      const workBook = XLSX.read(bstr, { type: "binary" });
-      const workSheetName = workBook.SheetNames[0];
-      const workSheet = workBook.Sheets[workSheetName];
-      const fileData = XLSX.utils.sheet_to_json(workSheet, { header: 1 });
-      const headers = fileData[0];
-      const formattedColumns = headers.map((head) => ({
-        name: head,
-        label: head,
-      }));
-      setExportColumns(formattedColumns);
-      fileData.splice(0, 1);
-      convertToArrayOfArraysExportModal(fileData);
-      setOpenExportModal(true); // Open the modal after exporting
-    };
-    reader.readAsArrayBuffer(file);
-  };
 
   // 엑셀을 통해 상품 데이터를 다운로드하는 메서드
   const downloadExcel = (columns, tableData) => {
@@ -333,177 +220,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     XLSX.writeFile(workbook, "FIT-BOX-엑셀.xlsx");
   };
 
-  // 열의 색상을 바꾸는 메서드
-  const applyColumnColor = (columnIndex, color) => {
-    const hotInstance = hotTableRef.current.hotInstance;
-
-    hotInstance.batch(() => {
-      ModalTableData.forEach((row, rowIndex) => {
-        hotInstance.setCellMeta(
-          rowIndex,
-          columnIndex,
-          "className",
-          `background-color-${columnIndex}`
-        );
-      });
-    });
-
-    const styleElement = document.createElement("style");
-    styleElement.textContent = `.background-color-${columnIndex} { background-color: ${color} !important; }`;
-    document.head.append(styleElement);
-
-    hotInstance.render();
-  };
-
-  // 열을 클릭하면 해당하는 열의 색상을 바꾸는 메서드
-  const handleColumnClick = (event, coords) => {
-    if (columnSelectionStep >= 0) {
-      const colorMap = ["blue", "green", "red", "orange"];
-      const columnKeys = ["barcode", "name", "quantity", "expiry"];
-      applyColumnColor(coords.col, colorMap[columnSelectionStep]);
-      setSelectedColumns((prevSelected) => ({
-        ...prevSelected,
-        [columnKeys[columnSelectionStep]]: coords.col,
-      }));
-      setColumnSelectionStep(columnSelectionStep + 1);
-    }
-  };
-
-  // 출고 열의 색상을 바꾸는 메서드
-  const applyExportColumnColor = (columnIndex, color) => {
-    const hotInstance = hotExportTableRef.current.hotInstance;
-
-    hotInstance.batch(() => {
-      ModalTableExportData.forEach((row, rowIndex) => {
-        hotInstance.setCellMeta(
-          rowIndex,
-          columnIndex,
-          "className",
-          `background-color-${columnIndex}`
-        );
-      });
-    });
-
-    const styleElement = document.createElement("style");
-    styleElement.textContent = `.background-color-${columnIndex} { background-color: ${color} !important; }`;
-    document.head.append(styleElement);
-
-    hotInstance.render();
-  };
-
-  // 출고 열을 클릭하면 해당하는 열의 색상을 바꾸는 메서드
-  const handleExportColumnClick = (event, coords) => {
-    if (columnExportSelectionStep >= 0) {
-      const colorMap = ["blue", "green"];
-      const columnKeys = ["barcode", "quantity"];
-      applyExportColumnColor(coords.col, colorMap[columnExportSelectionStep]);
-      setSelectedExportColumns((prevSelected) => ({
-        ...prevSelected,
-        [columnKeys[columnExportSelectionStep]]: coords.col,
-      }));
-      setExportColumnSelectionStep(columnExportSelectionStep + 1);
-    }
-  };
-
-  // 선별된 엑셀 데이터를 입고 예상 목록에 추가하는 메서드
-  const finalizeSelectionImport = () => {
-    // 선택된 열의 데이터를 postData에 담는 과정
-    const postData = ModalTableData.map((row) => ({
-      barcode: row[selectedColumns.barcode],
-      name: row[selectedColumns.name],
-      quantity: row[selectedColumns.quantity],
-      expirationDate: null,
-      productStorageTypeEnum: "상온",
-    }));
-
-    // Append to expected import list
-    setExpectedImportList((prevList) => [...prevList, ...postData]);
-
-    setOpenModal(false);
-    setColumnSelectionStep(0);
-    setSelectedColumns({
-      barcode: null,
-      name: null,
-      quantity: null,
-      expiry: null,
-    });
-  };
-
-  // 선별된 엑셀 데이터를 입고 예상 목록에 추가하는 메서드
-  const finalizeSelectionExport = () => {
-    // 선택된 열의 데이터를 postData에 담는 과정
-    const postData = ModalTableExportData.map((row) => ({
-      barcode: row[selectedExportColumns.barcode],
-      quantity: row[selectedExportColumns.quantity],
-      trackingNumber: "121351203",
-    }));
-
-    // Append to expected export list
-    setExpectedExportList((prevList) => [...prevList, ...postData]);
-
-    setOpenExportModal(false);
-    setExportColumnSelectionStep(0);
-    setSelectedExportColumns({
-      barcode: null,
-      quantity: null,
-    });
-  };
-
-  // 새로운 엑셀 상품들을 입고시키는 API 메서드
-  const importAPI = async (postData) => {
-    // 토큰에서 유저정보를 가져온다.(중요)
-    const token = localStorage.getItem("token"); // 로그인 여부 검증 절차
-
-    if (!token) {
-      router.push("/signIn");
-      return;
-    }
-
-    try {
-      //  // 입고 시에 사용되는 데이터 양식
-      const ImportArray = postData.map((product) => ({
-        barcode: parseInt(product.barcode),
-        originalPrice: parseInt(product.originalPrice) || 0,
-        productName: product.name,
-        quantity: parseInt(product.quantity),
-        sellingPrice: parseInt(product.salesPrice) || 0,
-        sku: product.sku || null,
-        storeId: parseInt(storeId),
-      }));
-
-      console.log(ImportArray);
-
-      const response = await fetch(
-        "https://j11a302.p.ssafy.io/api/products/import",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // Include the token in the Authorization header
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(ImportArray),
-        }
-      );
-
-      console.log(response);
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log(result);
-        notify(`${selectedWarehouseTitle} 매장에 입고되었습니다.`);
-        getStoreProductAPI();
-        handleNextComponent(0);
-      } else {
-        notify(`입고에 실패했습니다.`);
-        handleNextComponent(0);
-      }
-    } catch (error) {
-      console.log(error);
-      notify(`입고에 실패했습니다.`);
-      handleNextComponent(0);
-    }
-  };
 
   // 루트 프린트를 위한 State
   const [printableContent, setPrintableContent] = useState({
@@ -514,125 +230,9 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
   // 출고 프린트 모달
   const [exportPrintModalOpen, setExportPrintModalOpen] = useState(false);
 
-  // 새로운 엑셀 상품들을 출고고시키는 API 메서드
-  const exportAPI = async (postData) => {
-    try {
-      // postData에 businessId와 warehouseId를 추가한다.
-      const newPostData = {
-        warehouseId: storeId,
-        businessId: businessId,
-        data: postData,
-      };
-      const response = await fetch(
-        "https://j11a302.p.ssafy.io/api/products/export",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newPostData),
-        }
-      );
-
-      if (response.ok) {
-        const accept = await response.json();
-        const pathData = accept.result;
-
-        // Convert the path data to the format required for the printable table
-        const printData = Object.keys(pathData[0].path)
-          .map((warehouseName) => {
-            return pathData[0].path[warehouseName].map((item) => [
-              item.warehouseName,
-              item.productName,
-              item.barcode,
-              item.quantity,
-              item.locationName,
-              item.floorLevel,
-              item.trackingNumber,
-              new Date(item.date).toLocaleDateString(),
-              item.expirationDate
-                ? new Date(item.expirationDate).toLocaleDateString()
-                : "N/A",
-              item.productStorageType,
-            ]);
-          })
-          .flat();
-
-        // Prepare columns for printing
-        const printColumns = [
-          { name: "warehouseName", label: "매장 이름" },
-          { name: "productName", label: "상품명" },
-          { name: "barcode", label: "바코드" },
-          { name: "quantity", label: "수량" },
-          { name: "locationName", label: "적재함 이름" },
-          { name: "floorLevel", label: "층수" },
-          { name: "trackingNumber", label: "송장 번호" },
-          { name: "date", label: "출고 날짜" },
-          { name: "expirationDate", label: "유통기한" },
-          { name: "productStorageType", label: "보관 상태" },
-        ];
-
-        // Trigger the print dialog
-        setPrintableContent({ columns: printColumns, data: printData });
-        setExportPrintModalOpen(true);
-
-        getStoreProductAPI(); // 새로 데이터를 불러오고
-        handleNextComponent(0); // Redirect 처리한다.
-      } else {
-        notify(`출고에 실패했습니다.`);
-        handleNextComponent(0);
-      }
-    } catch (error) {
-      notify(`출고에 실패했습니다.`);
-      handleNextComponent(0);
-    }
-  };
-
-  // 상품 이동 API
-  const moveProductAPI = async (moveDetails) => {
-    //토큰 검증 과정
-    const token = localStorage.getItem("token");
-    if (!token) {
-      // 토큰 유무로 로그인 여부를 판단하여 로그인 상태가 아닐 경우 로그인 창으로
-      router.push("/signIn");
-      return;
-    }
-
-    console.log("상품 이동 보내주기 : ", moveDetails);
-
-    try {
-      const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/products/batch`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(moveDetails),
-        }
-      );
-
-      if (response.ok) {
-        // 성공
-        const result = await response.json();
-        console.log(result);
-        notify(`상품을 이동했습니다.`);
-        getStoreProductAPI(); // 정보가 반영된 테이블을 새로 불러온다.
-      } else {
-        notify(`이동에 실패했습니다.`);
-        handleNextComponent(0);
-      }
-    } catch (error) {
-      console.log(error);
-      notify(`이동에 실패했습니다.`);
-      handleNextComponent(0);
-    }
-  };
-
   const [productColumns, setProductColumns] = useState([]);
 
-  // 해당 창고의 모든 상품들을 가져오는 API
+  // 해당 매장의 모든 상품들을 가져오는 API
   const getStoreProductAPI = async () => {
     // 토큰에서 유저정보를 가져온다.(중요)
     const token = localStorage.getItem("token");
@@ -1068,120 +668,11 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     setOpenEditModal(false); // Close modal after saving
   };
 
-  // Function to open move modal and set selected rows
+  // 이동하기 모달을 여는 함수
   const handleMoveButtonClick = () => {
-    const selectedData = selectedRows.map((rowIndex) => ({
-      productId: tableData[rowIndex][0],
-      name: tableData[rowIndex][1],
-      barcode: tableData[rowIndex][2],
-      quantityNow: tableData[rowIndex][3],
-      warehouseIdNow: tableData[rowIndex][7],
-      locationNameNow: tableData[rowIndex][4],
-      floorLevelNow: tableData[rowIndex][5],
-      //옮길 값들
-      storeId: bulkMoveDetails.storeId, // Default to bulk move values
-      locationId: bulkMoveDetails.locationId, // Default to bulk move values
-      floorLevel: bulkMoveDetails.floorLevel, // Default to bulk move values
-      quantity: bulkMoveDetails.quantity, // Default to bulk move values
-      errors: {}, // 에러값 초기화
-    }));
-
-    setMoveData(selectedData);
     setOpenMoveModal(true);
   };
 
-  // Function to handle bulk move input change
-  const handleBulkInputChange = (field, value) => {
-    setBulkMoveDetails((prevDetails) => ({
-      ...prevDetails,
-      [field]: value,
-    }));
-
-    if (field === "quantity") {
-      const minQuantity = Math.min(
-        ...selectedRows.map((rowIndex) => tableData[rowIndex][3])
-      );
-
-      // Check if the input is not a number
-      if (!/^\d*$/.test(value)) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          bulkQuantity: "수량은 숫자만 입력 가능합니다.",
-        }));
-      } else if (parseInt(value) > minQuantity) {
-        // Check if entered quantity is greater than the minimum available
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          bulkQuantity:
-            "일부 상품들의 수량보다 많습니다 : 일부 상품은 모든 상품이 옮겨집니다.",
-        }));
-      } else {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          bulkQuantity: "",
-        }));
-      }
-    }
-  };
-
-  // Function to handle change in new location details for detailed move
-  const handleNewLocationChange = (index, field, value) => {
-    setMoveData((prevMoveData) => {
-      const newData = [...prevMoveData];
-      const product = newData[index];
-      const errors = { ...newData[index].errors };
-
-      if (field === "quantity") {
-        // Check if the input is not a number
-        if (!Number.isInteger(parseInt(value)) || parseInt(value) < 0) {
-          errors.quantity = "잘못된 수량입니다. 유효한 정수를 입력하세요.";
-        } else if (parseInt(value) > product.quantityNow) {
-          errors.quantity = `수량이 너무 큽니다. 최대 ${product.quantityNow}개 가능합니다.`;
-          value = product.quantityNow; // Auto-correct the value
-        } else {
-          errors.quantity = "";
-        }
-      }
-
-      product[field] = value;
-      product.errors = errors;
-      return newData;
-    });
-  };
-
-  // 한번에 옮기기 Bulk Move
-  const handleFinalizeBulkMove = () => {
-    const moveDetails = selectedRows.map((rowIndex) => {
-      const product = tableData[rowIndex];
-      return {
-        productId: product[0],
-        locationId: parseInt(bulkMoveDetails.locationId),
-        floorLevel: parseInt(bulkMoveDetails.floorLevel),
-      };
-    });
-
-    // 대량 이동 성공
-    moveProductAPI(moveDetails);
-    setOpenMoveModal(false);
-  };
-
-  // Function to finalize move in detailed mode
-  const handleFinalizeDetailMove = () => {
-    const isValid = moveData.every((product) => !product.errors.quantity);
-    if (!isValid) return;
-
-    const moveDetails = moveData.map((product) => ({
-      productId: product.productId,
-      locationName: product.locationName,
-      floorLevel: product.floorLevel,
-      storeId: parseInt(product.storeId),
-      quantity: parseInt(product.quantity),
-    }));
-
-    // 상세 이동 성공
-    moveProductAPI(moveDetails);
-    setOpenMoveModal(false);
-  };
 
   // 선택 시에 테이블이 바뀐다.
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -1288,8 +779,9 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     },
   };
 
-  // Define the componentsArray with separate options
+  // 컴포넌트 행렬
   const componentsArray = [
+    // Index 0: 상품 목록
     <ThemeProvider theme={muiDatatableTheme}>
       <MUIDataTable
         key="productList"
@@ -1299,6 +791,19 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         options={listOptions}
       />
     </ThemeProvider>,
+    // Index 1: 입고하기
+    <ImportSection
+      key="importSection"
+      storeId={storeId}
+      notify={notify}
+      refreshData={getStoreProductAPI}
+    />,
+    // Index 2: 결제내역
+    <div>
+      <h2> Not now </h2>
+    </div>
+    ,
+    // Index 3: 이동하기
     <ThemeProvider theme={muiDatatableTheme}>
       <MUIDataTable
         key="moveProductList"
@@ -1308,6 +813,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         options={moveOptions}
       />
     </ThemeProvider>,
+    // Index 4: 변동내역
     <ThemeProvider theme={muiDatatableTheme}>
       <MUIDataTable
         key="notificationList"
@@ -1317,6 +823,9 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         options={listOptions}
       />
     </ThemeProvider>,
+    // Index 5: ML분석
+    <MLAnalysis key="mlAnalysis" />,
+    // Index 6: 알림함
     <ThemeProvider theme={muiDatatableTheme}>
       <MUIDataTable
         key="dateTypeList"
@@ -1326,6 +835,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         options={importExportOptions}
       />
     </ThemeProvider>,
+    // Index 7: 알림 상세 내역
     <ThemeProvider theme={muiDatatableTheme}>
       <MUIDataTable
         key="selectedNotificationList"
@@ -1335,8 +845,8 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         options={listOptions}
       />
     </ThemeProvider>,
-    <MLAnalysis key="mlAnalysis" />,
   ];
+
 
   // 해당하는 Section Table을 보여준다.
   const handleNextComponent = async (index) => {
@@ -1371,136 +881,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     }
   };
 
-  // Handle new product data input change
-  const handleNewProductInputChange = (field, value) => {
-    setNewProductData((prevData) => ({
-      ...prevData,
-      [field]: field === "expirationDate" ? dayjs(value) : value,
-    }));
-  };
-
-  // Add new product to expected import list
-  const handleAddNewProduct = () => {
-    let formattedDate = null;
-    let formattedDisplayDate = null;
-
-    if (
-      newProductData.expirationDate &&
-      dayjs(newProductData.expirationDate).isValid()
-    ) {
-      formattedDate = format(
-        new Date(newProductData.expirationDate),
-        "yyyy-MM-dd'T'HH:mm"
-      );
-
-      formattedDisplayDate = format(
-        new Date(newProductData.expirationDate),
-        "yyyy년 M월 d일 HH시 mm분"
-      );
-    }
-
-    const productData = {
-      ...newProductData,
-      expirationDate: formattedDate,
-      expirationDateDisplay: formattedDisplayDate, // For display purposes
-    };
-
-    setExpectedImportList((prevList) => [...prevList, productData]);
-    setNewProductData({
-      barcode: "",
-      name: "",
-      quantity: "",
-      originalPrice: "",
-      salesPrice: "",
-    });
-  };
-
-  // Delete product from expected import list
-  const handleDeleteImportProduct = (index) => {
-    setExpectedImportList((prevList) => prevList.filter((_, i) => i !== index));
-  };
-
-  // Finalize import from expected import list
-  const handleFinalImport = () => {
-    importAPI(expectedImportList);
-    setExpectedImportList([]); // Clear the list after import
-    setShowProductInputSection(false);
-  };
-
-  // Handle new export data input change
-  const handleNewExportInputChange = (field, value) => {
-    setNewExportData((prevData) => ({
-      ...prevData,
-      [field]: value,
-    }));
-  };
-
-  // Add new export to expected export list
-  const handleAddNewExport = () => {
-    setExpectedExportList((prevList) => [...prevList, newExportData]);
-    setNewExportData({
-      barcode: "",
-      quantity: "",
-      trackingNumber: "",
-    });
-  };
-
-  // Delete export from expected export list
-  const handleDeleteExportProduct = (index) => {
-    setExpectedExportList((prevList) => prevList.filter((_, i) => i !== index));
-  };
-
-  // Finalize export from expected export list
-  const handleFinalExport = () => {
-    exportAPI(expectedExportList);
-    setExpectedExportList([]); // Clear the list after export
-    setShowProductExportSection(false);
-  };
-
-  // 압축하기
-  const handleEncapsulation = () => {
-    EncapsuleAPI();
-  };
-
-  // 상품 압축기능 - 산재되어있는 각 상품들을 하나로 모은다.
-  const EncapsuleAPI = async () => {
-    try {
-      const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/products/compress?businessId=${businessId}&warehouseId=${WHId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        //성공
-        const result = await response.json();
-        getStoreProductAPI(); // 새로 상품 불러오기
-        notify(`상품들을 정렬하였습니다.`);
-        handleNextComponent(0);
-        // 압축 성공 모달 띄우기
-      } else {
-        notify(`압축에 실패하였습니다.`);
-        handleNextComponent(0);
-      }
-    } catch (error) {
-      notify(`압축에 실패하였습니다.`);
-      handleNextComponent(0);
-    }
-  };
-
-  /**
-   * UseEffect를 통해 새로고침 때마다 api로 사장님의 재고를 불러옴
-   * + 유저정보
-   */
-
-  useEffect(() => {
-    //재고 목록과 알림 내역을 불러온다.
-    getStoreProductAPI(); // 실행되면서 같이 부른다.
-  }, [openModal]);
 
   // Printing logic
   const [printModalOpen, setPrintModalOpen] = useState(false);
@@ -1553,7 +933,16 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     </div>
   );
 
-  // Effect to trigger print on modal open
+/**
+ * UseEffect Part
+ */
+  // 재고 목록을 불러온다.
+  useEffect(() => {
+    getStoreProductAPI(); // 실행되면서 같이 부른다.
+    // openModal 기점으로 함으로써 변동 내역이 생길 때마다 불러온다.
+  }, [openModal]);
+
+// 프린트 모달을 위한 UseEffect
   useEffect(() => {
     if (printModalOpen) {
       const timer = setTimeout(() => {
@@ -1563,8 +952,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       return () => clearTimeout(timer);
     }
   }, [printModalOpen]);
-
-  // Effect to trigger print on modal open
   useEffect(() => {
     if (exportPrintModalOpen) {
       const timer = setTimeout(() => {
@@ -1576,165 +963,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     }
   }, [exportPrintModalOpen]);
 
-  /**
-   * 상품 이동 시에 토글로 제약
-   */
-
-  // 창고를 선택할 수 있다.
-  const handleWarehouseSelectChange = (field, value, index = null) => {
-    if (isBulkMove) {
-      setBulkMoveDetails((prevDetails) => ({
-        ...prevDetails,
-        [field]: value,
-        locationName: "",
-        floorLevel: "", // Reset location and floor level when warehouse changes
-      }));
-      setFloorLevels([]); // Clear floor levels
-      getStoreStructureAPI(value); // Fetch locations for the selected warehouse
-    } else {
-      setMoveData((prevMoveData) => {
-        const newData = [...prevMoveData];
-        newData[index][field] = value;
-        newData[index].locationName = "";
-        newData[index].floorLevel = ""; // Reset location and floor level
-        return newData;
-      });
-      setFloorLevels([]); // Clear floor levels
-      getStoreStructureAPI(value); // Fetch locations for the selected warehouse
-    }
-  };
-
-  //선택된 창고를 바탕으로 로케이션과 층수를 선택한다.
-  const [locations, setLocations] = useState([]);
-  const [floorLevels, setFloorLevels] = useState([]);
-
-  // 해당하는 창고의 로케이션 정보를 불러오는 API
-  const getStoreStructureAPI = async (value) => {
-    // 토큰에서 유저정보를 가져온다.(로그인 확인)
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      // Handle the case where the token is missing (e.g., redirect to signIn)
-      router.push("/signIn");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/stores/${value}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            // Include the token in the Authorization header
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const apiConnection = await response.json();
-        const warehouseData = apiConnection.result; // Extract data
-
-        console.log("창고 목록 불러오기 :", apiConnection);
-
-        // Process location data from the API response
-        const locations = warehouseData.locations;
-
-        console.log("창고 내 로케이션 : ", locations);
-
-        if (!locations) {
-          //에러
-          console.log("아무것도 없습니다.");
-          return;
-        }
-        const newLocations = locations.map((location, index) => {
-          return {
-            id: location.id.toString(),
-            x: location.xposition,
-            y: location.yposition,
-            width: location.xsize || 50,
-            height: location.ysize || 50,
-            z: location.zsize,
-            draggable: true,
-            order: index,
-            name: location.name || `적재함 ${index}`,
-            type: "location",
-            rotation: 0,
-          };
-        });
-
-        console.log(newLocations);
-
-        setLocations(newLocations);
-      } else {
-        //에러
-      }
-    } catch (error) {
-      //에러
-    }
-  };
-
-  const handleLocationSelectChange = (field, value, index = null) => {
-    if (isBulkMove) {
-      setBulkMoveDetails((prevDetails) => ({
-        ...prevDetails,
-        [field]: value,
-        floorLevel: "", // Reset floor level when location changes
-      }));
-      // Find the selected location to get the locationId and available floor levels
-      const selectedLocation = locations.find(
-        (location) => location.name === value
-      );
-      if (selectedLocation) {
-        const newFloorLevels = Array.from(
-          { length: selectedLocation.z },
-          (_, i) => i + 1
-        );
-        setFloorLevels(newFloorLevels);
-        // Assign the locationId for bulk move
-        setBulkMoveDetails((prevDetails) => ({
-          ...prevDetails,
-          locationId: selectedLocation.id, // Assign locationId here
-        }));
-      }
-    } else {
-      setMoveData((prevMoveData) => {
-        const newData = [...prevMoveData];
-        newData[index][field] = value;
-        newData[index].floorLevel = ""; // Reset floor level
-        const selectedLocation = locations.find(
-          (location) => location.name === value
-        );
-        if (selectedLocation) {
-          const newFloorLevels = Array.from(
-            { length: selectedLocation.z },
-            (_, i) => i + 1
-          );
-          setFloorLevels(newFloorLevels);
-          // Assign the locationId for individual move
-          newData[index].locationId = selectedLocation.id; // Assign locationId here
-        }
-        return newData;
-      });
-    }
-  };
-
-  const [noExpirationDate, setNoExpirationDate] = useState(false);
-
-  const toggleNoExpirationDate = () => {
-    setNoExpirationDate(!noExpirationDate);
-    handleNewProductInputChange(
-      "expirationDate",
-      noExpirationDate ? dayjs() : null
-    );
-  };
-
-  const isBulkMoveEnabled =
-    bulkMoveDetails.warehouseId &&
-    bulkMoveDetails.locationName &&
-    bulkMoveDetails.floorLevel &&
-    bulkMoveDetails.quantity;
 
   return (
     <div className={classes.productContainer}>
@@ -1744,9 +972,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
             variant="contained"
             onClick={() => {
               handleButtonClick(0);
-              handleNextComponent(0);
-              setShowProductInputSection(false);
-              setShowProductExportSection(false);
             }}
             className={classNames(classes.sidebarButton, {
               [classes.activeButton]: activeButton === 0,
@@ -1760,9 +985,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
             variant="contained"
             onClick={() => {
               handleButtonClick(1);
-              setShowProductInputSection(true);
-              setShowProductExportSection(false);
-              handleNextComponent(6); // Close other sections
             }}
             className={classNames(classes.sidebarButton, {
               [classes.activeButton]: activeButton === 1,
@@ -1776,9 +998,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
             variant="contained"
             onClick={() => {
               handleButtonClick(2);
-              setShowProductInputSection(false);
-              setShowProductExportSection(true);
-              handleNextComponent(6); // Close other sections
             }}
             className={classNames(classes.sidebarButton, {
               [classes.activeButton]: activeButton === 2,
@@ -1792,29 +1011,9 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
             variant="contained"
             onClick={() => {
               handleButtonClick(3);
-              setShowProductInputSection(false);
-              setShowProductExportSection(false);
-              setOpenEditModal(true);
-              handleNextComponent(0);
             }}
             className={classNames(classes.sidebarButton, {
               [classes.activeButton]: activeButton === 3,
-            })}
-          >
-            수정하기
-          </Button>
-        </div>
-        <div className={classes.buttonContainer}>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleButtonClick(4);
-              handleNextComponent(1);
-              setShowProductInputSection(false);
-              setShowProductExportSection(false);
-            }}
-            className={classNames(classes.sidebarButton, {
-              [classes.activeButton]: activeButton === 4,
             })}
           >
             이동하기
@@ -1824,13 +1023,10 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
           <Button
             variant="contained"
             onClick={() => {
-              handleButtonClick(5);
-              handleNextComponent(2);
-              setShowProductInputSection(false);
-              setShowProductExportSection(false);
+              handleButtonClick(4);
             }}
             className={classNames(classes.sidebarButton, {
-              [classes.activeButton]: activeButton === 5,
+              [classes.activeButton]: activeButton === 4,
             })}
           >
             변동내역
@@ -1840,13 +1036,10 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
           <Button
             variant="contained"
             onClick={() => {
-              handleButtonClick(6);
-              handleNextComponent(5);
-              setShowProductInputSection(false);
-              setShowProductExportSection(false);
+              handleButtonClick(5);
             }}
             className={classNames(classes.sidebarButton, {
-              [classes.activeButton]: activeButton === 6,
+              [classes.activeButton]: activeButton === 5,
             })}
           >
             ML분석
@@ -1856,13 +1049,10 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
           <Button
             variant="contained"
             onClick={() => {
-              handleButtonClick(7);
-              handleNextComponent(3);
-              setShowProductInputSection(false);
-              setShowProductExportSection(false);
+              handleButtonClick(6);
             }}
             className={classNames(classes.sidebarButton, {
-              [classes.activeButton]: activeButton === 7,
+              [classes.activeButton]: activeButton === 6,
             })}
           >
             알림함
@@ -1870,149 +1060,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         </div>
       </div>
       {/* 모달들 */}
-      {/* 입고 Modal */}
-      <Dialog
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        maxWidth="lg"
-        fullWidth
-      >
-        <DialogTitle>
-          {columnSelectionStep === 0 && "바코드가 있는 열을 선택하세요."}
-          {columnSelectionStep === 1 && "상품 이름이 있는 열을 선택하세요."}
-          {columnSelectionStep === 2 && "수량이 있는 열을 선택하세요."}
-          {columnSelectionStep === 3 && "유통기한이 있는 상품들입니까?"}
-          {columnSelectionStep === 4 && "유통 기한 칼럼을 선택하세요."}
-          {columnSelectionStep === 5 &&
-            "최종적으로 선택된 데이터를 확인하세요."}
-        </DialogTitle>
-        <DialogContent>
-          {columnSelectionStep < 3 && (
-            <div>
-              <p>
-                {columnSelectionStep === 0 && "바코드가 있는 열을 선택하세요."}
-                {columnSelectionStep === 1 &&
-                  "상품 이름이 있는 열을 선택하세요."}
-                {columnSelectionStep === 2 && "수량이 있는 열을 선택하세요."}
-              </p>
-            </div>
-          )}
-          {columnSelectionStep === 3 && (
-            <div>
-              <Button
-                className={classes.importButton}
-                onClick={() => setColumnSelectionStep(4)}
-              >
-                Yes
-              </Button>
-              <Button
-                className={classes.importButton}
-                onClick={() => setColumnSelectionStep(5)}
-              >
-                No
-              </Button>
-            </div>
-          )}
-          <HotTable
-            height={600}
-            ref={hotTableRef}
-            data={ModalTableData}
-            colHeaders={columns.map((col) => col.label)}
-            dropdownMenu={true}
-            hiddenColumns={{
-              indicators: true,
-            }}
-            contextMenu={true}
-            multiColumnSorting={true}
-            filters={true}
-            rowHeaders={true}
-            autoWrapCol={true}
-            autoWrapRow={true}
-            afterGetColHeader={alignHeaders}
-            beforeRenderer={addClassesToRows}
-            manualRowMove={true}
-            navigableHeaders={true}
-            licenseKey="non-commercial-and-evaluation"
-            afterOnCellMouseDown={handleColumnClick}
-          />
-        </DialogContent>
-        <DialogActions>
-          {columnSelectionStep === 5 && (
-            <Button
-              className={classes.importButton}
-              onClick={finalizeSelectionImport}
-            >
-              네
-            </Button>
-          )}
-          <Button
-            className={classes.importButton}
-            onClick={() => setOpenModal(false)}
-          >
-            닫기
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {/* 출고 Modal */}
-      <Dialog
-        open={openExportModal}
-        onClose={() => setOpenExportModal(false)}
-        maxWidth="lg"
-        fullWidth
-      >
-        <DialogTitle>
-          <h1>출고 데이터</h1>
-          {columnExportSelectionStep === 0 && "바코드가 있는 열을 선택하세요."}
-          {columnExportSelectionStep === 1 && "수량이 있는 열을 선택하세요."}
-          {columnExportSelectionStep === 2 &&
-            "최종적으로 선택된 데이터를 확인하세요."}
-        </DialogTitle>
-        <DialogContent>
-          {columnExportSelectionStep < 1 && (
-            <div>
-              <p>데이터가 충분하지 않습니다.</p>
-            </div>
-          )}
-          <HotTable
-            height={600}
-            ref={hotExportTableRef}
-            data={ModalTableExportData}
-            colHeaders={exportColumns.map((col) => col.label)}
-            dropdownMenu={true}
-            hiddenColumns={{
-              indicators: true,
-            }}
-            contextMenu={true}
-            multiColumnSorting={true}
-            filters={true}
-            rowHeaders={true}
-            autoWrapCol={true}
-            autoWrapRow={true}
-            afterGetColHeader={alignHeaders}
-            beforeRenderer={addClassesToRows}
-            manualRowMove={true}
-            navigableHeaders={true}
-            licenseKey="non-commercial-and-evaluation"
-            afterOnCellMouseDown={handleExportColumnClick}
-          />
-        </DialogContent>
-        <DialogActions>
-          {columnExportSelectionStep === 2 && (
-            <Button
-              className={classes.importButton}
-              onClick={finalizeSelectionExport}
-            >
-              네
-            </Button>
-          )}
-          <Button
-            className={classes.importButton}
-            onClick={() => setOpenExportModal(false)}
-          >
-            닫기
-          </Button>
-        </DialogActions>
-      </Dialog>
       {/* 상품 데이터 수정 Modal */}
       <Dialog
         open={openEditModal}
@@ -2067,219 +1114,15 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         </DialogActions>
       </Dialog>
       {/* 상품 이동 Modal */}
-      <Dialog
+      <MoveProduct
         open={openMoveModal}
         onClose={() => setOpenMoveModal(false)}
-        maxWidth="lg"
-        fullWidth
-      >
-        <DialogTitle>상품을 원하는 장소로 옮기세요</DialogTitle>
-        <DialogContent>
-          {isBulkMove ? (
-            <>
-              <FormControl fullWidth margin="normal">
-                <InputLabel>매장 선택</InputLabel>
-                <Select
-                  value={bulkMoveDetails.warehouseId}
-                  onChange={(e) =>
-                    handleWarehouseSelectChange("warehouseId", e.target.value)
-                  }
-                >
-                  <MenuItem value="">
-                    <em>선택하세요</em>
-                  </MenuItem>
-                  {stores.map((store) => (
-                    <MenuItem key={store.id} value={store.id}>
-                      {store.storeName}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl
-                fullWidth
-                margin="normal"
-                disabled={!locations.length}
-              >
-                <InputLabel>적재함 이름 선택</InputLabel>
-                <Select
-                  value={bulkMoveDetails.locationName}
-                  onChange={(e) =>
-                    handleLocationSelectChange("locationName", e.target.value)
-                  }
-                >
-                  <MenuItem value="">
-                    <em>선택하세요</em>
-                  </MenuItem>
-                  {locations.map((location) => (
-                    <MenuItem key={location.id} value={location.name}>
-                      {location.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl
-                fullWidth
-                margin="normal"
-                disabled={!floorLevels.length}
-              >
-                <InputLabel>층수 선택</InputLabel>
-                <Select
-                  value={bulkMoveDetails.floorLevel}
-                  onChange={(e) =>
-                    handleBulkInputChange("floorLevel", e.target.value)
-                  }
-                >
-                  <MenuItem value="">
-                    <em>선택하세요</em>
-                  </MenuItem>
-                  {floorLevels.map((floor) => (
-                    <MenuItem key={floor} value={floor}>
-                      {floor}층
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <TextField
-                label="수량"
-                value={bulkMoveDetails.quantity}
-                onChange={(e) =>
-                  handleBulkInputChange("quantity", e.target.value)
-                }
-                fullWidth
-                margin="normal"
-                error={!!errors.bulkQuantity}
-                helperText={errors.bulkQuantity}
-              />
-            </>
-          ) : (
-            moveData.map((product, index) => (
-              <div key={product.productId} className={classes.eachProductMove}>
-                <h3>
-                  {product.name} (바코드: {product.barcode}) - 수량 :{" "}
-                  {product.quantityNow}개
-                </h3>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>물건이 옮겨질 매장 선택</InputLabel>
-                  <Select
-                    value={product.warehouseId}
-                    onChange={(e) =>
-                      handleWarehouseSelectChange(
-                        "warehouseId",
-                        e.target.value,
-                        index
-                      )
-                    }
-                  >
-                    <MenuItem value="">
-                      <em>선택하세요</em>
-                    </MenuItem>
-                    {stores.map((store) => (
-                      <MenuItem key={store.id} value={store.id}>
-                        {store.storeName}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl
-                  fullWidth
-                  margin="normal"
-                  disabled={!locations.length}
-                >
-                  <InputLabel>물건이 옮겨질 적재함 이름 선택</InputLabel>
-                  <Select
-                    value={product.locationName}
-                    onChange={(e) =>
-                      handleLocationSelectChange(
-                        "locationName",
-                        e.target.value,
-                        index
-                      )
-                    }
-                  >
-                    <MenuItem value="">
-                      <em>선택하세요</em>
-                    </MenuItem>
-                    {locations.map((location) => (
-                      <MenuItem key={location.id} value={location.id}>
-                        {location.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl
-                  fullWidth
-                  margin="normal"
-                  disabled={!floorLevels.length}
-                >
-                  <InputLabel>옮겨질 적재함의 층 선택</InputLabel>
-                  <Select
-                    value={product.floorLevel}
-                    onChange={(e) =>
-                      handleNewLocationChange(
-                        index,
-                        "floorLevel",
-                        e.target.value
-                      )
-                    }
-                  >
-                    <MenuItem value="">
-                      <em>선택하세요</em>
-                    </MenuItem>
-                    {floorLevels.map((floor) => (
-                      <MenuItem key={floor} value={floor}>
-                        {floor}층
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <TextField
-                  label="옮길 수량"
-                  type="number"
-                  value={product.quantity}
-                  onChange={(e) =>
-                    handleNewLocationChange(index, "quantity", e.target.value)
-                  }
-                  fullWidth
-                  margin="normal"
-                  error={!!product.errors.quantity}
-                  helperText={product.errors.quantity}
-                />
-              </div>
-            ))
-          )}
-        </DialogContent>
-        <DialogActions>
-          {isBulkMove ? (
-            <Button
-              className={classes.movbeButton}
-              onClick={handleFinalizeBulkMove}
-              disabled={!isBulkMoveEnabled}
-            >
-              전부 옮기기
-            </Button>
-          ) : (
-            <Button
-              className={classes.movbeButton}
-              onClick={handleFinalizeDetailMove}
-              disabled={!moveData.every((product) => product.floorLevel)}
-            >
-              각각 옮기기
-            </Button>
-          )}
-          <Button
-            className={classes.movbeButton}
-            onClick={() => setIsBulkMove(!isBulkMove)}
-          >
-            {isBulkMove ? "각각 옮기기 모드" : "전부 옮기기 모드"}
-          </Button>
-          <Button
-            className={classes.movbeButton}
-            onClick={() => setOpenMoveModal(false)}
-          >
-            취소
-          </Button>
-        </DialogActions>
-      </Dialog>
+        selectedRows={selectedRows}
+        tableData={tableData}
+        stores={stores}
+        getStoreProductAPI={getStoreProductAPI}
+        notify={notify}
+      />
       {/* 일반 프린트 Print Modal */}
       <Dialog
         open={printModalOpen}
@@ -2328,178 +1171,10 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       )}
       {/* Section 시작 */}
       <div className={classes.baseSection}>
-        {/* 입고하기 Section */}
-        {showProductInputSection && (
-          <div className={classes.importSection}>
-            <div className={classes.importProduct}>
-              <Typography variant="h6" gutterBottom>
-                제품 데이터 입력
-              </Typography>
-              <table className={classes.importingTable}>
-                <tbody>
-                  <tr>
-                    <td className={classes.tdImportingTable}>
-                      <TextField
-                        label="바코드"
-                        value={newProductData.barcode}
-                        onChange={(e) =>
-                          handleNewProductInputChange("barcode", e.target.value)
-                        }
-                        fullWidth
-                        margin="normal"
-                      />
-                    </td>
-                    <td className={classes.tdImportingTable}>
-                      <TextField
-                        label="상품명"
-                        value={newProductData.name}
-                        onChange={(e) =>
-                          handleNewProductInputChange("name", e.target.value)
-                        }
-                        fullWidth
-                        margin="normal"
-                      />
-                    </td>
-                    <td className={classes.tdImportingTable}>
-                      <TextField
-                        label="수량"
-                        value={newProductData.quantity}
-                        onChange={(e) =>
-                          handleNewProductInputChange(
-                            "quantity",
-                            e.target.value
-                          )
-                        }
-                        fullWidth
-                        margin="normal"
-                      />
-                    </td>
-                    <td className={classes.tdImportingTablePrice}>
-                      <TextField
-                        label="원가"
-                        value={newProductData.originalPrice}
-                        onChange={(e) =>
-                          handleNewProductInputChange(
-                            "originalPrice",
-                            e.target.value
-                          )
-                        }
-                        fullWidth
-                        margin="normal"
-                      />
-                    </td>
-                    <td className={classes.tdImportingTablePrice}>
-                      <TextField
-                        label="판매가"
-                        value={newProductData.salesPrice}
-                        onChange={(e) =>
-                          handleNewProductInputChange(
-                            "salesPrice",
-                            e.target.value
-                          )
-                        }
-                        fullWidth
-                        margin="normal"
-                      />
-                    </td>
-                    <td className={classes.tdImportingTable}>
-                      <Button
-                        variant="contained"
-                        onClick={handleAddNewProduct}
-                        className={classes.buttonStyle}
-                      >
-                        제품 추가
-                      </Button>
-                    </td>
-                  </tr>
-                  <tr>
-                    {/* colspan : 몇 개의 열을 하나로 보여줄 지 결정/ 5개의 열이 한개로 표현 */}
-                    <td className={classes.tdImportingTable} colSpan={5}>
-                      <label htmlFor="upload-import">
-                        <input
-                          required
-                          style={{ display: "none" }}
-                          id="upload-import"
-                          name="upload-import"
-                          type="file"
-                          onChange={importExcel}
-                        />
-                        <Fab
-                          className={classes.importingButton}
-                          size="small"
-                          component="span"
-                          aria-label="add"
-                          variant="extended"
-                        >
-                          엑셀 업로드
-                        </Fab>
-                      </label>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={handleFinalImport}
-                        className={classes.importingButton}
-                      >
-                        입고하기
-                      </Button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div className={classes.expectedImportList}>
-              <Typography variant="h6">입고 예정 목록</Typography>
-              <table className={classes.expectedImportTable}>
-                <thead>
-                  <tr>
-                    <th className={classes.thExpectedImportTable}>이름</th>
-                    <th className={classes.thExpectedImportTable}>바코드</th>
-                    <th className={classes.thExpectedImportTable}>수량</th>
-                    <th className={classes.thExpectedImportTable}>원가</th>
-                    <th className={classes.thExpectedImportTable}>판매가</th>
-                    <th className={classes.thExpectedImportTable}>비고</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {expectedImportList.map((product, index) => (
-                    <tr key={index}>
-                      <td className={classes.thExpectedImportTable}>
-                        {product.name}
-                      </td>
-                      <td className={classes.thExpectedImportTable}>
-                        {product.barcode}
-                      </td>
-                      <td className={classes.thExpectedImportTable}>
-                        {product.quantity}
-                      </td>
-                      <td className={classes.thExpectedImportTable}>
-                        {product.originalPrice}
-                      </td>
-                      <td className={classes.thExpectedImportTable}>
-                        {product.salesPrice}
-                      </td>
-                      <td className={classes.thExpectedImportTable}>
-                        <IconButton
-                          color="secondary"
-                          onClick={() => handleDeleteImportProduct(index)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-        {!(showProductExportSection || showProductInputSection) && (
-          <Grid item xs={12} style={{ width: "100%" }}>
-            {/* 메인 영역 */}
-            {currentIndex >= 0 && componentsArray[currentIndex]}
-          </Grid>
-        )}
+        <Grid item xs={12} style={{ width: "100%" }}>
+          {/* 메인 영역 */}
+          {currentIndex >= 0 && componentsArray[currentIndex]}
+        </Grid>
       </div>
     </div>
   );
