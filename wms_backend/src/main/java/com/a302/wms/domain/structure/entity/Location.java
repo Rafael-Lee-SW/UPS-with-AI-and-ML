@@ -66,10 +66,6 @@ public class Location extends BaseTimeEntity {
         this.zSize = zSize;
     }
 
-    public void updateFloors(List<Floor> floors) {
-        this.floorList = floors;
-    }
-
     public void updateName(String name) {
         this.name = name;
     }
