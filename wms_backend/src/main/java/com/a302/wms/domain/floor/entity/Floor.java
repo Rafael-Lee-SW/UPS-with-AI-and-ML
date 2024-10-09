@@ -26,7 +26,7 @@ public class Floor extends BaseTimeEntity {
   @Column(name = "id", nullable = false)
   private Long floorId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "location_id", nullable = false)
   private Location location;
 
