@@ -66,6 +66,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import MoveIcon from "@mui/icons-material/MoveUp";
 import PrintIcon from "@mui/icons-material/Print";
 import { Download } from "@mui/icons-material";
+import EditIcon from "@mui/icons-material/Edit";
+import DownloadIcon from "@mui/icons-material/Download";
 
 // Import Chart.js for analytics
 import { Chart, Bar } from "react-chartjs-2";
@@ -347,7 +349,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
 
         console.log("Notifications:", notifications);
 
-        // Map notifications to the format expected by the frontend
+        // 알림함에 넣기 위한 정제과정
         const formattedNotifications = notifications.map((notification) => ({
           id: notification.id,
           userId: notification.userId,
@@ -365,6 +367,18 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
 
         // Process notifications to group by date and type
         processNotifications(formattedNotifications);
+
+        //'변동내역'
+        setAllChangingTableData(formattedNotifications);
+
+        //'변동내역'
+        setAllChangingTableColumns([
+          { name: "date", label: "날짜" },
+          { name: "message", label: "메시지" },
+          { name: "type", label: "유형" },
+          { name: "isRead", label: "읽음 여부" },
+        ]);
+
 
         setLoading(false);
       } else {
@@ -468,31 +482,41 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     setCurrentIndex(7); // Assuming index 7 is the detailed notification component
   };
 
+  /**
+   * 상품 정보 수정
+   */
+
+  const handleEditButtonClick = () => {
+    setEditData(tableData); // Use the current table data for editing
+    setOpenEditModal(true);
+  };
+
   // 상품 정보를 수정하는 API 호출 메서드
   const productEditAPI = async (productsArray) => {
+    const token = localStorage.getItem("token");
+
     setLoading(true);
     try {
-      const response = await fetch(`https://j11a302.p.ssafy.io/api/products`, {
-        method: "PUT",
+      const response = await fetch(`https://j11a302.p.ssafy.io/api/products/batch`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(productsArray),
       });
 
       if (response.ok) {
         setLoading(false);
-        // 수정 성공
-        getStoreProductAPI();
+        getStoreProductAPI(); // Refresh data
         notify(`데이터를 수정하였습니다.`);
-        handleNextComponent(0);
       } else {
+        setLoading(false);
         notify(`수정에 실패했습니다.`);
-        handleNextComponent(0);
       }
     } catch (error) {
+      setLoading(false);
       notify(`수정에 실패했습니다.`);
-      handleNextComponent(0);
     }
   };
 
@@ -501,35 +525,61 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     const hotInstance = hotTableRef.current.hotInstance;
     const updatedData = hotInstance.getData();
 
-    // 수정을 위한 데이터를 updatedData를 통해 가져온다.
+    // Prepare the data for the API
     const productsArray = updatedData.map((row) => ({
-      productId: String(row[0]), // Get From HiddenId
+      productId: row[0],
+      barcode: row[2],
+      productName: row[1],
+      quantity: row[3],
       locationName: row[4] !== "임시" ? row[4] : "00-00",
-      floorLevel: String(row[5]),
-      productRequestDto: {
-        name: row[1],
-        barcode: row[2],
-        quantity: row[3],
-        expirationDate: row[6] === "없음" ? null : row[6],
-        warehouseId: parseInt(row[7]),
-      },
+      floorLevel: row[5],
+      originalPrice: row[7],
+      sellingPrice: row[8],
     }));
 
-    // Send the array of products to the API
+    // Call the API to update products
     productEditAPI(productsArray);
 
-    // Use router.replace with shallow routing
-    router.replace(
-      {
-        pathname: `/user/${storeId}`,
-        query: { component: "product" },
-      },
-      undefined,
-      { shallow: true }
-    );
-
-    setOpenEditModal(false); // Close modal after saving
+    setOpenEditModal(false);
   };
+
+  /**
+   * 상품 삭제 API
+   */
+
+  const deleteProductsAPI = async (productIds) => {
+    const token = localStorage.getItem("token");
+
+    console.log(productIds)
+
+    setLoading(true);
+    try {
+      const response = await fetch(`https://j11a302.p.ssafy.io/api/products/batch?productIdList=${productIds.join(",")}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log(response)
+
+      if (response.ok) {
+        setLoading(false);
+        getStoreProductAPI(); // Refresh data
+        notify(`선택한 상품을 삭제하였습니다.`);
+        setDeleteMode(false);
+      } else {
+        setLoading(false);
+        notify(`상품 삭제에 실패했습니다.`);
+      }
+    } catch (error) {
+      setLoading(false);
+      notify(`상품 삭제 중 오류가 발생했습니다.`);
+    }
+  };
+
+
 
   // 이동하기 모달을 여는 함수
   const handleMoveButtonClick = () => {
@@ -589,6 +639,11 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     customToolbar: () => {
       return (
         <React.Fragment>
+          <Tooltip title="Edit">
+            <IconButton onClick={handleEditButtonClick}>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Print">
             <IconButton onClick={() => setPrintModalOpen(true)}>
               <PrintIcon />
@@ -599,6 +654,14 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
               onClick={() => downloadExcel(productColumns, tableData)}
             >
               <Download />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete">
+            <IconButton onClick={handleDeleteModeToggle}
+              style={{ color: deleteMode ? "red" : "inherit" }}
+            >
+
+              <DeleteIcon />
             </IconButton>
           </Tooltip>
         </React.Fragment>
@@ -642,6 +705,35 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     },
   };
 
+  const [deleteMode, setDeleteMode] = useState(false);
+
+  const handleDeleteModeToggle = () => {
+    setDeleteMode(!deleteMode);
+    setSelectedRows([]); // Clear any selected rows
+  };
+
+  const deleteOptions = {
+    ...listOptions,
+    selectableRows: "multiple",
+    onRowSelectionChange: (currentRowsSelected, allRowsSelected) => {
+      setSelectedRows(allRowsSelected.map((row) => row.dataIndex));
+    },
+    customToolbarSelect: (selectedRows, displayData, setSelectedRows) => (
+      <div>
+        <Tooltip title="Delete Selected">
+          <IconButton onClick={handleDeleteSelected}>
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
+      </div>
+    ),
+  };
+  const handleDeleteSelected = () => {
+    const productIdsToDelete = selectedRows.map((rowIndex) => tableData[rowIndex][0]); // Assuming the first column is the product ID
+
+    deleteProductsAPI(productIdsToDelete);
+  };
+
   // 컴포넌트 행렬
   const componentsArray = [
     // Index 0: 상품 목록
@@ -651,7 +743,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         title={"상품 목록"}
         data={tableData}
         columns={productColumns}
-        options={listOptions}
+        options={deleteMode ? deleteOptions : listOptions}
       />
     </ThemeProvider>,
     // Index 1: 입고하기
@@ -679,7 +771,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     // Index 4: 변동내역
     <ThemeProvider theme={muiDatatableTheme}>
       <MUIDataTable
-        key="notificationList"
+        key="changeHistory"
         title={"모든 변동 내역"}
         data={allChangingTableData}
         columns={allChangingTableColumns}
@@ -713,37 +805,22 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
 
   // 해당하는 Section Table을 보여준다.
   const handleNextComponent = async (index) => {
-    if (index === 2 && !notificationsFetched) {
+    if (index === 4 && !notificationsFetched) {
       // Show loading if notifications not yet fetched and user enters '변동내역'
       setLoading(true);
       try {
-        await getNotificationsAPI(); // 새로운 알림 API 들어와야 함
+        await getNotificationsAPI();
         setNotificationsFetched(true);
       } catch (error) {
-        //에러
+        // Handle error
       } finally {
         setLoading(false);
         setCurrentIndex(index);
-      }
-    } else if ((index === 3 || index === 5) && !analyticsFetched) {
-      // Show loading if analytics not yet fetched and user enters '알림함' or '분석'
-      setLoading(true);
-      try {
-        await getNotificationsAPI(); // 새로운 알림 API 들어와야 함
-        setAnalyticsFetched(true);
-      } catch (error) {
-        // 에러
-      } finally {
-        setLoading(false);
-        setCurrentIndex(index);
-        setShowAnalytics(index === 5);
       }
     } else {
       setCurrentIndex(index);
-      setShowAnalytics(index === 5);
     }
   };
-
 
   // Printing logic
   const [printModalOpen, setPrintModalOpen] = useState(false);
