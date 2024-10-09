@@ -19,7 +19,6 @@ import java.util.List;
 @Getter
 @Table(name = "store")
 @RequiredArgsConstructor
-@ToString
 public class Store extends BaseTimeEntity {
 
 
