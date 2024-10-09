@@ -1,15 +1,22 @@
 package com.a302.wms.domain.camera.service;
 
+import com.a302.wms.domain.camera.dto.CameraResponse;
+import com.a302.wms.domain.camera.entity.Camera;
+import com.a302.wms.domain.camera.mapper.CameraMapper;
+import com.a302.wms.domain.camera.repository.CameraRepository;
 import com.a302.wms.domain.camera.resource.MultipartInputStreamFileResource;
 import com.a302.wms.domain.notification.entity.Notification;
 import com.a302.wms.domain.notification.repository.NotificationRepository;
 import com.a302.wms.domain.notification.service.NotificationServiceImpl;
+import com.a302.wms.domain.s3.service.S3Service;
 import com.a302.wms.domain.store.repository.StoreRepository;
 import com.a302.wms.domain.user.repository.UserRepository;
 import com.a302.wms.global.constant.CrimePreventionEnum;
 import com.a302.wms.global.constant.NotificationTypeEnum;
+import com.a302.wms.global.constant.ProductConstant;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +31,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -34,6 +42,8 @@ public class CameraServiceImpl {
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
     private final NotificationServiceImpl notificationServiceImpl;
+    private final CameraRepository cameraRepository;
+    private final S3Service s3Service;
     @Value("${cctv-base-url}")
     private String cctvBaseUrl;
 
@@ -48,21 +58,27 @@ public class CameraServiceImpl {
      * @return 범죄 유형의 한글 값
      * @throws Exception 업로드 또는 처리 중 발생한 예외
      */
+    @Transactional
     public String processVideoUpload(MultipartFile file,
                                      Long userId,
                                      Long storeId) throws Exception {
         // 비디오 업로드
         String uploadResponse = uploadVideo(file);
-        // TODO : 메시지 작성하기
+        Notification notification = Notification.builder()
+                .user(userRepository.findById(userId).orElse(null))
+                .store(storeRepository.findById(storeId).orElse(null))
+                .isImportant(false)
+                .isRead(false)
+                .notificationTypeEnum(NotificationTypeEnum.CRIME_PREVENTION)
+                .message(ProductConstant.DEFAULT_NOTIFICATION_CRIME_MESSAGE)
+                .build();
         // 테이블 저장
-        notificationServiceImpl.save(Notification.builder()
-                        .user(userRepository.findById(userId).orElse(null))
-                        .store(storeRepository.findById(storeId).orElse(null))
-                        .isImportant(false)
-                        .isRead(false)
-                        .notificationTypeEnum(NotificationTypeEnum.CRIME_PREVENTION)
-                        .message("임시 메시지")
-                .build());
+        notificationServiceImpl.save(notification);
+//        TODO: file 10개정도 s3에 올리기-종류별로 2개정도
+        cameraRepository.save(Camera.builder()
+                        .notification(notification)
+                        .url(s3Service.generatePresignedUrl("test.mp4").downloadLink())
+                        .build());
         // 응답 처리
         return returnResponse(uploadResponse);
     }
@@ -142,5 +158,9 @@ public class CameraServiceImpl {
         Resource fileResource = new MultipartInputStreamFileResource(file.getInputStream(), file.getOriginalFilename());
         body.add("data", fileResource);
         return body;
+    }
+
+    public CameraResponse findCameraByNotificationId(Long notificationId) {
+        return CameraMapper.toCameraResponse(cameraRepository.findByNotificationId(notificationId));
     }
 }
