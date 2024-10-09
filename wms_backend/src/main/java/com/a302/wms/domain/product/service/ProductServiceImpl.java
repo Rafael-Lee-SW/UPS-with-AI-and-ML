@@ -168,19 +168,25 @@ public class ProductServiceImpl {
         }
     }
 
-    /**
-     * 상품 다중 이동
-     *
-     * @param productMoveRequestList : 이동할 상품 리스트
-     * @throws ProductException
-     */
-    @Transactional
-    public void moveProducts(List<ProductMoveRequest> productMoveRequestList)
-            throws ProductException {
-        for (ProductMoveRequest request : productMoveRequestList) {
-            moveProduct(request);
-        }
+  /**
+   * 상품 다중 이동
+   *
+   * @param productMoveRequestList : 이동할 상품 리스트
+   * @throws ProductException
+   */
+  @Transactional
+  public void moveProducts(List<ProductMoveRequest> productMoveRequestList)
+      throws ProductException {
+    Store store = storeRepository.findByProductId(productMoveRequestList.get(0).productId());
+    User user = userRepository.findById(store.getUser().getId()).orElse(null);
+    Notification notification =
+        notificationServiceImpl.createNotification(user, store, NotificationTypeEnum.FLOW);
+
+    notificationServiceImpl.save(notification);
+    for (ProductMoveRequest request : productMoveRequestList) {
+      moveProduct(request, notification);
     }
+  }
 
     @Transactional
     public void swapProducts(ProductMoveRequest productMoveRequest) {
@@ -198,6 +204,8 @@ public class ProductServiceImpl {
         // 현재 위치에서 옮길 상품을 제거
         currentFloor.getProductList().remove(product);
 
+        // 목적지 위치에 있는 상품을 현재 위치로 옮김
+        if (productInTarget != null) currentFloor.getProductList().add(productInTarget);
 
         // 목적지 위치에 옮기려는 상품 추가
         targetFloor.getProductList().add(product);
@@ -206,23 +214,19 @@ public class ProductServiceImpl {
         if (productInTarget != null) {
             currentFloor.getProductList().add(productInTarget);
             productInTarget.updateFloor(currentFloor);
-//            productRepository.save(productInTarget);
         }
         product.updateFloor(targetFloor);
-
-//        floorRepository.save(currentFloor);
-//        floorRepository.save(targetFloor);
-//        productRepository.save(product);
     }
 
-    /**
-     * 단일 상품 이동
-     *
-     * @param productMoveRequest
-     * @throws ProductException
-     */
-    @Transactional
-    public void moveProduct(ProductMoveRequest productMoveRequest) throws ProductException {
+  /**
+   * 단일 상품 이동
+   *
+   * @param productMoveRequest
+   * @throws ProductException
+   */
+  @Transactional
+  public void moveProduct(ProductMoveRequest productMoveRequest, Notification notification)
+      throws ProductException {
 
         Product productX = productRepository.findById(productMoveRequest.productId()).orElseThrow();
         Floor targetFloor = floorRepository.findByLocationIdAndFloorLevel(productMoveRequest.locationId(), productMoveRequest.floorLevel());
@@ -235,20 +239,10 @@ public class ProductServiceImpl {
             productX.updateFloor(targetFloor);
             targetFloor.getProductList().add(productX);
 
-//            floorRepository.save(currentFloor);
-//            floorRepository.save(targetFloor);
-//            productRepository.save(productX);
         } else {
             swapProducts(productMoveRequest);
         }
 
-
-        Store store = productX.getStore();
-        User user = userRepository.findById(store.getUser().getId()).orElse(null);
-
-        Notification notification = notificationServiceImpl.createNotification(user, store, NotificationTypeEnum.FLOW);
-
-        notificationServiceImpl.save(notification);
         productFlowService.save(
                 productX, LocalDateTime.now(), currentFloor, ProductFlowTypeEnum.FLOW, notification);
 
