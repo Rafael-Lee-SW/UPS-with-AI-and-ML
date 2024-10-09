@@ -145,8 +145,8 @@ const MyContainerNavigation = ({ storeId, stores }) => {
     useState(null);
   // 현재 벽 생성 / 일반 커서 를 선택하기 위한 State
   const [currentSetting, setCurrentSetting] = useState("location");
-  // 상자의 hover Effect를 위한 상태 추가
-  const [hoveredRectId, setHoveredRectId] = useState(null);
+
+  const [locationProducts, setLocationProducts] = useState([]);
 
   // 앙커를 추가하고 관리하는 State 추가
   const [anchors, setAnchors] = useState([
@@ -480,11 +480,13 @@ const MyContainerNavigation = ({ storeId, stores }) => {
     return { x, y };
   };
 
-  // 빈 공간을 클릭했을 때 사각형 선택 해제하는 함수
+  // Deselect rectangle when clicking on empty space
   const checkDeselect = (e) => {
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
       setSelectedLocationTransform(null);
+      setSelectedLocation(null);
+      setModalTableData([]);
     }
   };
 
@@ -641,32 +643,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
       isSamePosition(anchor.x(), anchor.y(), x, y)
     );
   };
-  /**
-   * 선택된 사각형의 데이터를 보여주는 메서드
-   */
-  // Fetch JSON data for the selected rectangle
-  const fetchRectangleData = async (id) => {
-    try {
-      const response = await fetch("/api/load-json", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
 
-      if (response.ok) {
-        const jsonData = await response.json();
-        const rectangleData = jsonData.filter((row) => row[0] === String(id));
-        return rectangleData || [];
-      } else {
-        //에러
-        return [];
-      }
-    } catch (error) {
-      //에러
-      return [];
-    }
-  };
 
   // 엑셀기록과 함께 해당하는 상자를 누르면 데이터를 보여주는 함수
   const [rectangleData, setRectangleData] = useState([]);
@@ -807,11 +784,11 @@ const MyContainerNavigation = ({ storeId, stores }) => {
           if (!existingAnchor) {
             const newId = anchorsRef.current.length
               ? Math.max(
-                  ...anchorsRef.current.flatMap(({ start, end }) => [
-                    parseInt(start.id(), 10),
-                    parseInt(end.id(), 10),
-                  ])
-                ) + 1
+                ...anchorsRef.current.flatMap(({ start, end }) => [
+                  parseInt(start.id(), 10),
+                  parseInt(end.id(), 10),
+                ])
+              ) + 1
               : 1;
             existingAnchor = buildAnchor(newId, x, y);
           } else {
@@ -860,14 +837,6 @@ const MyContainerNavigation = ({ storeId, stores }) => {
     //레이어의 초기 상태 그리기
     layer.draw();
 
-    /**
-     * 선택된 사각형의 물품 목록을 보여준다.
-     */
-    if (selectedLocation) {
-      fetchRectangleData(selectedLocation.id).then((data) => {
-        setRectangleData(data);
-      });
-    }
 
     // Clean-up the Function to remove event Listeners
     return () => {
@@ -888,79 +857,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
   const [tableData, setTableData] = useState([]);
   const [productColumns, setProductColumns] = useState([]);
 
-  // 사장님이 갖고 있는 상품들을 가져오는 API
-  const productGetAPI = async (businessId) => {
-    try {
-      const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/products?businessId=${businessId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
 
-      if (response.ok) {
-        const apiConnection = await response.json();
-        const products = apiConnection.result;
-
-        // Extract only the required columns
-        const formattedData = products.map((product) => ({
-          hiddenId: product.id,
-          name: product.name,
-          barcode: product.barcode,
-          quantity: product.quantity,
-          locationName: product.locationName || "임시",
-          floorLevel: product.floorLevel,
-          expirationDate: product.expirationDate || "없음",
-          warehouseId: product.warehouseId,
-        }));
-
-        // Define the columns
-        const headers = [
-          "식별자",
-          "이름",
-          "바코드(식별번호)",
-          "수량",
-          "적재함",
-          "단(층)수",
-          "유통기한",
-          "매장",
-        ];
-
-        const formattedColumns = [
-          { name: "hiddenId", label: "식별자", options: { display: false } },
-          { name: "name", label: "상품명" },
-          { name: "barcode", label: "바코드" },
-          { name: "quantity", label: "수량" },
-          { name: "locationName", label: "적재함" },
-          { name: "floorLevel", label: "층수" },
-          { name: "expirationDate", label: "유통기한" },
-          { name: "warehouseId", label: "매장" },
-        ];
-
-        // Prepare the data for Handsontable
-        const data = formattedData.map((product) => [
-          product.hiddenId,
-          product.name,
-          product.barcode,
-          product.quantity,
-          product.locationName,
-          product.floorLevel,
-          product.expirationDate,
-          product.warehouseId,
-        ]);
-
-        setColumns(formattedColumns);
-        setTableData(data);
-      } else {
-        //에러
-      }
-    } catch (error) {
-      //에러
-    }
-  };
 
   // 변동 내역 / 알림함에서 쓰이는 data Table state
   const [notificationTableData, setNotificationTableData] = useState([]);
@@ -1028,20 +925,6 @@ const MyContainerNavigation = ({ storeId, stores }) => {
     }
   };
 
-  // Helper function to map English terms to Korean
-  const mapTypeToKorean = (type) => {
-    switch (type) {
-      case "IMPORT":
-        return "입고";
-      case "EXPORT":
-        return "출고";
-      case "FLOW":
-        return "이동";
-      default:
-        return type; // Fallback to original if no match
-    }
-  };
-
   const [dateColumns, setDateColumns] = useState([]); // 일자별로
 
   // 모든 변동 내역을 날짜별로 묶어 알림으로 바꾸는 함수
@@ -1079,61 +962,104 @@ const MyContainerNavigation = ({ storeId, stores }) => {
     ]);
   };
 
-  // 현재 상자의 재고 목록을 불러오는 함수
-  const handleSelectedData = (rectName, selectedFloor) => {
-    const selectedData = tableData
-      .filter(
-        (product) =>
-          product[4] === rectName &&
-          product[5] === selectedFloor &&
-          product[7] === parseInt(storeId)
-      ) // 같은 위치에 있는 상품만 출력
-      .map((product) => ({
-        hiddenId: product[0],
-        name: product[1],
-        barcode: product[2],
-        quantity: product[3],
-        expirationDate: product[6] || "없음",
-      }));
+  /**
+   * 로케이션을 클릭했을 때 해당 로케이션에 있는 물품(상품) 목록을 불러오는 API 호출 메서드
+   */
+  const handleSelectedData = async (locationId) => {
 
-    setModalTableData(selectedData);
+    setLoading(true); // Start loading products
+    setSelectedFloor(1);
+    setModalTableData([]); // Clear any existing data
+    setLocationProducts([]); // Clear previous products
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        // If no token, redirect to signIn
+        router.push("/signIn");
+        return;
+      }
+
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/products?locationId=${locationId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const apiConnection = await response.json();
+        const products = apiConnection.result;
+
+        // Store all products in state
+        setLocationProducts(products);
+
+        // Filter products by selectedFloor
+        const filteredProducts = products.filter(
+          (product) => product.floorLevel === 1
+        );
+
+        // Map products to the required format
+        const selectedData = filteredProducts.map((product) => ({
+          hiddenId: product.productId,
+          name: product.productName,
+          barcode: product.barcode,
+          quantity: product.quantity,
+          expirationDate: product.expirationDate || "없음",
+        }));
+
+        setModalTableData(selectedData);
+      } else {
+        // Handle error
+        console.error(
+          "Failed to fetch products for location:",
+          response.statusText
+        );
+      }
+    } catch (error) {
+      // Handle error
+      console.error("Error fetching products for location:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Extract fill percentage from RGBA color
-  const extractFillPercentage = (rgbaString) => {
-    const matches = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  /**
+   *  층을 선택했을 때에 해당 로케이션 데이터 중에서 선택된 층의 물품 목록을 보여주는 메서드
+   */
+  const handleFloorSelection = (floorLevel) => {
+    setSelectedFloor(floorLevel);
 
-    if (matches) {
-      const red = parseInt(matches[1], 10);
-      const green = parseInt(matches[2], 10);
+    // Filter products by selectedFloor
+    const filteredProducts = locationProducts.filter(
+      (product) => product.floorLevel === floorLevel
+    );
 
-      // Calculate the percentage using both red and green components
-      // Both red and green start at a higher value and decrease to 0 as the fill increases
-      const redPercentage = (27 - red) / 27;
-      const greenPercentage = (177 - green) / 177;
+    // Map products to the required format
+    const selectedData = filteredProducts.map((product) => ({
+      hiddenId: product.productId,
+      name: product.productName,
+      barcode: product.barcode,
+      quantity: product.quantity,
+      expirationDate: product.expirationDate || "없음",
+    }));
 
-      // The fill percentage is determined by averaging the percentage contribution from red and green
-      const fillPercentage = ((redPercentage + greenPercentage) / 2) * 100;
-
-      return fillPercentage.toFixed(1);
-    }
-
-    return "0.0"; // Default to 0% if unable to parse
+    setModalTableData(selectedData);
   };
 
   /**
    * UseEffect를 통해 새로고침 때마다 api로 사장님의 재고를 불러옴
    * + 유저정보
    */
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true); // Start loading
         await getStoreStructureAPI(); // 창고 정보를 불러온다.
-        //재고 목록과 알림 내역을 불러온다.
-        // await productGetAPI(businessId);
-        // await getNotificationsAPI(businessId);
       } catch (error) {
         //에러
       } finally {
@@ -1154,6 +1080,20 @@ const MyContainerNavigation = ({ storeId, stores }) => {
 
     centerCanvas();
   }, [CANVAS_SIZE, VIEWPORT_WIDTH, VIEWPORT_HEIGHT]);
+
+  // 영문을 한글로 바꿔주는 작업
+  const mapTypeToKorean = (type) => {
+    switch (type) {
+      case "IMPORT":
+        return "입고";
+      case "EXPORT":
+        return "출고";
+      case "FLOW":
+        return "이동";
+      default:
+        return type; // Fallback to original if no match
+    }
+  };
 
   /**
    * 프린트 옵션
@@ -1343,7 +1283,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
                 setSelectedLocationTransform(rect.id);
                 setSelectedLocation(rect);
                 setSelectedFloor(1);
-                handleSelectedData(rect.name, selectedFloor);
+                handleSelectedData(rect.id);
               }}
               onChange={(newAttrs) => {
                 const rects = locations.slice();
@@ -1394,9 +1334,8 @@ const MyContainerNavigation = ({ storeId, stores }) => {
       </div>
       {/* left Sidebar */}
       <div
-        className={`${classes.leftSidebar} ${
-          isSidebarVisible ? classes.sidebarVisible : classes.sidebarHidden
-        }`}
+        className={`${classes.leftSidebar} ${isSidebarVisible ? classes.sidebarVisible : classes.sidebarHidden
+          }`}
       >
         <div className={classes.leftSidebarContent}>
           <Button
@@ -1431,12 +1370,12 @@ const MyContainerNavigation = ({ storeId, stores }) => {
                           setSelectedLocation(locations);
                           setSelectedLocationTransform(locations.id);
                           setSelectedFloor(1);
-                          handleSelectedData(locations.name, selectedFloor);
+                          handleSelectedData(locations.id);
                         }}
                         style={{
                           backgroundColor:
                             selectedLocation &&
-                            selectedLocation.id === locations.id
+                              selectedLocation.id === locations.id
                               ? "#f0f0f0" // Highlight color for selected item
                               : "transparent", // Default color for unselected items
                           transition: "background-color 0.3s", // Smooth transition effect
@@ -1475,210 +1414,204 @@ const MyContainerNavigation = ({ storeId, stores }) => {
       {(selectedLocation ||
         ModalTableData.length > 0 ||
         detailedNotificationData.length > 0) && (
-        <div className={classes.rightSidebar}>
-          <div className={classes.closeButtonPart}>
-            <Button
-              className={classes.closeButton}
-              onClick={() => {
-                setSelectedLocation(null);
-                setModalTableData([]);
-                setDetailedNotificationData([]);
-                setSelectedType(null);
-                setHoveredLocations([]); // Reset hovered locations
-              }}
-            >
-              닫기
-            </Button>
-          </div>
-          {showDetails && selectedLocation ? (
-            <div>
+          <div className={classes.rightSidebar}>
+            <div className={classes.closeButtonPart}>
+              <Button
+                className={classes.closeButton}
+                onClick={() => {
+                  setSelectedLocation(null);
+                  setModalTableData([]);
+                  setDetailedNotificationData([]);
+                  setSelectedType(null);
+                  setHoveredLocations([]); // Reset hovered locations
+                }}
+              >
+                닫기
+              </Button>
+            </div>
+            {showDetails && selectedLocation ? (
               <div>
-                <div id="상자 정보" className={classes.infoBox}>
-                  <div id="상자 숫자 정보" className={classes.infoBoxNum}>
-                    <h3 className={classes.infoBoxTitle}>
-                      위치: {selectedLocation.name}
-                    </h3>
-                    <b>가로 : {selectedLocation.width}cm</b>
-                    <b>세로 : {selectedLocation.height}cm</b>
-                    <b>단수(층) : {selectedLocation.z}단/층</b>
-                    <b>
-                      재고율 : {}%{" "}
-                    </b>
-                  </div>
-                  <div
-                    id="상자의 z Index를 시각화"
-                    className={classes.infoZindexBox}
-                  >
-                    {Array.from({ length: selectedLocation.z }).map(
-                      (_, index) => (
-                        <Button
-                          className={classes.floorBox}
-                          key={index + 1}
-                          style={{
-                            backgroundColor:
-                              selectedFloor === index + 1
-                                ? "#7D4A1A"
-                                : "transparent",
-                            color:
-                              selectedFloor === index + 1 ? "white" : "#7D4A1A",
-                          }}
-                          onClick={() => {
-                            setSelectedFloor(
-                              selectedFloor === index + 1 ? null : index + 1
-                            );
-                            handleSelectedData(
-                              selectedLocation.name,
-                              index + 1
-                            );
-                          }}
-                          onMouseEnter={(e) => {
-                            e.target.style.backgroundColor =
-                              selectedFloor === index + 1
-                                ? "#7D4A1A"
-                                : "transparent";
-                            e.target.style.border = "2px solid #7D4A1A";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.backgroundColor =
-                              selectedFloor === index + 1
-                                ? "#7D4A1A"
-                                : "transparent";
-                            e.target.style.border = "1px solid black";
-                          }}
-                        >
-                          {index + 1} 단
-                        </Button>
-                      )
-                    )}
-                  </div>
-                </div>
-                <hr />
-                {ModalTableData.length > 0 && (
-                  <div className={classes.productList}>
-                    <h3>재고 목록</h3>
-                    <table className={classes.productListTable}>
-                      <tbody>
-                        {ModalTableData.map((item, index) => (
-                          <tr
-                            key={index}
-                            className={classes.trProductListTable}
+                <div>
+                  <div id="상자 정보" className={classes.infoBox}>
+                    <div id="상자 숫자 정보" className={classes.infoBoxNum}>
+                      <h3 className={classes.infoBoxTitle}>
+                        위치: {selectedLocation.name}
+                      </h3>
+                      <b>가로 : {selectedLocation.width}cm</b>
+                      <b>세로 : {selectedLocation.height}cm</b>
+                      <b>단수(층) : {selectedLocation.z}단/층</b>
+                      <b>
+                        재고율 : { }%{" "}
+                      </b>
+                    </div>
+                    <div
+                      id="상자의 z Index를 시각화"
+                      className={classes.infoZindexBox}
+                    >
+                      {Array.from({ length: selectedLocation.z }).map(
+                        (_, index) => (
+                          <Button
+                            className={classes.floorBox}
+                            key={index + 1}
+                            style={{
+                              backgroundColor:
+                                selectedFloor === index + 1
+                                  ? "#7D4A1A"
+                                  : "transparent",
+                              color:
+                                selectedFloor === index + 1 ? "white" : "#7D4A1A",
+                            }}
+                            onClick={() => {
+                              handleFloorSelection(index + 1);
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.backgroundColor =
+                                selectedFloor === index + 1
+                                  ? "#7D4A1A"
+                                  : "transparent";
+                              e.target.style.border = "2px solid #7D4A1A";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.backgroundColor =
+                                selectedFloor === index + 1
+                                  ? "#7D4A1A"
+                                  : "transparent";
+                              e.target.style.border = "1px solid black";
+                            }}
                           >
-                            <td className={classes.tdMainProductListTable}>
-                              <strong>{item.name}</strong>
-                              <div className={classes.productBarcode}>
-                                바코드 : {item.barcode}
-                              </div>
+                            {index + 1} 단
+                          </Button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                  <hr />
+                  {ModalTableData.length > 0 && (
+                    <div className={classes.productList}>
+                      <h3>재고 목록</h3>
+                      <table className={classes.productListTable}>
+                        <tbody>
+                          {ModalTableData.map((item, index) => (
+                            <tr
+                              key={index}
+                              className={classes.trProductListTable}
+                            >
+                              <td className={classes.tdMainProductListTable}>
+                                <strong>{item.name}</strong>
+                                <div className={classes.productBarcode}>
+                                  바코드 : {item.barcode}
+                                </div>
+                              </td>
+                              <td className={classes.tdSubProductListTable}>
+                                {item.quantity} 개
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className={classes.detailedNotifications}>
+                  {/* Title showing the selected date and type */}
+                  <h3 className={classes.notificationTitle}>
+                    {selectedNotificationTitle}
+                  </h3>
+                  {/* Print button */}
+                  <Button
+                    className={classes.printButton}
+                    onClick={() => setPrintModalOpen(true)}
+                  >
+                    <PrintIcon /> 프린트
+                  </Button>
+                </div>
+                {/* Detailed Notification Data Rendering */}
+                {detailedNotificationData.length > 0 ? (
+                  <div>
+                    {/* Render Table Based on Notification Type */}
+                    <table className={classes.notificationTable}>
+                      <thead>
+                        {/* Conditional column headers based on the type */}
+                        <tr>
+                          <th className={classes.thNameNotificationTable}>
+                            상품
+                          </th>
+                          <th className={classes.thQuantityNotificationTable}>
+                            수량
+                          </th>
+                          <th className={classes.thTypeNotificationTable}>
+                            {/* Different headers based on type */}
+                            {selectedType === "IMPORT"
+                              ? "입고된 매장"
+                              : selectedType === "EXPORT"
+                                ? "출고 위치"
+                                : "이동한 위치"}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {detailedNotificationData.map((item, index) => (
+                          <tr key={index}>
+                            {/* 상품명과 바코드를 하나의 셀에 표현한다. */}
+                            <td className={classes.tdProductNotificationTable}>
+                              <strong className={classes.tdNameNotificationTable}>
+                                {item.name}
+                              </strong>
+                              <span
+                                className={classes.tdBarcodeNotificationTable}
+                              >
+                                {item.barcode}
+                              </span>
                             </td>
-                            <td className={classes.tdSubProductListTable}>
+                            {/* Quantity */}
+                            <td className={classes.tdQuantityNotificationTable}>
                               {item.quantity} 개
+                            </td>
+                            {/* Location based on type */}
+                            <td className={classes.tdLocationNotificationTable}>
+                              {/* Show different content based on type */}
+                              {selectedType === "IMPORT" && (
+                                <span>{item.warehouseTitle}</span>
+                              )}
+                              {selectedType === "EXPORT" && (
+                                <div>
+                                  <span>
+                                    {item.currentLocationName}{" "}
+                                    {item.currentFloorLevel}층
+                                  </span>
+                                  <span className={classes.exportStoreTitle}>
+                                    매장 : {item.warehouseTitle}
+                                  </span>
+                                </div>
+                              )}
+                              {selectedType === "FLOW" && (
+                                <div>
+                                  <span>
+                                    {item.currentLocationName}
+                                    {" - "}
+                                    {item.currentFloorLevel}층
+                                  </span>
+                                  <span className={classes.exportStoreTitle}>
+                                    매장 : {item.warehouseTitle}
+                                  </span>
+                                </div>
+                              )}
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
+                ) : (
+                  <p>알림이 선택되지 않았습니다.</p>
                 )}
               </div>
-            </div>
-          ) : (
-            <div>
-              <div className={classes.detailedNotifications}>
-                {/* Title showing the selected date and type */}
-                <h3 className={classes.notificationTitle}>
-                  {selectedNotificationTitle}
-                </h3>
-                {/* Print button */}
-                <Button
-                  className={classes.printButton}
-                  onClick={() => setPrintModalOpen(true)}
-                >
-                  <PrintIcon /> 프린트
-                </Button>
-              </div>
-              {/* Detailed Notification Data Rendering */}
-              {detailedNotificationData.length > 0 ? (
-                <div>
-                  {/* Render Table Based on Notification Type */}
-                  <table className={classes.notificationTable}>
-                    <thead>
-                      {/* Conditional column headers based on the type */}
-                      <tr>
-                        <th className={classes.thNameNotificationTable}>
-                          상품
-                        </th>
-                        <th className={classes.thQuantityNotificationTable}>
-                          수량
-                        </th>
-                        <th className={classes.thTypeNotificationTable}>
-                          {/* Different headers based on type */}
-                          {selectedType === "IMPORT"
-                            ? "입고된 매장"
-                            : selectedType === "EXPORT"
-                            ? "출고 위치"
-                            : "이동한 위치"}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {detailedNotificationData.map((item, index) => (
-                        <tr key={index}>
-                          {/* 상품명과 바코드를 하나의 셀에 표현한다. */}
-                          <td className={classes.tdProductNotificationTable}>
-                            <strong className={classes.tdNameNotificationTable}>
-                              {item.name}
-                            </strong>
-                            <span
-                              className={classes.tdBarcodeNotificationTable}
-                            >
-                              {item.barcode}
-                            </span>
-                          </td>
-                          {/* Quantity */}
-                          <td className={classes.tdQuantityNotificationTable}>
-                            {item.quantity} 개
-                          </td>
-                          {/* Location based on type */}
-                          <td className={classes.tdLocationNotificationTable}>
-                            {/* Show different content based on type */}
-                            {selectedType === "IMPORT" && (
-                              <span>{item.warehouseTitle}</span>
-                            )}
-                            {selectedType === "EXPORT" && (
-                              <div>
-                                <span>
-                                  {item.currentLocationName}{" "}
-                                  {item.currentFloorLevel}층
-                                </span>
-                                <span className={classes.exportStoreTitle}>
-                                  매장 : {item.warehouseTitle}
-                                </span>
-                              </div>
-                            )}
-                            {selectedType === "FLOW" && (
-                              <div>
-                                <span>
-                                  {item.currentLocationName}
-                                  {" - "}
-                                  {item.currentFloorLevel}층
-                                </span>
-                                <span className={classes.exportStoreTitle}>
-                                  매장 : {item.warehouseTitle}
-                                </span>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <p>알림이 선택되지 않았습니다.</p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
       {/* 로딩 Part */}
       {loading && (
         <div className={classes.loading}>
@@ -1698,18 +1631,18 @@ const MyContainerNavigation = ({ storeId, stores }) => {
               columns={
                 detailedNotificationData[0].trackingNumber
                   ? [
-                      "날짜",
-                      "상품명",
-                      "바코드",
-                      "수량",
-                      "적재함",
-                      "층수",
-                      "매장",
-                      "송장번호",
-                    ]
+                    "날짜",
+                    "상품명",
+                    "바코드",
+                    "수량",
+                    "적재함",
+                    "층수",
+                    "매장",
+                    "송장번호",
+                  ]
                   : detailedNotificationData[0].previousLocationName &&
                     detailedNotificationData[0].previousFloorLevel
-                  ? [
+                    ? [
                       "날짜",
                       "상품명",
                       "바코드",
@@ -1720,7 +1653,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
                       "이전 적재함",
                       "이전 층수",
                     ]
-                  : [
+                    : [
                       "날짜",
                       "상품명",
                       "바코드",
@@ -1790,27 +1723,6 @@ const RectangleTransformer = ({
   // 재고함의 행렬과 높이를 나타내도록 설정한 MainText
   const floorName = `${shapeProps.z}층`;
 
-  // Extract fill percentage from RGBA color
-  const extractFillPercentage = (rgbaString) => {
-    const matches = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-
-    if (matches) {
-      const red = parseInt(matches[1], 10);
-      const green = parseInt(matches[2], 10);
-
-      // Calculate the percentage using both red and green components
-      // Both red and green start at a higher value and decrease to 0 as the fill increases
-      const redPercentage = (27 - red) / 27;
-      const greenPercentage = (177 - green) / 177;
-
-      // The fill percentage is determined by averaging the percentage contribution from red and green
-      const fillPercentage = ((redPercentage + greenPercentage) / 2) * 100;
-
-      return fillPercentage.toFixed(1);
-    }
-
-    return "0.0"; // Default to 0% if unable to parse
-  };
 
   return (
     <React.Fragment>
