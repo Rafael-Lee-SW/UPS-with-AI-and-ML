@@ -8,7 +8,7 @@ import com.a302.wms.domain.camera.resource.MultipartInputStreamFileResource;
 import com.a302.wms.domain.notification.entity.Notification;
 import com.a302.wms.domain.notification.repository.NotificationRepository;
 import com.a302.wms.domain.notification.service.NotificationServiceImpl;
-import com.a302.wms.domain.s3.service.S3Service;
+import com.a302.wms.domain.s3.service.S3ServiceImpl;
 import com.a302.wms.domain.store.repository.StoreRepository;
 import com.a302.wms.domain.user.repository.UserRepository;
 import com.a302.wms.global.constant.CrimePreventionEnum;
@@ -31,7 +31,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -43,7 +42,7 @@ public class CameraServiceImpl {
     private final StoreRepository storeRepository;
     private final NotificationServiceImpl notificationServiceImpl;
     private final CameraRepository cameraRepository;
-    private final S3Service s3Service;
+    private final S3ServiceImpl s3ServiceImpl;
     @Value("${cctv-base-url}")
     private String cctvBaseUrl;
 
@@ -77,7 +76,8 @@ public class CameraServiceImpl {
 //        TODO: file 10개정도 s3에 올리기-종류별로 2개정도
         cameraRepository.save(Camera.builder()
                         .notification(notification)
-                        .url(s3Service.generatePresignedUrl("test.mp4").downloadLink())
+                        .title(file.getOriginalFilename())
+                        .url(s3ServiceImpl.generatePresignedUrl(file.getOriginalFilename()).downloadLink())
                         .build());
         // 응답 처리
         return returnResponse(uploadResponse);
@@ -162,5 +162,9 @@ public class CameraServiceImpl {
 
     public CameraResponse findCameraByNotificationId(Long notificationId) {
         return CameraMapper.toCameraResponse(cameraRepository.findByNotificationId(notificationId));
+    }
+
+    public CameraResponse findCameraByTitle(String title) {
+        return CameraMapper.toCameraResponse(cameraRepository.findByTitle(title));
     }
 }
