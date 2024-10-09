@@ -50,4 +50,5 @@ public class NotificationController {
             return new BaseSuccessResponse<>(notificationServiceImpl.findAllByUserId(userId));
         }
     }
+
 }

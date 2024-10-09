@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Consumer;
@@ -277,5 +278,10 @@ Notification notification = notificationServiceImpl.createNotification(user, sto
         Notification notification = notificationServiceImpl.createNotification(user, store, NotificationTypeEnum.IMPORT);
         productFlowService.save(product, LocalDateTime.now(), defaultFloor, ProductFlowTypeEnum.IMPORT, notification);
         notificationServiceImpl.save(notification);
+    }
+
+    public List<ProductResponse> findAllByLocationId(Long locationId) {
+        return productRepository.findAllByLocationId(locationId).stream()
+                .map(ProductMapper::toProductResponse).toList();
     }
 }

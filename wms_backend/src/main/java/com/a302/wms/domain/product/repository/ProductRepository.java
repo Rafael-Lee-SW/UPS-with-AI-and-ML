@@ -20,4 +20,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByFloor(Floor floor);
 
     Product findByBarcodeAndStoreId(Long barcode, Long storeId);
+    @Query("SELECT p FROM Product p WHERE p.floor.location.id = :locationId ")
+    List<Product> findAllByLocationId(Long locationId);
 }
