@@ -1827,7 +1827,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
           <Button
             justIcon
             round
-            style={{ backgroundColor: "#7D4A1A" }}
+            style={{ backgroundColor: "#31a5c8" }}
             onClick={handleZoomIn}
           >
             <ZoomInIcon className={classes.zoomicons} />
@@ -1843,7 +1843,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
           <Button
             justIcon
             round
-            style={{ backgroundColor: "#C2B6A1" }}
+            style={{ backgroundColor: "#b2ddef" }}
             onClick={editStoreAPI}
           >
             <SaveIcon className={classes.zoomicons} />

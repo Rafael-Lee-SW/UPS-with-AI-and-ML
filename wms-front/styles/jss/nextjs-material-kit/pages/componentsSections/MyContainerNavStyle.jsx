@@ -51,21 +51,22 @@ const basicsStyle = {
     flexDirection: "column",
   },
   sidebarButton: {
-    backgroundColor: "transparent",
-    color: "#7D4A1A",
-    fontWeight: "bold",
+    backgroundColor: "#e6f4fa",
+    color: "black",
     textAlign: "center",
-    border: "1px solid #7D4A1A",
+    border: "1px solid #ccc",
     borderRadius: "4px",
     "&:hover": {
       transform: "scale(1.05)",
-      backgroundColor: "#7D4A1A",
-      color: "white",
+      backgroundColor: "#e6f4fa",
+      color: "black",
+      border: "1px solid #9baab1"
     },
   },
   //재고함 목록, 알림함 목록 보기
   listTitle: {
     textAlign: "center",
+    color: "459ab6"
   },
   locations: {
     // 스타일 없는데 구분을 위해 일단 생성
@@ -116,9 +117,6 @@ const basicsStyle = {
     display: "flex",
     justifyContent: "flex-end",
   },
-  closeButton: {
-    color: "#7D4A1A",
-  },
   /**
    * 각 상자 정보와 이에 속하는 재고 목록을 보여주는 파트
    */
@@ -150,12 +148,16 @@ const basicsStyle = {
     height: "30px",
     marginBottom: "5px",
     borderRadius: "5px",
-    border: "1px solid black",
+    border: "1px solid #ccc",
     textAlign: "center",
     lineHeight: "30px",
     marginLeft: "auto",
     marginRight: "auto",
-    cursor: "pointer",
+    "&:hover": {
+      transform: 'scale(1.05)',
+      color: 'black',
+      border: "1px solid #9baab1"
+      }
   },
   //재고 목록을 보여주는 파트
   productList: {
@@ -429,12 +431,17 @@ const basicsStyle = {
       // justifyContent: "center",
     },
     closeButton: {
-      color: "#7D4A1A",
-      backgroundColor: "white",
-      border: "1px solid #7D4A1A",
+      color: "black",
+      backgroundColor: "#e6f4fa",
+      border: "1px solid #ccc",
       borderRadius: "20%",
       padding: "3px",
       zIndex: 1000, // Ensure it's above other elements
+      "&:hover": {
+        transform: 'scale(1.05)',
+        color: 'black',
+        border: "1px solid #9baab1"
+        }
     },
     /**
      * 각 상자 정보와 이에 속하는 재고 목록을 보여주는 파트

@@ -1299,7 +1299,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
           justIcon
           round
           onClick={handleZoomIn}
-          style={{ backgroundColor: "#7D4A1A" }}
+          style={{ backgroundColor: "#31a5c8" }}
         >
           <ZoomInIcon className={classes.icons} />
         </Button>
@@ -1316,7 +1316,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
           justIcon
           round
           className={classes.toggleSidebarButton}
-          style={{ backgroundColor: "#999999" }}
+          style={{ backgroundColor: "#b2ddef" }}
           onClick={handleInventoryClick}
         >
           <MenuIcon className={classes.zoomicons} />
@@ -1425,6 +1425,11 @@ const MyContainerNavigation = ({ storeId, stores }) => {
                   setSelectedType(null);
                   setHoveredLocations([]); // Reset hovered locations
                 }}
+                style = {{
+                  backgroundColor: "#e6f4fa",
+                  color: "black",
+                  border: "1px solid #ccc",
+                }}
               >
                 닫기
               </Button>
@@ -1454,30 +1459,28 @@ const MyContainerNavigation = ({ storeId, stores }) => {
                             className={classes.floorBox}
                             key={index + 1}
                             style={{
-                              backgroundColor:
-                                selectedFloor === index + 1
-                                  ? "#7D4A1A"
-                                  : "transparent",
-                              color:
-                                selectedFloor === index + 1 ? "white" : "#7D4A1A",
+                              backgroundColor: "#e6f4fa",
+                              color: "black",
+                              border: "1px solid #ccc",
+                              "&:hover": {
+                                transform: 'scale(1.05)',
+                                color: 'black',
+                                border: "1px solid #9baab1"
+                              }
                             }}
                             onClick={() => {
                               handleFloorSelection(index + 1);
                             }}
-                            onMouseEnter={(e) => {
-                              e.target.style.backgroundColor =
-                                selectedFloor === index + 1
-                                  ? "#7D4A1A"
-                                  : "transparent";
-                              e.target.style.border = "2px solid #7D4A1A";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.backgroundColor =
-                                selectedFloor === index + 1
-                                  ? "#7D4A1A"
-                                  : "transparent";
-                              e.target.style.border = "1px solid black";
-                            }}
+                            // onMouseEnter={(e) => {
+                            //   e.target.style.border = "1px solid #9baab1";
+                            // }}
+                            // onMouseLeave={(e) => {
+                            //   e.target.style.backgroundColor =
+                            //     selectedFloor === index + 1
+                            //       ? "#7D4A1A"
+                            //       : "transparent";
+                            //   e.target.style.border = "1px solid black";
+                            // }}
                           >
                             {index + 1} 단
                           </Button>
