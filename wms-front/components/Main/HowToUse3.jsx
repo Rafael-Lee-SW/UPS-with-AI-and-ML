@@ -15,19 +15,19 @@ export default function HowToUse3() {
     }, []);
 
     return (
-        <div className={classes.container} style={{ backgroundColor: "#ADAAA5" }}>
+        <div className={classes.container} style={{ backgroundColor: "#e6f4fa" }}>
             <div className={classes.section1}>
                 <video
                     className={classes.video}
-                    src="/video/wall.mp4"
+                    src="/video/import1.mp4"
                     ref={videoRef}
                     muted
                     loop
                 ></video>
             </div>
             <div className={classes.section2}>
-                <h2 className={classes.title} style={{ color: "black" }}>벽을 생성합니다.</h2> 
-                <p style={{ color: "black" }} className={classes.section2Content}>이동은 물론, 벽과 특수객체까지 추가할 수 있어요.</p>
+                <h2 className={classes.title} style={{ color: "black" }}>입고, 이동</h2> 
+                <p style={{ color: "black" }} className={classes.section2Content}>상품을 입고하고 이동할 수 있습니다.</p>
             </div>
         </div>
     )
