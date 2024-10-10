@@ -227,8 +227,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       return;
     }
 
-    console.log(token);
-
     try {
       const response = await fetch(
         `https://j11a302.p.ssafy.io/api/products?storeId=${storeId}`,
@@ -246,9 +244,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         //성공
         const apiConnection = await response.clone().json(); // clone the response to avoid consuming the body
         const products = apiConnection.result;
-
-        console.log("사장님의 해당 매장 상품 데이터");
-        console.log("Parsed response:", apiConnection);
 
         // Map backend fields to frontend fields
         const formattedData = products.map((product) => ({
@@ -299,7 +294,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         setLoading(false);
       }
     } catch (error) {
-      console.log(error);
       //에러
       setLoading(false);
     }
@@ -363,8 +357,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         const apiConnection = await response.json();
         const notifications = apiConnection.result;
 
-        console.log("Notifications:", notifications);
-
         // 알림함에 넣기 위한 정제과정
         const formattedNotifications = notifications.map((notification) => ({
           id: notification.id,
@@ -402,7 +394,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         notify("알림을 불러오는 데 실패했습니다.");
       }
     } catch (error) {
-      console.log(error);
       setLoading(false);
       notify("알림을 불러오는 중 오류가 발생했습니다.");
     }
@@ -475,7 +466,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         notify("상세 정보를 불러오는 데 실패했습니다.");
       }
     } catch (error) {
-      console.log(error);
       setLoading(false);
       notify("상세 정보를 불러오는 중 오류가 발생했습니다.");
     }
@@ -518,10 +508,8 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
           )
         );
       } else {
-        console.error("Failed to update notification isRead status");
       }
     } catch (error) {
-      console.error("Error updating notification isRead status:", error);
     }
   };
 
@@ -626,8 +614,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
   const deleteProductsAPI = async (productIds) => {
     const token = localStorage.getItem("token");
 
-    console.log(productIds);
-
     setLoading(true);
     try {
       const response = await fetch(
@@ -642,8 +628,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
           },
         }
       );
-
-      console.log(response);
 
       if (response.ok) {
         setLoading(false);

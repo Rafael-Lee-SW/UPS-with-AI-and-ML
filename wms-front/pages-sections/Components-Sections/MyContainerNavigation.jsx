@@ -249,9 +249,6 @@ const MyContainerNavigation = ({ storeId, stores }) => {
       return commonData; // Fallback if type doesn't match
     });
 
-    console.log("선별데이터");
-    console.log(filteredData);
-
     // Extract the location names and warehouse IDs from the filtered data
     const locationNames = filteredData
       .filter((item) => item.warehouseId === parseInt(storeId))
@@ -309,7 +306,6 @@ const MyContainerNavigation = ({ storeId, stores }) => {
         const apiConnection = await response.json();
         const warehouseData = apiConnection.result; // 데이터 추출
 
-        console.log("Parsed response:", apiConnection);
         // 받아온 데이터 중 로케이션 데이터 처리
         const locations = warehouseData.locations;
         if (!locations) {
@@ -399,7 +395,6 @@ const MyContainerNavigation = ({ storeId, stores }) => {
       }
     } catch (error) {
       //에러
-      console.log(error)
     }
   };
 
@@ -1015,14 +1010,9 @@ const MyContainerNavigation = ({ storeId, stores }) => {
         setModalTableData(selectedData);
       } else {
         // Handle error
-        console.error(
-          "Failed to fetch products for location:",
-          response.statusText
-        );
       }
     } catch (error) {
       // Handle error
-      console.error("Error fetching products for location:", error);
     } finally {
       setLoading(false);
     }
