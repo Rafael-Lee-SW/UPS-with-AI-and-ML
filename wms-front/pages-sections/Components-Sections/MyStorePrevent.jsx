@@ -21,7 +21,7 @@ import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { styled } from '@mui/material/styles';
-import { fetchCrimeVideos } from '../../pages/api/index';
+import { fetchCrimeVideos, updateCrimeNotifications } from '../../pages/api/index';
 
 const PageContainer = styled('div')(({ theme }) => ({
   paddingTop: '50px',
