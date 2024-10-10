@@ -230,17 +230,21 @@ const MyStorePrevent = ({ storeId, storeTitle }) => {
   const router = useRouter();
   const observer = useRef();
 
+  const sortVideosByDate = (videos) => {
+    return videos.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+  };
+
   useEffect(() => {
     const fetchVideos = async () => {
       setLoading(true);
       try {
         const response = await fetchCrimeVideos(storeId);
         if (response.data && response.data.success) {
-          console.log(response.data.result)
           const fetchedVideos = response.data.result;
-          setVideos(fetchedVideos);
-          setFilteredVideos(fetchedVideos);
-          setVisibleVideos(fetchedVideos.slice(0, ITEMS_PER_PAGE));
+          const sortedVideos = sortVideosByDate(fetchedVideos);
+          setVideos(sortedVideos);
+          setFilteredVideos(sortedVideos);
+          setVisibleVideos(sortedVideos.slice(0, ITEMS_PER_PAGE));
         } else {
           console.error('Failed to fetch videos:', response);
           toast.error('비디오를 불러오는데 실패했습니다.');
@@ -318,8 +322,9 @@ const MyStorePrevent = ({ storeId, storeTitle }) => {
 
       return categoryFilterPassed && dateFilterPassed;
     });
-    setFilteredVideos(filtered);
-    setVisibleVideos(filtered.slice(0, ITEMS_PER_PAGE));
+    const sortedFiltered = sortVideosByDate(filtered);
+    setFilteredVideos(sortedFiltered);
+    setVisibleVideos(sortedFiltered.slice(0, ITEMS_PER_PAGE));
     setPage(0);
     setHasMore(true);
   }, [videos, filter, dateFilter]);
