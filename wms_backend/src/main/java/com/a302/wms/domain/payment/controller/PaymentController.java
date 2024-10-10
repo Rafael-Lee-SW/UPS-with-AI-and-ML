@@ -68,7 +68,7 @@ public class PaymentController {
     @GetMapping
     @Operation(summary = "특정 매장의 특정 기간 내의 결제내역 모두 조회")
     public BaseSuccessResponse<List<PaymentResponse>> find(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal Long userId,
             @RequestParam Long storeId,
             @RequestParam LocalDateTime startDateTime,
             @RequestParam LocalDateTime endDateTime
