@@ -497,7 +497,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(`https://j11a302.p.ssafy.io/api/products/batch`, {
+      const response = await fetch(`https://j11a302.p.ssafy.io/api/products`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
