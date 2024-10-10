@@ -70,7 +70,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   position: 'relative',
   cursor: 'pointer',
   transition: 'transform 0.2s, box-shadow 0.2s',
-  height: '220px',
+  height: 'auto',
   display: 'flex',
   flexDirection: 'column',
   '&:hover': {
@@ -89,8 +89,10 @@ const StyledCard = styled(Card)(({ theme }) => ({
 }));
 
 const Media = styled(CardMedia)(({ theme }) => ({
-  height: 0,
-  paddingTop: '56.25%', // 16:9 비율
+  paddingTop: '100%', // 1:1 비율
+  backgroundSize: 'contain', // 이미지가 영역 내에 맞게 조정됩니다
+  backgroundPosition: 'center', // 이미지를 중앙에 위치시킵니다
+  // backgroundColor: theme.palette.grey[200], // 배경색을 추가하여 이미지가 없는 영역을 채웁니다
 }));
 
 const StyledCardContent = styled(MuiCardContent)(({ theme }) => ({
@@ -228,17 +230,21 @@ const MyStorePrevent = ({ storeId, storeTitle }) => {
   const router = useRouter();
   const observer = useRef();
 
+  const sortVideosByDate = (videos) => {
+    return videos.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+  };
+
   useEffect(() => {
     const fetchVideos = async () => {
       setLoading(true);
       try {
         const response = await fetchCrimeVideos(storeId);
         if (response.data && response.data.success) {
-          console.log(response.data.result)
           const fetchedVideos = response.data.result;
-          setVideos(fetchedVideos);
-          setFilteredVideos(fetchedVideos);
-          setVisibleVideos(fetchedVideos.slice(0, ITEMS_PER_PAGE));
+          const sortedVideos = sortVideosByDate(fetchedVideos);
+          setVideos(sortedVideos);
+          setFilteredVideos(sortedVideos);
+          setVisibleVideos(sortedVideos.slice(0, ITEMS_PER_PAGE));
         } else {
           console.error('Failed to fetch videos:', response);
           toast.error('비디오를 불러오는데 실패했습니다.');
@@ -316,8 +322,9 @@ const MyStorePrevent = ({ storeId, storeTitle }) => {
 
       return categoryFilterPassed && dateFilterPassed;
     });
-    setFilteredVideos(filtered);
-    setVisibleVideos(filtered.slice(0, ITEMS_PER_PAGE));
+    const sortedFiltered = sortVideosByDate(filtered);
+    setFilteredVideos(sortedFiltered);
+    setVisibleVideos(sortedFiltered.slice(0, ITEMS_PER_PAGE));
     setPage(0);
     setHasMore(true);
   }, [videos, filter, dateFilter]);

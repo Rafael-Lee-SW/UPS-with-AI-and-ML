@@ -36,6 +36,7 @@ const selectStyle = (theme) => ({
   cardLink: {
     width: "100%",
     margin: "0 0 0 0",
+    borderRadius: "20px",
   },
   cardHeader: {
     display: "flex",
@@ -242,7 +243,7 @@ const selectStyle = (theme) => ({
       height: "450px", // Total height of the card
       width: "300px",
       border: "1px solid #ccc",
-      borderRadius: "8px",
+      borderRadius: "20px",
       transition: "transform 0.3s ease",
       transformOrigin: "center",
       "&:hover": {
@@ -360,7 +361,7 @@ const selectStyle = (theme) => ({
       position: "relative", // 이미지 포지셔닝을 위해 설정
     },
     plusCardGrid: {
-      width: "30%", // Same size as the image card
+      width: "300px", // Same size as the image card
       marginRight: theme.spacing(2),
       display: "flex",
       justifyContent: "center",
@@ -370,7 +371,7 @@ const selectStyle = (theme) => ({
     buttonCard: {
       height: "450px",
       border: "2px solid #ccc",
-      width: "100%",
+      width: "300px",
       borderRadius: "20px",
       display: "flex",
       justifyContent: "center",

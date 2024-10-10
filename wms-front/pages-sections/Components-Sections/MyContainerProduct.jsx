@@ -8,10 +8,12 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Section components
-import MLAnalysis from "../../components/Product/MLAnalysis";
 import ImportSection from "../../components/Product/ImportSection";
 import ExportSection from "../../components/Product/ExportSection"; // 사용 X
 import PaymentRecord from "../../components/Product/PaymentRecord";
+// 분석을 위한 Import
+import ProductAnalysis from "../../components/Product/ProductAnalysis";
+import Reports from "../../components/Product/Reports";
 // Modal components
 import MoveProduct from "../../components/Product/MoveProduct";
 
@@ -188,6 +190,9 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     handleNextComponent(index);
   };
 
+  // 선택된 상품의 바코드를 저장한다.
+  const [selectedProductBarcode, setSelectedProductBarcode] = useState(null);
+
   // 엑셀을 통해 상품 데이터를 다운로드하는 메서드
   const downloadExcel = (columns, tableData) => {
     const worksheet = XLSX.utils.aoa_to_sheet([
@@ -252,7 +257,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
           quantity: product.quantity,
           locationName:
             product.locationName === "00-00" ? "임시" : product.locationName,
-          floorLevel: product.floorLevel,
+          floorLevel: product.floorLevel === -1 ? "임시" : product.floorLevel,
           warehouseId: product.storeId,
           originalPrice: product.originalPrice,
           sellingPrice: product.sellingPrice,
@@ -302,18 +307,31 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
   const [allChangingTableData, setAllChangingTableData] = useState([]);
   const [allChangingTableColumns, setAllChangingTableColumns] = useState([]);
 
-  // 영어-한글 변환 - 입고-출고-이동
-  const translationMap = {
-    IMPORT: "입고",
-    EXPORT: "출고",
-    FLOW: "이동",
+  // 제품목록에서 클릭함에 따라 API를 불러오는 거시기
+  const handleProductRowClick = (rowData, rowMeta) => {
+    const rowIndex = rowMeta.dataIndex;
+    const productRow = tableData[rowIndex];
+    const barcode = productRow[2]; // Assuming the barcode is at index 2 in tableData
+
+    // Remove any '.0' at the end if present
+    let barcodeStr = barcode.toString();
+    if (barcodeStr.endsWith(".0")) {
+      barcodeStr = barcodeStr.slice(0, -2);
+    }
+
+    if (allowedBarcodes.includes(barcodeStr)) {
+      // Proceed to analysis
+      setSelectedProductBarcode(barcodeStr);
+      setCurrentIndex(8); // Assuming the analysis component is at index 8
+    } else {
+      notify("최소 1달 이상의 판매데이터가 필요합니다.");
+    }
   };
 
   // 알림 API - 신버젼
   /**
    * Fetch notifications from the backend using the updated API
    */
-
   const [detailedData, setDetailedData] = useState([]);
 
   const getNotificationsAPI = async () => {
@@ -349,31 +367,31 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         // 알림함에 넣기 위한 정제과정
         const formattedNotifications = notifications.map((notification) => ({
           id: notification.id,
-          userId: notification.userId,
-          storeId: notification.storeId,
-          isRead: notification.isRead,
-          isImportant: notification.isImportant,
+          date: notification.createdDate
+            ? new Date(notification.createdDate).toLocaleDateString()
+            : "N/A",
+          type: mapEnumToKorean(notification.notificationTypeEnum),
           message: notification.message,
-          type: notification.notificationTypeEnum,
-          // Assuming there is a 'createdDate' field in the notification object
-          date: notification.createdDate,
+          isRead: notification.isRead ? "읽음" : "안읽음",
+          isImportant: notification.isImportant ? "중요" : "",
         }));
 
         // Store notifications in state
         setDetailedData(formattedNotifications);
 
-        // Process notifications to group by date and type
-        processNotifications(formattedNotifications);
-
-        //'변동내역'
-        setAllChangingTableData(formattedNotifications);
-
-        //'변동내역'
-        setAllChangingTableColumns([
+        // 알림 상세 내역에 대한 설정
+        setNotificationTableData(formattedNotifications);
+        setNotificationTableColumns([
+          { name: "id", label: "ID", options: { display: false } },
           { name: "date", label: "날짜" },
-          { name: "message", label: "메시지" },
           { name: "type", label: "유형" },
+          { name: "message", label: "메시지" },
           { name: "isRead", label: "읽음 여부" },
+          {
+            name: "isImportant",
+            label: "중요 여부",
+            options: { display: false },
+          },
         ]);
 
         setLoading(false);
@@ -389,46 +407,121 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     }
   };
 
-  /**
-   * Process notifications to group them by date and type
-   */
-  const processNotifications = (notifications) => {
-    // Group data by date and type
-    const groupedData = notifications.reduce((acc, item) => {
-      const dateKey = item.date
-        ? new Date(item.date).toLocaleDateString()
-        : "N/A";
-      const typeKey = mapEnumToKorean(item.type);
-      const key = `${dateKey}-${typeKey}`;
+  // 선택된 알림
+  const [selectedNotificationInfo, setSelectedNotificationInfo] =
+    useState(null);
+  //해당 알림에 대한 상세 내역 불러오기
+  const fetchDetailedNotification = async (notificationId) => {
+    const token = localStorage.getItem("token");
 
-      if (!acc[key]) {
-        acc[key] = {
-          date: dateKey,
-          type: typeKey,
-          count: 0,
-          notifications: [],
-        };
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/product-flows/batch?notificationId=${notificationId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const apiConnection = await response.json();
+        const productFlows = apiConnection.result;
+
+        // Map productFlows to a format suitable for the table
+        const formattedProductFlows = productFlows.map((flow) => ({
+          productName: flow.productName,
+          barcode: flow.barcode,
+          quantity: flow.quantity,
+          previousLocationName: flow.previousLocationName,
+          previousFloorLevel:
+            flow.previousFloorLevel === -1 ? "임시" : flow.previousFloorLevel,
+          presentLocationName: flow.presentLocationName,
+          presentFloorLevel:
+            flow.presentFloorLevel === -1 ? "임시" : flow.presentFloorLevel,
+          productFlowType: mapEnumToKorean(flow.productFlowTypeEnum),
+          storeName: flow.storeName,
+        }));
+
+        // Set notificationDetailTableData and columns
+        setNotificationDetailTableData(formattedProductFlows);
+        setNotificationDetailTableColumns([
+          { name: "productName", label: "상품명" },
+          { name: "barcode", label: "바코드" },
+          { name: "quantity", label: "수량" },
+          { name: "previousLocationName", label: "이전 위치" },
+          { name: "previousFloorLevel", label: "이전 층수" },
+          { name: "presentLocationName", label: "현재 위치" },
+          { name: "presentFloorLevel", label: "현재 층수" },
+          { name: "productFlowType", label: "유형" },
+          { name: "storeName", label: "매장 이름" },
+        ]);
+
+        // Move to the detailed notification component
+        setCurrentIndex(7); // Assuming index 7 is the detailed notification component
+        setLoading(false);
+      } else {
+        // Handle error
+        setLoading(false);
+        notify("상세 정보를 불러오는 데 실패했습니다.");
       }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      notify("상세 정보를 불러오는 중 오류가 발생했습니다.");
+    }
+  };
+  // 알림을 읽으면 자동으로 읽음 처리하기 위한 수정 API
+  const updateNotificationIsRead = async (notificationId) => {
+    const token = localStorage.getItem("token");
 
-      acc[key].count += 1;
-      acc[key].notifications.push(item);
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
 
-      return acc;
-    }, {});
+    try {
+      const requestBody = [
+        {
+          notificationId: notificationId,
+          isRead: true,
+          isImportant: false, // You can set this based on your needs
+        },
+      ];
 
-    // Format grouped data for table display
-    const formattedData = Object.values(groupedData).map((entry) => ({
-      date: entry.date,
-      type: entry.type,
-      count: entry.count,
-    }));
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/notifications/batch`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
-    setNotificationTableData(formattedData);
-    setNotificationTableColumns([
-      { name: "date", label: "날짜" },
-      { name: "type", label: "유형" },
-      { name: "count", label: "수량" },
-    ]);
+      if (response.ok) {
+        // Update the local state to reflect the change
+        setNotificationTableData((prevData) =>
+          prevData.map((item) =>
+            item.id === notificationId ? { ...item, isRead: "읽음" } : item
+          )
+        );
+      } else {
+        console.error("Failed to update notification isRead status");
+      }
+    } catch (error) {
+      console.error("Error updating notification isRead status:", error);
+    }
   };
 
   // 변동 내역 / 알림함에서 쓰이는 data Table state
@@ -444,36 +537,24 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
   /**
    * 알림함에서 상세 내역을 조회할 때 사용되는 것들
    */
-  const handleRowClick = (rowData) => {
-    const [selectedDate, selectedType] = rowData;
+  const handleRowClick = (rowData, rowMeta) => {
+    const rowIndex = rowMeta.dataIndex;
+    const notification = notificationTableData[rowIndex];
+    const notificationId = notification.id;
 
-    // Filter detailed data for the selected date and type
-    const filteredData = detailedData.filter(
-      (item) =>
-        (item.date ? new Date(item.date).toLocaleDateString() : "N/A") ===
-          selectedDate && mapEnumToKorean(item.type) === selectedType
-    );
+    // Store the notification's type and date
+    setSelectedNotificationInfo({
+      type: notification.type,
+      date: notification.date,
+    });
 
-    // Define columns for the detailed view
-    const detailedColumns = [
-      { name: "date", label: "날짜" },
-      { name: "message", label: "메시지" },
-      { name: "type", label: "유형" },
-      { name: "isRead", label: "읽음 여부" },
-    ];
+    // Check if the notification is unread
+    if (notification.isRead === "안읽음") {
+      updateNotificationIsRead(notificationId);
+    }
 
-    // Map filtered data to the table format
-    const formattedData = filteredData.map((item) => ({
-      date: item.date ? new Date(item.date).toLocaleDateString() : "N/A",
-      message: item.message,
-      type: mapEnumToKorean(item.type),
-      isRead: item.isRead ? "읽음" : "안읽음",
-    }));
-
-    // Update table with detailed data
-    setNotificationDetailTableData(formattedData);
-    setNotificationDetailTableColumns(detailedColumns);
-    setCurrentIndex(7); // Assuming index 7 is the detailed notification component
+    // Fetch detailed data for this notification
+    fetchDetailedNotification(notificationId);
   };
 
   /**
@@ -666,9 +747,14 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     },
   };
 
-  const importExportOptions = {
-    onRowClick: (rowData) => handleRowClick(rowData), // Handle row click
+  // 분석을 위한
+  const productListOptions = {
+    ...listOptions,
+    onRowClick: handleProductRowClick,
+  };
 
+  const importExportOptions = {
+    onRowClick: handleRowClick, // Handle row click
     filterType: "multiselect",
     responsive: "scroll",
     download: false,
@@ -692,7 +778,9 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
           </Tooltip>
           <Tooltip title="Download">
             <IconButton
-              onClick={() => downloadExcel(productColumns, tableData)}
+              onClick={() =>
+                downloadExcel(notificationTableColumns, notificationTableData)
+              }
             >
               <Download />
             </IconButton>
@@ -742,7 +830,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         title={"상품 목록"}
         data={tableData}
         columns={productColumns}
-        options={deleteMode ? deleteOptions : listOptions}
+        options={deleteMode ? deleteOptions : productListOptions}
       />
     </ThemeProvider>,
     // Index 1: 입고하기
@@ -775,27 +863,50 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       />
     </ThemeProvider>,
     // Index 5: ML분석
-    <MLAnalysis key="mlAnalysis" />,
+    <Reports key="reports" />,
     // Index 6: 알림함
     <ThemeProvider theme={muiDatatableTheme}>
       <MUIDataTable
         key="dateTypeList"
-        title={"알림함"}
+        title={"알림함 - 원하는 알림을 눌러 상세내역을 확인하세요"}
         data={notificationTableData}
         columns={notificationTableColumns}
         options={importExportOptions}
       />
     </ThemeProvider>,
     // Index 7: 알림 상세 내역
-    <ThemeProvider theme={muiDatatableTheme}>
-      <MUIDataTable
-        key="selectedNotificationList"
-        title={"알림 상세 내역"}
-        data={notificationDetailTableData}
-        columns={notificationDetailTableColumns}
-        options={listOptions}
-      />
-    </ThemeProvider>,
+    <div key="notificationDetails">
+      <Button
+        variant="contained"
+        onClick={() => {
+          setSelectedNotificationInfo(null);
+          setCurrentIndex(6);
+        }}
+        className={classes.backButton}
+      >
+        알림 목록으로 돌아가기
+      </Button>
+      {selectedNotificationInfo && (
+        <div className={classes.notificationInfo}>
+          <h2>{selectedNotificationInfo.type}</h2>
+          <p>{selectedNotificationInfo.date}</p>
+        </div>
+      )}
+      <ThemeProvider theme={muiDatatableTheme}>
+        <MUIDataTable
+          key="selectedNotificationList"
+          title={"알림 상세 내역"}
+          data={notificationDetailTableData}
+          columns={notificationDetailTableColumns}
+          options={listOptions}
+        />
+      </ThemeProvider>
+    </div>,
+    <ProductAnalysis
+      key="productAnalysis"
+      barcode={selectedProductBarcode}
+      onBack={() => setCurrentIndex(0)}
+    />,
   ];
 
   // 해당하는 Section Table을 보여준다.
@@ -912,6 +1023,8 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         return "방범";
       case "PAYMENT":
         return "결제";
+      case "EXPORT":
+        return "출고";
       default:
         return enumValue;
     }
@@ -970,19 +1083,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
             })}
           >
             이동하기
-          </Button>
-        </div>
-        <div className={classes.buttonContainer}>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleButtonClick(4);
-            }}
-            className={classNames(classes.sidebarButton, {
-              [classes.activeButton]: activeButton === 4,
-            })}
-          >
-            변동내역
           </Button>
         </div>
         <div className={classes.buttonContainer}>
@@ -1134,3 +1234,109 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
 };
 
 export default MyContainerProduct;
+
+// MyContainerProduct.jsx
+
+// List of allowed barcodes
+const allowedBarcodes = [
+  "8801062637669",
+  "8801043015264",
+  "8801052971131",
+  "8801037047202",
+  "8808340884449",
+  "8801007539010",
+  "8801043004282",
+  "8801043015141",
+  "8808280710006",
+  "2000000332260",
+  "8801039203910",
+  "8801007166599",
+  "8801007058481",
+  "8801019307263",
+  "8809075122684",
+  "8801037050158",
+  "8801043015011",
+  "8801069228686",
+  "7804300123413",
+  "3415581102291",
+  "3415581119299",
+  "3415581101294",
+  "8801069225111",
+  "8801155566135",
+  "8801069225111",
+  "8801114116852",
+  "8801045803203",
+  "8801391100445",
+  "8801083544205",
+  "8801019313219",
+  "8801007406299",
+  "8809216731195",
+  "7610400068505",
+  "8801037076295",
+  "8801114119020",
+  "8801052030913",
+  "8801062634453",
+  "8801123409136",
+  "8809415435542",
+  "8801111113229",
+  "8801062007790",
+  "8801007440750",
+  "8801052742588",
+  "8807920000088",
+  "8801155603137",
+  "8801123715114",
+  "8801043014830",
+  "8801075016536",
+  "8801115111054",
+  "8801114305027",
+  "8801043014786",
+  "8801045426402",
+  "8801114107966",
+  "8801062637669",
+  "8801115114260",
+  "8803284606638",
+  "8801007013466",
+  "8801045440408",
+  "8801045331324",
+  "8801007334332",
+  "8801069225104",
+  "8801114148075",
+  "8801117465605",
+  "8801052091938",
+  "3073780886840",
+  "8801007166575",
+  "8801052091907",
+  "8801115111054",
+  "8801117534615",
+  "8801037028706",
+  "8801111110624",
+  "8801128509787",
+  "8801045940052",
+  "8801492374219",
+  "8801047308515",
+  "8801045167213",
+  "8801242643725",
+  "8801045176338",
+  "8801024053995",
+  "8801052436029",
+  "8804973304309",
+  "8801115114611",
+  "50213085",
+  "8801052043852",
+  "8690997114112",
+  "8809266252015",
+  "8801007053394",
+  "8801128281089",
+  "8801115111030",
+  "8801068372649",
+  "8801066200050",
+  "8801068372649",
+  "8801037065626",
+  "8801083017532",
+  "8801117534912",
+  "8801007441375",
+  "8809044942251",
+  "8801007704500",
+  "8801007678702",
+  "37600257640",
+];

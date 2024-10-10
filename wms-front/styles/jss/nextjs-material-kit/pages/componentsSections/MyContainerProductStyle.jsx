@@ -44,7 +44,7 @@ const ProductStyles = {
     backgroundColor: "#e6f4fa",
     color: "#1d9abc",
     outline: "none",
-    outline: "1px solid #459ab6"
+    outline: "1px solid #459ab6",
   },
 
   /**
@@ -113,9 +113,7 @@ const ProductStyles = {
   tdImportingTable: {
     padding: "8px",
   },
-  tdImportingTablePrice: {
-    
-  },
+  tdImportingTablePrice: {},
   // Global Button Style
   buttonStyle: {
     backgroundColor: "#e6f4fa",
@@ -127,7 +125,7 @@ const ProductStyles = {
     border: "1px solid #ccc",
     "&:hover": {
       transform: "scale(1.05)",
-      border: "1px solid #9baab1"
+      border: "1px solid #9baab1",
     },
   },
   importingButton: {
@@ -184,12 +182,25 @@ const ProductStyles = {
       border: "1px solid #9baab1"
     }
   },
+  // 알림스타일
+  notificationInfo: {
+    textAlign: "center",
+    marginBottom: "2px",
+    "& h2": {
+      margin: 0,
+      fontSize: "1.5rem",
+    },
+    "& p": {
+      margin: 0,
+      fontSize: "1rem",
+      color: "gray",
+    },
+  },
 
   /**
    * Mobile 모바일 환경
    */
   "@media (max-width: 960px)": {
-    
     productContainer: {
       marginTop: "3rem",
       display: "flex",
@@ -220,7 +231,7 @@ const ProductStyles = {
     },
     // 선택되기 이전 상태
     sidebarButton: {
-      height : "33px",
+      height: "33px",
       width: "100%",
       backgroundColor: "transparent", // Default inactive background
       color: "#7D4A1A",
@@ -355,6 +366,20 @@ const ProductStyles = {
     },
     thExpectedImportTable: {
       padding: "8px",
+    },
+  },
+  // 알림스타일
+  notificationInfo: {
+    textAlign: "center",
+    marginBottom: "2px",
+    "& h2": {
+      margin: 0,
+      fontSize: "1.5rem",
+    },
+    "& p": {
+      margin: 0,
+      fontSize: "1rem",
+      color: "gray",
     },
   },
 };
