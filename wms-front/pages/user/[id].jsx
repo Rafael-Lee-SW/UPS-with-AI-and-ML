@@ -87,10 +87,8 @@ export default function Components({
     />,
     <DynamicMyStorePrevent
       key={`product-${selectedStore}`}
-      WHId={selectedStore}
-      businessId={userData?.businessId}
-      warehouses={cards}
-      warehouseTitle={selectedStoreTitle}
+      storeId={selectedStore}
+      storeTitle={selectedStoreTitle}
     />,
   ];
 

@@ -242,6 +242,11 @@ function updateCrimeNotifications(data = {}) {
     return instance.patch('/notifications/batch', data)
 }
 
+// 방범 영상 정보 조회
+function fetchCrimeVideos(storeId) {
+    return instance.get(`/cameras/batch?storeId=${storeId}`)
+}
+
 // 특정 상품 정보 조회
 function fetchProductDetail(id) {
     return instance.get(`/productDetail/${id}`)
@@ -352,4 +357,5 @@ export {
     fetchCrimeNotifications,
     fetchUnreadCrimeNotifications,
     updateCrimeNotifications,
+    fetchCrimeVideos,
 }   

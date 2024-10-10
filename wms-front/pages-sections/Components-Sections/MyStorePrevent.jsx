@@ -21,6 +21,7 @@ import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { styled } from '@mui/material/styles';
+import { fetchCrimeVideos } from '../../pages/api/index';
 
 const PageContainer = styled('div')(({ theme }) => ({
   paddingTop: '50px',
@@ -132,21 +133,6 @@ const DeleteButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-const Anomaly = styled('div')(({ theme, backgroundColor }) => ({
-  backgroundColor: backgroundColor,
-  color: theme.palette.common.white,
-  padding: theme.spacing(0.5, 1),
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  right: 0,
-  borderBottomLeftRadius: theme.shape.borderRadius,
-  borderBottomRightRadius: theme.shape.borderRadius,
-  fontSize: '0.75rem',
-  fontWeight: 'bold',
-  textAlign: 'center',
-}));
-
 const ModalContent = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   position: 'relative',
@@ -177,84 +163,54 @@ const CloseButton = styled(IconButton)(({ theme }) => ({
   fontSize: '2rem',
 }));
 
-const sortVideosByDate = (videos) => {
-  return [...videos].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  );
+const getThumbnailUrl = (category) => {
+  switch (category) {
+    case '절도':
+      return '/img/thumbnails/theft_icon.png';
+    case '파손':
+      return '/img/thumbnails/breaking_icon.png';
+    case '흡연':
+      return '/img/thumbnails/smoking_icon.png';
+    case '방화':
+      return '/img/thumbnails/arson_icon.png';
+    case '실신':
+      return '/img/thumbnails/fainting_icon.png';
+    default:
+      return '/img/thumbnails/default_icon.png';
+  }
 };
 
-let uniqueId = 0;
-
-const generateDummyData = (count) => {
-  const categories = ['절도', '파손', '흡연', '방화', '실신'];
-  return Array.from({ length: count }, () => {
-    uniqueId++;
-    const date = new Date();
-    date.setDate(date.getDate() - Math.floor(Math.random() * 10));
-    const createdAt = date.toISOString();
-    const anomalyCategory = categories[Math.floor(Math.random() * categories.length)];
-    return {
-      pk: uniqueId,
-      storeId: 1,
-      videoUrl: `https://www.example.com/video${uniqueId}.mp4`,
-      thumbnailUrl: `https://via.placeholder.com/400x225?text=Video${uniqueId}`,
-      createdAt,
-      anomalyCategory,
-    };
-  });
-};
-
-const VideoCard = React.memo(({ video, onOpen, onDelete, isFavorite, onToggleFavorite }) => {
-  const getAnomalyColor = (category) => {
-    switch (category) {
-      case '절도':
-        return '#f44336';
-      case '파손':
-        return '#ff9800';
-      case '흡연':
-        return '#4caf50';
-      case '방화':
-        return '#2196f3';
-      case '실신':
-        return '#9c27b0';
-    }
-  };
-
+const VideoCard = React.memo(({ video, onOpen, onDelete, onToggleFavorite }) => {
   return (
     <StyledCard onClick={() => onOpen(video)}>
       <CardActions>
         <FavoriteButton
-          isFavorite={isFavorite}
+          isFavorite={video.isImportant}
           onClick={(e) => {
             e.stopPropagation();
-            onToggleFavorite(video.pk);
+            onToggleFavorite(video);
           }}
         >
-          {isFavorite ? <StarIcon /> : <StarBorderIcon />}
+          {video.isImportant ? <StarIcon /> : <StarBorderIcon />}
         </FavoriteButton>
         <DeleteButton
           onClick={(e) => {
             e.stopPropagation();
-            onDelete(video.pk);
+            onDelete(video.notificationId);
           }}
         >
           <CloseIcon />
         </DeleteButton>
       </CardActions>
-      <Media image={video.thumbnailUrl} title="CCTV Thumbnail" />
+      <Media image={getThumbnailUrl(video.category)} title={`${video.category} Thumbnail`} />
       <StyledCardContent>
-        <CCTVTime>CCTV 시간: {new Date(video.createdAt).toLocaleString()}</CCTVTime>
+        <CCTVTime>CCTV 시간: {new Date(video.createdDate).toLocaleString()}</CCTVTime>
       </StyledCardContent>
-      {video.anomalyCategory && (
-        <Anomaly backgroundColor={getAnomalyColor(video.anomalyCategory)}>
-          {video.anomalyCategory}
-        </Anomaly>
-      )}
     </StyledCard>
   );
 });
 
-const MyStorePrevent = () => {
+const MyStorePrevent = ({ storeId, storeTitle }) => {
   const ITEMS_PER_PAGE = 20;
 
   const [videos, setVideos] = useState([]);
@@ -273,25 +229,35 @@ const MyStorePrevent = () => {
   const observer = useRef();
 
   useEffect(() => {
-    const storedVideos = localStorage.getItem('videos');
-    if (storedVideos) {
-      const parsedVideos = JSON.parse(storedVideos);
-      setVideos(parsedVideos);
-      setFilteredVideos(parsedVideos);
-      setVisibleVideos(parsedVideos.slice(0, ITEMS_PER_PAGE));
-    } else {
-      const initialVideos = sortVideosByDate(generateDummyData(200));
-      setVideos(initialVideos);
-      setFilteredVideos(initialVideos);
-      setVisibleVideos(initialVideos.slice(0, ITEMS_PER_PAGE));
-      localStorage.setItem('videos', JSON.stringify(initialVideos));
-    }
-  }, []);
+    const fetchVideos = async () => {
+      setLoading(true);
+      try {
+        const response = await fetchCrimeVideos(storeId);
+        if (response.data && response.data.success) {
+          console.log(response.data.result)
+          const fetchedVideos = response.data.result;
+          setVideos(fetchedVideos);
+          setFilteredVideos(fetchedVideos);
+          setVisibleVideos(fetchedVideos.slice(0, ITEMS_PER_PAGE));
+        } else {
+          console.error('Failed to fetch videos:', response);
+          toast.error('비디오를 불러오는데 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('Error fetching videos:', error);
+        toast.error('비디오를 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, [storeId]);
 
   useEffect(() => {
     const { videoId } = router.query;
     if (videoId && videos.length > 0) {
-      const videoToOpen = videos.find(video => video.pk === parseInt(videoId, 10));
+      const videoToOpen = videos.find(video => video.notificationId === parseInt(videoId, 10));
       if (videoToOpen) {
         setSelectedVideo(videoToOpen);
         setOpen(true);
@@ -339,16 +305,16 @@ const MyStorePrevent = () => {
 
   const applyFilters = useCallback(() => {
     const filtered = videos.filter((video) => {
-      const anomalyFilterPassed =
+      const categoryFilterPassed =
         filter === 'all'
           ? true
-          : video.anomalyCategory === filter;
+          : video.category === filter;
 
       const dateFilterPassed = dateFilter
-        ? new Date(video.createdAt).toDateString() === new Date(dateFilter).toDateString()
+        ? new Date(video.createdDate).toDateString() === new Date(dateFilter).toDateString()
         : true;
 
-      return anomalyFilterPassed && dateFilterPassed;
+      return categoryFilterPassed && dateFilterPassed;
     });
     setFilteredVideos(filtered);
     setVisibleVideos(filtered.slice(0, ITEMS_PER_PAGE));
@@ -367,7 +333,7 @@ const MyStorePrevent = () => {
       router.push(
         {
           pathname: router.pathname,
-          query: { ...router.query, videoId: video.pk },
+          query: { ...router.query, videoId: video.notificationId },
         },
         undefined,
         { shallow: true }
@@ -390,22 +356,22 @@ const MyStorePrevent = () => {
     );
   }, [router]);
 
-  const handleDelete = useCallback((pk) => {
-    setDeleteVideoId(pk);
+  const handleDelete = useCallback((notificationId) => {
+    setDeleteVideoId(notificationId);
   }, []);
 
   const confirmDelete = () => {
-    const pk = deleteVideoId;
+    const notificationId = deleteVideoId;
     setDeleteVideoId(null);
-    setVideos((prevVideos) => prevVideos.filter((video) => video.pk !== pk));
+    setVideos((prevVideos) => prevVideos.filter((video) => video.notificationId !== notificationId));
     setFilteredVideos((prevFilteredVideos) =>
-      prevFilteredVideos.filter((video) => video.pk !== pk)
+      prevFilteredVideos.filter((video) => video.notificationId !== notificationId)
     );
     setVisibleVideos((prevVisibleVideos) =>
-      prevVisibleVideos.filter((video) => video.pk !== pk)
+      prevVisibleVideos.filter((video) => video.notificationId !== notificationId)
     );
     toast.success('삭제가 완료되었습니다.');
-    if (selectedVideo && selectedVideo.pk === pk) {
+    if (selectedVideo && selectedVideo.notificationId === notificationId) {
       setOpen(false);
       setSelectedVideo(null);
     }
@@ -423,16 +389,31 @@ const MyStorePrevent = () => {
     setDateFilter(event.target.value);
   };
 
-  const toggleFavorite = useCallback((pk) => {
-    setFavorites((prevFavorites) => {
-      const newFavorites = new Set(prevFavorites);
-      if (newFavorites.has(pk)) {
-        newFavorites.delete(pk);
-      } else {
-        newFavorites.add(pk);
-      }
-      return newFavorites;
-    });
+  const toggleFavorite = useCallback(async (video) => {
+    try {
+      await updateCrimeNotifications([
+        { notificationId: video.notificationId, isRead: video.isRead, isImportant: !video.isImportant }
+      ]);
+      setVideos(prevVideos => 
+        prevVideos.map(v => 
+          v.notificationId === video.notificationId ? { ...v, isImportant: !v.isImportant } : v
+        )
+      );
+      setFilteredVideos(prevFilteredVideos => 
+        prevFilteredVideos.map(v => 
+          v.notificationId === video.notificationId ? { ...v, isImportant: !v.isImportant } : v
+        )
+      );
+      setVisibleVideos(prevVisibleVideos => 
+        prevVisibleVideos.map(v => 
+          v.notificationId === video.notificationId ? { ...v, isImportant: !v.isImportant } : v
+        )
+      );
+      toast.success(video.isImportant ? '중요 표시가 해제되었습니다.' : '중요 표시되었습니다.');
+    } catch (error) {
+      console.error('Failed to update notification:', error);
+      toast.error('중요 표시 업데이트에 실패했습니다.');
+    }
   }, []);
 
   return (
@@ -449,7 +430,7 @@ const MyStorePrevent = () => {
                label="필터"
              >
                <MenuItem value="all">전체</MenuItem>
-                              <MenuItem value="절도">절도</MenuItem>
+               <MenuItem value="절도">절도</MenuItem>
                <MenuItem value="파손">파손</MenuItem>
                <MenuItem value="흡연">흡연</MenuItem>
                <MenuItem value="방화">방화</MenuItem>
@@ -470,14 +451,13 @@ const MyStorePrevent = () => {
         <CardContainer>
           {visibleVideos.map((video, index) => (
             <div
-              key={video.pk}
+              key={video.notificationId}
               ref={index === visibleVideos.length - 1 ? lastVideoElementRef : null}
             >
               <VideoCard 
                 video={video} 
                 onOpen={handleOpen} 
                 onDelete={handleDelete}
-                isFavorite={favorites.has(video.pk)}
                 onToggleFavorite={toggleFavorite}
               />
             </div>
@@ -492,12 +472,11 @@ const MyStorePrevent = () => {
                   <CloseIcon fontSize="large" />
                 </CloseButton>
                 <Video controls autoPlay>
-                  <source src={selectedVideo.videoUrl} type="video/mp4" />
+                  <source src={selectedVideo.url} type="video/mp4" />
                   브라우저가 비디오를 지원하지 않습니다.
                 </Video>
-                {selectedVideo.anomalyCategory && (
-                  <p>이상 감지: {selectedVideo.anomalyCategory}</p>
-                )}
+                <p>카테고리: {selectedVideo.category}</p>
+                <p>생성 시간: {new Date(selectedVideo.createdDate).toLocaleString()}</p>
               </>
             )}
           </ModalContent>
