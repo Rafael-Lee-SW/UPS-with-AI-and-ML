@@ -2,7 +2,9 @@
 
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Typography, Slider, Box, Button, TextField } from "@mui/material";
+import { Typography, Slider, Box, TextField } from "@mui/material";
+// core components
+import Button from "/components/CustomButtons/Button.js";
 
 // Import styles
 import styles from "/styles/jss/nextjs-material-kit/pages/componentsSections/MyContainerMapStyle";

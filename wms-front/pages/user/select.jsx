@@ -203,7 +203,9 @@ const Select = ({ fetchedStores, ...rest }) => {
         }
       );
       // Remove the deleted store from the cards array
-      setCards((prevCards) => prevCards.filter((card) => card.id !== storeToDelete));
+      setCards((prevCards) =>
+        prevCards.filter((card) => card.id !== storeToDelete)
+      );
       setStoreToDelete(""); // 초기화
       setOpenDeleteDialog(false);
       setCheckedWarning(false);
@@ -290,13 +292,9 @@ const Select = ({ fetchedStores, ...rest }) => {
                             card.warehouseColor
                           ),
                         }}
-                      >
-                        {" "}
-                        {`${card.id}%`}
-                      </div>
+                      ></div>
                     </div>
                   </div>
-
                   <div className={classes.cardFooter}>
                     <div className={classes.pcsContainer}>
                       <img
