@@ -16,7 +16,7 @@ public class PaymentMapper {
      * @param store
      * @return 변환된 Payment 객체
      */
-    public static Payment fromCreateRequestDto(PaymentCreateRequest paymentCreateRequest, Store store, String orderId, Long barcode) {
+    public static Payment fromCreateRequestDto(PaymentCreateRequest paymentCreateRequest, Store store, String orderId, Long barcode, Long floorId) {
         return Payment.builder()
                 .store(store)
                 .orderId(orderId)
@@ -24,6 +24,7 @@ public class PaymentMapper {
                 .sellingPrice(paymentCreateRequest.sellingPrice())
                 .quantity(paymentCreateRequest.quantity())
                 .productName(paymentCreateRequest.productName())
+                .floorId(floorId)
                 .build();
     }
 
@@ -43,6 +44,7 @@ public class PaymentMapper {
                 .orderId(payment.getOrderId())
                 .productName(payment.getProductName())
                 .createdDate(payment.getCreatedDate())
+                .floorId(payment.getFloorId())
                 .build();
     }
 }
