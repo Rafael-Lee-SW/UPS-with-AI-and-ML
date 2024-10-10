@@ -246,14 +246,14 @@ const ProductStyles = {
       height: "33px",
       width: "100%",
       backgroundColor: "transparent", // Default inactive background
-      color: "#7D4A1A",
-      outline: "1px solid #7D4A1A",
+      color: "#459ab6",
+      outline: "1px solid #459ab6",
     },
     //선택된 버튼
     activeButton: {
-      backgroundColor: "#7D4A1A",
-      color: "white",
-      outline: "none",
+      backgroundColor: "#e6f4fa",
+      color: "#1d9abc",
+      outline: "1px solid #459ab6",
     },
 
     /**
