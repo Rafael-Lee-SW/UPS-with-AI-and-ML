@@ -237,7 +237,7 @@ const Select = ({ fetchedStores, ...rest }) => {
   return (
     <div>
       <Header
-        brand="FIT-BOX"
+        brand="AUTO-STORE"
         rightLinks={<HeaderLinks />}
         fixed
         color="white"
@@ -400,6 +400,7 @@ const Select = ({ fetchedStores, ...rest }) => {
                     color="primary"
                     fullWidth
                     disabled={Object.keys(validationErrors).length > 0}
+                    className={classes.createButton}
                   >
                     완료
                   </Button>
