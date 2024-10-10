@@ -44,9 +44,15 @@
     // 사용할 타입 정의 파일을 명시적으로 지정 (Node.js, Electron, Axios)
     "types": ["node", "electron", "axios"]
   },
-  
+
   // 프로젝트에 포함할 파일들 (TypeScript 및 Next.js 설정 파일)
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "electron/main.js"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "electron/main.js",
+    "src/types/**/*.d.ts"
+, "src/pages/payment/checkout.jsx", "src/pages/payment/checkout.jsx", "src/pages/payment/index.jsx"  ],
 
   // 컴파일에서 제외할 폴더 (node_modules는 제외)
   "exclude": ["node_modules"]
