@@ -500,6 +500,16 @@ const selectStyle = (theme) => ({
     formControl: {
       marginBottom: theme.spacing(2),
     },
+    createButton: {
+      backgroundColor: '#e6f4fa',
+      border: '1px solid #ccc',
+      color: 'black',
+      "&:hover": {
+        transform: 'scale(1.05)',
+        color: 'black',
+        border: "1px solid #9baab1"
+      }
+    }
   },
 });
 

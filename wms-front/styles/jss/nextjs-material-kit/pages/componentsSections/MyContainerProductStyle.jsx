@@ -174,7 +174,15 @@ const ProductStyles = {
     // Add any other styles you need
   },
   searchButton: {
+    border: '1px solid #ccc',
+    backgroundColor: "#e6f4fa",
+    color: 'black',
     height: "56px", // To match the height of the date pickers
+    '&:hover': {
+      transform: 'scale(1.05)',
+      color: 'black',
+      border: "1px solid #9baab1"
+    }
   },
 
   /**
