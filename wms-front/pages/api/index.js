@@ -232,6 +232,16 @@ function fetchCrimeNotifications(storeId) {
     return instance.get(`/notifications?storeId=${storeId}&type=CRIME_PREVENTION`)
 }
 
+// 안읽은 알람 조회
+function fetchUnreadCrimeNotifications() {
+    return instance.get('/notifications?type=CRIME_PREVENTION')
+}
+
+// 알람 읽음 처리 및 업데이트
+function updateCrimeNotifications(data = {}) {
+    return instance.patch('/notifications/batch', data)
+}
+
 // 특정 상품 정보 조회
 function fetchProductDetail(id) {
     return instance.get(`/productDetail/${id}`)
@@ -340,4 +350,6 @@ export {
     deleteDevice,
     createOtpNumber,
     fetchCrimeNotifications,
+    fetchUnreadCrimeNotifications,
+    updateCrimeNotifications,
 }   
