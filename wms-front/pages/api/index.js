@@ -234,7 +234,7 @@ function fetchCrimeNotifications(storeId) {
 
 // 안읽은 알람 조회
 function fetchUnreadCrimeNotifications() {
-    return instance.get('/notifications?type=CRIME_PREVENTION')
+    return instance.get('/notifications?type=CRIME_PREVENTION&isRead=false')
 }
 
 // 알람 읽음 처리 및 업데이트
