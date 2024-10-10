@@ -32,7 +32,6 @@
 //
 //        // 사용자 이메일 추출
 //        String email = extractEmail(oAuth2User.getAttributes(), oauthClientName);
-////        String email = "test@email.com";
 //        if (email == null) {
 //            throw new IllegalArgumentException("Email not found in user attributes");
 //        }
