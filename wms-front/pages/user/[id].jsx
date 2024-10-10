@@ -131,6 +131,7 @@ export default function Components({
         rightLinks={<HeaderLinks />}
         fixed
         color="transparentWhite" // Custom color here
+        brand="Auto-Store"
       />
       <div className={classes.sidebar}>
         <button className={classes.homeButton}>
