@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.ChannelOption;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,6 +79,7 @@ public class CameraServiceImpl {
             .notification(notification)
             .title(file.getOriginalFilename())
             .url(s3ServiceImpl.generatePresignedUrl(file.getOriginalFilename()).downloadLink())
+            .category(returnResponse(uploadResponse))
             .build());
     // 응답 처리
     return returnResponse(uploadResponse);
@@ -176,7 +178,7 @@ public class CameraServiceImpl {
     return CameraMapper.toCameraResponse(cameraRepository.findByNotificationId(notificationId));
   }
 
-  public CameraResponse findCameraByTitle(String title) {
-    return CameraMapper.toCameraResponse(cameraRepository.findByTitle(title));
+  public List<CameraResponse> findAllByStoreId(Long storeId) {
+    return cameraRepository.findAllByStoreId(storeId);
   }
 }
