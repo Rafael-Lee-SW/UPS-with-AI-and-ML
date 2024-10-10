@@ -679,10 +679,12 @@ const MyContainerMap = ({ storeId, businessId }) => {
             draggable: true,
             order: index,
             name: location.name || `적재함 ${index}`,
-            type: "location",
+            type: type,
             rotation: 0,
           };
         });
+
+        console.log(newLocations)
 
         // 벽 데이터 처리
         const walls = storeData.walls;

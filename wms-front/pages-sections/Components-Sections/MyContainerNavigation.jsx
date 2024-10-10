@@ -1055,6 +1055,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
    * UseEffect를 통해 새로고침 때마다 api로 사장님의 재고를 불러옴
    * + 유저정보
    */
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
