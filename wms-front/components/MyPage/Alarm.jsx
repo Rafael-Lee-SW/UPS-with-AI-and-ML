@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
 import style from '/styles/jss/nextjs-material-kit/pages/componentsSections/notificationsStyles.js';
-import { fetchCrimeNotifications, fetchStores } from '../../pages/api/index';
+import { fetchCrimeNotifications, fetchStores, editNotification } from '../../pages/api/index';
 import { useRouter } from 'next/router';
 
 const useStyles = makeStyles(style);
@@ -51,8 +51,17 @@ export default function Alarm({ userId }) {
         setNotifications([]); 
     };
 
+    const changeIsRead = (notificationId) => {
+        const data = [{
+            "notificationId" : notificationId,
+            "isRead" : true
+        }]
+        editNotification(data);
+    }
+
     const handleDetail = (notificationId) => {
         router.push(`/user/${currentStore.id}?videoId=${notificationId}`);
+        changeIsRead(notificationId);
     }
 
     return (
