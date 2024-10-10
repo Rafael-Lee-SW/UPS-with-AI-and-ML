@@ -13,6 +13,7 @@ public record PaymentResponse(
         Integer quantity,
         Long sellingPrice,
         String productName,
-        LocalDateTime createdDate
+        LocalDateTime createdDate,
+        Long floorId
 ) {
 }

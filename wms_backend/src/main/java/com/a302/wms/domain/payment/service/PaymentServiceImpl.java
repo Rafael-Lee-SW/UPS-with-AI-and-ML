@@ -10,6 +10,7 @@ import com.a302.wms.domain.payment.mapper.PaymentMapper;
 import com.a302.wms.domain.payment.repository.PaymentRepository;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.repository.ProductRepository;
+import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.domain.store.repository.StoreRepository;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.repository.UserRepository;
@@ -22,9 +23,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
-import static com.a302.wms.global.constant.ResponseEnum.INVALID_PAYMENT;
-import static com.a302.wms.global.constant.ResponseEnum.PAYMENT_NOT_FOUND;
+import static com.a302.wms.global.constant.ResponseEnum.*;
 
 @Slf4j
 @Service
@@ -64,13 +65,7 @@ public class PaymentServiceImpl {
                     Product product = productRepository.findByBarcodeAndStoreId(paymentCreateRequest.barcode(), device.getStore().getId());
                     product.updateQuantity(product.getQuantity() - paymentCreateRequest.quantity());
 
-                    return Payment.builder()
-                            .orderId(orderCreateRequest.orderId())
-                            .store(device.getStore())
-                            .barcode(paymentCreateRequest.barcode())
-                            .quantity(paymentCreateRequest.quantity())
-                            .sellingPrice(paymentCreateRequest.sellingPrice())
-                            .build();
+                    return PaymentMapper.fromCreateRequestDto(paymentCreateRequest, product.getStore(), orderCreateRequest.orderId(), product.getBarcode(), product.getFloor().getId());
                 })
                 .toList();
         List<Payment> savedPayment = paymentRepository.saveAll(newPaymentList);
@@ -122,14 +117,17 @@ public class PaymentServiceImpl {
      */
     public List<PaymentResponse> find(
             Long userId, Long storeId, LocalDateTime start, LocalDateTime end) {
-        log.info("[Service] find payment for user");
+        log.info("[Service] find payment for user {}", storeId);
 
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow(() -> new CommonException(USER_NOT_FOUND, "해당 유저를 찾을 수 없습니다."));
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new CommonException(STORE_NOT_FOUND, "해당 매장을 찾을 수 없습니다."));
+        if (!Objects.equals(store.getUser().getId(), userId))
+            throw new CommonException(BAD_REQUEST, "매장에 대한 권한이 없습니다.");
 
         List<PaymentResponse> paymentList =
                 paymentRepository
                         .findPaymentsByStoreIdAndPaidAtBetween(
-                                storeId, start, end
+                                store, start, end
                         )
                         .stream()
                         .map(PaymentMapper::toResponseDto)
