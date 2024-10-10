@@ -1,55 +1,61 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.3.1'
-	id 'io.spring.dependency-management' version '1.1.5'
+    id 'java'
+    id 'org.springframework.boot' version '3.3.1'
+    id 'io.spring.dependency-management' version '1.1.5'
     id 'org.jetbrains.kotlin.jvm'
+    id "org.sonarqube" version "3.5.0.2730"
 }
 
 group = 'com.a302'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-mail' //이메일 전송 의존성
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'// OAuth2를 사용하여 외부 인증 제공자와 통합
-	implementation 'org.springframework.boot:spring-boot-starter-security' //애플리케이션의 보안을 담당
-	implementation 'org.springframework.boot:spring-boot-starter-validation' //데이터 유효성 검사
-	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'// JWT 생성 및 검증을 위한 JJWT 라이브러리 (API)
-	implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'// JWT 생성 및 검증을 위한 JJWT 라이브러리 (구현체)
-	implementation group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'// JWT 생성 및 검증을 위한 JJWT 라이브러리 (Jackson 지원)
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-mail' //이메일 전송 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'// OAuth2를 사용하여 외부 인증 제공자와 통합
+    implementation 'org.springframework.boot:spring-boot-starter-security' //애플리케이션의 보안을 담당
+    implementation 'org.springframework.boot:spring-boot-starter-validation' //데이터 유효성 검사
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'// JWT 생성 및 검증을 위한 JJWT 라이브러리 (API)
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'// JWT 생성 및 검증을 위한 JJWT 라이브러리 (구현체)
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
+// JWT 생성 및 검증을 위한 JJWT 라이브러리 (Jackson 지원)
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-	implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.4'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux' // Video 전송
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	// Redis 관련
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation(platform("software.amazon.awssdk:bom:2.27.21"))
-	implementation("software.amazon.awssdk:s3")
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.4'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux' // Video 전송
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    // Redis 관련
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation(platform("software.amazon.awssdk:bom:2.27.21"))
+    implementation("software.amazon.awssdk:s3")
 }
-
+sonar {
+    properties {
+        property "sonar.projectKey", "S11P21A302"
+    }
+}
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
