@@ -182,6 +182,18 @@ const ProductStyles = {
       border: "1px solid #9baab1"
     }
   },
+  backButton: {
+    margin: '30px',
+    border: '1px solid #ccc',
+    backgroundColor: "#e6f4fa",
+    color: 'black',
+    height: "56px", // To match the height of the date pickers
+    '&:hover': {
+      transform: 'scale(1.05)',
+      color: 'black',
+      border: "1px solid #9baab1"
+    }
+  },
   // 알림스타일
   notificationInfo: {
     textAlign: "center",
