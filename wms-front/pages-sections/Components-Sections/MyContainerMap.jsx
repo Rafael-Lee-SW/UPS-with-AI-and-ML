@@ -640,6 +640,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
           return;
         }
 
+
         const newLocations = locations.map((location, index) => {
           let type = "매대";
           if (location.locationTypeEnum === "ENTRANCE") {
@@ -656,8 +657,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
             height: location.ysize || 50,
             z: location.zsize,
             locationType: location.locationTypeEnum,
-            fill:
-              type === "입구" ? "green" : type === "출구" ? "red" : "blue",
+            fill: type === "입구" ? "green" : type === "출구" ? "red" : "blue",
             draggable: true,
             order: index,
             name: location.name || `적재함 ${index}`,
@@ -1153,11 +1153,11 @@ const MyContainerMap = ({ storeId, businessId }) => {
           if (!existingAnchor) {
             const newId = anchorsRef.current.length
               ? Math.max(
-                  ...anchorsRef.current.flatMap(({ start, end }) => [
-                    parseInt(start.id(), 10),
-                    parseInt(end.id(), 10),
-                  ])
-                ) + 1
+                ...anchorsRef.current.flatMap(({ start, end }) => [
+                  parseInt(start.id(), 10),
+                  parseInt(end.id(), 10),
+                ])
+              ) + 1
               : 1;
             existingAnchor = buildAnchor(newId, x, y);
           } else {
@@ -1503,7 +1503,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
         handleAddLocation={handleAddLocation}
         newWallWidth={newWallWidth}
         setNewWallWidth={setNewWallWidth}
-        // handleOpen={handleOpen} // If you need to open the modal from here
+      // handleOpen={handleOpen} // If you need to open the modal from here
       />
 
       {/* Canvas 영역  */}
@@ -1552,9 +1552,9 @@ const MyContainerMap = ({ storeId, businessId }) => {
                   width={rect.width}
                   height={rect.height}
                   fill={
-                    rect.type === "entrance"
+                    rect.type === "입구"
                       ? "green"
-                      : rect.type === "exit"
+                      : rect.type === "출구"
                       ? "red"
                       : rect.fill
                   }

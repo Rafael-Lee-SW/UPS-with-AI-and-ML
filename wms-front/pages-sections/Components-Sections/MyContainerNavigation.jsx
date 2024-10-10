@@ -287,19 +287,12 @@ const MyContainerNavigation = ({ storeId, stores }) => {
         }
 
         const newLocations = locations.map((location, index) => {
-          const startColor = { r: 27, g: 177, b: 231 }; // Starting color (#1bb1e7)
-          const endColor = { r: 0, g: 0, b: 255 }; // Ending color (#0000FF)
-
-          // Calculate the color components based on the fill value
-          const red = Math.round(
-            startColor.r + ((endColor.r - startColor.r) * location.fill) / 100
-          );
-          const green = Math.round(
-            startColor.g + ((endColor.g - startColor.g) * location.fill) / 100
-          );
-          const blue = Math.round(
-            startColor.b + ((endColor.b - startColor.b) * location.fill) / 100
-          );
+          let type = "location";
+          if (location.locationTypeEnum === "ENTRANCE") {
+            type = "entrance";
+          } else if (location.locationTypeEnum === "EXIT") {
+            type = "exit";
+          }
 
           return {
             id: location.id.toString(),
@@ -308,11 +301,12 @@ const MyContainerNavigation = ({ storeId, stores }) => {
             width: location.xsize || 50,
             height: location.ysize || 50,
             z: location.zsize,
-            fill: `rgba(${red}, ${green}, ${blue}, 1)`, // Calculate RGB with alpha as 1
+            locationType: location.locationTypeEnum,
+            fill: type === "entrance" ? "green" : type === "exit" ? "red" : "blue",
             draggable: true,
             order: index,
             name: location.name || `적재함 ${index}`,
-            type: "location",
+            type: type,
             rotation: 0,
           };
         });
@@ -854,12 +848,12 @@ const MyContainerNavigation = ({ storeId, stores }) => {
         }
       );
 
-      console.log(response)
-
+      
       if (response.ok) {
         const apiConnection = await response.json();
         const notifications = apiConnection.result;
-
+        
+        console.log(notifications)
         const formattedNotifications = notifications.map((notification) => ({
           id: notification.id,
           date: notification.createdDate
@@ -872,9 +866,9 @@ const MyContainerNavigation = ({ storeId, stores }) => {
         }));
 
         setNotificationTableData(formattedNotifications);
-        setLoading(false);
+
       } else {
-        setLoading(false);
+
       }
     } catch (error) {
       setLoading(false);
@@ -901,6 +895,21 @@ const MyContainerNavigation = ({ storeId, stores }) => {
     }
   };
 
+  const handleNotificationsClick = () => {
+    if (isSidebarVisible && !showDetails) {
+      setIsSidebarVisible(false);
+    } else if (isSidebarVisible && showDetails) {
+      setIsSidebarVisible(false);
+      setTimeout(() => {
+        setShowDetails(false);
+        setIsSidebarVisible(true);
+      }, 300);
+    } else {
+      setShowDetails(false);
+      setIsSidebarVisible(true);
+    }
+  };
+  
 
   const [dateColumns, setDateColumns] = useState([]); // 일자별로
 
@@ -1031,14 +1040,13 @@ const MyContainerNavigation = ({ storeId, stores }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true); // Start loading
-        await getStoreStructureAPI(); // 창고 정보를 불러온다.
+        setLoading(true);
+        await getStoreStructureAPI();
         await getNotificationsAPI();
-        setNotificationsFetched(true);
       } catch (error) {
-        //에러
+        // Handle error
       } finally {
-        setLoading(false); // End loading
+        setLoading(false);
       }
     };
     fetchData();
@@ -1295,7 +1303,13 @@ const MyContainerNavigation = ({ storeId, stores }) => {
               y={rect.y}
               width={rect.width}
               height={rect.height}
-              fill={rect.fill}
+              fill={
+                rect.type === "entrance"
+                  ? "green"
+                  : rect.type === "exit"
+                    ? "red"
+                    : rect.fill
+              }
               shapeProps={rect}
               isHovered={hoveredLocations.includes(rect.id)} // Pass hover state
               isSelected={rect.id === selectedLocationTransform}
