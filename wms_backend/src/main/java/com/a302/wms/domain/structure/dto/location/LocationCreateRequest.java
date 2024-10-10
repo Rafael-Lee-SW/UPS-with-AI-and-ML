@@ -1,5 +1,6 @@
 package com.a302.wms.domain.structure.dto.location;
 
+import com.a302.wms.global.constant.LocationTypeEnum;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -22,7 +23,7 @@ public class LocationCreateRequest {
     private int zSize = -1;
     @Builder.Default
     private int rotation = 0;
-
-    private Integer touchableFloor;
+    @Builder.Default
+    private LocationTypeEnum locationType = LocationTypeEnum.LOCATION;
 
 }

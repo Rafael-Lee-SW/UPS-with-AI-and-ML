@@ -32,6 +32,7 @@ public class LocationMapper {
                 .rotation(request.getRotation())
                 .store(store)
                 .floorList(floorList)
+                .locationType(request.getLocationType())
                 .build();
     }
 
@@ -53,6 +54,7 @@ public class LocationMapper {
                 .floorResponses(location.getFloorList().stream().map(
                         FloorMapper::toResponseDto
                 ).toList())
+                .locationTypeEnum(location.getLocationType())
                 .build();
     }
 
