@@ -1,4 +1,4 @@
-#  Automatic Store Project :  
+#  Auto Store Project : 무인 매장 관리 시스템  
 
 <img src="/READMEfile/unmanndestore.jpg" alt="AUTOSTORE Image" width="1000">
 
@@ -167,7 +167,7 @@
 
 # ⏱ 개발 기간
 
-- 2024-07-08 ~ 2024-08-16 (7주)
+- 2024-09-19 ~ 2024-10-10 (8주)
 <br>
 
 
