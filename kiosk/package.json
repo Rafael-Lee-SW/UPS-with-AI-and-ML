@@ -8,7 +8,7 @@
     "dev": "concurrently \"next dev\" \"npm run electron\"",
     "build": "next build && electron-builder build",
     "start": "next start",
-    "export": "next export", 
+    "export": "next export",
     "electron": "electron .",
     "package": "electron-builder"
   },
@@ -50,7 +50,6 @@
       "build/**/*",
       "electron/**/*"
     ],
-    
     "directories": {
       "output": "dist"
     },
@@ -58,10 +57,13 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64", "ia32"]
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         }
       ],
-      "icon": "public/icon.ico"  
+      "icon": "public/icon.ico"
     }
   }
 }

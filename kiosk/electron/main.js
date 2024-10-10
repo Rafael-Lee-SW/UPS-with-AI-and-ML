@@ -18,9 +18,8 @@ function createWindow() {
       zoomFactor: 0.75,
     },
   });
-  const path = require('path');
-  const startFilePath = path.join(__dirname, 'out', 'index.html'); 
-  mainWindow.loadFile(startFilePath);
+  const startURL = "http://localhost:3000"; 
+  mainWindow.loadURL(startURL);
 }
 
 function connectNFCReader() {

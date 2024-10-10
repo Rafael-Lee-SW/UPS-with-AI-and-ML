@@ -34,7 +34,7 @@ export default function Home() {
         },
       });
     } else {
-      setError("Invalid storeId");
+      setError("매장 OTP가 일치하지 않습니다.");
     }
   };
 

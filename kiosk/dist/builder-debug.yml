@@ -38,8 +38,8 @@ ia32:
     - electron/**/*
 nsis:
   script: |-
-    !include "C:\Users\user\Desktop\키오스크프로젝트\키오스크\S11P21A302\kiosk\node_modules\app-builder-lib\templates\nsis\include\StdUtils.nsh"
-    !addincludedir "C:\Users\user\Desktop\키오스크프로젝트\키오스크\S11P21A302\kiosk\node_modules\app-builder-lib\templates\nsis\include"
+    !include "C:\Users\SSAFY\Desktop\키오스크 프로젝트\Dev_Front_Kiosk\S11P21A302\kiosk\node_modules\app-builder-lib\templates\nsis\include\StdUtils.nsh"
+    !addincludedir "C:\Users\SSAFY\Desktop\키오스크 프로젝트\Dev_Front_Kiosk\S11P21A302\kiosk\node_modules\app-builder-lib\templates\nsis\include"
     !macro _isUpdated _a _b _t _f
       ${StdUtils.TestParameter} $R9 "updated"
       StrCmp "$R9" "true" `${_t}` `${_f}`
@@ -111,8 +111,8 @@ nsis:
       !insertmacro MUI_LANGUAGE "Vietnamese"
     !macroend
 
-    !include "C:\Users\user\AppData\Local\Temp\t-E3dyVE\0-messages.nsh"
-    !addplugindir /x86-unicode "C:\Users\user\AppData\Local\electron-builder\Cache\nsis\nsis-resources-3.4.1\plugins\x86-unicode"
+    !addplugindir /x86-unicode "C:\Users\SSAFY\AppData\Local\electron-builder\Cache\nsis\nsis-resources-3.4.1\plugins\x86-unicode"
+    !include "C:\Users\SSAFY\AppData\Local\Temp\t-Iuj4Mf\0-messages.nsh"
 
     Var newStartMenuLink
     Var oldStartMenuLink
