@@ -70,7 +70,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   position: 'relative',
   cursor: 'pointer',
   transition: 'transform 0.2s, box-shadow 0.2s',
-  height: '220px',
+  height: 'auto',
   display: 'flex',
   flexDirection: 'column',
   '&:hover': {
@@ -89,8 +89,10 @@ const StyledCard = styled(Card)(({ theme }) => ({
 }));
 
 const Media = styled(CardMedia)(({ theme }) => ({
-  height: 0,
-  paddingTop: '56.25%', // 16:9 비율
+  paddingTop: '100%', // 1:1 비율
+  backgroundSize: 'contain', // 이미지가 영역 내에 맞게 조정됩니다
+  backgroundPosition: 'center', // 이미지를 중앙에 위치시킵니다
+  // backgroundColor: theme.palette.grey[200], // 배경색을 추가하여 이미지가 없는 영역을 채웁니다
 }));
 
 const StyledCardContent = styled(MuiCardContent)(({ theme }) => ({
