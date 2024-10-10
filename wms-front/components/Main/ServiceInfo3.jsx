@@ -14,7 +14,7 @@ export default function serviceInfo3 () {
                 <p className={classes.content}>이상행동을 탐지하여 안전한 매장을 만듭니다.</p>
             </div>
             <div className={classes.section2}>
-                <img className={classes.mainImg} src="/img/mainInfo1.png" alt="mainInfo"/>
+                <img className={classes.mainImg} src="/img/sub3.jpg" alt="mainInfo"/>
             </div>
         </div>
     )

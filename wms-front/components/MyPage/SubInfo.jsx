@@ -88,13 +88,13 @@ export default function SubInfo() {
           <div>
             <div className={classes.contentContainer}>
               <h4 className={classes.contentText}>
-                현재 사용 중인 창고 수: {currentSubscription.warehouseCount}
+                현재 사용 중인 매장 수: {currentSubscription.warehouseCount}
               </h4>
               <button
                 className={classes.button}
                 onClick={() => router.push("/payment")}
               >
-                창고 추가 결제
+                매장 추가 결제
               </button>
             </div>
             <div>
