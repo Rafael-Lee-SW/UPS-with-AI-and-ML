@@ -13,16 +13,16 @@ import com.a302.wms.domain.structure.dto.location.LocationStorageResponse;
 import com.a302.wms.domain.structure.entity.Location;
 import com.a302.wms.domain.structure.mapper.LocationMapper;
 import com.a302.wms.domain.structure.repository.LocationRepository;
+import com.a302.wms.global.constant.LocationTypeEnum;
 import com.a302.wms.global.constant.ResponseEnum;
 import com.a302.wms.global.handler.CommonException;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -167,6 +167,7 @@ public class LocationServiceImpl {
                         .zSize(-1)
                         .store(store)
                         .name("임시 로케이션")
+                        .locationType(LocationTypeEnum.LOCATION)
                         .build()
         );
     }
