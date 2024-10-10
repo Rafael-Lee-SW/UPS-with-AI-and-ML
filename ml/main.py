@@ -8,7 +8,9 @@ import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
 import joblib
 from datetime import timedelta
+import logging
 
+logging.basicConfig(level=logging.INFO)
 # Load models and data at startup
 app = FastAPI(root_path="/ml")
 
@@ -33,9 +35,23 @@ app.add_middleware(
 # today = full_data['purchase_date'].max()
 # one_month_ago = today - timedelta(days=30)
 # data = full_data[full_data['purchase_date'] >= one_month_ago].copy()
-data = pd.read_csv("prepared_sales_data_last_month.csv", parse_dates=["purchase_date"])
+data = pd.read_csv(
+    "prepared_sales_data_last_month.csv",
+    parse_dates=["purchase_date"],
+    dtype={"product_code": str},
+)
 
-locations = pd.read_csv("locations.csv")
+# Ensure product_code is a string and strip whitespaces
+data["product_code"] = data["product_code"].astype(str).str.strip()
+# Print data information
+print("Data types of data columns:")
+print(data.dtypes)
+print(f"Number of rows in data: {len(data)}")
+print("Sample of product codes in data:")
+print(data["product_code"].unique()[:10])  # Print first 10 unique product codes
+
+locations = pd.read_csv("locations.csv", dtype={"id": int})
+
 # load the model
 lstm_model = tf.keras.models.load_model("lstm_sales_forecast_model.h5")
 lstm_scaler = joblib.load("lstm_scaler.pkl")
@@ -58,9 +74,24 @@ def get_last_week_sales(product_code):
 
 
 def forecast_next_week_sales(product_code):
+    logging.info(f"Starting forecast for product_code: {product_code}")
     product_data = data[data["product_code"] == product_code].copy()
+
+    logging.info(
+        f"Number of entries for product_code {product_code}: {len(product_data)}"
+    )
+
+    # Check if product_data is empty
+    if product_data.empty:
+        logging.info(f"No data found for product_code: {product_code}")
+        return None  # No data available for this product_code
+
     product_data.sort_values("purchase_date", inplace=True)
     sales_values = product_data[["price"]].values
+
+    # Check if sales_values is empty
+    if len(sales_values) == 0:
+        return None  # No sales values available
 
     # Use saved scaler
     scaled_data = lstm_scaler.transform(sales_values)
@@ -68,7 +99,8 @@ def forecast_next_week_sales(product_code):
     # Create sequences
     SEQ_LENGTH = 7
     if len(scaled_data) < SEQ_LENGTH:
-        return None  # Not enough data
+        return None  # Not enough data for forecasting
+
     last_sequence = scaled_data[-SEQ_LENGTH:].reshape(1, SEQ_LENGTH, 1)
     future_forecast = []
     for _ in range(7):
@@ -151,11 +183,15 @@ def recommend_product_placement(data, locations):
     # Analyze transaction paths to recommend product placement
 
     # Create a transaction group to simulate customer paths
-    data['transaction_group'] = data.groupby(['person_id', 'purchase_date'])['id'].transform('min')
-    transaction_paths = data.groupby('transaction_group')['location_id'].apply(list).reset_index()
+    data["transaction_group"] = data.groupby(["person_id", "purchase_date"])[
+        "id"
+    ].transform("min")
+    transaction_paths = (
+        data.groupby("transaction_group")["location_id"].apply(list).reset_index()
+    )
 
     location_pairs = []
-    for path in transaction_paths['location_id']:
+    for path in transaction_paths["location_id"]:
         for i in range(len(path) - 1):
             from_location = path[i]
             to_location = path[i + 1]
@@ -165,31 +201,37 @@ def recommend_product_placement(data, locations):
 
     # Count the frequency of each location pair
     pair_counts = pd.Series(location_pairs).value_counts().reset_index()
-    pair_counts.columns = ['pair', 'count']
+    pair_counts.columns = ["pair", "count"]
 
     # Filter out pairs where from_location and to_location are the same (redundant after the above check)
     # (This step is optional since we already ensured from_location != to_location)
 
     # Generate recommendations
     recommendations = []
-    total_counts = pair_counts['count'].sum()
+    total_counts = pair_counts["count"].sum()
     for idx, row in pair_counts.head(5).iterrows():
-        from_location_id = row['pair'][0]
-        to_location_id = row['pair'][1]
+        from_location_id = row["pair"][0]
+        to_location_id = row["pair"][1]
 
         # Retrieve location names
-        from_location_name = locations[locations['id'] == from_location_id]['name'].values[0]
-        to_location_name = locations[locations['id'] == to_location_id]['name'].values[0]
+        from_location_name = locations[locations["id"] == from_location_id][
+            "name"
+        ].values[0]
+        to_location_name = locations[locations["id"] == to_location_id]["name"].values[
+            0
+        ]
 
-        effectiveness = row['count'] / total_counts
+        effectiveness = row["count"] / total_counts
 
-        recommendations.append({
-            'from_location_id': int(from_location_id),
-            'from_location_name': from_location_name,
-            'to_location_id': int(to_location_id),
-            'to_location_name': to_location_name,
-            'effectiveness': effectiveness
-        })
+        recommendations.append(
+            {
+                "from_location_id": int(from_location_id),
+                "from_location_name": from_location_name,
+                "to_location_id": int(to_location_id),
+                "to_location_name": to_location_name,
+                "effectiveness": effectiveness,
+            }
+        )
 
     return recommendations
 
@@ -199,6 +241,7 @@ def recommend_product_placement(data, locations):
 
 @app.get("/sales/last_week/{product_code}")
 async def api_last_week_sales(product_code: str):
+    product_code = product_code.strip() + ".0"
     sales = get_last_week_sales(product_code)
     if sales.empty:
         raise HTTPException(
@@ -209,6 +252,8 @@ async def api_last_week_sales(product_code: str):
 
 @app.get("/sales/forecast/{product_code}")
 async def api_forecast_sales(product_code: str):
+    # Append '.0' to the product code to match the format in the dataset
+    product_code = product_code.strip() + ".0"
     forecast = forecast_next_week_sales(product_code)
     if not forecast:
         raise HTTPException(
@@ -232,6 +277,7 @@ async def api_top_products_forecast():
 
 @app.get("/products/related/{product_code}")
 async def api_related_products(product_code: str):
+    product_code = product_code.strip() + ".0"
     related_products = get_related_products(product_code)
     return {"related_products": related_products}
 
@@ -245,4 +291,4 @@ async def api_customer_preferences():
 @app.get("/report/product_placement")
 async def api_product_placement():
     recommendations = recommend_product_placement(data, locations)
-    return {'placement_recommendations': recommendations}
+    return {"placement_recommendations": recommendations}
