@@ -301,7 +301,8 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
 
   const [allChangingTableData, setAllChangingTableData] = useState([]);
   const [allChangingTableColumns, setAllChangingTableColumns] = useState([]);
-
+  // Store the selected product data
+  const [selectedProduct, setSelectedProduct] = useState(null);
   // 제품목록에서 클릭함에 따라 API를 불러오는 거시기
   const handleProductRowClick = (rowData, rowMeta) => {
     const rowIndex = rowMeta.dataIndex;
@@ -315,7 +316,21 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     }
 
     if (allowedBarcodes.includes(barcodeStr)) {
-      // Proceed to analysis
+      // Store the entire selected product
+      const product = {
+        hiddenId: productRow[0],
+        name: productRow[1],
+        barcode: barcodeStr,
+        quantity: productRow[3],
+        locationName: productRow[4],
+        floorLevel: productRow[5],
+        warehouseId: productRow[6],
+        originalPrice: productRow[7],
+        sellingPrice: productRow[8],
+      };
+
+      // Set the selected product and proceed to analysis
+      setSelectedProduct(product);
       setSelectedProductBarcode(barcodeStr);
       setCurrentIndex(8); // Assuming the analysis component is at index 8
     } else {
@@ -890,6 +905,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     <ProductAnalysis
       key="productAnalysis"
       barcode={selectedProductBarcode}
+      product={selectedProduct} // Pass the selected product data
       onBack={() => setCurrentIndex(0)}
     />,
   ];

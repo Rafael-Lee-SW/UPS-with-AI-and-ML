@@ -32,7 +32,7 @@ const RightSidebar = ({
             {locations
               .filter(
                 (location) =>
-                  location.type === "location" && location.name !== "00-00"
+                  location.type === "매대" && location.name !== "임시 로케이션"
               )
               .map((location, index) => (
                 <li
@@ -40,7 +40,9 @@ const RightSidebar = ({
                   key={index}
                   onClick={() => {
                     // Set the selected rectangle
-                    setSelectedShapes([{ id: location.id, type: "location" }]);
+                    setSelectedShapes([
+                      { id: location.id, type: "location" },
+                    ]);
                     setSelectedLocation(location);
 
                     // Attach the Transformer to this rectangle
@@ -69,22 +71,37 @@ const RightSidebar = ({
       )}
 
       <hr />
-      <h3>선택된 재고함</h3>
-      {selectedShapes.length > 1 ? (
+      {selectedLocation && (selectedLocation.type === "입구" || selectedLocation.type === "출구") ? (
+        <>
+          <h3>선택된 입출구</h3>
+          <div>
+            <p>이름: {selectedLocation.name}</p>
+            <p>타입: {selectedLocation.type}</p>
+          </div>
+        </>
+      ) : selectedShapes.length > 1 ? (
         <p>다중 선택되었습니다.</p>
       ) : selectedLocation ? (
-        <div>
-          <p>이름 : {selectedLocation.name}</p>
-          <p>타입 : {selectedLocation.type}</p>
-          <p>층수 : {selectedLocation.z}</p>
-          <p>현재 재고율 : {extractFillPercentage(selectedLocation.fill)}%</p>
-          <p>
-            가로 : {selectedLocation.width}cm | 세로 :{" "}
-            {selectedLocation.height}cm
-          </p>
-        </div>
+        <>
+          <h3>선택된 재고함</h3>
+          <div>
+            <p>이름: {selectedLocation.name}</p>
+            <p>타입: {selectedLocation.type}</p>
+            <p>층수: {selectedLocation.z}</p>
+            <p>
+              현재 재고율: {extractFillPercentage(selectedLocation.fill)}%
+            </p>
+            <p>
+              가로: {selectedLocation.width}cm | 세로:{" "}
+              {selectedLocation.height}cm
+            </p>
+          </div>
+        </>
       ) : (
-        <p>재고함이 선택되지 않았습니다.</p>
+        <>
+          <h3>선택된 재고함</h3>
+          <p>재고함이 선택되지 않았습니다.</p>
+        </>
       )}
     </div>
   );

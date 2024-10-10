@@ -189,27 +189,6 @@ const LeftSidebar = ({
                   />
                 </Box>
               )}
-              <Box mb={2}>
-                <TextField
-                  select
-                  label="Type"
-                  value={newLocationType}
-                  onChange={(e) => setNewLocationType(e.target.value)}
-                  variant="outlined"
-                  fullWidth
-                  size="small"
-                  margin="dense"
-                  SelectProps={{
-                    native: true,
-                  }}
-                >
-                  <option value="상온">상온</option>
-                  <option value="냉장">냉장</option>
-                  <option value="보관">보관</option>
-                  <option value="위험">위험</option>
-                </TextField>
-              </Box>
-
               <Button
                 className={classes.generateButton}
                 onClick={() => handleAddLocation(currentSetting)}

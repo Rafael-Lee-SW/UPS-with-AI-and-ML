@@ -107,7 +107,6 @@ const MyContainerNavigation = ({ storeId, stores }) => {
   const classes = useStyles();
   // 로딩 Loading
   const [loading, setLoading] = useState(false); // 수정필수 : true로 바꿀 것
-
   /**
    * 창고 관련 const 들 모음
    */
@@ -123,21 +122,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
 
   // 사각형을 추가하고 관리하는 State 추가
   // 사각형을 추가하고 관리하는 State 추가
-  const [locations, setLocations] = useState([
-    {
-      id: 0,
-      rotation: 0, // rotation
-      x: 0, // x_position
-      y: 0, // y_position
-      z: 0, // z_size
-      width: 0, // x_size
-      height: 0, // y_size
-      // fill: "blue",
-      draggable: false,
-      name: "임시", // name
-      // type: "임시",
-    },
-  ]);
+  const [locations, setLocations] = useState([]);
   // 마지막으로 클릭한 상자를 추적하는 상태 추가
   const [selectedLocation, setSelectedLocation] = useState(null);
   // 마지막으로 클릭한 상자를 수정하는 폼을 띄우기 위한 상태 추가
@@ -149,19 +134,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
   const [locationProducts, setLocationProducts] = useState([]);
 
   // 앙커를 추가하고 관리하는 State 추가
-  const [anchors, setAnchors] = useState([
-    {
-      id: "0",
-      x: 0,
-      y: 0,
-      radius: 0,
-      stroke: "#666",
-      fill: "#ddd",
-      opacity: 1,
-      strokeWidth: 2,
-      draggable: false,
-    },
-  ]);
+  const [anchors, setAnchors] = useState([]);
 
   // 마우스 포인터에 닿은 앙커를 기록하는 것
   const [hoveredAnchor, setHoveredAnchor] = useState(null);
@@ -217,8 +190,8 @@ const MyContainerNavigation = ({ storeId, stores }) => {
 
     // Prepare the detailed data based on the notification type
     const detailedDataForDisplay = filteredData.map((item) => {
-      const warehouse = warehouses.find((wh) => wh.id === item.warehouseId);
-      const warehouseTitle = warehouse ? warehouse.title : "Unknown Warehouse"; // Fallback to 'Unknown Warehouse' if not found
+      const store = stores.find((st) => st.id === item.storeId);
+      const storeName = store ? store.storeName : "Unknown Warehouse"; // Fallback to 'Unknown Warehouse' if not found
 
       const commonData = {
         date: new Date(item.date).toLocaleDateString(),
@@ -481,7 +454,7 @@ const MyContainerNavigation = ({ storeId, stores }) => {
     if (clickedOnEmpty) {
       setSelectedLocationTransform(null);
       setSelectedLocation(null);
-      setModalTableData([]);
+      setHoveredLocations([]);
     }
   };
 
@@ -855,70 +828,79 @@ const MyContainerNavigation = ({ storeId, stores }) => {
 
 
   // 변동 내역 / 알림함에서 쓰이는 data Table state
+  const [notificationsFetched, setNotificationsFetched] = useState(false); // New one
   const [notificationTableData, setNotificationTableData] = useState([]);
   const [detailedData, setDetailedData] = useState([]); // 모든 변동 사항을 기록한다.
   const [notificationColumn, setNotificationColumn] = useState([]); // 알림 단위로 변동사항에 대한 칼럼
 
   // 모든 알림(변동내역)을 가져오는 메서드
-  const getNotificationsAPI = async (businessId) => {
+  const getNotificationsAPI = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
     try {
+      setLoading(true);
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/products/notification?businessId=${businessId}`,
+        `https://j11a302.p.ssafy.io/api/notifications?storeId=${storeId}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
+      console.log(response)
+
       if (response.ok) {
         const apiConnection = await response.json();
-        const { productFlowResponseDtos, expirationProductResponseDtos } =
-          apiConnection.result;
+        const notifications = apiConnection.result;
 
-        // Combine all notifications
-        const combinedData = [...productFlowResponseDtos];
-
-        // Sort combined data by date
-        const sortedData = combinedData.sort(
-          (a, b) => new Date(a.date) - new Date(b.date)
-        );
-
-        // Set the detailed data state
-        setDetailedData(sortedData);
-
-        // Map to formatted data for initial display
-        const formattedData = sortedData.map((item) => ({
-          date: new Date(item.date).toLocaleDateString(),
-          type: item.productFlowType,
-          barcode: item.barcode,
-          name: item.name,
-          quantity: item.quantity,
-          locationName: item.currentLocationName,
-          floorLevel: item.currentFloorLevel,
-          trackingNumber: item.trackingNumber,
+        const formattedNotifications = notifications.map((notification) => ({
+          id: notification.id,
+          date: notification.createdDate
+            ? new Date(notification.createdDate).toLocaleDateString()
+            : "N/A",
+          type: mapEnumToKorean(notification.notificationTypeEnum),
+          message: notification.message,
+          isRead: notification.isRead ? "읽음" : "안읽음",
+          isImportant: notification.isImportant ? "중요" : "",
         }));
 
-        setNotificationTableData(formattedData);
-
-        setNotificationColumn([
-          { name: "date", label: "날짜" },
-          { name: "type", label: "유형" },
-          { name: "barcode", label: "바코드" },
-          { name: "name", label: "상품명" },
-          { name: "quantity", label: "수량" },
-          { name: "locationName", label: "적재함" },
-          { name: "floorLevel", label: "층수" },
-          { name: "trackingNumber", label: "송장번호" },
-        ]);
+        setNotificationTableData(formattedNotifications);
+        setLoading(false);
       } else {
-        //에러
+        setLoading(false);
       }
     } catch (error) {
-      //에러
+      setLoading(false);
     }
   };
+
+  // Map notification types to Korean
+  const mapEnumToKorean = (enumValue) => {
+    switch (enumValue) {
+      case "FLOW":
+        return "이동";
+      case "IMPORT":
+        return "입고";
+      case "MODIFY":
+        return "수정";
+      case "CRIME_PREVENTION":
+        return "방범";
+      case "PAYMENT":
+        return "결제";
+      case "EXPORT":
+        return "출고";
+      default:
+        return enumValue;
+    }
+  };
+
 
   const [dateColumns, setDateColumns] = useState([]); // 일자별로
 
@@ -1045,12 +1027,14 @@ const MyContainerNavigation = ({ storeId, stores }) => {
    * UseEffect를 통해 새로고침 때마다 api로 사장님의 재고를 불러옴
    * + 유저정보
    */
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true); // Start loading
         await getStoreStructureAPI(); // 창고 정보를 불러온다.
+        await getNotificationsAPI();
+        setNotificationsFetched(true);
       } catch (error) {
         //에러
       } finally {
@@ -1208,24 +1192,69 @@ const MyContainerNavigation = ({ storeId, stores }) => {
     }
   };
 
-  // Button click handler for Notifications (알림목록)
-  const handleNotificationClick = () => {
-    if (isSidebarVisible && !showDetails) {
-      // If notifications are already showing, close the sidebar
-      setIsSidebarVisible(false);
-    } else if (isSidebarVisible && showDetails) {
-      // If sidebar is open but showing different content, close it and update content
-      setIsSidebarVisible(false); // Close sidebar
-      setTimeout(() => {
-        setShowDetails(false);
-        setNewContentToShow("notifications"); // Update content to Notifications
-        setIsSidebarVisible(true); // Reopen sidebar
-      }, 300); // Add slight delay for smooth transition
-    } else {
-      // If sidebar is closed, update content and open it
-      setShowDetails(false);
-      setNewContentToShow("notifications"); // Set content to Notifications
-      setIsSidebarVisible(true); // Open sidebar
+  // Handle notification click
+  const handleNotificationClick = async (notificationId, notificationType) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/product-flows/batch?notificationId=${notificationId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const apiConnection = await response.json();
+        const productFlows = apiConnection.result;
+
+        // Highlight related locations
+        const locationIds = productFlows.map(
+          (flow) => flow.presentLocationId.toString()
+        );
+        setHoveredLocations(locationIds);
+
+        // Prepare detailed notification data
+        const detailedData = productFlows.map((flow) => ({
+          productName: flow.productName,
+          barcode: flow.barcode,
+          quantity: flow.quantity,
+          previousLocationName:
+            flow.previousLocationName === "00-00"
+              ? "임시"
+              : flow.previousLocationName,
+          previousFloorLevel:
+            flow.previousFloorLevel === -1 ? "임시" : flow.previousFloorLevel,
+          presentLocationName:
+            flow.presentLocationName === "00-00"
+              ? "임시"
+              : flow.presentLocationName,
+          presentFloorLevel:
+            flow.presentFloorLevel === -1 ? "임시" : flow.presentFloorLevel,
+          productFlowType: mapEnumToKorean(flow.productFlowTypeEnum),
+          storeName: flow.storeName,
+        }));
+
+        setDetailedNotificationData(detailedData);
+        setSelectedNotificationTitle(
+          `${mapEnumToKorean(notificationType)} 상세 내역`
+        );
+
+        setLoading(false);
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
     }
   };
 
@@ -1385,227 +1414,222 @@ const MyContainerNavigation = ({ storeId, stores }) => {
           <div className={classes.notification}>
             <h3 className={classes.listTitle}>알림함</h3>
             <ul className={classes.ulNotificationsList}>
-              {notificationTableData
-                .slice()
-                .reverse()
-                .map(({ date, type }, index) => (
-                  <li
-                    className={classes.liNotificationsList}
-                    key={index}
-                    onClick={() => handleCellClick(date, type)}
-                  >
-                    {date.slice(0, -1)} / {mapTypeToKorean(type)}
-                  </li>
-                ))}
+              {notificationTableData.map((notification, index) => (
+                <li
+                  className={classes.liNotificationsList}
+                  key={index}
+                  onClick={() =>
+                    handleNotificationClick(notification.id, notification.type)
+                  }
+                >
+                  {notification.date} / {notification.type}
+                </li>
+              ))}
             </ul>
           </div>
         )}
       </div>
-      {/* Right Sidebar: Conditional rendering based on selection */}
-      {(selectedLocation ||
-        ModalTableData.length > 0 ||
-        detailedNotificationData.length > 0) && (
-          <div className={classes.rightSidebar}>
-            <div className={classes.closeButtonPart}>
-              <Button
-                className={classes.closeButton}
-                onClick={() => {
-                  setSelectedLocation(null);
-                  setModalTableData([]);
-                  setDetailedNotificationData([]);
-                  setSelectedType(null);
-                  setHoveredLocations([]); // Reset hovered locations
-                }}
-                style = {{
-                  backgroundColor: "#e6f4fa",
-                  color: "black",
-                  border: "1px solid #ccc",
-                }}
-              >
-                닫기
-              </Button>
-            </div>
-            {showDetails && selectedLocation ? (
+      {/* Right Sidebar */}
+      {(selectedLocation || detailedNotificationData.length > 0) && (
+        <div className={classes.rightSidebar}>
+          <div className={classes.closeButtonPart}>
+            <Button
+              className={classes.closeButton}
+              onClick={() => {
+                setSelectedLocation(null);
+                setDetailedNotificationData([]);
+                setHoveredLocations([]);
+              }}
+              style={{
+                backgroundColor: "#e6f4fa",
+                color: "black",
+                border: "1px solid #ccc",
+              }}
+            >
+              닫기
+            </Button>
+          </div>
+          {showDetails && selectedLocation ? (
+            <div>
               <div>
-                <div>
-                  <div id="상자 정보" className={classes.infoBox}>
-                    <div id="상자 숫자 정보" className={classes.infoBoxNum}>
-                      <h3 className={classes.infoBoxTitle}>
-                        위치: {selectedLocation.name}
-                      </h3>
-                      <b>가로 : {selectedLocation.width}cm</b>
-                      <b>세로 : {selectedLocation.height}cm</b>
-                      <b>단수(층) : {selectedLocation.z}단/층</b>
-                      <b>
-                        재고율 : { }%{" "}
-                      </b>
-                    </div>
-                    <div
-                      id="상자의 z Index를 시각화"
-                      className={classes.infoZindexBox}
-                    >
-                      {Array.from({ length: selectedLocation.z }).map(
-                        (_, index) => (
-                          <Button
-                            className={classes.floorBox}
-                            key={index + 1}
-                            style={{
-                              backgroundColor: "#e6f4fa",
-                              color: "black",
-                              border: "1px solid #ccc",
-                              "&:hover": {
-                                transform: 'scale(1.05)',
-                                color: 'black',
-                                border: "1px solid #9baab1"
-                              }
-                            }}
-                            onClick={() => {
-                              handleFloorSelection(index + 1);
-                            }}
-                            // onMouseEnter={(e) => {
-                            //   e.target.style.border = "1px solid #9baab1";
-                            // }}
-                            // onMouseLeave={(e) => {
-                            //   e.target.style.backgroundColor =
-                            //     selectedFloor === index + 1
-                            //       ? "#7D4A1A"
-                            //       : "transparent";
-                            //   e.target.style.border = "1px solid black";
-                            // }}
-                          >
-                            {index + 1} 단
-                          </Button>
-                        )
-                      )}
-                    </div>
+                <div id="상자 정보" className={classes.infoBox}>
+                  <div id="상자 숫자 정보" className={classes.infoBoxNum}>
+                    <h3 className={classes.infoBoxTitle}>
+                      위치: {selectedLocation.name}
+                    </h3>
+                    <b>가로 : {selectedLocation.width}cm</b>
+                    <b>세로 : {selectedLocation.height}cm</b>
+                    <b>단수(층) : {selectedLocation.z}단/층</b>
+                    <b>
+                      재고율 : { }%{" "}
+                    </b>
                   </div>
-                  <hr />
-                  {ModalTableData.length > 0 && (
-                    <div className={classes.productList}>
-                      <h3>재고 목록</h3>
-                      <table className={classes.productListTable}>
-                        <tbody>
-                          {ModalTableData.map((item, index) => (
-                            <tr
-                              key={index}
-                              className={classes.trProductListTable}
-                            >
-                              <td className={classes.tdMainProductListTable}>
-                                <strong>{item.name}</strong>
-                                <div className={classes.productBarcode}>
-                                  바코드 : {item.barcode}
-                                </div>
-                              </td>
-                              <td className={classes.tdSubProductListTable}>
-                                {item.quantity} 개
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div>
-                <div className={classes.detailedNotifications}>
-                  {/* Title showing the selected date and type */}
-                  <h3 className={classes.notificationTitle}>
-                    {selectedNotificationTitle}
-                  </h3>
-                  {/* Print button */}
-                  <Button
-                    className={classes.printButton}
-                    onClick={() => setPrintModalOpen(true)}
+                  <div
+                    id="상자의 z Index를 시각화"
+                    className={classes.infoZindexBox}
                   >
-                    <PrintIcon /> 프린트
-                  </Button>
+                    {Array.from({ length: selectedLocation.z }).map(
+                      (_, index) => (
+                        <Button
+                          className={classes.floorBox}
+                          key={index + 1}
+                          style={{
+                            backgroundColor: "#e6f4fa",
+                            color: "black",
+                            border: "1px solid #ccc",
+                            "&:hover": {
+                              transform: 'scale(1.05)',
+                              color: 'black',
+                              border: "1px solid #9baab1"
+                            }
+                          }}
+                          onClick={() => {
+                            handleFloorSelection(index + 1);
+                          }}
+                        // onMouseEnter={(e) => {
+                        //   e.target.style.border = "1px solid #9baab1";
+                        // }}
+                        // onMouseLeave={(e) => {
+                        //   e.target.style.backgroundColor =
+                        //     selectedFloor === index + 1
+                        //       ? "#7D4A1A"
+                        //       : "transparent";
+                        //   e.target.style.border = "1px solid black";
+                        // }}
+                        >
+                          {index + 1} 단
+                        </Button>
+                      )
+                    )}
+                  </div>
                 </div>
-                {/* Detailed Notification Data Rendering */}
-                {detailedNotificationData.length > 0 ? (
-                  <div>
-                    {/* Render Table Based on Notification Type */}
-                    <table className={classes.notificationTable}>
-                      <thead>
-                        {/* Conditional column headers based on the type */}
-                        <tr>
-                          <th className={classes.thNameNotificationTable}>
-                            상품
-                          </th>
-                          <th className={classes.thQuantityNotificationTable}>
-                            수량
-                          </th>
-                          <th className={classes.thTypeNotificationTable}>
-                            {/* Different headers based on type */}
-                            {selectedType === "IMPORT"
-                              ? "입고된 매장"
-                              : selectedType === "EXPORT"
-                                ? "출고 위치"
-                                : "이동한 위치"}
-                          </th>
-                        </tr>
-                      </thead>
+                <hr />
+                {ModalTableData.length > 0 && (
+                  <div className={classes.productList}>
+                    <h3>재고 목록</h3>
+                    <table className={classes.productListTable}>
                       <tbody>
-                        {detailedNotificationData.map((item, index) => (
-                          <tr key={index}>
-                            {/* 상품명과 바코드를 하나의 셀에 표현한다. */}
-                            <td className={classes.tdProductNotificationTable}>
-                              <strong className={classes.tdNameNotificationTable}>
-                                {item.name}
-                              </strong>
-                              <span
-                                className={classes.tdBarcodeNotificationTable}
-                              >
-                                {item.barcode}
-                              </span>
+                        {ModalTableData.map((item, index) => (
+                          <tr
+                            key={index}
+                            className={classes.trProductListTable}
+                          >
+                            <td className={classes.tdMainProductListTable}>
+                              <strong>{item.name}</strong>
+                              <div className={classes.productBarcode}>
+                                바코드 : {item.barcode}
+                              </div>
                             </td>
-                            {/* Quantity */}
-                            <td className={classes.tdQuantityNotificationTable}>
+                            <td className={classes.tdSubProductListTable}>
                               {item.quantity} 개
-                            </td>
-                            {/* Location based on type */}
-                            <td className={classes.tdLocationNotificationTable}>
-                              {/* Show different content based on type */}
-                              {selectedType === "IMPORT" && (
-                                <span>{item.warehouseTitle}</span>
-                              )}
-                              {selectedType === "EXPORT" && (
-                                <div>
-                                  <span>
-                                    {item.currentLocationName}{" "}
-                                    {item.currentFloorLevel}층
-                                  </span>
-                                  <span className={classes.exportStoreTitle}>
-                                    매장 : {item.warehouseTitle}
-                                  </span>
-                                </div>
-                              )}
-                              {selectedType === "FLOW" && (
-                                <div>
-                                  <span>
-                                    {item.currentLocationName}
-                                    {" - "}
-                                    {item.currentFloorLevel}층
-                                  </span>
-                                  <span className={classes.exportStoreTitle}>
-                                    매장 : {item.warehouseTitle}
-                                  </span>
-                                </div>
-                              )}
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
-                ) : (
-                  <p>알림이 선택되지 않았습니다.</p>
                 )}
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          ) : (
+            <div>
+              <div className={classes.detailedNotifications}>
+                {/* Title showing the selected date and type */}
+                <h3 className={classes.notificationTitle}>
+                  {selectedNotificationTitle}
+                </h3>
+                {/* Print button */}
+                <Button
+                  className={classes.printButton}
+                  onClick={() => setPrintModalOpen(true)}
+                >
+                  <PrintIcon /> 프린트
+                </Button>
+              </div>
+              {/* Detailed Notification Data Rendering */}
+              {detailedNotificationData.length > 0 ? (
+                <div>
+                  {/* Render Table Based on Notification Type */}
+                  <table className={classes.notificationTable}>
+                    <thead>
+                      {/* Conditional column headers based on the type */}
+                      <tr>
+                        <th className={classes.thNameNotificationTable}>
+                          상품
+                        </th>
+                        <th className={classes.thQuantityNotificationTable}>
+                          수량
+                        </th>
+                        <th className={classes.thTypeNotificationTable}>
+                          {/* Different headers based on type */}
+                          {selectedType === "IMPORT"
+                            ? "입고된 매장"
+                            : selectedType === "EXPORT"
+                              ? "출고 위치"
+                              : "이동한 위치"}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detailedNotificationData.map((item, index) => (
+                        <tr key={index}>
+                          {/* 상품명과 바코드를 하나의 셀에 표현한다. */}
+                          <td className={classes.tdProductNotificationTable}>
+                            <strong className={classes.tdNameNotificationTable}>
+                              {item.name}
+                            </strong>
+                            <span
+                              className={classes.tdBarcodeNotificationTable}
+                            >
+                              {item.barcode}
+                            </span>
+                          </td>
+                          {/* Quantity */}
+                          <td className={classes.tdQuantityNotificationTable}>
+                            {item.quantity} 개
+                          </td>
+                          {/* Location based on type */}
+                          <td className={classes.tdLocationNotificationTable}>
+                            {/* Show different content based on type */}
+                            {selectedType === "IMPORT" && (
+                              <span>{item.warehouseTitle}</span>
+                            )}
+                            {selectedType === "EXPORT" && (
+                              <div>
+                                <span>
+                                  {item.currentLocationName}{" "}
+                                  {item.currentFloorLevel}층
+                                </span>
+                                <span className={classes.exportStoreTitle}>
+                                  매장 : {item.warehouseTitle}
+                                </span>
+                              </div>
+                            )}
+                            {selectedType === "FLOW" && (
+                              <div>
+                                <span>
+                                  {item.currentLocationName}
+                                  {" - "}
+                                  {item.currentFloorLevel}층
+                                </span>
+                                <span className={classes.exportStoreTitle}>
+                                  매장 : {item.warehouseTitle}
+                                </span>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p>알림이 선택되지 않았습니다.</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       {/* 로딩 Part */}
       {loading && (
         <div className={classes.loading}>

@@ -427,6 +427,8 @@ const MyContainerMap = ({ storeId, businessId }) => {
       );
 
       if (response.ok) {
+        await editStoreAPI(); // 벽 생성에 성공하면 현재 상태를 저장하고 새로히 불러온다.
+        await getStoreStructureAPI(); // 초기화
       } else {
         router.push("/404");
       }
@@ -629,6 +631,8 @@ const MyContainerMap = ({ storeId, businessId }) => {
         const apiConnection = await response.json();
         const storeData = apiConnection.result; // 데이터 추출
 
+        console.log(storeData)
+
         // 받아온 데이터 중 로케이션 데이터 처리
         const locations = storeData.locations;
         if (!locations) {
@@ -637,11 +641,11 @@ const MyContainerMap = ({ storeId, businessId }) => {
         }
 
         const newLocations = locations.map((location, index) => {
-          let type = "location";
-          if (location.locationType === "ENTRANCE") {
-            type = "entrance";
-          } else if (location.locationType === "EXIT") {
-            type = "exit";
+          let type = "매대";
+          if (location.locationTypeEnum === "ENTRANCE") {
+            type = "입구";
+          } else if (location.locationTypeEnum === "EXIT") {
+            type = "출구";
           }
 
           return {
@@ -651,9 +655,9 @@ const MyContainerMap = ({ storeId, businessId }) => {
             width: location.xsize || 50,
             height: location.ysize || 50,
             z: location.zsize,
-            locationType: location.locationType,
+            locationType: location.locationTypeEnum,
             fill:
-              type === "entrance" ? "green" : type === "exit" ? "red" : "blue",
+              type === "입구" ? "green" : type === "출구" ? "red" : "blue",
             draggable: true,
             order: index,
             name: location.name || `적재함 ${index}`,

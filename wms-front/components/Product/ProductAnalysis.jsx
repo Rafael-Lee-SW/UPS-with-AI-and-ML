@@ -1,5 +1,3 @@
-// ProductAnalysis.jsx
-
 import React, { useState, useEffect } from "react";
 import {
   Typography,
@@ -10,13 +8,12 @@ import {
   ListItemText,
   Paper,
 } from "@mui/material";
-import { Bar, Line } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import { makeStyles } from "@mui/styles";
 import {
   Chart,
   CategoryScale,
   LinearScale,
-  BarElement,
   LineElement,
   Title,
   Tooltip as ChartTooltip,
@@ -27,7 +24,6 @@ import {
 Chart.register(
   CategoryScale,
   LinearScale,
-  BarElement,
   LineElement,
   PointElement,
   Title,
@@ -62,15 +58,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ProductAnalysis = ({ barcode, onBack }) => {
+const ProductAnalysis = ({ barcode, product, onBack }) => {
   const classes = useStyles();
-  const [productData, setProductData] = useState(null);
   const [lastWeekSalesData, setLastWeekSalesData] = useState(null);
   const [forecastData, setForecastData] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch data when barcode changes
+  // Fetch sales and forecast data when barcode changes
   useEffect(() => {
     if (barcode) {
       handleFetchData(barcode);
@@ -113,23 +108,8 @@ const ProductAnalysis = ({ barcode, onBack }) => {
       } else {
         setRelatedProducts(null);
       }
-
-      // Fetch product information
-      const productInfoResponse = await fetch(
-        `https://j11a302.p.ssafy.io/ml/products/info/${barcode}`
-      );
-      if (productInfoResponse.ok) {
-        const productInfo = await productInfoResponse.json();
-        setProductData(productInfo);
-      } else {
-        setProductData({
-          product_code: barcode,
-          product_description: `Product ${barcode}`,
-        });
-      }
     } catch (error) {
       console.error(error);
-      setProductData(null);
       setLastWeekSalesData(null);
       setForecastData(null);
       setRelatedProducts(null);
@@ -148,14 +128,20 @@ const ProductAnalysis = ({ barcode, onBack }) => {
           <CircularProgress />
         </div>
       )}
-      {!loading && productData && (
+      {!loading && product && (
         <div>
           <Typography variant="h5" gutterBottom>
             상품 분석
           </Typography>
           <Typography variant="h6">상품 정보</Typography>
-          <Typography>상품 코드: {productData.product_code}</Typography>
-          <Typography>상품명: {productData.product_description}</Typography>
+          <Typography>상품 코드: {product.barcode}</Typography>
+          <Typography>상품명: {product.name}</Typography>
+          <Typography>수량: {product.quantity} 개</Typography>
+          <Typography>적재함: {product.locationName}</Typography>
+          <Typography>층수: {product.floorLevel}</Typography>
+          <Typography>원가: {product.originalPrice} 원</Typography>
+          <Typography>판매가: {product.sellingPrice} 원</Typography>
+
           {/* Display last week's sales chart */}
           {lastWeekSalesData && (
             <div className={classes.section}>
@@ -166,7 +152,7 @@ const ProductAnalysis = ({ barcode, onBack }) => {
                     labels: Object.keys(lastWeekSalesData),
                     datasets: [
                       {
-                        label: "판매액",
+                        label: "판매액 (원)",
                         data: Object.values(lastWeekSalesData),
                         backgroundColor: "rgba(75,192,192,0.4)",
                         borderColor: "rgba(75,192,192,1)",
@@ -177,11 +163,30 @@ const ProductAnalysis = ({ barcode, onBack }) => {
                   options={{
                     responsive: true,
                     maintainAspectRatio: false,
+                    scales: {
+                      y: {
+                        ticks: {
+                          callback: function (value) {
+                            return value + " 원";
+                          },
+                        },
+                      },
+                    },
+                    plugins: {
+                      tooltip: {
+                        callbacks: {
+                          label: function (context) {
+                            return context.raw + " 원";
+                          },
+                        },
+                      },
+                    },
                   }}
                 />
               </div>
             </div>
           )}
+
           {/* Display forecast chart */}
           {forecastData && (
             <div className={classes.section}>
@@ -192,7 +197,7 @@ const ProductAnalysis = ({ barcode, onBack }) => {
                     labels: Object.keys(forecastData),
                     datasets: [
                       {
-                        label: "예측 판매액",
+                        label: "예측 판매액 (원)",
                         data: Object.values(forecastData),
                         backgroundColor: "rgba(153, 102, 255, 0.6)",
                         borderColor: "rgba(153, 102, 255, 1)",
@@ -203,11 +208,30 @@ const ProductAnalysis = ({ barcode, onBack }) => {
                   options={{
                     responsive: true,
                     maintainAspectRatio: false,
+                    scales: {
+                      y: {
+                        ticks: {
+                          callback: function (value) {
+                            return value + " 원";
+                          },
+                        },
+                      },
+                    },
+                    plugins: {
+                      tooltip: {
+                        callbacks: {
+                          label: function (context) {
+                            return context.raw + " 원";
+                          },
+                        },
+                      },
+                    },
                   }}
                 />
               </div>
             </div>
           )}
+
           {/* Display related products */}
           {relatedProducts && (
             <div className={classes.section}>
@@ -226,7 +250,7 @@ const ProductAnalysis = ({ barcode, onBack }) => {
           )}
         </div>
       )}
-      {!loading && !productData && (
+      {!loading && !product && (
         <Typography variant="body1">상품 정보를 불러올 수 없습니다.</Typography>
       )}
     </div>
