@@ -387,7 +387,6 @@ const MyContainerMap = ({ storeId, businessId }) => {
     try {
       await postLocationAPI([locationData], storeId);
     } catch (error) {
-      console.error("Error adding location:", error);
       notify("로케이션 추가 중 오류가 발생했습니다.");
     }
 
@@ -414,8 +413,6 @@ const MyContainerMap = ({ storeId, businessId }) => {
       return;
     }
 
-    console.log(locationListCreateRequest)
-
     try {
       const response = await fetch(
         `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/locations`,
@@ -430,12 +427,10 @@ const MyContainerMap = ({ storeId, businessId }) => {
       );
 
       if (response.ok) {
-        console.log(response);
       } else {
         router.push("/404");
       }
     } catch (error) {
-      console.log(error);
       router.push("/404");
     }
   };
@@ -470,12 +465,9 @@ const MyContainerMap = ({ storeId, businessId }) => {
       );
 
       if (response.ok) {
-        console.log("Wall saved successfully");
       } else {
-        console.error("Failed to save wall");
       }
     } catch (error) {
-      console.error("Error saving wall:", error);
     }
   };
 
@@ -537,9 +529,6 @@ const MyContainerMap = ({ storeId, businessId }) => {
       wallUpdateRequestList,
     };
 
-    console.log("수정된 내역");
-    console.log(structureUpdateRequest);
-
     try {
       const response = await fetch(
         `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures`,
@@ -555,18 +544,14 @@ const MyContainerMap = ({ storeId, businessId }) => {
       );
 
       if (response.ok) {
-        console.log("성공 요청");
-        console.log(response);
         // 성공
         notify(`현재 상태가 저장되었습니다.`);
         // await getStoreStructureAPI(); // But in UX, it have to be removed
       } else {
         //에러
-        console.error("Failed to save structure");
       }
     } catch (error) {
       //에러
-      console.log(error);
     }
   };
 
@@ -595,8 +580,6 @@ const MyContainerMap = ({ storeId, businessId }) => {
       wallDeleteList,
     };
 
-    console.log(structureDeleteRequest);
-
     try {
       const response = await fetch(
         `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/batch-delete`,
@@ -611,13 +594,10 @@ const MyContainerMap = ({ storeId, businessId }) => {
       );
 
       if (response.ok) {
-        console.log("Structures deleted successfully");
         await getStoreStructureAPI(); // Refresh data
       } else {
-        console.error("Failed to delete structures");
       }
     } catch (error) {
-      console.error("Error deleting structures:", error);
     }
   };
 
@@ -648,8 +628,6 @@ const MyContainerMap = ({ storeId, businessId }) => {
       if (response.ok) {
         const apiConnection = await response.json();
         const storeData = apiConnection.result; // 데이터 추출
-
-        console.log("Parsed response:", apiConnection);
 
         // 받아온 데이터 중 로케이션 데이터 처리
         const locations = storeData.locations;
@@ -683,8 +661,6 @@ const MyContainerMap = ({ storeId, businessId }) => {
             rotation: 0,
           };
         });
-
-        console.log(newLocations)
 
         // 벽 데이터 처리
         const walls = storeData.walls;
@@ -738,7 +714,6 @@ const MyContainerMap = ({ storeId, businessId }) => {
       }
     } catch (error) {
       //에러
-      console.log(error);
     }
   };
 
