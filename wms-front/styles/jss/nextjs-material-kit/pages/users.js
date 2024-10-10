@@ -170,8 +170,9 @@ const componentsStyle = {
       borderRadius: "4px",
       "&:hover": {
         transform: "scale(1.05)",
-        backgroundColor: "#00B4D8",
-        color: "white",
+        backgroundColor: "white",
+        color: "black",
+        border: "1px solid #459ab6"
       },
     },
     selectedButton: {
@@ -182,7 +183,7 @@ const componentsStyle = {
       backgroundColor: "#4E4544",
     },
     button2: {
-      backgroundColor: "#ADAAA5",
+      backgroundColor: "#96d2ea",
     },
     button3: {
       backgroundColor: "#C2B6A1",

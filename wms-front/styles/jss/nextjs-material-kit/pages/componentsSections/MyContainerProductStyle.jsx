@@ -118,29 +118,30 @@ const ProductStyles = {
   },
   // Global Button Style
   buttonStyle: {
-    backgroundColor: "#C2B6A1",
+    backgroundColor: "#e6f4fa",
     width: "100px",
-    color: "white ",
+    color: "black ",
     marginTop: "5px",
     height: "55px",
     borderRadius: "4px",
+    border: "1px solid #ccc",
     "&:hover": {
       transform: "scale(1.05)",
-      backgroundColor: "#C2B6A1",
-      color: "white",
+      border: "1px solid #9baab1"
     },
   },
   importingButton: {
-    backgroundColor: "#C2B6A1",
+    backgroundColor: "#e6f4fa",
     width: "100px",
-    color: "white ",
+    color: "black ",
     marginTop: "5px",
     height: "55px",
     borderRadius: "4px",
+    border: "1px solid #ccc",
     "&:hover": {
       transform: "scale(1.05)",
-      backgroundColor: "#C2B6A1",
-      color: "white",
+      border: "1px solid #9baab1",
+      backgroundColor: "#e6f4fa",
     },
     marginRight: "10px",
     height: "40px",

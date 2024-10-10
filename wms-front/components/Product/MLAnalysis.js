@@ -63,6 +63,14 @@ const useStyles = makeStyles((theme) => ({
   searchButton: {
     marginLeft: "10px",
     height: "56px",
+    color: "black",
+    border: '1px solid #ccc',
+    backgroundColor: "#e6f4fa",
+    "&:hover": {
+      transform: 'scale(1.05)',
+      color: 'black',
+      border: "1px solid #9baab1"
+    }
   },
   progressContainer: {
     marginTop: "40px",
