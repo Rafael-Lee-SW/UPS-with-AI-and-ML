@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import MLAnalysis from "../../components/Product/MLAnalysis";
 import ImportSection from "../../components/Product/ImportSection";
 import ExportSection from "../../components/Product/ExportSection"; // 사용 X
+import PaymentRecord from "../../components/Product/PaymentRecord";
 // Modal components
 import MoveProduct from "../../components/Product/MoveProduct";
 
@@ -154,13 +155,12 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       progress: undefined,
     });
 
-  const [tableData, setTableData] = useState([]);;
+  const [tableData, setTableData] = useState([]);
   const hotTableRef = useRef(null); // HandsonTable 객체 참조
   const [openModal, setOpenModal] = useState(false); // 입고 모달 열기/닫기 상태
   // HandsonTable 엑셀 형식에서 수정하기 위한 Modal State
   const [openEditModal, setOpenEditModal] = useState(false); // 수정용 모달 열기/닫기
   const [editData, setEditData] = useState([]); // State to track edited data
-
 
   // 선택된 열을 추적하기 위한 State
   const [selectedRows, setSelectedRows] = useState([]);
@@ -173,7 +173,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     originalPrice: "",
     salesPrice: "",
   });
-
 
   // Analytics state
   const [showAnalytics, setShowAnalytics] = useState(false);
@@ -189,7 +188,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     handleNextComponent(index);
   };
 
-
   // 엑셀을 통해 상품 데이터를 다운로드하는 메서드
   const downloadExcel = (columns, tableData) => {
     const worksheet = XLSX.utils.aoa_to_sheet([
@@ -200,7 +198,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
     XLSX.writeFile(workbook, "FIT-BOX-엑셀.xlsx");
   };
-
 
   // 루트 프린트를 위한 State
   const [printableContent, setPrintableContent] = useState({
@@ -379,7 +376,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
           { name: "isRead", label: "읽음 여부" },
         ]);
 
-
         setLoading(false);
       } else {
         // Handle error
@@ -394,8 +390,8 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
   };
 
   /**
-  * Process notifications to group them by date and type
-  */
+   * Process notifications to group them by date and type
+   */
   const processNotifications = (notifications) => {
     // Group data by date and type
     const groupedData = notifications.reduce((acc, item) => {
@@ -446,18 +442,16 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     useState([]);
 
   /**
-     * 알림함에서 상세 내역을 조회할 때 사용되는 것들
-     */
+   * 알림함에서 상세 내역을 조회할 때 사용되는 것들
+   */
   const handleRowClick = (rowData) => {
     const [selectedDate, selectedType] = rowData;
 
     // Filter detailed data for the selected date and type
     const filteredData = detailedData.filter(
       (item) =>
-        (item.date
-          ? new Date(item.date).toLocaleDateString()
-          : "N/A") === selectedDate &&
-        mapEnumToKorean(item.type) === selectedType
+        (item.date ? new Date(item.date).toLocaleDateString() : "N/A") ===
+          selectedDate && mapEnumToKorean(item.type) === selectedType
     );
 
     // Define columns for the detailed view
@@ -550,19 +544,24 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
   const deleteProductsAPI = async (productIds) => {
     const token = localStorage.getItem("token");
 
-    console.log(productIds)
+    console.log(productIds);
 
     setLoading(true);
     try {
-      const response = await fetch(`https://j11a302.p.ssafy.io/api/products/batch?productIdList=${productIds.join(",")}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/products/batch?productIdList=${productIds.join(
+          ","
+        )}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      console.log(response)
+      console.log(response);
 
       if (response.ok) {
         setLoading(false);
@@ -579,13 +578,10 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     }
   };
 
-
-
   // 이동하기 모달을 여는 함수
   const handleMoveButtonClick = () => {
     setOpenMoveModal(true);
   };
-
 
   // 선택 시에 테이블이 바뀐다.
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -613,6 +609,7 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
         <Tooltip title="이동">
           <IconButton onClick={handleMoveButtonClick}>
             <MoveIcon />
+            이동
           </IconButton>
         </Tooltip>
       </div>
@@ -657,10 +654,10 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete">
-            <IconButton onClick={handleDeleteModeToggle}
+            <IconButton
+              onClick={handleDeleteModeToggle}
               style={{ color: deleteMode ? "red" : "inherit" }}
             >
-
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -729,7 +726,9 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
     ),
   };
   const handleDeleteSelected = () => {
-    const productIdsToDelete = selectedRows.map((rowIndex) => tableData[rowIndex][0]); // Assuming the first column is the product ID
+    const productIdsToDelete = selectedRows.map(
+      (rowIndex) => tableData[rowIndex][0]
+    ); // Assuming the first column is the product ID
 
     deleteProductsAPI(productIdsToDelete);
   };
@@ -754,15 +753,12 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       refreshData={getStoreProductAPI}
     />,
     // Index 2: 결제내역
-    <div>
-      <h2> Not now </h2>
-    </div>
-    ,
+    <PaymentRecord key="PaymentRecord" storeId={storeId} notify={notify} />,
     // Index 3: 이동하기
     <ThemeProvider theme={muiDatatableTheme}>
       <MUIDataTable
         key="moveProductList"
-        title={"상품 이동하기"}
+        title={"상품 이동하기 - (이동할 상품을 선택하세요)"}
         data={tableData}
         columns={productColumns}
         options={moveOptions}
@@ -801,7 +797,6 @@ const MyContainerProduct = ({ storeId, stores, storeTitle }) => {
       />
     </ThemeProvider>,
   ];
-
 
   // 해당하는 Section Table을 보여준다.
   const handleNextComponent = async (index) => {

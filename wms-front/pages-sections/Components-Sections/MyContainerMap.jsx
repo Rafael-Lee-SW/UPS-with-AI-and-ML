@@ -29,6 +29,13 @@ import styles from "/styles/jss/nextjs-material-kit/pages/componentsSections/MyC
 import { Typography, Slider, Box, Modal, Fade, TextField } from "@mui/material";
 import Konva from "konva";
 
+//import Components
+import LeftSidebar from "../../components/Map/LeftSidebar";
+import RightSidebar from "../../components/Map/RightSidebar";
+import ContextMenu from "../../components/Map/ContextMenu";
+import ContainerCreationModal from "../../components/Map/ContainerCreationModal";
+import RectangleTransformer from "../../components/Map/RectangleTransformer";
+
 // 상수 설정(그리드, 컨버스 등)
 const GRID_SIZE = 100;
 const GRID_SIZE_SUB_50 = 50;
@@ -246,21 +253,6 @@ const MyContainerMap = ({ storeId, businessId }) => {
     );
   };
 
-  // Function to handle dragging
-  const handleDragMove = (e, rect) => {
-    const node = e.target;
-    const newX = Math.max(Math.min(node.x(), CANVAS_SIZE - rect.width), 0);
-    const newY = Math.max(Math.min(node.y(), CANVAS_SIZE - rect.height), 0);
-
-    // Update location only if it's within bounds
-    if (isPositionWithinBounds(newX, newY, rect.width, rect.height)) {
-      setLocations((prevLocations) =>
-        prevLocations.map((loc) =>
-          loc.id === rect.id ? { ...loc, x: newX, y: newY } : loc
-        )
-      );
-    }
-  };
 
   // 마지막으로 클릭한 상자를 추적하는 상태 추가
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -1512,205 +1504,30 @@ const MyContainerMap = ({ storeId, businessId }) => {
   return (
     <div className={classes.canvasContainer}>
       {/* Left Sidebar */}
-      <div className={classes.leftSidebar}>
-        <div>
-          <Button
-            className={classes.buttonStyle}
-            onClick={() => changeCurrentSetting("location")}
-            variant="contained"
-          >
-            재고함
-          </Button>
-          <Button
-            className={classes.buttonStyle}
-            onClick={() => changeCurrentSetting("wall")}
-            variant="contained"
-          >
-            벽 생성
-          </Button>
-          {/* <Button
-            className={classes.buttonStyle}
-            onClick={() => changeCurrentSetting("specialObject")}
-            variant="contained"
-          >
-            특수 객체
-          </Button>
-          <Button
-            className={classes.buttonStyle}
-            onClick={handleOpen}
-            variant="contained"
-          >
-            자동 생성
-          </Button> */}
-        </div>
-        <br />
-        {currentSetting && currentSetting !== "wall" && (
-          <div>
-            <Typography
-              variant="h6"
-              gutterBottom
-              className={classes.settingObject}
-            >
-              {currentSetting === "location" ? "로케이션" : "입구-출구"} 설정
-            </Typography>
-
-            <Typography
-              className={classes.settingSizeAndFloor}
-              variant="body2"
-              color="textSecondary"
-              gutterBottom
-            >
-              단수와 크기를 정하세요
-            </Typography>
-
-            <Box mb={2} className={classes.showTheFloorLevel}>
-              <Typography gutterBottom>
-                단수(층): {newLocationZIndex}단/층
-              </Typography>
-              <Slider
-                className={classes.settingSlider}
-                value={newLocationZIndex}
-                onChange={(e, newValue) => setNewLocationZIndex(newValue)}
-                aria-labelledby="z-index-slider"
-                color="#4E4544"
-                valueLabelDisplay="auto"
-                marks
-                step={1}
-                min={1}
-                max={10}
-              />
-            </Box>
-            <Box mb={2} className={classes.showTheWidthAndHeight}>
-              <Typography gutterBottom>가로: {newLocationWidth}cm</Typography>
-              <Slider
-                className={classes.settingSlider}
-                value={newLocationWidth}
-                onChange={(e, newValue) => setNewLocationWidth(newValue)}
-                aria-labelledby="width-slider"
-                valueLabelDisplay="auto"
-                marks
-                step={10}
-                min={10}
-                max={500}
-              />
-            </Box>
-            <Box mb={2} className={classes.showTheWidthAndHeight}>
-              <Typography gutterBottom>세로: {newLocationHeight}cm</Typography>
-              <Slider
-                className={classes.settingSlider}
-                value={newLocationHeight}
-                onChange={(e, newValue) => setNewLocationHeight(newValue)}
-                aria-labelledby="height-slider"
-                valueLabelDisplay="auto"
-                marks
-                step={10}
-                min={10}
-                max={500}
-              />
-            </Box>
-            <hr />
-            <Typography variant="body2" color="textSecondary" gutterBottom>
-              이름과 속성을 지정해주세요
-            </Typography>
-            <Button
-              className={classes.buttonStyle}
-              variant="contained"
-              onClick={() => setNameMode("text")}
-            >
-              직접 입력
-            </Button>
-            <Button
-              className={classes.buttonStyle}
-              variant="contained"
-              onClick={() => setNameMode("rowColumn")}
-            >
-              행/열 선택
-            </Button>
-            {/* name 입력 부분 - 텍스트 모드와 행/열 모드에 따라 다른 입력 필드 표시 */}
-            {nameMode === "text" ? (
-              <TextField
-                className={classes.nameTextField}
-                label="이름"
-                value={newLocationName}
-                onChange={(e) => setNewLocationName(e.target.value)}
-                variant="outlined"
-                fullWidth
-                size="small"
-                margin="dense"
-              />
-            ) : (
-              <Box display="flex" justifyContent="space-between">
-                <TextField
-                  label="행"
-                  value={rowNumber}
-                  onChange={(e) => setRowNumber(e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  margin="dense"
-                  type="number"
-                />
-                <TextField
-                  label="열"
-                  value={columnNumber}
-                  onChange={(e) => setColumnNumber(e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  margin="dense"
-                  type="number"
-                />
-              </Box>
-            )}
-            <Box mb={2}>
-              <TextField
-                select
-                label="Type"
-                value={newLocationType}
-                onChange={(e) => setNewLocationType(e.target.value)}
-                variant="outlined"
-                fullWidth
-                size="small"
-                margin="dense"
-                SelectProps={{
-                  native: true,
-                }}
-              >
-                <option value="상온">상온</option>
-                <option value="냉장">냉장</option>
-                <option value="보관">보관</option>
-                <option value="위험">위험</option>
-                {/* 필요에 따라 더 많은 옵션을 추가할 수 있습니다 */}
-              </TextField>
-            </Box>
-
-            <Button
-              className={classes.generateButton}
-              onClick={() => handleAddLocation(currentSetting)}
-              variant="contained"
-              fullWidth
-            >
-              생성하기
-            </Button>
-          </div>
-        )}
-        {currentSetting === "wall" && (
-          <>
-            <h3>Set Properties for Wall</h3>
-            <div>
-              <label>
-                Width:
-                <input
-                  type="range"
-                  min="5"
-                  max="50"
-                  value={newWallWidth}
-                  onChange={(e) => setNewWallWidth(Number(e.target.value))}
-                />
-                {newWallWidth}
-              </label>
-            </div>
-          </>
-        )}
-      </div>
+      <LeftSidebar
+        currentSetting={currentSetting}
+        changeCurrentSetting={changeCurrentSetting}
+        newLocationZIndex={newLocationZIndex}
+        setNewLocationZIndex={setNewLocationZIndex}
+        newLocationWidth={newLocationWidth}
+        setNewLocationWidth={setNewLocationWidth}
+        newLocationHeight={newLocationHeight}
+        setNewLocationHeight={setNewLocationHeight}
+        newLocationName={newLocationName}
+        setNewLocationName={setNewLocationName}
+        nameMode={nameMode}
+        setNameMode={setNameMode}
+        rowNumber={rowNumber}
+        setRowNumber={setRowNumber}
+        columnNumber={columnNumber}
+        setColumnNumber={setColumnNumber}
+        newLocationType={newLocationType}
+        setNewLocationType={setNewLocationType}
+        handleAddLocation={handleAddLocation}
+        newWallWidth={newWallWidth}
+        setNewWallWidth={setNewWallWidth}
+        // handleOpen={handleOpen} // If you need to open the modal from here
+      />
 
       {/* Canvas 영역  */}
       <div className={classes.outOfCanvas}>
@@ -1863,196 +1680,33 @@ const MyContainerMap = ({ storeId, businessId }) => {
 
       {/* Right Sidebar */}
       {/* In Mobile Screen, its style change to toggle */}
-      <div
-        className={`${classes.rightSidebar} ${
-          isSidebarVisible ? classes.sidebarVisible : classes.sidebarHidden
-        }`}
-      >
-        <h3>재고함 목록</h3>
-        {locations.length !== 0 ? (
-          <div className={classes.listOfLocations}>
-            <ul className={classes.ulListStyle}>
-              {locations
-                .filter(
-                  (location) =>
-                    location.type === "location" && location.name !== "00-00"
-                )
-                .map((location, index) => (
-                  <li
-                    className={classes.liListStyle}
-                    key={index}
-                    onClick={() => {
-                      // Set the selected rectangle
-                      setSelectedShapes([location.id]); // Select the rectangle
-                      setSelectedLocation(location); // Store the selected location
-
-                      // Attach the Transformer to this rectangle
-                      const rectNode = layerRef.current.findOne(
-                        `#${location.id}`
-                      );
-                      if (rectNode) {
-                        // Add null check to ensure rectNode exists
-                        trRef.current.nodes([rectNode]); // Attach the transformer to the selected rectangle
-                        trRef.current.getLayer().batchDraw(); // Redraw the layer to apply the changes
-                      }
-                    }}
-                    style={{
-                      backgroundColor:
-                        selectedLocation && selectedLocation.id === locations.id
-                          ? "#f0f0f0" // Highlight color for selected item
-                          : "transparent", // Default color for unselected items
-                    }}
-                  >
-                    {location.name}
-                  </li>
-                ))}
-            </ul>
-          </div>
-        ) : (
-          <p>현재 재고함이 없습니다.</p>
-        )}
-
-        <hr />
-        <h3>선택된 재고함</h3>
-        {selectedShapes.length > 1 ? (
-          <p>다중 선택되었습니다.</p>
-        ) : selectedLocation ? (
-          <div>
-            <p>이름 : {selectedLocation.name}</p>
-            <p>타입 : {selectedLocation.type}</p>
-            <p>층수 : {selectedLocation.z}</p>
-            <p>현재 재고율 : {extractFillPercentage("blue")}%</p>
-            <p>
-              가로 : {selectedLocation.width}cm | 세로 :{" "}
-              {selectedLocation.height}cm
-            </p>
-          </div>
-        ) : (
-          <p>재고함이 선택되지 않았습니다.</p>
-        )}
-      </div>
-      <div id="menu" className={classes.rightClickMenu} ref={menuRef}>
-        <div>
-          <button
-            id="pulse-button"
-            className={classes.pulse}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            Pulse
-          </button>
-          <button
-            id="delete-button"
-            className={classes.delete}
-            onClick={handleDelete} // Attach the handler here
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            Delete
-          </button>
-        </div>
-      </div>
+      <RightSidebar
+        classes={classes}
+        isSidebarVisible={isSidebarVisible}
+        locations={locations}
+        selectedLocation={selectedLocation}
+        setSelectedLocation={setSelectedLocation}
+        selectedShapes={selectedShapes}
+        setSelectedShapes={setSelectedShapes}
+        layerRef={layerRef}
+        trRef={trRef}
+        extractFillPercentage={extractFillPercentage}
+      />
+      {/* Context Menu */}
+      <ContextMenu
+        menuRef={menuRef}
+        handleDelete={handleDelete}
+        handleMouseEnter={handleMouseEnter}
+        handleMouseLeave={handleMouseLeave}
+      />
       {/* 창고 자동 생성을 위한 모달 파트 */}
-      <Modal
-        className={classes.modal}
+      <ContainerCreationModal
         open={openContainerCreation}
-        onClose={handleClose}
-        closeAfterTransition
-      >
-        <Fade
-          in={openContainerCreation}
-          style={{
-            justifyContent: "center",
-          }}
-        >
-          <div className={classes.paper}>
-            <h2>새 매장 정보 입력</h2>
-            <form onSubmit={handleSubmit}>
-              <TextField
-                className={classes.formControl}
-                name="containerName"
-                label="매장 이름"
-                fullWidth
-                variant="outlined"
-                value={formData.containerName}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="containerXSize"
-                label="매장 가로 크기"
-                fullWidth
-                variant="outlined"
-                value={formData.containerXSize}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="containerYSize"
-                label="매장 세로 크기"
-                fullWidth
-                variant="outlined"
-                value={formData.containerYSize}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="locationX"
-                label="Location(적재함) 가로 크기"
-                fullWidth
-                variant="outlined"
-                value={formData.locationX}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="locationY"
-                label="Location(적재함) 세로 크기"
-                fullWidth
-                variant="outlined"
-                value={formData.locationY}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="locationZ"
-                label="Location(적재함) 층수"
-                fullWidth
-                variant="outlined"
-                value={formData.locationZ}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="row"
-                label="행"
-                fullWidth
-                variant="outlined"
-                value={formData.row}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="column"
-                label="열"
-                fullWidth
-                variant="outlined"
-                value={formData.column}
-                onChange={handleChange}
-              />
-
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-              >
-                Finish
-              </Button>
-            </form>
-          </div>
-        </Fade>
-      </Modal>
+        handleClose={handleClose}
+        handleSubmit={handleSubmit}
+        formData={formData}
+        handleChange={handleChange}
+      />
       {loading && (
         <div className={classes.loading}>
           <CircularProgress />
@@ -2061,128 +1715,4 @@ const MyContainerMap = ({ storeId, businessId }) => {
     </div>
   );
 };
-
-/**
- * 상자 설정 변경기 영역
- */
-
-const RectangleTransformer = ({
-  shapeProps,
-  isSelected,
-  onSelect,
-  onChange,
-}) => {
-  const shapeRef = useRef();
-  const trRef = useRef();
-
-  // 폰트사이즈 계산
-  const fontSize = Math.min(shapeProps.width, shapeProps.height) / 4;
-
-  // 재고함의 행렬과 높이를 나타내도록 설정한 MainText
-  const floorName = `${shapeProps.z}층`;
-
-  // RGB 색깔로 재고율 퍼센트(%)를 추출하는 함수
-  const extractFillPercentage = (rgbaString) => {
-    const matches = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-
-    if (matches) {
-      const red = parseInt(matches[1], 10);
-      const green = parseInt(matches[2], 10);
-
-      // Calculate the percentage using both red and green components
-      // Both red and green start at a higher value and decrease to 0 as the fill increases
-      const redPercentage = (27 - red) / 27;
-      const greenPercentage = (177 - green) / 177;
-
-      // The fill percentage is determined by averaging the percentage contribution from red and green
-      const fillPercentage = ((redPercentage + greenPercentage) / 2) * 100;
-
-      return fillPercentage.toFixed(1);
-    }
-
-    return "0.0"; // Default to 0% if unable to parse
-  };
-
-  return (
-    <React.Fragment>
-      {/* 사각형 모양 */}
-      <Rect
-        ref={shapeRef}
-        {...shapeProps}
-        id={shapeProps.id}
-        name="selectableShape" // 선택 가능하게 id값을 추가해서 속성 추가
-        shapeType="location" // 구분을 위한 표시
-        onClick={(e) => onSelect(e, shapeProps.id)}
-        onTap={(e) => onSelect(e, shapeProps.id)}
-        draggable // 사각형을 드래그 가능하게 함
-        // 드래그 종료 이벤트 -- 사각형 위치 업데이트
-        onDragEnd={(e) => {
-          onChange({
-            ...shapeProps,
-            x: Math.round(e.target.x()), //드래그 종료 후에 반올림한 위치로 이동함.
-            y: Math.round(e.target.y()),
-          });
-        }}
-        // 개별 변환기 삭제
-      />
-      <Text
-        text={floorName}
-        x={shapeProps.x}
-        y={shapeProps.y}
-        z={shapeProps.z}
-        width={shapeProps.width}
-        height={shapeProps.height - fontSize * 2}
-        fontSize={Math.min(shapeProps.width, shapeProps.height) / 6}
-        fontFamily="Arial"
-        fill="white"
-        align="center"
-        verticalAlign="middle"
-        listening={false} // Disable interactions with the text
-      />
-      <Text
-        text={shapeProps.name}
-        x={shapeProps.x}
-        y={shapeProps.y}
-        z={shapeProps.z}
-        width={shapeProps.width}
-        height={shapeProps.height}
-        fontSize={Math.min(shapeProps.width, shapeProps.height) / 5}
-        fontFamily="Arial"
-        fill="white"
-        align="center"
-        verticalAlign="middle"
-        listening={false} // Disable interactions with the text
-      />
-      <Text
-        // text={`${extractFillPercentage(shapeProps.fill)}%`}
-        x={shapeProps.x}
-        y={shapeProps.y}
-        z={shapeProps.z}
-        width={shapeProps.width}
-        height={shapeProps.height + fontSize * 2}
-        fontSize={Math.min(shapeProps.width, shapeProps.height) / 6}
-        fontFamily="Arial"
-        fill="white"
-        align="center"
-        verticalAlign="middle"
-        listening={false} // 텍스트를 클릭할 수 없도록 비활성화
-      />
-      {isSelected && (
-        // 사각형을 크기 조정 및 회전하는 변형 도구
-        <Transformer
-          ref={trRef}
-          flipEnabled={false} // 뒤집기 비활성화
-          boundBoxFunc={(oldBox, newBox) => {
-            // 최소 크기로 크기 조정 제한
-            if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
-              return oldBox;
-            }
-            return newBox;
-          }}
-        />
-      )}
-    </React.Fragment>
-  );
-};
-
 export default MyContainerMap;
