@@ -1,6 +1,7 @@
 package com.a302.wms.domain.structure.dto.location;
 
 import com.a302.wms.domain.floor.dto.FloorResponse;
+import com.a302.wms.global.constant.LocationTypeEnum;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,4 +25,5 @@ public class LocationResponse {
     private String name;
     private int rotation;
     private List<FloorResponse> floorResponses;
+    private LocationTypeEnum locationTypeEnum;
 }

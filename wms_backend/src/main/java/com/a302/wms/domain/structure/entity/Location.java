@@ -3,6 +3,7 @@ package com.a302.wms.domain.structure.entity;
 import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.store.entity.Store;
 import com.a302.wms.global.BaseTimeEntity;
+import com.a302.wms.global.constant.LocationTypeEnum;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -40,9 +41,12 @@ public class Location extends BaseTimeEntity {
     private int zSize = -1;
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Floor> floorList = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    @Column(name = "location_type", nullable = false, columnDefinition = "ENUM('LOCATION', 'ENTRANCE', 'EXIT') DEFAULT 'LOCATION'")
+    private LocationTypeEnum locationType;
 
     @Builder
-    public Location(List<Floor> floorList, Long id, String name, int rotation, Store store, int xPosition, int xSize, int yPosition, int ySize, int zSize) {
+    public Location(List<Floor> floorList, Long id, String name, int rotation, Store store, int xPosition, int xSize, int yPosition, int ySize, int zSize, LocationTypeEnum locationType) {
         this.floorList = floorList;
         this.id = id;
         this.name = name;
@@ -53,6 +57,7 @@ public class Location extends BaseTimeEntity {
         this.yPosition = yPosition;
         this.ySize = ySize;
         this.zSize = zSize;
+        this.locationType = locationType;
     }
 
     public void updatePosition(int xPosition, int yPosition) {
