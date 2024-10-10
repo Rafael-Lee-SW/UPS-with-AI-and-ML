@@ -20,6 +20,10 @@ const NotificationBell = ({ userId }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const sortNotifications = (notifications) => {
+    return notifications.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+  };
+
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
@@ -27,7 +31,8 @@ const NotificationBell = ({ userId }) => {
       console.log('API Response:', response.data); // 디버깅용 로그
       
       if (response.data && response.data.success && Array.isArray(response.data.result)) {
-        setNotifications(response.data.result);
+        const sortedNotifications = sortNotifications(response.data.result);
+        setNotifications(sortedNotifications);
       } else {
         console.error('Unexpected API response format:', response);
         setNotifications([]);
@@ -68,9 +73,9 @@ const NotificationBell = ({ userId }) => {
         { notificationId: notification.id, isRead: true, isImportant: notification.isImportant }
       ]);
       setNotifications(prevNotifications => 
-        prevNotifications.map(notif => 
+        sortNotifications(prevNotifications.map(notif => 
           notif.id === notification.id ? { ...notif, isRead: true } : notif
-        )
+        ))
       );
       router.push(`/user/${notification.storeId}?videoId=${notification.id}`);
     } catch (error) {
