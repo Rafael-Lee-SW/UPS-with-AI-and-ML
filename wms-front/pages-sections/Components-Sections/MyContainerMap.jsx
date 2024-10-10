@@ -179,7 +179,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
       }
     } else {
       setSelectedShapes([{ id, type: shapeType }]);
-      if (shapeType === "location") {
+      if (["location", "entrance", "exit"].includes(shapeType)) {
         const location = locations.find((loc) => loc.id === id);
         setSelectedLocation(location || null);
       } else {
@@ -231,28 +231,13 @@ const MyContainerMap = ({ storeId, businessId }) => {
   const VIEWPORT_HEIGHT = window.innerHeight;
 
   // 사각형을 추가하고 관리하는 State 추가
-  const [locations, setLocations] = useState([
-    {
-      id: "0",
-      rotation: 0, // rotation
-      x: 0, // x_position
-      y: 0, // y_position
-      z: 0, // z_size
-      width: 0, // x_size
-      height: 0, // y_size
-      // fill: "blue",
-      draggable: false,
-      name: "임시", // name
-      // type: "임시",
-    },
-  ]);
+  const [locations, setLocations] = useState([]);
   // Check if position is within bounds / 캔버스 바운드 안에 들어가는지를 확인
   const isPositionWithinBounds = (x, y, width, height) => {
     return (
       x >= 0 && y >= 0 && x + width <= CANVAS_SIZE && y + height <= CANVAS_SIZE
     );
   };
-
 
   // 마지막으로 클릭한 상자를 추적하는 상태 추가
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -326,17 +311,30 @@ const MyContainerMap = ({ storeId, businessId }) => {
   const handleAddLocation = async (type) => {
     let newName;
 
-    // nameMode에 따라 name을 설정
-    if (nameMode === "text") {
-      // 텍스트 모드에서는 사용자가 입력한 name을 사용하거나, 기본 값으로 '적재함-{마지막번호+1}' 사용
-      const latestId =
-        locations.length > 0 ? parseInt(locations[locations.length - 1].id) : 0;
-      newName = newLocationName || `적재함-${latestId + 1}`;
-    } else if (nameMode === "rowColumn") {
-      // 행/열 선택 모드에서는 '00-00' 형식으로 이름을 생성
-      const formattedRow = rowNumber.padStart(2, "0");
-      const formattedColumn = columnNumber.padStart(2, "0");
-      newName = `${formattedRow}-${formattedColumn}`;
+    let locationType = "LOCATION"; // Default for regular locations
+    let zSize = newLocationZIndex; // Default zSize
+
+    if (type === "entrance") {
+      locationType = "ENTRANCE";
+      newName = newLocationName || "입구-1"; // Use provided name or default
+      zSize = 1; // For entrance, zSize is 1
+    } else if (type === "exit") {
+      locationType = "EXIT";
+      newName = newLocationName || "출구-1"; // Use provided name or default
+      zSize = 1; // For exit, zSize is 1
+    } else {
+      // For regular locations
+      if (nameMode === "text") {
+        const latestId =
+          locations.length > 0
+            ? parseInt(locations[locations.length - 1].id)
+            : 0;
+        newName = newLocationName || `매대-${latestId + 1}`;
+      } else if (nameMode === "rowColumn") {
+        const formattedRow = rowNumber.padStart(2, "0");
+        const formattedColumn = columnNumber.padStart(2, "0");
+        newName = `${formattedRow}-${formattedColumn}`;
+      }
     }
 
     // 중복된 이름이 있는지 확인
@@ -365,6 +363,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
       draggable: true,
       order: locations.length + 1,
       name: newName, // 생성된 name 사용
+      locationType: locationType,
       type: type,
       rotation: 0,
     };
@@ -381,7 +380,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
       ySize: newLocation.height, // 세로
       zSize: newLocation.z, // 높이
       rotation: newLocation.rotation,
-      touchableFloor: 2,
+      locationType: newLocation.locationType,
     };
 
     // API 호출 - 생성된 로케이션을 서버에 POST
@@ -414,6 +413,8 @@ const MyContainerMap = ({ storeId, businessId }) => {
       router.push("/signIn");
       return;
     }
+
+    console.log(locationListCreateRequest)
 
     try {
       const response = await fetch(
@@ -516,7 +517,7 @@ const MyContainerMap = ({ storeId, businessId }) => {
       ySize: location.height,
       zSize: location.z,
       rotation: location.rotation,
-      touchableFloor: 2, // 더미
+      locationType: location.locationType,
     }));
 
     // 벽 데이터를 기록합니다.
@@ -658,19 +659,12 @@ const MyContainerMap = ({ storeId, businessId }) => {
         }
 
         const newLocations = locations.map((location, index) => {
-          const startColor = { r: 27, g: 177, b: 231 }; // Starting color (#1bb1e7)
-          const endColor = { r: 0, g: 0, b: 255 }; // Ending color (#0000FF)
-
-          // Calculate the color components based on the fill value
-          const red = Math.round(
-            startColor.r + ((endColor.r - startColor.r) * location.fill) / 100
-          );
-          const green = Math.round(
-            startColor.g + ((endColor.g - startColor.g) * location.fill) / 100
-          );
-          const blue = Math.round(
-            startColor.b + ((endColor.b - startColor.b) * location.fill) / 100
-          );
+          let type = "location";
+          if (location.locationType === "ENTRANCE") {
+            type = "entrance";
+          } else if (location.locationType === "EXIT") {
+            type = "exit";
+          }
 
           return {
             id: location.id.toString(),
@@ -679,7 +673,9 @@ const MyContainerMap = ({ storeId, businessId }) => {
             width: location.xsize || 50,
             height: location.ysize || 50,
             z: location.zsize,
-            fill: `rgba(${red}, ${green}, ${blue}, 1)`, // Calculate RGB with alpha as 1
+            locationType: location.locationType,
+            fill:
+              type === "entrance" ? "green" : type === "exit" ? "red" : "blue",
             draggable: true,
             order: index,
             name: location.name || `적재함 ${index}`,
@@ -1574,7 +1570,13 @@ const MyContainerMap = ({ storeId, businessId }) => {
                   y={rect.y}
                   width={rect.width}
                   height={rect.height}
-                  fill={rect.fill}
+                  fill={
+                    rect.type === "entrance"
+                      ? "green"
+                      : rect.type === "exit"
+                      ? "red"
+                      : rect.fill
+                  }
                   isSelected={selectedShapes.includes(rect.id)}
                   onSelect={onSelect}
                   onChange={(newAttrs) => {
