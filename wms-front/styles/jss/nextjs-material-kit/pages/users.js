@@ -73,10 +73,11 @@ const componentsStyle = {
     height: "30px",
     borderRadius: "4px",
     "&:hover": {
-      transform: "scale(1.05)",
-      backgroundColor: "#00B4D8",
-      color: "white",
-    },
+        transform: "scale(1.05)",
+        backgroundColor: "white",
+        color: "black",
+        border: "1px solid #459ab6"
+      },
   },
   selectedButton: {
     backgroundColor: "#00B4D8 !important", // Custom color for the selected button
@@ -131,7 +132,7 @@ const componentsStyle = {
       fontSize: "12px",
       fontWeight: "bold",
       textAlign: "center",
-      color: "#7D4A1A",
+      color: "#459ab6",
       whiteSpace: "nowrap", // 자동 줄바꿈을 방지한다.
     },
     warehouseDropdown: {
@@ -145,7 +146,7 @@ const componentsStyle = {
       fontWeight: "bold",
       borderRadius: "4px",
       textAlign: "center",
-      border: "1px solid #986c58",
+      border: "1px solid #black",
       backgroundColor: "transparent",
       cursor: "pointer",
       appearance: "none",
@@ -163,7 +164,7 @@ const componentsStyle = {
     buttonStyle: {
       fontSize: "10px",
       width: "70px",
-      color: "white",
+      color: "black",
       margin: "1px 0 0 10px",
       padding: "11px",
       height: "12px",
@@ -180,17 +181,17 @@ const componentsStyle = {
       transform: "scale(1.05)", // Optional effect
     },
     button1: {
-      backgroundColor: "#4E4544",
-    },
-    button2: {
-      backgroundColor: "#96d2ea",
-    },
-    button3: {
-      backgroundColor: "#C2B6A1",
-    },
-    button4: {
-      backgroundColor: "#A99987",
-    },
+    backgroundColor: "#78dfff",
+  },
+  button2: {
+    backgroundColor: "#7faabb",
+  },
+  button3: {
+    backgroundColor: "#b2ddef",
+  },
+  button4: {
+    backgroundColor: "#9baab1",
+  },
     mainContent: {
       marginLeft: "0px",
       overflow: "none",
