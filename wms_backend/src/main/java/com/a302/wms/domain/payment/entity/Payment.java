@@ -35,13 +35,17 @@ public class Payment extends BaseTimeEntity {
     @Column(name = "selling_price", nullable = false)
     private Long sellingPrice;
 
+    @Column(name = "floor_id")
+    private Long floorId;
+
     @Builder
-    public Payment(Store store, String orderId, Long barcode, Integer quantity, Long sellingPrice, String productName) {
+    public Payment(Store store, String orderId, Long barcode, Integer quantity, Long sellingPrice, String productName, Long floorId) {
         this.store = store;
         this.orderId = orderId;
         this.barcode = barcode;
         this.quantity = quantity;
         this.sellingPrice = sellingPrice;
         this.productName = productName;
+        this.floorId = floorId;
     }
 }
