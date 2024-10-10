@@ -301,6 +301,10 @@ function fetchFloors(floorId) {
 function fetchLocationFloors(locationId) {
     return instance.get(`/floors?locationId=${locationId}`)
 }
+
+function editNotification(data) {
+    return instance.patch('/notifications/batch', data);
+}
  
 export { 
     instance, 

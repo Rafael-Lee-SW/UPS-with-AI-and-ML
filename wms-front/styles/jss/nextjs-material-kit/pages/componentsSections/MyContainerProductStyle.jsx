@@ -168,6 +168,15 @@ const ProductStyles = {
     padding: "8px",
   },
 
+  //Payment API
+  paymentContainer: {
+    padding: "20px",
+    // Add any other styles you need
+  },
+  searchButton: {
+    height: "56px", // To match the height of the date pickers
+  },
+
   /**
    * Mobile 모바일 환경
    */
@@ -231,7 +240,13 @@ const ProductStyles = {
     eachProductMove: {
       marginBottom: "20px",
     },
-    movbeButton: {
+    modeButton: {
+      color: "#7D4A1A",
+    },
+    moveButton: {
+      color: "#7D4A1A",
+    },
+    cancelButton: {
       color: "#7D4A1A",
     },
 
