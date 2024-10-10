@@ -1,0 +1,69 @@
+.resultWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.boxSection {
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.successImage {
+  width: 80%; /* 이미지의 너비를 조절하여 크기 축소 */
+  max-width: 400px; /* 최대 너비 설정 */
+}
+
+.heading {
+  font-family: "GmarketSansMedium";
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.receipt {
+  background-color: #f0f0f0; /* 회색 배경 */
+  padding: 15px; /* 패딩 추가 */
+  border-radius: 8px; /* 모서리 둥글게 */
+  margin: 20px 0; /* 위아래 여백 추가 */
+}
+
+.productList {
+  margin-top: 20px;
+  font-size: 1.5rem;
+  color: #555;
+}
+
+.totalPrice {
+  margin-top: 10px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+}
+.divider {
+  width: 70%; /* 3분의 2 길이 */
+  height: 1.5px;
+  background-color: #ccc;
+  margin: 0 auto; /* 중앙 정렬 */
+  margin-bottom: 2vh;
+}
+.productList li {
+  margin-bottom: 15px; /* 아래쪽 여백을 10px로 설정 */
+}
+.mainButton {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1.5rem;
+  background-color: #005bb5;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.mainButton:hover {
+  background-color: #003d7a;
+}

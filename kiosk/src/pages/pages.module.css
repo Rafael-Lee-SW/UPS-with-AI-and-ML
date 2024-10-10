@@ -1,0 +1,48 @@
+/* 페이지 전체를 화면 중앙에 배치하는 스타일 */
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+}
+
+/* 입력 폼 영역 스타일 */
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.inputBox {
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 300px;
+}
+
+/* 버튼 스타일 */
+.submitButton {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submitButton:hover {
+  background-color: #005bb5;
+}
+
+/* 환영 문구 스타일 */
+.welcome {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
