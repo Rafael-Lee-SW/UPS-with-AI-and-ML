@@ -848,11 +848,11 @@ const MyContainerNavigation = ({ storeId, stores }) => {
         }
       );
 
-      
+
       if (response.ok) {
         const apiConnection = await response.json();
         const notifications = apiConnection.result;
-        
+
         console.log(notifications)
         const formattedNotifications = notifications.map((notification) => ({
           id: notification.id,
@@ -909,44 +909,10 @@ const MyContainerNavigation = ({ storeId, stores }) => {
       setIsSidebarVisible(true);
     }
   };
-  
+
 
   const [dateColumns, setDateColumns] = useState([]); // 일자별로
 
-  // 모든 변동 내역을 날짜별로 묶어 알림으로 바꾸는 함수
-  const showUniqueDates = async () => {
-    // Group data by date and type
-    const groupedData = detailedData.reduce((acc, item) => {
-      const dateKey = new Date(item.date).toLocaleDateString();
-      const typeKey = item.productFlowType; // Use the mapping function here
-      const key = `${dateKey}-${typeKey}`;
-
-      if (!acc[key]) {
-        acc[key] = {
-          date: dateKey,
-          type: typeKey,
-          count: 0,
-        };
-      }
-
-      acc[key].count += 1;
-      return acc;
-    }, {});
-
-    // Format grouped data for table display
-    const formattedData = Object.values(groupedData).map((entry) => ({
-      date: entry.date,
-      type: entry.type,
-      count: entry.count,
-    }));
-
-    setNotificationTableData(formattedData);
-    setDateColumns([
-      { name: "date", label: "날짜" },
-      { name: "type", label: "유형" },
-      { name: "count", label: "수량" },
-    ]);
-  };
 
   /**
    * 로케이션을 클릭했을 때 해당 로케이션에 있는 물품(상품) 목록을 불러오는 API 호출 메서드
@@ -1382,7 +1348,6 @@ const MyContainerNavigation = ({ storeId, stores }) => {
             className={classes.sidebarButton}
             onClick={() => {
               setShowDetails(false);
-              showUniqueDates();
             }}
           >
             알림함
@@ -1427,19 +1392,23 @@ const MyContainerNavigation = ({ storeId, stores }) => {
         ) : (
           <div className={classes.notification}>
             <h3 className={classes.listTitle}>알림함</h3>
-            <ul className={classes.ulNotificationsList}>
-              {notificationTableData.map((notification, index) => (
-                <li
-                  className={classes.liNotificationsList}
-                  key={index}
-                  onClick={() =>
-                    handleNotificationClick(notification.id, notification.type)
-                  }
-                >
-                  {notification.date} / {notification.type}
-                </li>
-              ))}
-            </ul>
+            {notificationTableData.length > 0 ? (
+              <ul className={classes.ulNotificationsList}>
+                {notificationTableData.map((notification, index) => (
+                  <li
+                    className={classes.liNotificationsList}
+                    key={index}
+                    onClick={() =>
+                      handleNotificationClick(notification.id, notification.type)
+                    }
+                  >
+                    {notification.date} / {notification.type}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>알림이 없습니다.</p>
+            )}
           </div>
         )}
       </div>
