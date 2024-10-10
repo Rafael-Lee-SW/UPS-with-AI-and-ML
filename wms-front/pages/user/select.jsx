@@ -18,13 +18,14 @@ import {
   Fade,
   Button,
   TextField,
-  Radio,
-  RadioGroup,
+  Checkbox,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
   FormControlLabel,
-  FormControl,
-  FormLabel,
-  IconButton,
-  Tooltip,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import styles from "/styles/jss/nextjs-material-kit/pages/selectStyle.js";
@@ -51,6 +52,12 @@ const Select = ({ fetchedStores, ...rest }) => {
 
   const [validationErrors, setValidationErrors] = useState({});
 
+  // 삭제시 발생하는 경고
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [storeToDelete, setStoreToDelete] = useState(null);
+  const [checkedWarning, setCheckedWarning] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
   const handleOpen = async () => {
     // const { presentCount, MaxCount } = await fetchWarehouseCounts(businessId);
 
@@ -73,7 +80,6 @@ const Select = ({ fetchedStores, ...rest }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     validateForm({ ...formData, [name]: value });
   };
-
 
   // 유효값 검증
   const validateForm = (data) => {
@@ -101,7 +107,6 @@ const Select = ({ fetchedStores, ...rest }) => {
       size: 1000, // Fixed size at 1000
       storeName: formData.storeName || `Store ${cards.length + 1}`,
     };
-
 
     // 토큰에서 유저정보를 가져온다.(SSR이 아니기에 local에서 그냥 가져온다)
     const token = localStorage.getItem("token");
@@ -146,7 +151,6 @@ const Select = ({ fetchedStores, ...rest }) => {
     }
   };
 
-
   // warehouseColor에 따른 배경 색상 및 usagePercent에 따른 색상 높이
   const getBackgroundColor = (color) => {
     switch (color) {
@@ -174,8 +178,13 @@ const Select = ({ fetchedStores, ...rest }) => {
     }
   };
 
+  const handleDeleteWarningOpen = (storeId) => {
+    setStoreToDelete(storeId);
+    setOpenDeleteDialog(true);
+  };
+
   // 매장 삭제
-  const handleDelete = async (storeId) => {
+  const handleDelete = async () => {
     //토큰 검증
     const token = localStorage.getItem("token");
     if (!token) {
@@ -185,7 +194,7 @@ const Select = ({ fetchedStores, ...rest }) => {
 
     try {
       await axios.patch(
-        `https://j11a302.p.ssafy.io/api/stores/${storeId}`,
+        `https://j11a302.p.ssafy.io/api/stores/${storeToDelete}`,
         {}, // Empty body
         {
           headers: {
@@ -194,10 +203,14 @@ const Select = ({ fetchedStores, ...rest }) => {
         }
       );
       // Remove the deleted store from the cards array
-      setCards((prevCards) => prevCards.filter((card) => card.id !== storeId));
+      setCards((prevCards) => prevCards.filter((card) => card.id !== storeToDelete));
+      setStoreToDelete(""); // 초기화
+      setOpenDeleteDialog(false);
+      setCheckedWarning(false);
+      setOpenSnackbar(true); // Show notification
     } catch (error) {
       console.error("Error deleting store:", error);
-      // router.push("/404");
+      router.push("/user/select");
     }
   };
 
@@ -334,7 +347,7 @@ const Select = ({ fetchedStores, ...rest }) => {
                         startIcon={<DeleteIcon />}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDelete(card.id);
+                          handleDeleteWarningOpen(card.id);
                         }}
                       >
                         삭제
@@ -396,6 +409,59 @@ const Select = ({ fetchedStores, ...rest }) => {
               </div>
             </Fade>
           </Modal>
+          <Dialog
+            open={openDeleteDialog}
+            onClose={() => {
+              setOpenDeleteDialog(false);
+              setCheckedWarning(false);
+            }}
+            aria-labelledby="delete-dialog-title"
+            aria-describedby="delete-dialog-description"
+          >
+            <DialogTitle id="delete-dialog-title">매장 삭제 확인</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="delete-dialog-description">
+                매장을 삭제하면 모든 데이터가 영구적으로 삭제됩니다. 이 작업은
+                되돌릴 수 없습니다.
+              </DialogContentText>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={checkedWarning}
+                    onChange={(e) => setCheckedWarning(e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label="위 내용을 이해하였으며, 삭제를 진행합니다."
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => {
+                  setOpenDeleteDialog(false);
+                  setCheckedWarning(false);
+                }}
+                color="primary"
+              >
+                취소
+              </Button>
+              <Button
+                onClick={handleDelete}
+                color="secondary"
+                disabled={!checkedWarning}
+              >
+                삭제
+              </Button>
+            </DialogActions>
+          </Dialog>
+          {/* Snackbar Notification */}
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={3000}
+            onClose={() => setOpenSnackbar(false)}
+            message="매장이 삭제되었습니다"
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          />
         </div>
       </div>
     </div>
@@ -431,8 +497,6 @@ export async function getServerSideProps({ req, res }) {
     if (response.ok) {
       const data = await response.json();
       const stores = data.result;
-
-      console.log(stores)
 
       const storeCards = stores.map((store) => ({
         id: store.id,
