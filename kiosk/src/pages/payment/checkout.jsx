@@ -6,6 +6,11 @@ import styles from "./checkout.module.css"; // CSS 모듈 가져오기
 const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
 const customerKey = "EeNPZPYSwnohr7iITJk9n";
 
+// 가격에 3자리마다 쉼표를 붙여주는 함수
+const formatPrice = (price) => {
+  return new Intl.NumberFormat("ko-KR").format(price);
+};
+
 export function CheckoutPage() {
   const router = useRouter();
   const [products, setProducts] = useState([]); // 결제할 상품 목록
@@ -69,11 +74,11 @@ export function CheckoutPage() {
           {products.map((product) => (
             <li key={product.productId}>
               {product.productName} - {product.quantity}개 -{" "}
-              {product.sellingPrice}원
+              {formatPrice(product.sellingPrice)}원 {/* 3자리 쉼표 적용 */}
             </li>
           ))}
         </ul>
-        <h3>총 가격: {totalPrice}원</h3>
+        <h3>총 가격: {formatPrice(totalPrice)}원</h3> {/* 3자리 쉼표 적용 */}
 
         <div id="payment-method" />
         <div id="agreement" />
