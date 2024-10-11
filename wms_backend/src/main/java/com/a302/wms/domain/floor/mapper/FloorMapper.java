@@ -1,9 +1,7 @@
 package com.a302.wms.domain.floor.mapper;
 
-import com.a302.wms.domain.floor.dto.FloorCreateRequest;
 import com.a302.wms.domain.floor.dto.FloorResponse;
 import com.a302.wms.domain.floor.entity.Floor;
-import com.a302.wms.domain.product.dto.ProductMoveRequestDto;
 import org.springframework.stereotype.Component;
 
 @Component

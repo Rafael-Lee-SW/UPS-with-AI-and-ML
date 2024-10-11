@@ -5,16 +5,13 @@ import com.a302.wms.domain.floor.entity.Floor;
 import com.a302.wms.domain.floor.exception.FloorException;
 import com.a302.wms.domain.floor.mapper.FloorMapper;
 import com.a302.wms.domain.floor.repository.FloorRepository;
-import com.a302.wms.domain.location.dto.LocationRequestDto;
-import com.a302.wms.domain.location.entity.Location;
 import com.a302.wms.domain.product.entity.Product;
 import com.a302.wms.domain.product.repository.ProductRepository;
+import com.a302.wms.domain.structure.entity.Location;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.a302.wms.global.constant.ProductConstant.CONVERT_SIZE;
@@ -62,7 +59,7 @@ public class FloorServiceImpl {
      * @return 해당 warehouse의 default Floor
      */
     public Floor findByStoreIdAndLevel(Long storeId, int floorLevel) {
-        return floorRepository.findByStoreId(storeId, floorLevel);
+        return floorRepository.findByStoreIdAndLevel(storeId, floorLevel);
     }
 
     public Floor findDefaultFloorByStore(Long storeId) {
@@ -110,6 +107,7 @@ public class FloorServiceImpl {
 
     /**
      * floorSize 계산 메서드
+     *
      * @param floor
      * @return
      */
@@ -122,9 +120,33 @@ public class FloorServiceImpl {
 
     /**
      * floorList로 주어진 floor 모두 삭제
+     *
      * @param floorList
      */
     public void deleteAll(List<Floor> floorList) {
         floorRepository.deleteAll(floorList);
     }
+
+    public Floor saveDefaultFloor(Location location) {
+        return floorRepository.save(buildDefaultFloor(location));
+    }
+
+    public Floor saveOtherFloor(Location location, Integer floorLevel) {
+        return floorRepository.save(buildOtherFloor(location, floorLevel));
+    }
+
+    public Floor buildDefaultFloor(Location location) {
+        return floorRepository.save(Floor.builder()
+                .floorLevel(-1)
+                .location(location)
+                .build());
+    }
+
+    public Floor buildOtherFloor(Location location, Integer floorLevel) {
+        return Floor.builder()
+                .floorLevel(floorLevel)
+                .location(location)
+                .build();
+    }
+
 }
