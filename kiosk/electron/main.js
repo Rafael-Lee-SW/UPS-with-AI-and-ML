@@ -15,7 +15,7 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
-      zoomFactor: 0.75,
+      zoomFactor: 1,
     },
   });
   const startURL = "http://localhost:3000"; 
