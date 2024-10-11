@@ -4,10 +4,10 @@
 
 
 # 목차
-- [📌 프로젝트 소개](#-Auto-Store-프로젝트-소개)
-- [🤖 AI 기술](#-AI-기술)
-- [🔧 AI 외 기능](#-AI-외-기능)
-- [💎 AUTO STORE의 가치](#-AUTO-STORE의-가치)
+- [📌 프로젝트 소개](#-auto-store-프로젝트-소개)
+- [🤖 AI 기술](#-ai-기술)
+- [🔧 AI 외 기능](#-ai-외-기능)
+- [💎 AUTO STORE의 가치](#-auto-store의-가치)
 - [👥 팀 소개](#-팀-소개)
 - [⏱ 개발 기간](#-개발-기간)
 - [📅 개선 일지](#-개선-일지)
@@ -156,7 +156,7 @@ Auto Store는 무인 매장의 사장님이 원격으로 매장을 관리할 수
               <img src="/READMEfile/kimseoyung.jpg" width="100">
         </td>
         <td style="min-width: 250px;">
-              <img src="/READMEfile/junhyeok.png" width="100">
+              <img src="/READMEfile/junhyeok.jpg" width="100">
         </td>
         <td style="min-width: 250px;">
                <img src="/READMEfile/moon.jpg" width="100">
