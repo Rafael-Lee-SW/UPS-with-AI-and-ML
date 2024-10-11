@@ -1,13 +1,9 @@
 package com.a302.wms.domain.product.mapper;
 
 import com.a302.wms.domain.floor.entity.Floor;
-import com.a302.wms.domain.location.entity.Location;
-import com.a302.wms.domain.product.dto.ExpirationProductResponseDto;
-import com.a302.wms.domain.product.dto.ProductImportRequestDto;
-import com.a302.wms.domain.product.dto.ProductResponseDto;
-import com.a302.wms.domain.product.dto.ProductWithUserResponseDto;
+import com.a302.wms.domain.product.dto.ProductImportRequest;
+import com.a302.wms.domain.product.dto.ProductResponse;
 import com.a302.wms.domain.product.entity.Product;
-import com.a302.wms.domain.product.dto.*;
 import com.a302.wms.domain.store.entity.Store;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +16,8 @@ public class ProductMapper {
      * @param product
      * @return
      */
-    public static ProductResponseDto toProductResponseDto(Product product) {
-        return ProductResponseDto.builder()
+    public static ProductResponse toProductResponse(Product product) {
+        return ProductResponse.builder()
                 .productId(product.getProductId())
                 .productName(product.getProductName())
                 .barcode(product.getBarcode())
@@ -29,62 +25,25 @@ public class ProductMapper {
                 .quantity(product.getQuantity())
                 .floorLevel(product.getFloor().getFloorLevel())
                 .locationName(product.getFloor().getLocation().getName())
-                .expirationDate(product.getExpirationDate() == null ? null : product.getExpirationDate())
+                .originalPrice(product.getOriginalPrice())
+                .sellingPrice(product.getSellingPrice())
+                .storeId(product.getStore().getId())
                 .build();
     }
 
-    public static Product fromProductImportRequestDto(ProductImportRequestDto productImportRequestDto,
-                                                      Floor floor) {
-    return Product.builder()
-        .floor(floor)
-        .sku(productImportRequestDto.sku())
-        .quantity(productImportRequestDto.quantity())
-        .expirationDate(productImportRequestDto.expirationDate())
-        .build();
-    }
-
-
-
-    public static ExpirationProductResponseDto toExpirationProductResponseDto(Product product, boolean isExpired) {
-        Floor floor = product.getFloor();
-        Location location = floor.getLocation();
-        Store store = location.getStore();
-
-
-        return ExpirationProductResponseDto.builder()
-                .barcode(product.getBarcode())
+    public static Product fromProductImportRequest(ProductImportRequest productImportRequest,
+                                                   Floor floor,
+                                                   Store store) {
+        return Product.builder()
+                .barcode(productImportRequest.barcode())
+                .floor(floor)
+                .originalPrice(productImportRequest.originalPrice())
+                .productName(productImportRequest.productName())
+                .quantity(productImportRequest.quantity())
+                .sellingPrice(productImportRequest.sellingPrice())
+                .sku(productImportRequest.sku())
+                .store(store)
                 .build();
     }
-
-    public static ProductWithUserResponseDto toProductWithUserDto(Product product) {
-        return ProductWithUserResponseDto.builder()
-                .build();
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

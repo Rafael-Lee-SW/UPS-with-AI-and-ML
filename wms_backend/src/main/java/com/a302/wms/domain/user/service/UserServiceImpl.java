@@ -1,103 +1,116 @@
 package com.a302.wms.domain.user.service;
 
-import com.a302.wms.domain.user.dto.UserRequestDto;
-import com.a302.wms.domain.user.dto.UserResponseDto;
+import com.a302.wms.domain.user.dto.UserPasswordUpdateRequest;
+import com.a302.wms.domain.user.dto.UserResponse;
+import com.a302.wms.domain.user.dto.UserSignUpRequest;
+import com.a302.wms.domain.user.dto.UserUpdateRequest;
 import com.a302.wms.domain.user.entity.User;
 import com.a302.wms.domain.user.mapper.UserMapper;
 import com.a302.wms.domain.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import com.a302.wms.global.constant.ResponseEnum;
+import com.a302.wms.global.constant.SocialLoginTypeEnum;
+import com.a302.wms.global.handler.CommonException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
+@Service
 public class UserServiceImpl {
 
-  private final UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final UserModuleService userModuleService;
+    private final PasswordEncoder passwordEncoder;
 
-  /**
-   * 사용자 생성 메서드
-   *
-   * @param userRequestDto : 생성할 유저의 정보가 담긴 dto
-   * @return 생성된 유저의 정보
-   */
-  @Transactional
-  public UserResponseDto create(Long userId, UserRequestDto userRequestDto) {
-    log.info("[Service] create User by userId");
-    User.UserBuilder builder = User.builder();
+    /**
+     * 회원가입
+     *
+     * @param dto
+     * @return
+     */
+    public UserResponse save(UserSignUpRequest dto) {
+        User user = userRepository.findByEmail(dto.email()).orElse(null);
+        if (user != null) throw new CommonException(ResponseEnum.DUPLICATE_EMAIL, "해당 이메일로 가입된 계정이 이미 존재합니다.");
 
-    User user = userRepository.findById(userId).get();
-    builder.user(user);
-
-    if (userRequestDto.getName() != null) {
-      builder.name(userRequestDto.getName());
+        SocialLoginTypeEnum socialLoginType = SocialLoginTypeEnum.GENERAL;
+        String encodedPassword = passwordEncoder.encode(dto.password());
+        User newUser = UserMapper.fromUserSignUpRequest(dto, encodedPassword, socialLoginType);
+        User createdUser = userRepository.save(newUser);
+        return UserMapper.toUserResponse(createdUser);
     }
-    if (userRequestDto.getUserNumber() != null) {
-      builder.userNumber(userRequestDto.getUserNumber());
+
+    /**
+     * id로 회원 조회
+     *
+     * @param id
+     * @return
+     */
+    public UserResponse findById(Long id) {
+        log.info("[Service] find User by id");
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user Id"));
+        return UserMapper.toUserResponse(user);
     }
-    user = builder.build();
-    try {
-      User savedUser = userRepository.save(user);
 
-      return UserMapper.toUserResponseDto(savedUser);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    /**
+     * 회원 정보 수정
+     *
+     * @param id
+     * @param request
+     * @return
+     */
+    public UserResponse update(Long id, UserUpdateRequest request) {
+        log.info("[Service] update User by id");
+        User user = userRepository.findById(id).orElseThrow();
+        user.updateInfo(request);
+        User updatedUser = userRepository.save(user);
+
+        return UserMapper.toUserResponse(updatedUser);
     }
-  }
 
-  /**
-   * 특정 id를 가진 사용자의 정보를 조회하여 반환하는 메서드
-   *
-   * @param id : 사용자 고유 번호
-   * @return UserDto
-   */
-  public UserResponseDto findById(long id) {
-    log.info("[Service] find User by productId");
-    try {
-      User user = userRepository.findById(id).get();
-      return UserMapper.toUserResponseDto(user);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    /**
+     * 비밀번호 변경
+     *
+     * @param userId
+     * @param userPasswordUpdateRequest
+     */
+    public void updatePassword(Long userId, UserPasswordUpdateRequest userPasswordUpdateRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CommonException(ResponseEnum.USER_NOT_FOUND, "존재하지 않는 사용자입니다."));
+        if (!passwordEncoder.matches(userPasswordUpdateRequest.currentPassword(), user.getPassword())) {
+            throw new CommonException(ResponseEnum.INVALID_SIGNIN, "현재 비밀번호가 올바르지 않습니다.");
+        }
+        String encodedPassword = passwordEncoder.encode(userPasswordUpdateRequest.newPassword());
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+        log.info("사용자의 비밀번호가 성공적으로 변경되었습니다.");
     }
-  }
 
-  /**
-   * 사용자의 정보를 수정하는 메서드
-   *
-   * @param request : 사용자 정보가 담긴 Dto
-   * @return UserDto
-   */
-  @Transactional
-  public UserResponseDto update(Long id, UserRequestDto request) {
-    log.info("[Service] update User by productId");
-    try {
+    /**
+     * 회원 탈퇴
+     *
+     * @param id
+     * @return
+     */
+    public UserResponse delete(Long id) {
+        log.info("[Service] delete User by id");
+        User user = userModuleService.findById(id);
+        if (user == null) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+        userRepository.deleteById(id);
 
-      User updatedUser = userRepository.findById(id).get();
-      updatedUser.updateName(request.getName());
-      updatedUser.updateUserNumber(request.getUserNumber());
-      updatedUser = userRepository.save(updatedUser);
-
-      return UserMapper.toUserResponseDto(updatedUser);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+        return UserMapper.toUserResponse(user);
     }
-  }
 
-  /**
-   * 사용자의 정보를 삭제하는 메서드
-   *
-   * @param id : 사용자 고유 번호
-   */
-  @Transactional
-  public void delete(Long id) {
-    try {
-      log.info("[Service] delete User by productId");
-      User existingUser = userRepository.findById(id).get();
-      userRepository.delete(existingUser);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+
+    public void emailDuplicateCheck(String email) {
+        log.info("[Service] email duplicate check");
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user != null) throw new CommonException(ResponseEnum.DUPLICATE_EMAIL, "이메일 중복");
+
     }
-  }
 }

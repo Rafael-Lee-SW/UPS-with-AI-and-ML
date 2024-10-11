@@ -1,60 +1,60 @@
 package com.a302.wms.domain.user.entity;
 
+import com.a302.wms.domain.user.dto.UserUpdateRequest;
 import com.a302.wms.global.BaseTimeEntity;
-import com.a302.wms.domain.store.entity.Store;
+import com.a302.wms.global.constant.SocialLoginTypeEnum;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
+@NoArgsConstructor
 @Table(name = "user")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "email")
+    @Column(name= "user_name", nullable = false, length = 100, unique = true)
+    private String userName;
+
+    @Column(nullable = false, length = 100 ,unique = true)
     private String email;
 
-    @Column(length = 20)
-    private String name;
+    @Column(length = 255)
+    private String password;
 
-    @Column(length = 12)
-    private String userNumber;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "social_login_type", nullable = false, columnDefinition = "ENUM('GENERAL', 'KAKAO', 'NAVER') DEFAULT 'GENERAL'")
+    private SocialLoginTypeEnum socialLoginType;
 
+    public void updateInfo(UserUpdateRequest userUpdateRequest) {
+        this.userName = userUpdateRequest.userName();
+        this.email = userUpdateRequest.email();
+    }
 
-
-    @OneToMany(mappedBy = "user")
-    private List<Store> stores = new ArrayList<>();
+    public void setPassword(String newPassword) {
+        if (newPassword == null || newPassword.isEmpty()) {
+            throw new IllegalArgumentException("비밀번호는 필수 항목입니다.");
+        }
+        this.password = newPassword;
+    }
 
     @Builder
-    public User(Long id, String name, List<Store> stores, User user, String userNumber) {
+
+    public User(String email,
+                Long id,
+                String password,
+                SocialLoginTypeEnum socialLoginType,
+                String userName) {
+        this.email = email;
         this.id = id;
-        this.name = name;
-        this.stores = stores;
-        this.userNumber = userNumber;
+        this.password = password;
+        this.socialLoginType = socialLoginType;
+        this.userName = userName;
     }
-
-    public void updateName(String name) {
-        this.name = name;
-    }
-
-    public void updateUserNumber(String userNumber) {
-        this.userNumber = userNumber;
-    }
-
-
-
-    public void setStores(List<Store> stores) {
-        this.stores = stores;
-    }
-
 }

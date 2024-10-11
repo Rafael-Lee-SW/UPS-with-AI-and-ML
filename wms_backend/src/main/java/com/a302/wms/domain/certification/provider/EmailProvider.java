@@ -15,7 +15,7 @@ public class EmailProvider {
     private static final Logger logger = LoggerFactory.getLogger(EmailProvider.class);
     private final JavaMailSender javaMailSender;
 
-    private final String SUBJECT = "[Web WMS] 인증 메일입니다.";
+    private final String SUBJECT = "[Auto Store] 인증 메일입니다.";
 
     /**
      * 인증 이메일 전송
@@ -48,7 +48,7 @@ public class EmailProvider {
      * @return
      */
     private String getCertificationMessage(String certificationNumber) {
-        return "<h1 style='text-align: center;'>[Web WMS] 인증 메일입니다. </h1>" +
+        return "<h1 style='text-align: center;'>[Auto Store] 인증 메일입니다. </h1>" +
                 "<h3 style='text-align: center;'>" +
                 "인증 코드 : <strong style='font-size:32px; letter-spacing:8px;'>" +
                 certificationNumber + "</strong></h3>";

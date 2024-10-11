@@ -19,7 +19,7 @@ public class DeviceMapper {
     public static Device fromCreateRequestDto(DeviceCreateRequest deviceCreateRequest, Store store) {
         return Device.builder()
                 .store(store)
-                .deviceKey(deviceCreateRequest.key())
+                .deviceType(deviceCreateRequest.deviceType())
                 .build();
     }
 
@@ -32,6 +32,7 @@ public class DeviceMapper {
         return DeviceResponse.builder()
                 .id(device.getId())
                 .storeId(device.getStore().getId())
+                .deviceType(device.getDeviceType())
                 .build();
     }
 
@@ -44,7 +45,6 @@ public class DeviceMapper {
         return DeviceDetailedResponse.builder()
                 .id(device.getId())
                 .storeId(device.getStore().getId())
-                .deviceKey(device.getDeviceKey())
                 .build();
     }
 }

@@ -8,8 +8,12 @@ import java.time.LocalDateTime;
 public record PaymentResponse(
         Long id,
         Long storeId,
-        Long paidAmount,
-        Long totalAmount,
-        LocalDateTime paidAt
+        String orderId,
+        Long barcode,
+        Integer quantity,
+        Long sellingPrice,
+        String productName,
+        LocalDateTime createdDate,
+        Long floorId
 ) {
 }
