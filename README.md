@@ -124,13 +124,13 @@ Auto Store는 무인 매장의 사장님이 원격으로 매장을 관리할 수
     </tr>
     <tr align="center">
         <td>
-        <b>Team Leader<br/> Project Manager</b><b><br/>Frontend<br></b>Kiosk
+        <b>Team Leader</b><b><br/>Frontend<br></b>Kiosk
         </td>
         <td>
-        <b>Backend</b><br/>Frontend<br/>웹 사이트 디자인 총괄<br/>User Service 구현<br/>
+        <b>Backend</b><br/> <b>Frontend</b><br/>웹 사이트 디자인 총괄<br/>User Service 구현<br/>
         </td>
         <td>
-        <b>Frontend</b><br/>창고 관리 주요 기능 구현<br/>발표 및 영상<br/>
+        <b>Frontend </b><br/> <b>Project Manager </b><br/>ML 모델 학습 및 배포<br/>웹앱 구축 및 UX/UI 구현 및 개선 <br/>발표 및 영상<br/>
         </td>
     </tr>
   <tr>
@@ -164,14 +164,14 @@ Auto Store는 무인 매장의 사장님이 원격으로 매장을 관리할 수
     </tr>
     <tr align="center">
         <td>
-        <b>Backend Leader, Infra</b><br>CI/CD 및 배포환경 구축<br/>비즈니스 로직 구현<br/>
+        <b>Backend Leader </b><br/><b>Infra </b><br/>CI/CD 및 배포환경 구축<br/>비즈니스 로직 구현<br/>
         백엔드 성능개선 작업<br/>
         </td>
         <td>
-        <b>Backend, Infra</b><br/> CI/CD 및 배포환경 구축<br/>비즈니스 로직 구현<br/> 방범 동영상 처리<br/>
+        <b>Backend</b><br/><b>Infra </b><br/> CI/CD 및 배포환경 구축<br/>비즈니스 로직 구현<br/> 방범 동영상 처리<br/>
         </td>
         <td>
-        <b>AI Leader</b><br>AI 모델 학습, 검증, 배포 및 최적화<br/> 방범 영상 페이지 및 알람 기능 구현<br/>
+        <b>AI Leader</b><br/><b>Frontend </b><br/>AI 모델 학습, 검증, 배포 및 최적화<br/> 방범 영상 페이지 및 알람 기능 구현<br/>
         </td>
     </tr>
 </table>
@@ -335,20 +335,20 @@ Auto Store는 무인 매장의 사장님이 원격으로 매장을 관리할 수
 
 | ![Kiosk 1](./READMEfile/kiosk1.png)| ![Kiosk 2](./READMEfile/kiosk2.png)|
 |------------------------------------|------------------------------------|
-| **Kiosk 1 설명**                   | **Kiosk 2 설명**                   |
+| **키 입력(로그인)**                  |  **메인 화면**                      |
 | ![Kiosk 3](./READMEfile/kiosk3.png)| ![Kiosk 4](./READMEfile/kiosk4.png)|
-| **Kiosk 3 설명**                   | **Kiosk 4 설명**                   |
-| ![Kiosk 5](./READMEfile/kiosk5.png)|                                  |
-| **Kiosk 5 설명**                   |                                    |
+| **장바구니**                        | **결제**                            |
+| ![Kiosk 5](./READMEfile/kiosk5.png)|                                    |
+| **결제 완료**                       |                                    |
 
 ### Page
 | ![Page 1](./READMEfile/page1.png)  | ![Page 2](./READMEfile/page2.png)  |
-|:------------------------------------:|:------------------------------------:|
-| **Page 1 설명**                     | **Page 2 설명**                     |
+|:----------------------------------:|:----------------------------------:|
+| **방범 영상**                       |   **방범 영상 재생**                 |
 | ![Page 3](./READMEfile/page3.png)  | ![Page 4](./READMEfile/page4.png)  |
-| **Page 3 설명**                     | **Page 4 설명**                     |
+| **매장 기기 관리**                   |  **매장 재고 분석**                 |
 | ![Page 5](./READMEfile/page5.png)  | ![Page 6](./READMEfile/page6.png)  |
-| **Page 5 설명**                     | **Page 6 설명**                     |
+| **수요 예측**                       | **수요 예측 시각화**                 |
 
 
 
