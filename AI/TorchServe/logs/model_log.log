@@ -1,0 +1,35 @@
+2024-09-26T15:26:31,501 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Listening on addr:port: 127.0.0.1:9000
+2024-09-26T15:26:31,505 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Successfully loaded C:\ProgramData\anaconda3\envs\x3d_project\lib\site-packages/ts/configs/metrics.yaml.
+2024-09-26T15:26:31,506 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - [PID]19272
+2024-09-26T15:26:31,510 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Torch worker started.
+2024-09-26T15:26:31,510 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Python runtime: 3.12.3
+2024-09-26T15:26:31,519 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Connection accepted: ('127.0.0.1', 9000).
+2024-09-26T15:26:31,541 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - model_name: ensemble, batchSize: 1
+2024-09-26T15:26:31,598 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Enabled tensor cores
+2024-09-26T15:26:31,599 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - OpenVINO is not enabled
+2024-09-26T15:26:31,599 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - proceeding without onnxruntime
+2024-09-26T15:26:31,601 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Torch TensorRT not enabled
+2024-09-26T15:26:34,088 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - All layers of X3D model have been adjusted.
+2024-09-26T15:26:34,137 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Successfully loaded X3D model from: C:\Users\SSAFY\AppData\Local\Temp\models\71d9ba19c43a4dd3b4628a19c27fb2ab\x3d_best_model.pth
+2024-09-26T15:26:36,472 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - All layers of SlowFast model have been adjusted.
+2024-09-26T15:26:36,569 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Successfully loaded SlowFast model from: C:\Users\SSAFY\AppData\Local\Temp\models\71d9ba19c43a4dd3b4628a19c27fb2ab\slowfast_best_model.pth
+2024-09-26T15:26:36,571 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Successfully loaded class mapping file from: C:\Users\SSAFY\AppData\Local\Temp\models\71d9ba19c43a4dd3b4628a19c27fb2ab\index_to_name.json
+2024-09-26T15:26:36,571 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - EnsembleHandler initialization complete.
+2024-09-26T15:26:44,354 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Backend received inference at: 1727332004
+2024-09-26T15:26:44,354 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Starting request processing.
+2024-09-26T15:26:48,429 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Preprocessed video: X3D tensor shape torch.Size([1, 3, 32, 224, 224]), SlowFast tensor shapes torch.Size([1, 3, 8, 224, 224]), torch.Size([1, 3, 32, 224, 224])
+2024-09-26T15:26:48,744 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - X3D model inference completed successfully.
+2024-09-26T15:26:48,803 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - SlowFast model inference completed successfully.
+2024-09-26T15:26:48,804 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Softmax transformation applied to model outputs.
+2024-09-26T15:26:48,812 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Ensemble inference completed successfully.
+2024-09-26T15:26:48,813 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Predicted class: fall
+2024-09-26T15:26:48,813 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Request processing completed successfully.
+2024-09-26T15:39:29,438 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Backend received inference at: 1727332769
+2024-09-26T15:39:29,438 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Starting request processing.
+2024-09-26T15:39:33,379 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Preprocessed video: X3D tensor shape torch.Size([1, 3, 32, 224, 224]), SlowFast tensor shapes torch.Size([1, 3, 8, 224, 224]), torch.Size([1, 3, 32, 224, 224])
+2024-09-26T15:39:33,537 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - X3D model inference completed successfully.
+2024-09-26T15:39:33,543 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - SlowFast model inference completed successfully.
+2024-09-26T15:39:33,543 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Softmax transformation applied to model outputs.
+2024-09-26T15:39:33,876 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Ensemble inference completed successfully.
+2024-09-26T15:39:33,877 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Predicted class: fall
+2024-09-26T15:39:33,884 [INFO ] W-9000-ensemble_1.0-stdout MODEL_LOG - Request processing completed successfully.
