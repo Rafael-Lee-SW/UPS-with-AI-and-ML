@@ -203,7 +203,6 @@ export default function Payment() {
         },
         (rsp) => {
           if (rsp.success) {
-            console.log(rsp);
             handleSuccess();
           } else {
             router.push('/components');

@@ -10,6 +10,7 @@ import Card from '../components/Card/Card';
 import CardBody from '../components/Card/CardBody';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Cookies from 'js-cookie'; // Cookie에 저장하기 위해서
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -21,7 +22,7 @@ const useStyles = makeStyles(() => ({
     textAlign: 'center',
   },
   card: {
-    border: "1px solid #7D4A1A", 
+    border: "1px solid #459ab6", 
     maxWidth: '350px',
     marginLeft: '60px'
   },
@@ -51,13 +52,14 @@ const useStyles = makeStyles(() => ({
   textField: {
     marginBottom: '16px',
     '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#7d4a1a',
+      borderColor: '#459ab6',
     },
     '& .MuiInputLabel-root.Mui-focused': {
-      color: '#7d4a1a',
+      color: '#459ab6',
     },
   },
   button: {
+    border: '1px solid #ccc',
     margin: '8px',
     width: '100px',
   },
@@ -72,7 +74,7 @@ const useStyles = makeStyles(() => ({
   divider: {
     height: '1px',
     width: '100px',
-    backgroundColor: '#7d4a1a',
+    backgroundColor: '#459ab6',
     margin: 0
   },
   dividerText: {
@@ -124,25 +126,28 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/sign-in', {
-        email,
-        password,
+      const response = await axios.post('https://j11a302.p.ssafy.io/api/auths/sign-in', {
+        'email' : email,
+        'password' : password,
       });
 
-      if (response.status === 200 && response.data.code === 'SU') {
-        const { user, token } = response.data;
 
-        login(user, token); // 전역 상태에 사용자 정보와 토큰 저장
-        notify(`${user.name}님 환영합니다!`);
-        router.push('/'); // 메인 페이지로 이동
+      if (response.status === 200) {
+        const token = response.data.result.accessToken;
+        const user = response.data.result.userResponse;
+
+        Cookies.set('token', token, { expires: 1 }); // 쿠키에 저장한다.(하루 짜리)
+        login(user, token); // Save user and token in auth state
+        notify(`${user.userName}님 환영합니다!`);
+        router.push('/'); 
       }
     } catch (error) {
       if (error.response) {
-        if (error.response.status === 400 && error.response.data.code === 'VF') {
+        if (error.response.httpStatus === 400 && error.response.data.statusCode === 4000) {
           notify('로그인에 실패하였습니다. 입력한 정보를 확인하세요.');
-        } else if (error.response.status === 401 && error.response.data.code === 'SF') {
+        } else if (error.response.httpStatus === 401 && error.response.data.code === 4000) {
           notify('로그인 정보가 맞지 않습니다. 다시 시도해주세요.');
-        } else if (error.response.status === 500 && error.response.data.code === 'DBE') {
+        } else if (error.response.httpStatus === 500 && error.response.data.code === 'DBE') {
           notify('서버가 불안정합니다. 잠시 후 다시 시도해주세요.');
         } else {
           notify('알 수 없는 오류가 발생했습니다. 관리자에게 문의하세요.');
@@ -150,7 +155,7 @@ export default function Login() {
       } else {
         notify('네트워크 오류가 발생했습니다. 인터넷 연결을 확인하세요.');
       }
-      // 로그인 페이지에 머무름
+      
     }
   };
 
@@ -177,21 +182,8 @@ export default function Login() {
             <CardBody>
               <div className={classes.dividerContainer}>
                 <h3 className={classes.snsText}>
-                  간편 로그인
+                  로그인
                 </h3>
-              </div>
-              <div className={classes.snsButtons}>
-                <button className="sns-button" onClick={() => signInWithProvider('kakao')}>
-                  <img src="/img/kakao-sign-in.png" alt="Kakao Sign In" />
-                </button>
-                <button className="sns-button" onClick={() => signInWithProvider('naver')}>
-                  <img src="/img/naver-sign-in.png" alt="Naver Sign In" />
-                </button>
-              </div>
-              <div className={classes.dividerContainer}>
-                <div className={classes.divider}></div>
-                <p className={classes.dividerText}>또는</p>
-                <div className={classes.divider}></div>
               </div>
               <form onSubmit={handleLogin} className={classes.form}>
                 <TextField
@@ -215,13 +207,13 @@ export default function Login() {
                   required
                 />
                 <div>
-                  <Button type="submit" variant="contained" style={{ backgroundColor: "#7D4A1A", color: "white" }} className={classes.button}>
+                  <Button type="submit" variant="contained" style={{ backgroundColor: "#e6f4fa", color: "black" }} className={classes.button}>
                     로그인
                   </Button>
                 </div>
               </form>
               <div className={classes.signUpContainer}>
-                <p className={classes.signUpText}>fit-box가 처음이신가요?</p>
+                <p className={classes.signUpText}>Auto-Store가 처음이신가요?</p>
                 <a className={classes.signUpText} href="/signup">회원가입</a>
               </div>
             </CardBody>

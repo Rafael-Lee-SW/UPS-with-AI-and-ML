@@ -113,7 +113,7 @@ export default function ManageBusiness({ updateBusinessInfo, updateRoleType }) {
           };
 
           await axios.post("https://j11a302.p.ssafy.io/api/subscriptions", subscriptionData);
-          setModalMessage('창고 1개를 무료로 사용할 수 있습니다.');
+          setModalMessage('매장 1개를 무료로 사용할 수 있습니다.');
           setModalTitle('사업자 등록 완료');
           handleOpen();
         } else {

@@ -1,130 +1,102 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
-import style from '/styles/jss/nextjs-material-kit/pages/componentsSections/notificationsStyles.js'
-import { fetchNotifications } from '../../pages/api';
+import style from '/styles/jss/nextjs-material-kit/pages/componentsSections/notificationsStyles.js';
+import { fetchCrimeNotifications, fetchStores, updateCrimeNotifications } from '../../pages/api/index';
 import { useRouter } from 'next/router';
 
-const useStyles = makeStyles(style)
+const useStyles = makeStyles(style);
 
-// 알람 리스트 Component
-export default function Alarm({ businessId }) {
+export default function Alarm({ userId }) {
     const classes = useStyles();
     const router = useRouter();
     const [open, setOpen] = useState(false);
+    const [stores, setStores] = useState([]);
     const [notifications, setNotifications] = useState([]);
-    const [currentNotification, setCurrentNotification] = useState(null);
+    const [currentStore, setCurrentStore] = useState(null);
 
     useEffect(() => {
-        getNotifications();
+        getStores();
     }, []);
 
-    const getNotifications = async () => {
-        if ( businessId !== -1 ) {
-            try {
-                const response = await fetchNotifications(businessId);
-                const notifications = response.data.result.productFlowResponseDtos;
-                
-                setNotifications(notifications);
-            } catch (error) {
-                router.push('/404');
-            }
-        } else {
-            setNotifications([]);
+    const getStores = async () => {
+        try {
+            const response = await fetchStores(); 
+            const stores = response.data.result;
+            setStores(stores);
+        } catch (error) {
+            router.push('/404'); 
         }
-        
+    };
+
+    const getNotifications = async (store) => {
+        try {
+            const response = await fetchCrimeNotifications(store.id);
+            const notifications = response.data.result;
+            console.log(notifications);
+            setNotifications(notifications);
+        } catch (error) {
+            router.push('/404');
+        }   
     }
 
-    const handleOpen = (notification) => {
-        setCurrentNotification(notification);
+    const handleOpen = (store) => {
+        setCurrentStore(store);
+        getNotifications(store); 
         setOpen(true);
     };
 
     const handleClose = () => {
         setOpen(false);
+        setNotifications([]); 
     };
 
+    const changeIsRead = (notificationId) => {
+        const data = [{
+            "notificationId" : notificationId,
+            "isRead" : true
+        }]
+        updateCrimeNotifications(data);
+    }
+
+    const handleDetail = (notificationId) => {
+        router.push(`/user/${currentStore.id}?videoId=${notificationId}`);
+        changeIsRead(notificationId);
+    }
+
     return (
-        <div className={classes.section}>
-            <h3>알람 목록</h3>
+        <div className={classes.container}>
+            <h3>매장별 알림</h3>
             <div className={classes.cardContainer}>
-                {notifications.length > 0 ? (
-                    notifications.map((notification) => (
-                    <Card key={notification.id} onClick={() => handleOpen(notification)} className={classes.card}>
-                        <p 
-                            style={{ 
-                                margin: 0, 
-                                color: 
-                                    notification.productFlowType === 'IMPORT' ? 'blue' :
-                                    notification.productFlowType === 'EXPORT' ? 'red' :
-                                    notification.productFlowType === 'FLOW' ? 'green' : 'black'
-                            }}
-                        >
-                            {notification.productFlowType === 'IMPORT' && '입고'}
-                            {notification.productFlowType === 'EXPORT' && '출고'}
-                            {notification.productFlowType === 'FLOW' && '이동'}
-                        </p>
-                        <p style={{ margin: 0 }}>{notification.date.substring(0, 10)}</p>
-                    </Card>
+                {stores.length > 0 ? (
+                    stores.map((store) => (
+                        <Card key={store.id} onClick={() => handleOpen(store)} className={classes.card}>
+                            <p style={{ margin: 0}}>{store.storeName}</p> 
+                        </Card>
                     ))
                 ) : (
-                <h4
-                 style={{ paddingTop: '30px' }}>알림이 없습니다.</h4>
+                    <h4>매장이 없습니다.</h4>
                 )}
             </div>
-            <Dialog 
-            open={open} 
-            onClose={handleClose}
-            >
-    <div className={classes.modalTitle}><DialogTitle>알람 상세 정보</DialogTitle></div>
-    <DialogContent>
-        {currentNotification && currentNotification.productFlowType === 'IMPORT' && (
-            <>
-                <p>이름 : {currentNotification.name}</p>
-                <p>수량 : {currentNotification.quantity}개</p>
-                {currentNotification.currentFloorLevel > 0 ? (
-                    <p>입고 위치 : {currentNotification.currentLocationName} {currentNotification.currentFloorLevel}층</p>
-                ) : (
-                    <p>입고 위치 : {currentNotification.currentLocationName}</p>
-                )}
-                <p>입고 시간 : {currentNotification.date.substring(0, 10)} {currentNotification.date.substring(11, 16)}</p>
-            </>
-        )}
 
-        {currentNotification && currentNotification.productFlowType === 'EXPORT' && (
-            <>
-                <p>이름 : {currentNotification.name}</p>
-                <p>수량 : {currentNotification.quantity}개</p>
-                <p>출고 위치 : {currentNotification.currentLocationName} {currentNotification.currentFloorLevel}층</p>
-                <p>출고 시간 : {currentNotification.date.substring(0, 10)} {currentNotification.date.substring(11, 16)}</p>
-            </>
-        )}
-
-        {currentNotification && currentNotification.productFlowType === 'FLOW' && (
-            <>
-                <p>이름 : {currentNotification.name}</p>
-                <p>수량 : {currentNotification.quantity}개</p>
-                {currentNotification.previousFloorLevel > 0 ? (
-                    <p>이전 위치 : {currentNotification.previousLocationName} {currentNotification.previousFloorLevel}층</p>
-                ) : (
-                    <p>이전 위치 : {currentNotification.previousLocationName}</p>
-                )}
-                {currentNotification.currentFloorLevel > 0 ? (
-                    <p>이동 위치 : {currentNotification.currentLocationName} {currentNotification.currentFloorLevel}층</p>
-                ) : (
-                    <p>이동 위치 : {currentNotification.currentLocationName}</p>
-                )}
-                <p>이동 시간 : {currentNotification.date.substring(0, 10)} {currentNotification.date.substring(11, 16)}</p>
-            </>
-        )}
-    </DialogContent>
-    <DialogActions>
-        <button className={classes.modalCloseButton} onClick={handleClose}>
-            X
-        </button>
-    </DialogActions>
-</Dialog>
-
+            <Dialog open={open} onClose={handleClose}>
+                <DialogTitle className={classes.modalTitle}>{currentStore ? `${currentStore.storeName}` : ''}</DialogTitle>
+                <DialogContent>
+                    {notifications.length > 0 ? (
+                        notifications.map((notification) => (
+                            <div key={notification.id} className={classes.noticeContainer} onClick={() => handleDetail(notification.id)}>
+                                <span style={{ margin: 0}}>{notification.message}</span>
+                                <span style={{ margin: '0px 5px', fontSize: '13px', color: notification.isRead ? 'blue' : 'red' }}>{ notification.isRead ? '읽음' : '안읽음' }</span>
+                            </div>
+                        ))
+                    ) : (
+                        <h4>알림이 없습니다.</h4>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <button className={classes.button} onClick={handleClose}>닫기</button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }

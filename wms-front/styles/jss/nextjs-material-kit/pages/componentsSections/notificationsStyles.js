@@ -9,21 +9,24 @@ const notificationsStyles = {
     padding: "0",
   },
   cardContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      width: '100%',
+      display: 'grid',
+      gap: '20px',
       justifyContent: 'center',
-      paddingTop: '20px',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+      margin: '40px',
   },
   card: {
+      backgroundColor: "#e6f4fa",
       cursor: "pointer",
-      marginBottom: "10px",
       padding: "10px",
-      border: "1px solid lightgray",
+      border: "1px solid #ccc",
       borderRadius: "5px",
-      width: '50%',
-      border: '1px solid #7D4A1A'
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      '&:hover': {
+          transform: 'scale(1.05)',
+          backgroundColor: '#e6f4fa',
+          border: "1px solid #9baab1",
+      },
   },
   title: {
     ...title,
@@ -41,6 +44,27 @@ const notificationsStyles = {
         border: "none",
         cursor: 'pointer'
   },
+  noticeContainer: {
+    backgroundColor: '#e6f4fa',
+    border: "1px solid #ccc",
+    margin: '10px',
+    padding: '10px',
+    borderRadius: '5px',
+    '&:hover': {
+      transform: 'scale(1.05)',
+      border: "1px solid #9baab1"
+    }
+  },
+  button: {
+    border: '1px solid #ccc',
+    backgroundColor: "#e6f4fa",
+    borderRadius: '5px',
+    '&:hover': {
+      transform: 'scale(1.05)',
+      color: 'black',
+      border: "1px solid #9baab1"
+    }
+  }
 };
 
 export default notificationsStyles;

@@ -29,6 +29,13 @@ import styles from "/styles/jss/nextjs-material-kit/pages/componentsSections/MyC
 import { Typography, Slider, Box, Modal, Fade, TextField } from "@mui/material";
 import Konva from "konva";
 
+//import Components
+import LeftSidebar from "../../components/Map/LeftSidebar";
+import RightSidebar from "../../components/Map/RightSidebar";
+import ContextMenu from "../../components/Map/ContextMenu";
+import ContainerCreationModal from "../../components/Map/ContainerCreationModal";
+import RectangleTransformer from "../../components/Map/RectangleTransformer";
+
 // 상수 설정(그리드, 컨버스 등)
 const GRID_SIZE = 100;
 const GRID_SIZE_SUB_50 = 50;
@@ -41,7 +48,7 @@ const useStyles = makeStyles(styles);
  * 창고 관리 Component
  */
 
-const MyContainerMap = ({ warehouseId, businessId }) => {
+const MyContainerMap = ({ storeId, businessId }) => {
   const router = useRouter();
   const classes = useStyles();
   const stageRef = useRef(null);
@@ -58,8 +65,8 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     y2: 0,
   });
 
-  // 다중 선택을 위한 State
-  const [selectedIds, setSelectedIds] = useState([]);
+  // 다중 선택을 위한 State(벽과 로케이션 모두 포함)
+  const [selectedShapes, setSelectedShapes] = useState([]);
 
   // 다중 선택을 위한 HandleMouseDown
   const handleMouseDownSelection = (e) => {
@@ -69,7 +76,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     // Check if left-click on empty area
     if (e.evt.button === 0 && e.target === e.target.getStage()) {
       // Left-click on empty area deselects all
-      setSelectedIds([]);
+      setSelectedShapes([]);
       setSelectedLocation(null);
       return;
     }
@@ -128,7 +135,13 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       Konva.Util.haveIntersection(selBox, shape.getClientRect())
     );
 
-    setSelectedIds(selected.map((shape) => shape.id()));
+    // id와 타입을 동시에 저장한다.
+    setSelectedShapes(
+      selected.map((shape) => ({
+        id: shape.id(),
+        type: shape.getAttr("shapeType"),
+      }))
+    );
 
     e.evt.preventDefault();
   };
@@ -146,21 +159,32 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
   // onSelect 함수를 변경한다.
   const onSelect = (e, id) => {
-    // 오른쪽 클릭이면 선택하지 않음
     if (e.evt.button === 2) return;
 
     const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
+    const shapeType = e.target.getAttr("shapeType");
+
     if (metaPressed) {
-      // Multiple selection 다중 선택 상황
-      if (selectedIds.includes(id)) {
-        setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
+      const alreadySelected = selectedShapes.find(
+        (shape) => shape.id === id && shape.type === shapeType
+      );
+      if (alreadySelected) {
+        setSelectedShapes(
+          selectedShapes.filter(
+            (shape) => !(shape.id === id && shape.type === shapeType)
+          )
+        );
       } else {
-        setSelectedIds([...selectedIds, id]);
+        setSelectedShapes([...selectedShapes, { id, type: shapeType }]);
       }
     } else {
-      // Single selection 단일 선택
-      setSelectedIds([id]);
-      setSelectedLocation(locations.find((loc) => loc.id === id));
+      setSelectedShapes([{ id, type: shapeType }]);
+      if (["location", "entrance", "exit"].includes(shapeType)) {
+        const location = locations.find((loc) => loc.id === id);
+        setSelectedLocation(location || null);
+      } else {
+        setSelectedLocation(null);
+      }
     }
   };
 
@@ -171,6 +195,11 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   const toggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible);
   };
+
+  /**
+   * 로딩 파트
+   */
+  const [loading, setLoading] = useState(false); // 수정필수 : 여기를 true 바꿔야 한다.
 
   const notify = (message) =>
     toast(message, {
@@ -183,9 +212,6 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       progress: undefined,
     });
 
-  // 로딩 Loading
-  const [loading, setLoading] = useState(false); // 수정필수 : 여기를 true 바꿔야 한다.
-
   // 창고 배열을 저장하기 위한 초기 세팅
   const initialContainer = Array.from({ length: CANVAS_SIZE }, () =>
     Array.from({ length: CANVAS_SIZE }, () => ({
@@ -193,6 +219,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       code: "air",
     }))
   );
+
   // 창고 전체 배열을 저장하기 위한 Container State
   const [container, setContainer] = useState(initialContainer);
 
@@ -204,42 +231,12 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   const VIEWPORT_HEIGHT = window.innerHeight;
 
   // 사각형을 추가하고 관리하는 State 추가
-  const [locations, setLocations] = useState([
-    {
-      id: "0",
-      x: 0,
-      y: 0,
-      z: 0,
-      width: 0,
-      height: 0,
-      fill: "blue",
-      draggable: false,
-      order: 0,
-      name: "임시",
-      type: "임시",
-      rotation: 0,
-    },
-  ]);
+  const [locations, setLocations] = useState([]);
   // Check if position is within bounds / 캔버스 바운드 안에 들어가는지를 확인
   const isPositionWithinBounds = (x, y, width, height) => {
     return (
       x >= 0 && y >= 0 && x + width <= CANVAS_SIZE && y + height <= CANVAS_SIZE
     );
-  };
-  // Function to handle dragging
-  const handleDragMove = (e, rect) => {
-    const node = e.target;
-    const newX = Math.max(Math.min(node.x(), CANVAS_SIZE - rect.width), 0);
-    const newY = Math.max(Math.min(node.y(), CANVAS_SIZE - rect.height), 0);
-
-    // Update location only if it's within bounds
-    if (isPositionWithinBounds(newX, newY, rect.width, rect.height)) {
-      setLocations((prevLocations) =>
-        prevLocations.map((loc) =>
-          loc.id === rect.id ? { ...loc, x: newX, y: newY } : loc
-        )
-      );
-    }
   };
 
   // 마지막으로 클릭한 상자를 추적하는 상태 추가
@@ -314,17 +311,30 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   const handleAddLocation = async (type) => {
     let newName;
 
-    // nameMode에 따라 name을 설정
-    if (nameMode === "text") {
-      // 텍스트 모드에서는 사용자가 입력한 name을 사용하거나, 기본 값으로 '적재함-{마지막번호+1}' 사용
-      const latestId =
-        locations.length > 0 ? parseInt(locations[locations.length - 1].id) : 0;
-      newName = newLocationName || `적재함-${latestId + 1}`;
-    } else if (nameMode === "rowColumn") {
-      // 행/열 선택 모드에서는 '00-00' 형식으로 이름을 생성
-      const formattedRow = rowNumber.padStart(2, "0");
-      const formattedColumn = columnNumber.padStart(2, "0");
-      newName = `${formattedRow}-${formattedColumn}`;
+    let locationType = "LOCATION"; // Default for regular locations
+    let zSize = newLocationZIndex; // Default zSize
+
+    if (type === "entrance") {
+      locationType = "ENTRANCE";
+      newName = newLocationName || "입구-1"; // Use provided name or default
+      zSize = 1; // For entrance, zSize is 1
+    } else if (type === "exit") {
+      locationType = "EXIT";
+      newName = newLocationName || "출구-1"; // Use provided name or default
+      zSize = 1; // For exit, zSize is 1
+    } else {
+      // For regular locations
+      if (nameMode === "text") {
+        const latestId =
+          locations.length > 0
+            ? parseInt(locations[locations.length - 1].id)
+            : 0;
+        newName = newLocationName || `매대-${latestId + 1}`;
+      } else if (nameMode === "rowColumn") {
+        const formattedRow = rowNumber.padStart(2, "0");
+        const formattedColumn = columnNumber.padStart(2, "0");
+        newName = `${formattedRow}-${formattedColumn}`;
+      }
     }
 
     // 중복된 이름이 있는지 확인
@@ -349,10 +359,11 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       z: newLocationZIndex,
       width: newLocationWidth,
       height: newLocationHeight,
-      fill: newLocationColor,
+      fill: "blue",
       draggable: true,
       order: locations.length + 1,
       name: newName, // 생성된 name 사용
+      locationType: locationType,
       type: type,
       rotation: 0,
     };
@@ -362,24 +373,22 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
     // API 요청을 위한 location 데이터를 작성
     const locationData = {
+      name: newLocation.name,
       xPosition: newLocation.x,
       yPosition: newLocation.y,
-      zSize: newLocation.z,
-      xSize: newLocation.width,
-      ySize: newLocation.height,
-      name: newLocation.name,
-      productStorageType: newLocationType, // 상온, 냉장 등등
+      xSize: newLocation.width, // 가로
+      ySize: newLocation.height, // 세로
+      zSize: newLocation.z, // 높이
       rotation: newLocation.rotation,
-      touchableFloor: 2, // 임시로 2로 설정
+      locationType: newLocation.locationType,
     };
 
     // API 호출 - 생성된 로케이션을 서버에 POST
-    // try {
-    //   await postLocationAPI([locationData], warehouseId);
-    // } catch (error) {
-    //   console.error("Error adding location:", error);
-    //   notify("로케이션 추가 중 오류가 발생했습니다.");
-    // }
+    try {
+      await postLocationAPI([locationData], storeId);
+    } catch (error) {
+      notify("로케이션 추가 중 오류가 발생했습니다.");
+    }
 
     // 적재함 추가 후 값 초기화
     setNewLocationColor("blue");
@@ -391,20 +400,35 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     setColumnNumber(""); // 행/열 선택 모드 초기화
   };
 
-  const postLocationAPI = async (requests, warehouseId) => {
-    const total = { requests, warehouseId };
+  // 로케이션 추가 API
+  const postLocationAPI = async (requests, storeId) => {
+    const locationListCreateRequest = { requests, storeId };
+
+    // 토큰에서 유저정보를 가져온다.
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // 토큰 유무로 로그인 여부를 판단하여 로그인 상태가 아닐 경우 로그인 창으로
+      router.push("/signIn");
+      return;
+    }
 
     try {
-      const response = await fetch(`https://j11a302.p.ssafy.io/api/locations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(total),
-      });
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/locations`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(locationListCreateRequest),
+        }
+      );
 
       if (response.ok) {
-        getWarehouseAPI(warehouseId);
+        await editStoreAPI(); // 벽 생성에 성공하면 현재 상태를 저장하고 새로히 불러온다.
+        await getStoreStructureAPI(); // 초기화
       } else {
         router.push("/404");
       }
@@ -413,7 +437,43 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     }
   };
 
-  // 창고 배열 저장
+  //벽 추가 API
+  const postWallsAPI = async (wallData, storeId) => {
+    // Prepare the wall list create request
+    const wallListCreateRequest = {
+      storeId: storeId,
+      wallCreateDtos: wallData,
+    };
+
+    // Get the token from local storage
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/walls`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(wallListCreateRequest),
+        }
+      );
+
+      if (response.ok) {
+      } else {
+      }
+    } catch (error) {
+    }
+  };
+
+  // 창고 배열 저장(아주 옛날용 체크함수)
   const updateContainer = (location, type, code) => {
     const newContainer = container.map((row, x) =>
       row.map((cell, y) => {
@@ -431,51 +491,64 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     setContainer(newContainer);
   };
 
-  // 수정된정보를 API를 통해 보냄
-  const editContainerAPI = async () => {
-    const locationData = locations.map((location) => ({
-      id: parseInt(location.id),
+  // 현재 상태(로케이션, 벽)를 저장하는 API
+  const editStoreAPI = async () => {
+    // 토큰에서 유저정보를 가져온다.(로그인 확인)
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // Handle the case where the token is missing (e.g., redirect to signIn)
+      router.push("/signIn");
+      return;
+    }
+
+    const locationUpdateRequestList = locations.map((location) => ({
+      id: parseInt(location.id), // id
       name: location.name,
-      // fill: location.fill,
-      xposition: location.x,
-      yposition: location.y,
-      xsize: location.width,
-      ysize: location.height,
-      zsize: location.z,
+      xPosition: location.x,
+      yPosition: location.y,
+      xSize: location.width,
+      ySize: location.height,
+      zSize: location.z,
       rotation: location.rotation,
-      storageType: "상온",
+      locationType: location.locationType,
     }));
 
     // 벽 데이터를 기록합니다.
-    const wallData = anchorsRef.current.map(({ start, end, line }) => ({
-      id: line.attrs.id ? parseInt(line.attrs.id) : null, // Use ID from the API or null for new walls
-      startX: start.x(),
-      startY: start.y(),
-      endX: end.x(),
-      endY: end.y(),
-    }));
+    const wallUpdateRequestList = anchorsRef.current.map(
+      ({ start, end, line }) => ({
+        id: parseInt(line.attrs.id),
+        startX: start.x(),
+        startY: start.y(),
+        endX: end.x(),
+        endY: end.y(),
+      })
+    );
 
-    //모든 데이터를 warehouseData로 담아서 전송한다.
-    const warehouseData = { locations: locationData, walls: wallData };
-
-    console.log(warehouseData);
+    //모든 데이터를 structureUpdateRequest로 담아서 수정된 내역을 전송한다.
+    const structureUpdateRequest = {
+      locationUpdateRequestList,
+      wallUpdateRequestList,
+    };
 
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}/locatons-and-walls`,
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            // Include the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(warehouseData),
+          body: JSON.stringify(structureUpdateRequest),
         }
       );
 
       if (response.ok) {
         // 성공
         notify(`현재 상태가 저장되었습니다.`);
-        getWarehouseAPI(warehouseId); // 초기화하기
+        // await getStoreStructureAPI(); // But in UX, it have to be removed
       } else {
         //에러
       }
@@ -494,102 +567,87 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     anchorsRef.current = [];
   };
 
-  // local public/map directory 에서 location 정보를 받아오는 메서드
-  const loadMapFromLocal = async () => {
+  // 로케이션 혹은 벽을 삭제하는 API
+  const deleteStructuresAPI = async (locationDeleteList, wallDeleteList) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
+    // API 형식에 맞게 재정의
+    const structureDeleteRequest = {
+      locationDeleteList,
+      wallDeleteList,
+    };
+
     try {
-      const response = await fetch("/api/load-map", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}/structures/batch-delete`,
+        {
+          method: "POST", // Assuming POST is used for deletion
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(structureDeleteRequest),
+        }
+      );
 
       if (response.ok) {
-        const { locationData, wallData } = await response.json();
-        setLocations(locationData);
-        clearAnchorsAndLines();
-
-        const existingAnchors = [];
-        const newAnchors = [];
-
-        // 벽 속성 중 기준점(anchor)을 생성하거나 기존의 anchor를 가져오는 메서드
-        const getOrCreateAnchor = (id, x, y) => {
-          let existingAnchor = findExistingAnchor(existingAnchors, x, y);
-          if (!existingAnchor) {
-            existingAnchor = buildAnchor(id, x, y);
-            existingAnchors.push(existingAnchor);
-          }
-          return existingAnchor;
-        };
-
-        wallData.forEach(({ startID, startX, startY, endID, endX, endY }) => {
-          const startAnchor = getOrCreateAnchor(startID, startX, startY);
-          const endAnchor = getOrCreateAnchor(endID, endX, endY);
-
-          const newLine = new Konva.Line({
-            points: [startX, startY, endX, endY],
-            stroke: "brown",
-            strokeWidth: 10,
-            lineCap: "round",
-          });
-
-          newAnchors.push({
-            start: startAnchor,
-            end: endAnchor,
-            line: newLine,
-          });
-        });
-
-        anchorsRef.current = newAnchors;
-        newAnchors.forEach(({ line }) => layerRef.current.add(line));
-        layerRef.current.batchDraw();
+        await getStoreStructureAPI(); // Refresh data
       } else {
-        const errorData = await response.json();
-        // 에러
       }
     } catch (error) {
-      //에러
     }
   };
 
   // API를 통해 해당하는 창고(번호)의 모든 location(적재함)과 wall(벽)을 가져오는 메서드
-  const getWarehouseAPI = async (warehouseId) => {
+  const getStoreStructureAPI = async () => {
+    // 토큰에서 유저정보를 가져온다.(로그인 확인)
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // Handle the case where the token is missing (e.g., redirect to signIn)
+      router.push("/signIn");
+      return;
+    }
+
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}`,
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            // Include the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       if (response.ok) {
         const apiConnection = await response.json();
-        const warehouseData = apiConnection.result; // 데이터 추출
+        const storeData = apiConnection.result; // 데이터 추출
+
+        console.log(storeData)
 
         // 받아온 데이터 중 로케이션 데이터 처리
-        const locations = warehouseData.locations;
+        const locations = storeData.locations;
         if (!locations) {
-          //에러 발생
+          //로케이션 없음
           return;
         }
 
-        const newLocations = locations.map((location, index) => {
-          const startColor = { r: 27, g: 177, b: 231 }; // Starting color (#1bb1e7)
-          const endColor = { r: 0, g: 0, b: 255 }; // Ending color (#0000FF)
 
-          // Calculate the color components based on the fill value
-          const red = Math.round(
-            startColor.r + ((endColor.r - startColor.r) * location.fill) / 100
-          );
-          const green = Math.round(
-            startColor.g + ((endColor.g - startColor.g) * location.fill) / 100
-          );
-          const blue = Math.round(
-            startColor.b + ((endColor.b - startColor.b) * location.fill) / 100
-          );
+        const newLocations = locations.map((location, index) => {
+          let type = "매대";
+          if (location.locationTypeEnum === "ENTRANCE") {
+            type = "입구";
+          } else if (location.locationTypeEnum === "EXIT") {
+            type = "출구";
+          }
 
           return {
             id: location.id.toString(),
@@ -598,19 +656,20 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             width: location.xsize || 50,
             height: location.ysize || 50,
             z: location.zsize,
-            fill: `rgba(${red}, ${green}, ${blue}, 1)`, // Calculate RGB with alpha as 1
+            locationType: location.locationTypeEnum,
+            fill: type === "입구" ? "green" : type === "출구" ? "red" : "blue",
             draggable: true,
             order: index,
             name: location.name || `적재함 ${index}`,
-            type: "location",
+            type: type,
             rotation: 0,
           };
         });
 
         // 벽 데이터 처리
-        const walls = warehouseData.walls;
+        const walls = storeData.walls;
         if (!walls) {
-          //에러 발생
+          //벽 없음
           return;
         }
 
@@ -638,6 +697,8 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
             strokeWidth: 10,
             lineCap: "round",
             id: id.toString(), // Preserve the original ID
+            name: "selectableShape", // 선택 가능 객체 표시
+            shapeType: "wall", // 구분을 위한 표시
           });
 
           newAnchors.push({
@@ -945,37 +1006,45 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
   // 로케이션과 벽을 삭제를 하기 위한 메서드
   const handleDelete = () => {
-    if (currentShapeRef.current) {
-      const shapeId = currentShapeRef.current.attrs.id;
+    if (selectedShapes.length > 0) {
+      const locationDeleteList = [];
+      const wallDeleteList = [];
 
-      // Remove the shape from rectangles array
-      setLocations((prevRectangles) =>
-        prevRectangles.filter((rect) => rect.id !== shapeId)
-      );
-
-      // Remove the shape from anchors array if it is an anchor
-      const updatedAnchors = anchorsRef.current.filter((anchorObj) => {
-        if (
-          anchorObj.start.id() === shapeId ||
-          anchorObj.end.id() === shapeId
-        ) {
-          // Destroy the related line
-          anchorObj.line.destroy();
-          // Destroy the related anchor (start or end) if it matches the shapeId
-          if (anchorObj.start.id() === shapeId) {
-            anchorObj.start.destroy();
-          }
-          if (anchorObj.end.id() === shapeId) {
-            anchorObj.end.destroy();
-          }
-          return false;
+      selectedShapes.forEach(({ id, type }) => {
+        if (type === "location") {
+          // Remove the location from state
+          setLocations((prevLocations) =>
+            prevLocations.filter((loc) => loc.id !== id)
+          );
+          locationDeleteList.push(parseInt(id));
+        } else if (type === "wall") {
+          // Remove the wall from state
+          anchorsRef.current = anchorsRef.current.filter(
+            ({ start, end, line }) => {
+              if (line.id() === id) {
+                // Destroy the line and anchors
+                line.destroy();
+                // Optionally, check and remove unused anchors here
+                return false;
+              }
+              return true;
+            }
+          );
+          wallDeleteList.push(parseInt(id));
         }
-        return true;
-      });
-      anchorsRef.current = updatedAnchors;
 
-      // Remove the shape from Konva stage
-      currentShapeRef.current.destroy();
+        // Remove the shape from Konva stage
+        const shape = layerRef.current.findOne(`#${id}`);
+        if (shape) {
+          shape.destroy();
+        }
+      });
+
+      // Call the API to delete the locations and walls
+      deleteStructuresAPI(locationDeleteList, wallDeleteList);
+
+      // Clear the selection
+      setSelectedShapes([]);
       layerRef.current.batchDraw();
     }
   };
@@ -1024,7 +1093,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
     //Event Handler for 'mousemove' stage 위에서 움직일 때,
     const handleMouseMove = () => {
-      if (currentSetting === "wall") {
+      if (currentSetting === "wall" && line) {
         // 정확한 위치를 얻어온다.
         const pos = getPrecisePosition(stageRef.current);
 
@@ -1084,11 +1153,11 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
           if (!existingAnchor) {
             const newId = anchorsRef.current.length
               ? Math.max(
-                  ...anchorsRef.current.flatMap(({ start, end }) => [
-                    parseInt(start.id(), 10),
-                    parseInt(end.id(), 10),
-                  ])
-                ) + 1
+                ...anchorsRef.current.flatMap(({ start, end }) => [
+                  parseInt(start.id(), 10),
+                  parseInt(end.id(), 10),
+                ])
+              ) + 1
               : 1;
             existingAnchor = buildAnchor(newId, x, y);
           } else {
@@ -1123,31 +1192,59 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
         });
 
         layer.batchDraw();
+
+        // After adding the wall to the state, make the API call
+        const wallData = [
+          {
+            startX: start.x,
+            startY: start.y,
+            endX: end.x,
+            endY: end.y,
+          },
+        ];
+
+        // Call the API function to save the wall
+        postWallsAPI(wallData, storeId);
       }
     };
 
-    // 우클릭 시에 메뉴가 나오도록 조정
-    const menuNode = menuRef.current;
-    document
-      .getElementById("delete-button")
-      .addEventListener("click", handleDelete);
-    //스테이지 적용
+    //스테이지에 우클릭 메뉴 적용
     stage.on("contextmenu", function (e) {
       e.evt.preventDefault();
-      if (e.target === stage) return;
-    
+      if (e.target === stage) {
+        // Hide the menu if it's open
+        menuRef.current.style.display = "none";
+        return;
+      }
+
+      // Set the current shape reference
+      currentShapeRef.current = e.target;
+      // Get the shape ID and type
+      const clickedId = e.target.id();
+      const shapeType = e.target.getAttr("shapeType");
+
+      if (clickedId && shapeType) {
+        setSelectedShapes([{ id: clickedId, type: shapeType }]);
+        if (shapeType === "location") {
+          setSelectedLocation(locations.find((loc) => loc.id === clickedId));
+        } else {
+          setSelectedLocation(null);
+        }
+      }
+      // 메뉴의 정확한 위치 조정
       const precisePos = getPrecisePosition(stage);
-    
-      // Show the right-click menu at the precise position
       const menuNode = menuRef.current;
       const containerRect = stage.container().getBoundingClientRect();
-    
-      menuNode.style.top = containerRect.top + precisePos.y + "px";
-      menuNode.style.left = containerRect.left + precisePos.x + "px";
+
+      menuNode.style.display = "block"; // Make sure to display the menu
+      menuNode.style.top = `${containerRect.top + precisePos.y}px`;
+      menuNode.style.left = `${containerRect.left + precisePos.x}px`;
     });
 
     window.addEventListener("click", () => {
-      menuNode.style.display = "none";
+      if (menuRef.current) {
+        menuRef.current.style.display = "none";
+      }
     });
 
     /**
@@ -1172,23 +1269,28 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
       stage.off("mousedown", handleMouseDown);
       stage.off("mousemove", handleMouseMove);
       stage.off("mouseup", handleMouseUp);
+      // 메뉴 관련
+      stage.off("contextmenu");
+      window.removeEventListener("click", () => {
+        menuRef.current.style.display = "none";
+      });
     };
-  }, [line, startPos, currentSetting, hoveredAnchor]);
+  }, [line, startPos, currentSetting, hoveredAnchor, locations]);
 
-  // // 최초 한번 실행된다.
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       setLoading(true); // Start loading
-  //       await getWarehouseAPI(warehouseId);
-  //     } catch (error) {
-  //       //에러
-  //     } finally {
-  //       setLoading(false); // End loading
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
+  // 최초 한번 실행된다.
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true); // Start loading
+        await getStoreStructureAPI();
+      } catch (error) {
+        //에러
+      } finally {
+        setLoading(false); // End loading
+      }
+    };
+    fetchData();
+  }, []);
 
   // 중앙에서 시작하기 위함
   useEffect(() => {
@@ -1204,14 +1306,26 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
   //selectedIds를 최신화하기 위함
   useEffect(() => {
+    // 로케이션 다중 선택
     if (trRef.current && layerRef.current) {
-      const nodes = selectedIds
-        .map((id) => layerRef.current.findOne(`#${id}`))
+      const nodes = selectedShapes
+        .filter((shape) => shape.type === "location") // Only locations can be transformed
+        .map((shape) => layerRef.current.findOne(`#${shape.id}`))
         .filter(Boolean);
       trRef.current.nodes(nodes);
       trRef.current.getLayer().batchDraw();
     }
-  }, [selectedIds, locations]);
+
+    // 벽 다중 선택
+    anchorsRef.current.forEach(({ line }) => {
+      const isSelected = selectedShapes.some(
+        (shape) => shape.id === line.id() && shape.type === "wall"
+      );
+      line.stroke(isSelected ? "red" : "brown"); // Change color when selected
+    });
+
+    layerRef.current.batchDraw();
+  }, [selectedShapes, locations]);
 
   /**
    * 창고 자동 생성 로직을 위한 부분
@@ -1367,205 +1481,30 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
   return (
     <div className={classes.canvasContainer}>
       {/* Left Sidebar */}
-      <div className={classes.leftSidebar}>
-        <div>
-          <Button
-            className={classes.buttonStyle}
-            onClick={() => changeCurrentSetting("location")}
-            variant="contained"
-          >
-            재고함
-          </Button>
-          <Button
-            className={classes.buttonStyle}
-            onClick={() => changeCurrentSetting("wall")}
-            variant="contained"
-          >
-            벽 생성
-          </Button>
-          {/* <Button
-            className={classes.buttonStyle}
-            onClick={() => changeCurrentSetting("specialObject")}
-            variant="contained"
-          >
-            특수 객체
-          </Button>
-          <Button
-            className={classes.buttonStyle}
-            onClick={handleOpen}
-            variant="contained"
-          >
-            자동 생성
-          </Button> */}
-        </div>
-        <br />
-        {currentSetting && currentSetting !== "wall" && (
-          <div>
-            <Typography
-              variant="h6"
-              gutterBottom
-              className={classes.settingObject}
-            >
-              {currentSetting === "location" ? "로케이션" : "입구-출구"} 설정
-            </Typography>
-
-            <Typography
-              className={classes.settingSizeAndFloor}
-              variant="body2"
-              color="textSecondary"
-              gutterBottom
-            >
-              단수와 크기를 정하세요
-            </Typography>
-
-            <Box mb={2} className={classes.showTheFloorLevel}>
-              <Typography gutterBottom>
-                단수(층): {newLocationZIndex}단/층
-              </Typography>
-              <Slider
-                className={classes.settingSlider}
-                value={newLocationZIndex}
-                onChange={(e, newValue) => setNewLocationZIndex(newValue)}
-                aria-labelledby="z-index-slider"
-                color="#4E4544"
-                valueLabelDisplay="auto"
-                marks
-                step={1}
-                min={1}
-                max={10}
-              />
-            </Box>
-            <Box mb={2} className={classes.showTheWidthAndHeight}>
-              <Typography gutterBottom>가로: {newLocationWidth}cm</Typography>
-              <Slider
-                className={classes.settingSlider}
-                value={newLocationWidth}
-                onChange={(e, newValue) => setNewLocationWidth(newValue)}
-                aria-labelledby="width-slider"
-                valueLabelDisplay="auto"
-                marks
-                step={10}
-                min={10}
-                max={500}
-              />
-            </Box>
-            <Box mb={2} className={classes.showTheWidthAndHeight}>
-              <Typography gutterBottom>세로: {newLocationHeight}cm</Typography>
-              <Slider
-                className={classes.settingSlider}
-                value={newLocationHeight}
-                onChange={(e, newValue) => setNewLocationHeight(newValue)}
-                aria-labelledby="height-slider"
-                valueLabelDisplay="auto"
-                marks
-                step={10}
-                min={10}
-                max={500}
-              />
-            </Box>
-            <hr />
-            <Typography variant="body2" color="textSecondary" gutterBottom>
-              이름과 속성을 지정해주세요
-            </Typography>
-            <Button
-              className={classes.buttonStyle}
-              variant="contained"
-              onClick={() => setNameMode("text")}
-            >
-              직접 입력
-            </Button>
-            <Button
-              className={classes.buttonStyle}
-              variant="contained"
-              onClick={() => setNameMode("rowColumn")}
-            >
-              행/열 선택
-            </Button>
-            {/* name 입력 부분 - 텍스트 모드와 행/열 모드에 따라 다른 입력 필드 표시 */}
-            {nameMode === "text" ? (
-              <TextField
-                className={classes.nameTextField}
-                label="이름"
-                value={newLocationName}
-                onChange={(e) => setNewLocationName(e.target.value)}
-                variant="outlined"
-                fullWidth
-                size="small"
-                margin="dense"
-              />
-            ) : (
-              <Box display="flex" justifyContent="space-between">
-                <TextField
-                  label="행"
-                  value={rowNumber}
-                  onChange={(e) => setRowNumber(e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  margin="dense"
-                  type="number"
-                />
-                <TextField
-                  label="열"
-                  value={columnNumber}
-                  onChange={(e) => setColumnNumber(e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  margin="dense"
-                  type="number"
-                />
-              </Box>
-            )}
-            <Box mb={2}>
-              <TextField
-                select
-                label="Type"
-                value={newLocationType}
-                onChange={(e) => setNewLocationType(e.target.value)}
-                variant="outlined"
-                fullWidth
-                size="small"
-                margin="dense"
-                SelectProps={{
-                  native: true,
-                }}
-              >
-                <option value="상온">상온</option>
-                <option value="냉장">냉장</option>
-                <option value="보관">보관</option>
-                <option value="위험">위험</option>
-                {/* 필요에 따라 더 많은 옵션을 추가할 수 있습니다 */}
-              </TextField>
-            </Box>
-
-            <Button
-              className={classes.generateButton}
-              onClick={() => handleAddLocation(currentSetting)}
-              variant="contained"
-              fullWidth
-            >
-              생성하기
-            </Button>
-          </div>
-        )}
-        {currentSetting === "wall" && (
-          <>
-            <h3>Set Properties for Wall</h3>
-            <div>
-              <label>
-                Width:
-                <input
-                  type="range"
-                  min="5"
-                  max="50"
-                  value={newWallWidth}
-                  onChange={(e) => setNewWallWidth(Number(e.target.value))}
-                />
-                {newWallWidth}
-              </label>
-            </div>
-          </>
-        )}
-      </div>
+      <LeftSidebar
+        currentSetting={currentSetting}
+        changeCurrentSetting={changeCurrentSetting}
+        newLocationZIndex={newLocationZIndex}
+        setNewLocationZIndex={setNewLocationZIndex}
+        newLocationWidth={newLocationWidth}
+        setNewLocationWidth={setNewLocationWidth}
+        newLocationHeight={newLocationHeight}
+        setNewLocationHeight={setNewLocationHeight}
+        newLocationName={newLocationName}
+        setNewLocationName={setNewLocationName}
+        nameMode={nameMode}
+        setNameMode={setNameMode}
+        rowNumber={rowNumber}
+        setRowNumber={setRowNumber}
+        columnNumber={columnNumber}
+        setColumnNumber={setColumnNumber}
+        newLocationType={newLocationType}
+        setNewLocationType={setNewLocationType}
+        handleAddLocation={handleAddLocation}
+        newWallWidth={newWallWidth}
+        setNewWallWidth={setNewWallWidth}
+      // handleOpen={handleOpen} // If you need to open the modal from here
+      />
 
       {/* Canvas 영역  */}
       <div className={classes.outOfCanvas}>
@@ -1612,8 +1551,14 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
                   y={rect.y}
                   width={rect.width}
                   height={rect.height}
-                  fill={rect.fill}
-                  isSelected={selectedIds.includes(rect.id)}
+                  fill={
+                    rect.type === "입구"
+                      ? "green"
+                      : rect.type === "출구"
+                      ? "red"
+                      : rect.fill
+                  }
+                  isSelected={selectedShapes.includes(rect.id)}
                   onSelect={onSelect}
                   onChange={(newAttrs) => {
                     const rects = locations.slice();
@@ -1682,7 +1627,7 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
           <Button
             justIcon
             round
-            style={{ backgroundColor: "#7D4A1A" }}
+            style={{ backgroundColor: "#31a5c8" }}
             onClick={handleZoomIn}
           >
             <ZoomInIcon className={classes.zoomicons} />
@@ -1698,8 +1643,8 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
           <Button
             justIcon
             round
-            style={{ backgroundColor: "#C2B6A1" }}
-            onClick={editContainerAPI}
+            style={{ backgroundColor: "#b2ddef" }}
+            onClick={editStoreAPI}
           >
             <SaveIcon className={classes.zoomicons} />
           </Button>
@@ -1718,195 +1663,33 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
 
       {/* Right Sidebar */}
       {/* In Mobile Screen, its style change to toggle */}
-      <div
-        className={`${classes.rightSidebar} ${
-          isSidebarVisible ? classes.sidebarVisible : classes.sidebarHidden
-        }`}
-      >
-        <h3>재고함 목록</h3>
-        {locations.length !== 0 ? (
-          <div className={classes.listOfLocations}>
-            <ul className={classes.ulListStyle}>
-              {locations
-                .filter(
-                  (location) =>
-                    location.type === "location" && location.name !== "00-00"
-                )
-                .map((location, index) => (
-                  <li
-                    className={classes.liListStyle}
-                    key={index}
-                    onClick={() => {
-                      // Set the selected rectangle
-                      setSelectedIds([location.id]); // Select the rectangle
-                      setSelectedLocation(location); // Store the selected location
-
-                      // Attach the Transformer to this rectangle
-                      const rectNode = layerRef.current.findOne(
-                        `#${location.id}`
-                      );
-                      if (rectNode) {
-                        // Add null check to ensure rectNode exists
-                        trRef.current.nodes([rectNode]); // Attach the transformer to the selected rectangle
-                        trRef.current.getLayer().batchDraw(); // Redraw the layer to apply the changes
-                      }
-                    }}
-                    style={{
-                      backgroundColor:
-                        selectedLocation && selectedLocation.id === locations.id
-                          ? "#f0f0f0" // Highlight color for selected item
-                          : "transparent", // Default color for unselected items
-                    }}
-                  >
-                    {location.name}
-                  </li>
-                ))}
-            </ul>
-          </div>
-        ) : (
-          <p>현재 재고함이 없습니다.</p>
-        )}
-
-        <hr />
-        <h3>선택된 재고함</h3>
-        {selectedIds.length > 1 ? (
-          <p>다중 선택되었습니다.</p>
-        ) : selectedLocation ? (
-          <div>
-            <p>이름 : {selectedLocation.name}</p>
-            <p>타입 : {selectedLocation.type}</p>
-            <p>층수 : {selectedLocation.z}</p>
-            <p>현재 재고율 : {extractFillPercentage(selectedLocation.fill)}%</p>
-            <p>
-              가로 : {selectedLocation.width}cm | 세로 :{" "}
-              {selectedLocation.height}cm
-            </p>
-          </div>
-        ) : (
-          <p>재고함이 선택되지 않았습니다.</p>
-        )}
-      </div>
-      <div id="menu" className={classes.rightClickMenu} ref={menuRef}>
-        <div>
-          <button
-            id="pulse-button"
-            className={classes.pulse}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            Pulse
-          </button>
-          <button
-            id="delete-button"
-            className={classes.delete}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            Delete
-          </button>
-        </div>
-      </div>
+      <RightSidebar
+        classes={classes}
+        isSidebarVisible={isSidebarVisible}
+        locations={locations}
+        selectedLocation={selectedLocation}
+        setSelectedLocation={setSelectedLocation}
+        selectedShapes={selectedShapes}
+        setSelectedShapes={setSelectedShapes}
+        layerRef={layerRef}
+        trRef={trRef}
+        extractFillPercentage={extractFillPercentage}
+      />
+      {/* Context Menu */}
+      <ContextMenu
+        menuRef={menuRef}
+        handleDelete={handleDelete}
+        handleMouseEnter={handleMouseEnter}
+        handleMouseLeave={handleMouseLeave}
+      />
       {/* 창고 자동 생성을 위한 모달 파트 */}
-      <Modal
-        className={classes.modal}
+      <ContainerCreationModal
         open={openContainerCreation}
-        onClose={handleClose}
-        closeAfterTransition
-      >
-        <Fade
-          in={openContainerCreation}
-          style={{
-            justifyContent: "center",
-          }}
-        >
-          <div className={classes.paper}>
-            <h2>새 창고 정보 입력</h2>
-            <form onSubmit={handleSubmit}>
-              <TextField
-                className={classes.formControl}
-                name="containerName"
-                label="창고 이름"
-                fullWidth
-                variant="outlined"
-                value={formData.containerName}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="containerXSize"
-                label="창고 가로 크기"
-                fullWidth
-                variant="outlined"
-                value={formData.containerXSize}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="containerYSize"
-                label="창고 세로 크기"
-                fullWidth
-                variant="outlined"
-                value={formData.containerYSize}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="locationX"
-                label="Location(적재함) 가로 크기"
-                fullWidth
-                variant="outlined"
-                value={formData.locationX}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="locationY"
-                label="Location(적재함) 세로 크기"
-                fullWidth
-                variant="outlined"
-                value={formData.locationY}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="locationZ"
-                label="Location(적재함) 층수"
-                fullWidth
-                variant="outlined"
-                value={formData.locationZ}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="row"
-                label="행"
-                fullWidth
-                variant="outlined"
-                value={formData.row}
-                onChange={handleChange}
-              />
-              <TextField
-                className={classes.formControl}
-                name="column"
-                label="열"
-                fullWidth
-                variant="outlined"
-                value={formData.column}
-                onChange={handleChange}
-              />
-
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-              >
-                Finish
-              </Button>
-            </form>
-          </div>
-        </Fade>
-      </Modal>
+        handleClose={handleClose}
+        handleSubmit={handleSubmit}
+        formData={formData}
+        handleChange={handleChange}
+      />
       {loading && (
         <div className={classes.loading}>
           <CircularProgress />
@@ -1915,127 +1698,4 @@ const MyContainerMap = ({ warehouseId, businessId }) => {
     </div>
   );
 };
-
-/**
- * 상자 설정 변경기 영역
- */
-
-const RectangleTransformer = ({
-  shapeProps,
-  isSelected,
-  onSelect,
-  onChange,
-}) => {
-  const shapeRef = useRef();
-  const trRef = useRef();
-
-  // 폰트사이즈 계산
-  const fontSize = Math.min(shapeProps.width, shapeProps.height) / 4;
-
-  // 재고함의 행렬과 높이를 나타내도록 설정한 MainText
-  const floorName = `${shapeProps.z}층`;
-
-  // RGB 색깔로 재고율 퍼센트(%)를 추출하는 함수
-  const extractFillPercentage = (rgbaString) => {
-    const matches = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-
-    if (matches) {
-      const red = parseInt(matches[1], 10);
-      const green = parseInt(matches[2], 10);
-
-      // Calculate the percentage using both red and green components
-      // Both red and green start at a higher value and decrease to 0 as the fill increases
-      const redPercentage = (27 - red) / 27;
-      const greenPercentage = (177 - green) / 177;
-
-      // The fill percentage is determined by averaging the percentage contribution from red and green
-      const fillPercentage = ((redPercentage + greenPercentage) / 2) * 100;
-
-      return fillPercentage.toFixed(1);
-    }
-
-    return "0.0"; // Default to 0% if unable to parse
-  };
-
-  return (
-    <React.Fragment>
-      {/* 사각형 모양 */}
-      <Rect
-        ref={shapeRef}
-        {...shapeProps}
-        id={shapeProps.id}
-        name="selectableShape" // 선택 가능하게 id값을 추가해서 속성 추가
-        onClick={(e) => onSelect(e, shapeProps.id)}
-        onTap={(e) => onSelect(e, shapeProps.id)}
-        draggable // 사각형을 드래그 가능하게 함
-        // 드래그 종료 이벤트 -- 사각형 위치 업데이트
-        onDragEnd={(e) => {
-          onChange({
-            ...shapeProps,
-            x: Math.round(e.target.x()), //드래그 종료 후에 반올림한 위치로 이동함.
-            y: Math.round(e.target.y()),
-          });
-        }}
-        // 개별 변환기 삭제
-      />
-      <Text
-        text={floorName}
-        x={shapeProps.x}
-        y={shapeProps.y}
-        z={shapeProps.z}
-        width={shapeProps.width}
-        height={shapeProps.height - fontSize * 2}
-        fontSize={Math.min(shapeProps.width, shapeProps.height) / 6}
-        fontFamily="Arial"
-        fill="white"
-        align="center"
-        verticalAlign="middle"
-        listening={false} // Disable interactions with the text
-      />
-      <Text
-        text={shapeProps.name}
-        x={shapeProps.x}
-        y={shapeProps.y}
-        z={shapeProps.z}
-        width={shapeProps.width}
-        height={shapeProps.height}
-        fontSize={Math.min(shapeProps.width, shapeProps.height) / 5}
-        fontFamily="Arial"
-        fill="white"
-        align="center"
-        verticalAlign="middle"
-        listening={false} // Disable interactions with the text
-      />
-      <Text
-        text={`${extractFillPercentage(shapeProps.fill)}%`}
-        x={shapeProps.x}
-        y={shapeProps.y}
-        z={shapeProps.z}
-        width={shapeProps.width}
-        height={shapeProps.height + fontSize * 2}
-        fontSize={Math.min(shapeProps.width, shapeProps.height) / 6}
-        fontFamily="Arial"
-        fill="white"
-        align="center"
-        verticalAlign="middle"
-        listening={false} // 텍스트를 클릭할 수 없도록 비활성화
-      />
-      {isSelected && (
-        // 사각형을 크기 조정 및 회전하는 변형 도구
-        <Transformer
-          ref={trRef}
-          flipEnabled={false} // 뒤집기 비활성화
-          boundBoxFunc={(oldBox, newBox) => {
-            // 최소 크기로 크기 조정 제한
-            if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
-              return oldBox;
-            }
-            return newBox;
-          }}
-        />
-      )}
-    </React.Fragment>
-  );
-};
-
 export default MyContainerMap;

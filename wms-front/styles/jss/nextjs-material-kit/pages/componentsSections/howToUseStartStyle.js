@@ -15,7 +15,7 @@ const howToUseStart = {
         fontSize: "30px",
         fontWeight: "bold",
         paddingLeft: "20px",
-        color: "#5E5036"
+        color: "#459ab6"
     }
 }
 

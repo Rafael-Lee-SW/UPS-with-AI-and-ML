@@ -18,7 +18,6 @@ export default function handler(req, res) {
 
     fs.writeFile(filePath, JSON.stringify(mapData, null, 2), (err) => {
       if (err) {
-        console.error('Error saving map data:', err);
         return res.status(500).send('Error saving map data');
       }
       res.status(200).send('Map data saved successfully');

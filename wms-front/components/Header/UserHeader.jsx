@@ -79,7 +79,7 @@ export default function Header(props) {
         <div className={classes.hiddenSmDown}>{rightLinks}</div>
         <div className={classes.hiddenMdUp}>
           <IconButton
-            color="#986C58"
+            color="#459ab6"
             aria-label="open drawer"
             onClick={handleDrawerToggle}
           >

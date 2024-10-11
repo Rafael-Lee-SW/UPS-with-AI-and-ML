@@ -7,15 +7,15 @@ import { Dialog, DialogTitle, DialogContent, DialogActions } from "@material-ui/
 
 const useStyles = makeStyles(styles);
 
-export default function EditInfo({ userId, name, nickname }) {
+export default function EditInfo({ userId, name }) {
     const classes = useStyles();
     const router = useRouter();
     const [open, setOpen] = useState(false);
-    const [userInfo, setUserInfo] = useState({ userId, name, nickname });
+    const [userInfo, setUserInfo] = useState({ userId, name });
 
     useEffect(() => {
-        setUserInfo({ userId, name, nickname });
-    }, [userId, name, nickname]);
+        setUserInfo({ userId, name });
+    }, [userId, name]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -38,7 +38,6 @@ export default function EditInfo({ userId, name, nickname }) {
         try {
             const data = {
                 "name" : userInfo.name,
-                "nickname" : userInfo.nickname
             };
             await editUser(userInfo.userId, data);
             setUserInfo(data);
@@ -61,18 +60,6 @@ export default function EditInfo({ userId, name, nickname }) {
                                     type="text"
                                     name="name"
                                     value={userInfo.name}
-                                    onChange={handleChange}
-                                    className={classes.input}
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className={classes.labelCell}><strong className={classes.text}>닉네임</strong></td>
-                            <td className={classes.valueCell}>
-                                <Input
-                                    type="text"
-                                    name="nickname"
-                                    value={userInfo.nickname}
                                     onChange={handleChange}
                                     className={classes.input}
                                 />

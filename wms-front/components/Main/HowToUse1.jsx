@@ -15,22 +15,22 @@ export default function HowToUse1() {
     }, []);
 
     return (
-        <div className={classes.container} style={{ backgroundColor: "#E2DFD7" }}>
+        <div className={classes.container} style={{ backgroundColor: "#e6f4fa" }}>
             <div className={classes.section1}>
                 <video
                     className={classes.video}
-                    src="/video/warehouse1.mp4"
+                    src="/video/store.mp4"
                     ref={videoRef}
                     muted
                     loop
                 ></video>
             </div>
             <div className={classes.section2}>
-                <h2 className={classes.title} style={{ color: "#4E4544" }}>
-                    창고를 생성합니다.
+                <h2 className={classes.title} style={{ color: "black" }}>
+                    매장을 생성합니다.
                 </h2>
-                <p style={{ color: "#4E4544" }} className={classes.section2Content}>
-                    구매한 창고 개수만큼 생성할 수 있어요.
+                <p style={{ color: "black" }} className={classes.section2Content}>
+                    매장의 이름을 직접 지정할 수 있습니다.
                 </p>
             </div>
         </div>

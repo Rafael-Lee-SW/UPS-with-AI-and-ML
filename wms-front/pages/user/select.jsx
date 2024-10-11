@@ -2,9 +2,14 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
 import Header from "../../components/Header/HomeHeader";
-import HeaderLinks from "/components/Header/HomeHeaderLinks.js";
+import HeaderLinks from "/components/Header/LogInHomeHeaderLinks.js";
 import { makeStyles } from "@material-ui/core/styles";
+// 아이콘 호출
 import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
+import DeleteIcon from "@material-ui/icons/Delete";
+import EditIcon from "@material-ui/icons/Edit";
+import OpenInNewIcon from "@material-ui/icons/OpenInNew";
+//그리드
 import GridContainer from "/components/Grid/GridContainer.js";
 import GridItem from "/components/Grid/GridItem.js";
 import CardSelect from "/components/Card/CardSelect.js";
@@ -13,80 +18,57 @@ import {
   Fade,
   Button,
   TextField,
-  Radio,
-  RadioGroup,
+  Checkbox,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
   FormControlLabel,
-  FormControl,
-  FormLabel,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import styles from "/styles/jss/nextjs-material-kit/pages/selectStyle.js";
+import Cookies from "cookies"; // Cookie에 저장하기 위해서
 
 const useStyles = makeStyles(styles);
 
-const Select = (props) => {
-  const { ...rest } = props;
+const Select = ({ fetchedStores, ...rest }) => {
   const classes = useStyles();
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
+  // 선택한 카드
+  const [clickedCardId, setClickedCardId] = useState(null);
   const [formData, setFormData] = useState({
-    containerName: "",
-    containerSize: "",
-    locationX: "",
-    locationY: "",
-    locationZ: "",
-    row: "",
-    column: "",
+    storeName: "",
   });
 
-  const [facilityType, setFacilityType] = useState("STORE");
-  const [priority, setPriority] = useState(1);
-
-  const [cards, setCards] = useState([
-    //CSS 테스트 데이터
-    {
-      id : 1,
-      title : "김득구",
-      pcsCount : 100,
-      locationCount : 50,
-    },
-    {
-      id : 2,
-      title : "김정구",
-      pcsCount : 100,
-      locationCount : 50,
-    },
-    {
-      id : 3,
-      title : "김방구",
-      pcsCount : 100,
-      locationCount : 50,
-    },
-    {
-      id : 4,
-      title : "김덩구",
-      pcsCount : 100,
-      locationCount : 50,
-    },
-  ]);
-  const [userData, setUserData] = useState(null);
-  const [businessData, setBusinessData] = useState(null);
-  const [businessId, setBusinessId] = useState(null);
-  const [currentWarehouseCount, setCurrentWarehouseCount] = useState(0);
+  const [cards, setCards] = useState(fetchedStores || []); // Use fetchedStores as initial state
+  const [currentWarehouseCount, setCurrentWarehouseCount] = useState(
+    fetchedStores.length || 0
+  );
   const [allowedWarehouseCount, setAllowedWarehouseCount] = useState(0);
 
   const [validationErrors, setValidationErrors] = useState({});
 
-  const handleOpen = async () => {
-    const { presentCount, MaxCount } = await fetchWarehouseCounts(businessId);
+  // 삭제시 발생하는 경고
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [storeToDelete, setStoreToDelete] = useState(null);
+  const [checkedWarning, setCheckedWarning] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
-    if (presentCount >= MaxCount) {
-      alert("추가 생성을 위한 결제가 필요합니다.");
-      router.push("/payment");
-    } else {
-      setOpen(true);
-    }
+  const handleOpen = async () => {
+    // const { presentCount, MaxCount } = await fetchWarehouseCounts(businessId);
+
+    // if (presentCount >= MaxCount) {
+    //   alert("추가 생성을 위한 결제가 필요합니다.");
+    //   router.push("/payment");
+    // } else {
+    //   setOpen(true);
+    // }
+
+    setOpen(true);
   };
 
   const handleClose = () => {
@@ -99,103 +81,20 @@ const Select = (props) => {
     validateForm({ ...formData, [name]: value });
   };
 
-  const handleFacilityTypeChange = (e) => {
-    setFacilityType(e.target.value);
-    if (e.target.value === "STORE") {
-      setPriority(1);
-    }
-  };
-
-  const handlePriorityChange = (e) => {
-    setPriority(e.target.value);
-  };
-
+  // 유효값 검증
   const validateForm = (data) => {
     const errors = {};
 
-    if (data.containerName.length > 20) {
-      errors.containerName = "20글자를 초과했습니다.";
-    }
-
-    const containerSize = parseInt(data.containerSize, 10);
-    if (isNaN(containerSize) || containerSize < 300 || containerSize > 10000) {
-      errors.containerSize = "잘못된 입력입니다.";
-    }
-
-    const locationZ = parseInt(data.locationZ, 10);
-    if (isNaN(locationZ) || locationZ < 1 || locationZ > 10) {
-      errors.locationZ = "잘못된 입력입니다.";
-    }
-
-    const locationX = parseInt(data.locationX, 10);
-    const locationY = parseInt(data.locationY, 10);
-    const row = parseInt(data.row, 10);
-    const column = parseInt(data.column, 10);
-
-    if (
-      isNaN(locationX) ||
-      isNaN(locationY) ||
-      isNaN(row) ||
-      isNaN(column) ||
-      locationX <= 0 ||
-      locationY <= 0 ||
-      row <= 0 ||
-      column <= 0
-    ) {
-      errors.locations = "잘못된 입력입니다.";
-    } else {
-      const totalWidth = column * locationX;
-      const totalHeight = row * locationY;
-      if (totalWidth > containerSize || totalHeight > containerSize) {
-        errors.locations = "적재함이 창고 크기를 초과합니다.";
-      }
+    if (data.storeName.length > 20) {
+      errors.storeName = "20글자를 초과했습니다.";
+    } else if (data.storeName.trim() === "") {
+      errors.storeName = "매장 이름을 입력해주세요.";
     }
 
     setValidationErrors(errors);
   };
 
-  const fetchWarehouseCounts = async (businessId) => {
-    try {
-      const warehouseCountResponse = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses/cnt/${businessId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const subscriptionResponse = await fetch(
-        `https://j11a302.p.ssafy.io/api/subscriptions?businessId=${businessId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (warehouseCountResponse.ok && subscriptionResponse.ok) {
-        const warehouseCountData = await warehouseCountResponse.json();
-        const subscriptionData = await subscriptionResponse.json();
-        const subscriptionCntDat = subscriptionData.result;
-
-        const presentCount = warehouseCountData.result;
-        const MaxCount = subscriptionCntDat[0].warehouseCount;
-
-        setCurrentWarehouseCount(warehouseCountData.result);
-        setAllowedWarehouseCount(subscriptionCntDat[0].warehouseCount);
-
-        return { presentCount, MaxCount };
-      } else {
-        router.push('/404');
-      }
-    } catch (error) {
-      router.push('/404');
-    }
-  };
-
+  // 창고 생성 이후에 보내는 API functions
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -203,281 +102,52 @@ const Select = (props) => {
       return;
     }
 
-    if (!businessId) {
-      router.push('/404');
+    //창고 생성을 위한 데이터
+    const postData = {
+      size: 1000, // Fixed size at 1000
+      storeName: formData.storeName || `Store ${cards.length + 1}`,
+    };
+
+    // 토큰에서 유저정보를 가져온다.(SSR이 아니기에 local에서 그냥 가져온다)
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.push("/signIn");
       return;
     }
 
-    const postData = {
-      businessId,
-      size: parseInt(formData.containerSize),
-      columnCount: parseInt(formData.column),
-      rowCount: parseInt(formData.row),
-      name: formData.containerName || `Container ${cards.length + 1}`,
-      priority: facilityType === "STORE" ? 1 : parseInt(priority),
-      facilityTypeEnum: facilityType,
-    };
-
-    const { locationX, locationY, locationZ, row, column } = formData;
-
-    // Calculate fixed spacing between columns and rows
-    const columnSpacing = 10; // Fixed spacing of 10px between columns
-    const rowSpacing = parseInt(locationY); // Distance between rows equal to the height of each location
-
-    const locationData = [];
-    for (let i = 0; i < row; i++) {
-      for (let j = 0; j < column; j++) {
-        // Format row and column numbers as two-digit strings
-        const rowNumber = (i + 1).toString().padStart(2, "0"); // Convert to string and pad with zeros
-        const columnNumber = (j + 1).toString().padStart(2, "0"); // Convert to string and pad with zeros
-
-        // Calculate x and y positions with new spacing logic
-        const xPosition = j * (parseInt(locationX) + columnSpacing);
-        const yPosition = i * (parseInt(locationY) + rowSpacing);
-
-        locationData.push({
-          xPosition: xPosition,
-          yPosition: yPosition,
-          zSize: parseInt(locationZ),
-          xSize: Math.round(parseInt(locationX)),
-          ySize: Math.round(parseInt(locationY)),
-          name: `${rowNumber}-${columnNumber}`,
-          productStorageType: "상온",
-          rotation: 0,
-          touchableFloor: 2,
-        });
-      }
-    }
-
-    const wallData = generateWalls(locationData);
-
     try {
-      const response = await fetch(
-        "https://j11a302.p.ssafy.io/api/warehouses",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(postData),
-        }
-      );
+      const response = await fetch("https://j11a302.p.ssafy.io/api/stores", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Include the token in the Authorization header
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(postData),
+      });
+
+      console.log(response);
 
       if (response.ok) {
-        const newWarehouse = await response.json();
-        const warehouses = newWarehouse.result;
-
-        const warehousesId = warehouses.id;
-
-        await postLocationAPI(locationData, warehousesId);
-        await postWallAPI(wallData, warehousesId);
+        const apiConnection = await response.json();
+        const newStore = apiConnection.result;
 
         const newCard = {
-          id: newWarehouse.result.id,
-          title: newWarehouse.result.name,
+          id: newStore.id,
+          storeName: newStore.storeName,
           image: "/img/sign.jpg",
         };
 
         await setCards((prev) => [...prev, newCard]);
 
-        // 각 창고 카드에 대한 pcsCount 및 locationCount 요청
-        fetchCounts(newCard.id);
-
         handleClose();
       } else {
-        router.push('/404');
+        router.push("/404");
       }
     } catch (error) {
-      router.push('/404');
-    }
-  };
-
-  const generateWalls = (generatedLocations) => {
-    if (generatedLocations.length === 0) return null;
-
-    let minX = Number.MAX_VALUE,
-      minY = Number.MAX_VALUE,
-      maxX = 0,
-      maxY = 0;
-
-    generatedLocations.forEach((location) => {
-      minX = Math.min(minX, location.xPosition);
-      minY = Math.min(minY, location.yPosition);
-      maxX = Math.max(maxX, location.xPosition + location.xSize);
-      maxY = Math.max(maxY, location.yPosition + location.ySize);
-    });
-
-    const wallData = [
-      { startX: minX, startY: minY, endX: maxX, endY: minY },
-      { startX: maxX, startY: minY, endX: maxX, endY: maxY },
-      { startX: maxX, startY: maxY, endX: minX, endY: maxY },
-      { startX: minX, startY: maxY, endX: minX, endY: minY },
-    ];
-
-    return wallData;
-  };
-
-  const postLocationAPI = async (requests, warehouseId) => {
-
-    const total = { requests, warehouseId };
-
-    try {
-      const response = await fetch(`https://j11a302.p.ssafy.io/api/locations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(total),
-      });
-
-      if (response.ok) {
-      } else {
-        router.push('/404');
-      }
-    } catch (error) {
-      router.push('/404');
-    }
-  };
-
-  const postWallAPI = async (wallDtos, warehouseId) => {
-    const total = { wallDtos, warehouseId };
-
-    try {
-      const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses/walls`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(total),
-        }
-      );
-
-      if (response.ok) {
-      } else {
-        router.push('/404');
-      }
-    } catch (error) {
-      router.push('/404');
-    }
-  };
-
-  const getAllWarehouseInfoAPI = async (businessId) => {
-    try {
-      const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses?businessId=${businessId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const apiConnection = await response.json();
-        const warehouses = apiConnection.result;
-
-        const warehouseCards = await warehouses.map((warehouse) => ({
-          id: warehouse.id,
-          title: warehouse.name,
-          image: "/img/storeroom.webp",
-        }));
-
-        await setCards(warehouseCards);
-        //모든 카드 정보를 받은 다음에 움직인다.
-        // 각 창고 카드에 대한 pcsCount 및 locationCount 요청
-        warehouseCards.forEach((card) => {
-          fetchCounts(card.id);
-        });
-
-      } else {
-        router.push('/404');
-      }
-    } catch (error) {
-      router.push('/404');
-    }
-  };
-
-  const fetchBusinessData = async (userId) => {
-    try {
-      const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/users/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const userData = await response.json();
-        const businessInfo = userData.result;
-        setBusinessData(businessInfo);
-        setBusinessId(businessInfo.businessId);
-
-        fetchWarehouseCounts(businessInfo.businessId);
-        getAllWarehouseInfoAPI(businessInfo.businessId);
-        
-      } else {
-        router.push('/404');
-      }
-    } catch (error) {
-      router.push('/404');
-    }
-  };
-
-  // useEffect(() => {
-  //   const user = localStorage.getItem("user");
-  //   if (user) {
-  //     try {
-  //       const parsedUser = JSON.parse(user);
-  //       setUserData(parsedUser);
-
-  //       fetchBusinessData(parsedUser.id);
-  //     } catch (error) {
-  //       router.push('/404');
-  //     }
-  //   }
-  // }, []);
-
-  const fetchCounts = async (warehouseId) => {
-    try {
-      const pcsResponse = await axios.get(
-        `https://j11a302.p.ssafy.io/api/warehouses/pcscnt/${warehouseId}`
-      );
-      const locationResponse = await axios.get(
-        `https://j11a302.p.ssafy.io/api/warehouses/locationcnt/${warehouseId}`
-      );
-      const usageResponse = await axios.get(
-        `https://j11a302.p.ssafy.io/api/warehouses/usage/${warehouseId}`
-      );
-      const warehouseTypeResponse = await axios.get(
-        `https://j11a302.p.ssafy.io/api/warehouses/purpose/${warehouseId}`
-      );
-
-      const pcsCount = pcsResponse.data.result;
-      const locationCount = locationResponse.data.result;
-      const usagePercent = usageResponse.data.result; // 1부터 100까지
-      const warehouseColor = warehouseTypeResponse.data.result; // 1부터 3까지
-
-      setCards((prevCards) =>
-        prevCards.map((card) =>
-          card.id === warehouseId
-            ? {
-                ...card,
-                pcsCount,
-                locationCount,
-                usagePercent,
-                warehouseColor,
-              }
-            : card
-        )
-      );
-    } catch (error) {
-      router.push('/404');
+      console.log(error);
+      router.push("/404");
     }
   };
 
@@ -485,13 +155,13 @@ const Select = (props) => {
   const getBackgroundColor = (color) => {
     switch (color) {
       case 1:
-        return "#D6CABA";
+        return "#459ab6";
       case 2:
-        return "#C2B6A1";
+        return "#459ab6";
       case 3:
-        return "#918166";
+        return "#459ab6";
       default:
-        return "#D6CABA";
+        return "#459ab6";
     }
   };
 
@@ -508,25 +178,66 @@ const Select = (props) => {
     }
   };
 
-  const handleDelete = async (warehouseId) => {
-    try {
-      await axios.patch(`https://j11a302.p.ssafy.io/api/warehouses/${warehouseId}`, {
-        isDeleted: true,
-      });
+  const handleDeleteWarningOpen = (storeId) => {
+    setStoreToDelete(storeId);
+    setOpenDeleteDialog(true);
+  };
 
-      // 삭제 후 카드 목록에서 해당 창고 제거
-      setCards((prevCards) =>
-        prevCards.filter((card) => card.id !== warehouseId)
-      );
-    } catch (error) {
-      router.push('/404');
+  // 매장 삭제
+  const handleDelete = async () => {
+    //토큰 검증
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signIn");
+      return;
     }
+
+    try {
+      await axios.patch(
+        `https://j11a302.p.ssafy.io/api/stores/${storeToDelete}`,
+        {}, // Empty body
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // Remove the deleted store from the cards array
+      setCards((prevCards) =>
+        prevCards.filter((card) => card.id !== storeToDelete)
+      );
+      setStoreToDelete(""); // 초기화
+      setOpenDeleteDialog(false);
+      setCheckedWarning(false);
+      setOpenSnackbar(true); // Show notification
+    } catch (error) {
+      console.error("Error deleting store:", error);
+      router.push("/user/select");
+    }
+  };
+
+  // 카드 선택 시에 발생하는 function
+  const handleCardClick = (e, cardId) => {
+    e.preventDefault();
+    if (clickedCardId === cardId) {
+      setClickedCardId(null); // Deselect if clicked again
+    } else {
+      setClickedCardId(cardId); // Select the card
+    }
+  };
+
+  const handleGetIn = (storeId) => {
+    router.push(`/user/${storeId}`);
+  };
+
+  const handleEdit = (storeId) => {
+    console.log("수정");
   };
 
   return (
     <div>
       <Header
-        brand="FIT-BOX"
+        brand="AUTO-STORE"
         rightLinks={<HeaderLinks />}
         fixed
         color="white"
@@ -541,82 +252,107 @@ const Select = (props) => {
       <div className={classes.section}>
         <div className={classes.container}>
           <div className={classes.selectContainer}>
-            창고를 선택하세요. ({currentWarehouseCount}/{allowedWarehouseCount})
+            {currentWarehouseCount === 0
+              ? `매장을 생성하세요 (현재 매장 ${currentWarehouseCount}개)`
+              : `매장을 선택하세요 (현재 매장 ${currentWarehouseCount}개)`}
           </div>
           <GridContainer>
             {cards.map((card) => (
-              <GridItem key={card.id} xs={12} sm={4} md={4} className={classes.cardGrid}>
-                <Link href={`/user/${card.id}`} passHref>
-                  <CardSelect
-                    component="a"
-                    className={classes.cardLink}
+              <GridItem
+                key={card.id}
+                xs={12}
+                sm={4}
+                md={4}
+                className={classes.cardGrid}
+              >
+                <CardSelect
+                  className={classes.cardLink}
+                  onClick={(e) => handleCardClick(e, card.id)}
+                >
+                  <div
+                    className={classes.cardHeader}
+                    style={{
+                      backgroundColor: getBackgroundColor(card.warehouseColor),
+                    }}
                   >
+                    <img
+                      src={getWarehouseImage(card.warehouseColor)}
+                      alt="warehouse"
+                      className={classes.cardImage}
+                    />
+                  </div>
+                  <div className={classes.cardBody}>
+                    <h3>{card.storeName}</h3>
+                    <div className={classes.cardMain}>
                       <div
-                        className={classes.cardHeader}
+                        className={classes.cardProgress}
                         style={{
+                          width: `${card.usagePercent}%`,
                           backgroundColor: getBackgroundColor(
                             card.warehouseColor
                           ),
                         }}
+                      ></div>
+                    </div>
+                  </div>
+                  <div className={classes.cardFooter}>
+                    <div className={classes.pcsContainer}>
+                      <img
+                        src="/img/box.png"
+                        alt="pcsContainer"
+                        className={classes.containerImage}
+                      />
+                      <div className="pcsCnt">{card.pcsCount}</div>
+                    </div>
+
+                    <div className={classes.locationContainer}>
+                      <img
+                        src="/img/location.png"
+                        alt="location"
+                        className={classes.containerImage}
+                      />
+                      <div className="locationCnt">{card.locationCount}</div>
+                    </div>
+                  </div>
+                  {/* Action Buttons */}
+                  {clickedCardId === card.id && (
+                    <div className={classes.actionButtons}>
+                      <Button
+                        className={classes.actionButtonSee}
+                        variant="contained"
+                        startIcon={<OpenInNewIcon />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleGetIn(card.id);
+                        }}
                       >
-                        <img
-                          src={getWarehouseImage(card.warehouseColor)}
-                          alt="warehouse"
-                          className={classes.cardImage}
-                        />
-                        <img
-                          src="/img/delete.png"
-                          alt="delete"
-                          className={classes.deleteButton}
-                          onClick={(e) => {
-                            e.preventDefault(); // 링크 이동 방지
-                            handleDelete(card.id);
-                          }}
-                        />
-                      </div>
-                      <div className={classes.cardBody}>
-                        <h3>{card.title}</h3>
-                        <div
-                          className={classes.cardMain}
-                        >
-                          <div
-                            className={classes.cardProgress}
-                            style={{
-                              width: `${card.usagePercent}%`,
-                              backgroundColor: getBackgroundColor(
-                                card.warehouseColor
-                              ),
-                            }}
-                          >
-                            {" "}
-                            {`${card.usagePercent}%`}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className={classes.cardFooter}>
-                        <div className={classes.pcsContainer}>
-                          <img
-                            src="/img/box.png"
-                            alt="pcsContainer"
-                            className={classes.containerImage}
-                          />
-                          <div className="pcsCnt">{card.pcsCount}</div>
-                        </div>
-
-                        <div className={classes.locationContainer}>
-                          <img
-                            src="/img/location.png"
-                            alt="location"
-                            className={classes.containerImage}
-                          />
-                          <div className="locationCnt">
-                            {card.locationCount}
-                          </div>
-                        </div>
-                      </div>
-                  </CardSelect>
-                </Link>
+                        보기
+                      </Button>
+                      <Button
+                        className={classes.actionButtonEdit}
+                        variant="contained"
+                        startIcon={<EditIcon />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(card.id);
+                        }}
+                      >
+                        수정
+                      </Button>
+                      <Button
+                        className={classes.actionButtonDel}
+                        variant="contained"
+                        startIcon={<DeleteIcon />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteWarningOpen(card.id);
+                        }}
+                      >
+                        삭제
+                      </Button>
+                    </div>
+                  )}
+                </CardSelect>
               </GridItem>
             ))}
             <GridItem xs={12} sm={4} md={4} className={classes.plusCardGrid}>
@@ -638,168 +374,148 @@ const Select = (props) => {
               }}
             >
               <div className={classes.paper}>
-                <h2>새 창고 정보 입력</h2>
+                <h2>새 매장 정보 입력</h2>
                 <form onSubmit={handleSubmit}>
                   <TextField
-                    name="containerName"
-                    label="창고 이름"
+                    name="storeName"
+                    label="매장 이름"
                     fullWidth
                     variant="outlined"
                     className={classes.formControl}
-                    value={formData.containerName}
+                    value={formData.storeName}
                     onChange={handleChange}
-                    error={Boolean(validationErrors.containerName)}
+                    error={Boolean(validationErrors.storeName)}
                     helperText={
-                      validationErrors.containerName || "20글자까지 가능합니다."
+                      validationErrors.storeName || "20글자까지 가능합니다."
                     }
                     FormHelperTextProps={{
                       style: {
-                        color: validationErrors.containerName ? "red" : "blue",
+                        color: validationErrors.storeName ? "red" : "blue",
                       },
                     }}
                   />
-                  <TextField
-                    name="containerSize"
-                    label="창고 크기"
-                    fullWidth
-                    variant="outlined"
-                    className={classes.formControl}
-                    value={formData.containerSize}
-                    onChange={handleChange}
-                    error={Boolean(validationErrors.containerSize)}
-                    helperText={
-                      validationErrors.containerSize ||
-                      `창고 부지의 크기: ${formData.containerSize} * ${
-                        formData.containerSize
-                      } = ${Math.pow(parseInt(formData.containerSize) || 0, 2)}`
-                    }
-                    FormHelperTextProps={{
-                      style: {
-                        color: validationErrors.containerSize ? "red" : "blue",
-                      },
-                    }}
-                  />
-                  <TextField
-                    name="locationX"
-                    label="Location(적재함) 가로 크기"
-                    fullWidth
-                    variant="outlined"
-                    className={classes.formControl}
-                    value={formData.locationX}
-                    onChange={handleChange}
-                    error={Boolean(validationErrors.locations)}
-                  />
-                  <TextField
-                    name="locationY"
-                    label="Location(적재함) 세로 크기"
-                    fullWidth
-                    variant="outlined"
-                    className={classes.formControl}
-                    value={formData.locationY}
-                    onChange={handleChange}
-                    error={Boolean(validationErrors.locations)}
-                  />
-                  <TextField
-                    name="locationZ"
-                    label="Location(적재함) 층수"
-                    fullWidth
-                    variant="outlined"
-                    className={classes.formControl}
-                    value={formData.locationZ}
-                    onChange={handleChange}
-                    error={Boolean(validationErrors.locationZ)}
-                    helperText={
-                      validationErrors.locationZ ||
-                      "1~10층까지 설정 가능합니다."
-                    }
-                    FormHelperTextProps={{
-                      style: {
-                        color: validationErrors.locationZ ? "red" : "blue",
-                      },
-                    }}
-                  />
-                  <TextField
-                    name="row"
-                    label="행"
-                    fullWidth
-                    variant="outlined"
-                    className={classes.formControl}
-                    value={formData.row}
-                    onChange={handleChange}
-                    error={Boolean(validationErrors.locations)}
-                    helperText={
-                      validationErrors.locations ||
-                      "적재함 크기와 개수가 창고 크기를 초과할 수 없습니다."
-                    }
-                    FormHelperTextProps={{
-                      style: {
-                        color: validationErrors.locations ? "red" : "blue",
-                      },
-                    }}
-                  />
-                  <TextField
-                    name="column"
-                    label="열"
-                    fullWidth
-                    variant="outlined"
-                    className={classes.formControl}
-                    value={formData.column}
-                    onChange={handleChange}
-                    error={Boolean(validationErrors.locations)}
-                  />
-                  <FormControl
-                    component="fieldset"
-                    className={classes.formControl}
-                  >
-                    <FormLabel component="legend">시설 유형</FormLabel>
-                    <RadioGroup
-                      aria-label="facilityType"
-                      name="facilityType"
-                      value={facilityType}
-                      onChange={handleFacilityTypeChange}
-                    >
-                      <FormControlLabel
-                        value="STORE"
-                        control={<Radio />}
-                        label="매장"
-                      />
-                      <FormControlLabel
-                        value="WAREHOUSE"
-                        control={<Radio />}
-                        label="창고"
-                      />
-                    </RadioGroup>
-                  </FormControl>
-                  {facilityType === "WAREHOUSE" && (
-                    <TextField
-                      name="priority"
-                      label="창고 출고 우선순위"
-                      fullWidth
-                      variant="outlined"
-                      className={classes.formControl}
-                      value={priority}
-                      onChange={handlePriorityChange}
-                      type="number"
-                    />
-                  )}
-
                   <Button
                     type="submit"
                     variant="contained"
                     color="primary"
                     fullWidth
                     disabled={Object.keys(validationErrors).length > 0}
+                    className={classes.createButton}
                   >
-                    Finish
+                    완료
                   </Button>
                 </form>
               </div>
             </Fade>
           </Modal>
+          <Dialog
+            open={openDeleteDialog}
+            onClose={() => {
+              setOpenDeleteDialog(false);
+              setCheckedWarning(false);
+            }}
+            aria-labelledby="delete-dialog-title"
+            aria-describedby="delete-dialog-description"
+          >
+            <DialogTitle id="delete-dialog-title">매장 삭제 확인</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="delete-dialog-description">
+                매장을 삭제하면 모든 데이터가 영구적으로 삭제됩니다. 이 작업은
+                되돌릴 수 없습니다.
+              </DialogContentText>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={checkedWarning}
+                    onChange={(e) => setCheckedWarning(e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label="위 내용을 이해하였으며, 삭제를 진행합니다."
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => {
+                  setOpenDeleteDialog(false);
+                  setCheckedWarning(false);
+                }}
+                color="primary"
+              >
+                취소
+              </Button>
+              <Button
+                onClick={handleDelete}
+                color="secondary"
+                disabled={!checkedWarning}
+              >
+                삭제
+              </Button>
+            </DialogActions>
+          </Dialog>
+          {/* Snackbar Notification */}
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={3000}
+            onClose={() => setOpenSnackbar(false)}
+            message="매장이 삭제되었습니다"
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          />
         </div>
       </div>
     </div>
   );
 };
+
+// SSR part
+export async function getServerSideProps({ req, res }) {
+  //쿠키에서 토큰을 추출한다.
+  const cookies = new Cookies(req, res);
+  const token = cookies.get("token");
+
+  console.log(token);
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/signIn",
+        permanent: false,
+      },
+    };
+  }
+
+  try {
+    const response = await fetch("https://j11a302.p.ssafy.io/api/stores", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const stores = data.result;
+
+      const storeCards = stores.map((store) => ({
+        id: store.id,
+        storeName: store.storeName,
+        image: "/img/storeroom.webp",
+      }));
+
+      return {
+        props: { fetchedStores: storeCards }, // Pass data as props to the page
+      };
+    } else {
+      return {
+        notFound: true,
+      };
+    }
+  } catch (error) {
+    return {
+      notFound: true,
+    };
+  }
+}
 
 export default Select;

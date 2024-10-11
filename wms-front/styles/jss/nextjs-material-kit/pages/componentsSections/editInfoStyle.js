@@ -11,10 +11,10 @@ const editInfoStyle = {
     table: {
         width: '70%',
         borderCollapse: 'collapse',
-        border: '1px solid #ddd',
+        border: '1px solid #ccc',
         '& td': {
             padding: '8px',
-            borderBottom: '1px solid #ddd',
+            borderBottom: '1px solid #ccc',
         },
         '& tr:not(:last-child) td': {
             borderBottom: '1px solid #ccc',
@@ -45,16 +45,16 @@ const editInfoStyle = {
         marginTop: '20px',
     },
     button: {
-        backgroundColor: "#7D4A1A",
+        backgroundColor: "#e6f4fa",
         width: '100px',
-        color: 'white',
+        color: 'black',
         height: "30px",
-        border: '1px solid #7D4A1A',
+        border: '1px solid #ccc',
         borderRadius: '4px',
         '&:hover': {
             transform: 'scale(1.05)',
-            backgroundColor: '#7D4A1A',
-            color: 'white',
+            color: 'black',
+            border: "1px solid #9baab1"
         },
     },
     modalTitle: {

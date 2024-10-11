@@ -20,7 +20,6 @@ export default function handler(req, res) {
     // Write the JSON data to a file
     fs.writeFile(filePath, JSON.stringify(tableData, null, 2), (err) => {
       if (err) {
-        console.error('Error saving JSON data:', err);
         return res.status(500).send('Error saving JSON data');
       }
       res.status(200).send('JSON data saved successfully');

@@ -1,7 +1,7 @@
 const serviceInfo2 = {
     container: {
         height: "80vh",
-        backgroundColor: "#DEB887",
+        backgroundColor: "white",
         padding: "0",
         display: "flex",
         flexDirection: "row",
@@ -24,7 +24,7 @@ const serviceInfo2 = {
     },
     title: {
         margin: "0",
-        color: "#FBF9F7",
+        color: "black",
         fontWeight: "bold",
         paddingBottom: "20px",
     },

@@ -1,13 +1,15 @@
+//MyContainerNavigation.jsx
 "use client";
 /**
  * 창고 엑셀화 Import
  */
 // fundamental importing about React
 import React, { useState, useEffect, useRef } from "react";
-
+import { useRouter } from "next/router";
 // Import MUI components
 import Fab from "@mui/material/Fab";
-import Button from "@mui/material/Button";
+// core components
+import Button from "/components/CustomButtons/Button.js";
 // 모달 페이지를 위한 Import
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -22,6 +24,9 @@ import IconButton from "@mui/material/IconButton";
 //줌인 줌아웃
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
+//모바일 메뉴 아이콘
+import MenuIcon from "@mui/icons-material/Menu";
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
 // Import SheetJS xlsx for Excel operations
 import * as XLSX from "xlsx";
 // Import Handsontable plugins and cell types
@@ -97,11 +102,11 @@ const useStyles = makeStyles(styles);
 // --- 창고 관련 끝
 
 // 복합체 시작
-const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
+const MyContainerNavigation = ({ storeId, stores }) => {
+  const router = useRouter();
   const classes = useStyles();
   // 로딩 Loading
   const [loading, setLoading] = useState(false); // 수정필수 : true로 바꿀 것
-
   /**
    * 창고 관련 const 들 모음
    */
@@ -116,24 +121,8 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
   const VIEWPORT_HEIGHT = window.innerHeight;
 
   // 사각형을 추가하고 관리하는 State 추가
-  const [locations, setLocations] = useState([
-    {
-      id: "0",
-      x: 0,
-      y: 0,
-      z: 0,
-      width: 0,
-      height: 0,
-      fill: "blue",
-      draggable: false,
-      order: 0,
-      name: "임시",
-      type: "임시",
-      rotation: 0,
-      warehouseId: WHId,
-    },
-  ]);
-
+  // 사각형을 추가하고 관리하는 State 추가
+  const [locations, setLocations] = useState([]);
   // 마지막으로 클릭한 상자를 추적하는 상태 추가
   const [selectedLocation, setSelectedLocation] = useState(null);
   // 마지막으로 클릭한 상자를 수정하는 폼을 띄우기 위한 상태 추가
@@ -141,28 +130,30 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
     useState(null);
   // 현재 벽 생성 / 일반 커서 를 선택하기 위한 State
   const [currentSetting, setCurrentSetting] = useState("location");
-  // 상자의 hover Effect를 위한 상태 추가
-  const [hoveredRectId, setHoveredRectId] = useState(null);
+
+  const [locationProducts, setLocationProducts] = useState([]);
 
   // 앙커를 추가하고 관리하는 State 추가
-  const [anchors, setAnchors] = useState([
-    {
-      id: "0",
-      x: 0,
-      y: 0,
-      radius: 0,
-      stroke: "#666",
-      fill: "#ddd",
-      opacity: 1,
-      strokeWidth: 2,
-      draggable: false,
-    },
-  ]);
+  const [anchors, setAnchors] = useState([]);
 
   // 마우스 포인터에 닿은 앙커를 기록하는 것
   const [hoveredAnchor, setHoveredAnchor] = useState(null);
   // 선택된 층을 알려주는 Method
   const [selectedFloor, setSelectedFloor] = useState(1);
+
+  // 모바일 화면에서 우측 사이드바 토글 방식으로 크고/끄는 방식
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+
+  // 모바일 화면에서 우측 사이드바 토글 함수
+  const toggleSidebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
+  };
+
+  const [pendingContentUpdate, setPendingContentUpdate] = useState(false);
+  const [newContentToShow, setNewContentToShow] = useState("inventory");
+
+  // 모바일 화면에서 우측 사이드바의 컨텐츠를 알림 목록, 토글 방식으로 크고/끄는 방식
+  const [contentVisible, setContentVisible] = useState(true);
 
   /**
    * 창고 관련 Const 끝
@@ -199,8 +190,8 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
 
     // Prepare the detailed data based on the notification type
     const detailedDataForDisplay = filteredData.map((item) => {
-      const warehouse = warehouses.find((wh) => wh.id === item.warehouseId);
-      const warehouseTitle = warehouse ? warehouse.title : "Unknown Warehouse"; // Fallback to 'Unknown Warehouse' if not found
+      const store = stores.find((st) => st.id === item.storeId);
+      const storeName = store ? store.storeName : "Unknown Warehouse"; // Fallback to 'Unknown Warehouse' if not found
 
       const commonData = {
         date: new Date(item.date).toLocaleDateString(),
@@ -231,12 +222,9 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
       return commonData; // Fallback if type doesn't match
     });
 
-    console.log("선별데이터");
-    console.log(filteredData);
-
     // Extract the location names and warehouse IDs from the filtered data
     const locationNames = filteredData
-      .filter((item) => item.warehouseId === parseInt(WHId))
+      .filter((item) => item.warehouseId === parseInt(storeId))
       .map((item) => item.currentLocationName);
     // Find the IDs of the locations that match both the location name and warehouse ID
     const matchedLocationIds = locations
@@ -264,14 +252,25 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
   };
 
   // API를 통해 해당하는 창고(번호)의 모든 location(적재함)과 wall(벽)을 가져오는 메서드
-  const getWarehouseAPI = async (WHId) => {
+  const getStoreStructureAPI = async () => {
+    // 토큰에서 유저정보를 가져온다.(로그인 확인)
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // Handle the case where the token is missing (e.g., redirect to signIn)
+      router.push("/signIn");
+      return;
+    }
+
     try {
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/warehouses/${WHId}`,
+        `https://j11a302.p.ssafy.io/api/stores/${storeId}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            // Include the token in the Authorization header
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -288,19 +287,12 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
         }
 
         const newLocations = locations.map((location, index) => {
-          const startColor = { r: 27, g: 177, b: 231 }; // Starting color (#1bb1e7)
-          const endColor = { r: 0, g: 0, b: 255 }; // Ending color (#0000FF)
-
-          // Calculate the color components based on the fill value
-          const red = Math.round(
-            startColor.r + ((endColor.r - startColor.r) * location.fill) / 100
-          );
-          const green = Math.round(
-            startColor.g + ((endColor.g - startColor.g) * location.fill) / 100
-          );
-          const blue = Math.round(
-            startColor.b + ((endColor.b - startColor.b) * location.fill) / 100
-          );
+          let type = "location";
+          if (location.locationTypeEnum === "ENTRANCE") {
+            type = "entrance";
+          } else if (location.locationTypeEnum === "EXIT") {
+            type = "exit";
+          }
 
           return {
             id: location.id.toString(),
@@ -309,13 +301,13 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
             width: location.xsize || 50,
             height: location.ysize || 50,
             z: location.zsize,
-            fill: `rgba(${red}, ${green}, ${blue}, 1)`, // Calculate RGB with alpha as 1
+            locationType: location.locationTypeEnum,
+            fill: type === "entrance" ? "green" : type === "exit" ? "red" : "blue",
             draggable: true,
             order: index,
             name: location.name || `적재함 ${index}`,
-            type: "location",
+            type: type,
             rotation: 0,
-            warehouseId: WHId,
           };
         });
 
@@ -339,15 +331,18 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
           return existingAnchor;
         };
 
-        walls.forEach(({ startID, startX, startY, endID, endX, endY }) => {
-          const startAnchor = getOrCreateAnchor(startID, startX, startY);
-          const endAnchor = getOrCreateAnchor(endID, endX, endY);
+        walls.forEach(({ id, startX, startY, endX, endY }) => {
+          const startAnchor = getOrCreateAnchor(id, startX, startY);
+          const endAnchor = getOrCreateAnchor(id, endX, endY);
 
           const newLine = new Konva.Line({
             points: [startX, startY, endX, endY],
             stroke: "brown",
             strokeWidth: 10,
             lineCap: "round",
+            id: id.toString(), // Preserve the original ID
+            name: "selectableShape", // 선택 가능 객체 표시
+            shapeType: "wall", // 구분을 위한 표시
           });
 
           newAnchors.push({
@@ -447,11 +442,13 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
     return { x, y };
   };
 
-  // 빈 공간을 클릭했을 때 사각형 선택 해제하는 함수
+  // Deselect rectangle when clicking on empty space
   const checkDeselect = (e) => {
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
       setSelectedLocationTransform(null);
+      setSelectedLocation(null);
+      setHoveredLocations([]);
     }
   };
 
@@ -608,32 +605,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
       isSamePosition(anchor.x(), anchor.y(), x, y)
     );
   };
-  /**
-   * 선택된 사각형의 데이터를 보여주는 메서드
-   */
-  // Fetch JSON data for the selected rectangle
-  const fetchRectangleData = async (id) => {
-    try {
-      const response = await fetch("/api/load-json", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
 
-      if (response.ok) {
-        const jsonData = await response.json();
-        const rectangleData = jsonData.filter((row) => row[0] === String(id));
-        return rectangleData || [];
-      } else {
-        //에러
-        return [];
-      }
-    } catch (error) {
-      //에러
-      return [];
-    }
-  };
 
   // 엑셀기록과 함께 해당하는 상자를 누르면 데이터를 보여주는 함수
   const [rectangleData, setRectangleData] = useState([]);
@@ -774,11 +746,11 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
           if (!existingAnchor) {
             const newId = anchorsRef.current.length
               ? Math.max(
-                  ...anchorsRef.current.flatMap(({ start, end }) => [
-                    parseInt(start.id(), 10),
-                    parseInt(end.id(), 10),
-                  ])
-                ) + 1
+                ...anchorsRef.current.flatMap(({ start, end }) => [
+                  parseInt(start.id(), 10),
+                  parseInt(end.id(), 10),
+                ])
+              ) + 1
               : 1;
             existingAnchor = buildAnchor(newId, x, y);
           } else {
@@ -827,14 +799,6 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
     //레이어의 초기 상태 그리기
     layer.draw();
 
-    /**
-     * 선택된 사각형의 물품 목록을 보여준다.
-     */
-    if (selectedLocation) {
-      fetchRectangleData(selectedLocation.id).then((data) => {
-        setRectangleData(data);
-      });
-    }
 
     // Clean-up the Function to remove event Listeners
     return () => {
@@ -855,15 +819,126 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
   const [tableData, setTableData] = useState([]);
   const [productColumns, setProductColumns] = useState([]);
 
-  // 사장님이 갖고 있는 상품들을 가져오는 API
-  const productGetAPI = async (businessId) => {
+
+
+  // 변동 내역 / 알림함에서 쓰이는 data Table state
+  const [notificationsFetched, setNotificationsFetched] = useState(false); // New one
+  const [notificationTableData, setNotificationTableData] = useState([]);
+  const [detailedData, setDetailedData] = useState([]); // 모든 변동 사항을 기록한다.
+  const [notificationColumn, setNotificationColumn] = useState([]); // 알림 단위로 변동사항에 대한 칼럼
+
+  // 모든 알림(변동내역)을 가져오는 메서드
+  const getNotificationsAPI = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
     try {
+      setLoading(true);
       const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/products?businessId=${businessId}`,
+        `https://j11a302.p.ssafy.io/api/notifications?storeId=${storeId}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+
+      if (response.ok) {
+        const apiConnection = await response.json();
+        const notifications = apiConnection.result;
+
+        console.log(notifications)
+        const formattedNotifications = notifications.map((notification) => ({
+          id: notification.id,
+          date: notification.createdDate
+            ? new Date(notification.createdDate).toLocaleDateString()
+            : "N/A",
+          type: mapEnumToKorean(notification.notificationTypeEnum),
+          message: notification.message,
+          isRead: notification.isRead ? "읽음" : "안읽음",
+          isImportant: notification.isImportant ? "중요" : "",
+        }));
+
+        setNotificationTableData(formattedNotifications);
+
+      } else {
+
+      }
+    } catch (error) {
+      setLoading(false);
+    }
+  };
+
+  // Map notification types to Korean
+  const mapEnumToKorean = (enumValue) => {
+    switch (enumValue) {
+      case "FLOW":
+        return "이동";
+      case "IMPORT":
+        return "입고";
+      case "MODIFY":
+        return "수정";
+      case "CRIME_PREVENTION":
+        return "방범";
+      case "PAYMENT":
+        return "결제";
+      case "EXPORT":
+        return "출고";
+      default:
+        return enumValue;
+    }
+  };
+
+  const handleNotificationsClick = () => {
+    if (isSidebarVisible && !showDetails) {
+      setIsSidebarVisible(false);
+    } else if (isSidebarVisible && showDetails) {
+      setIsSidebarVisible(false);
+      setTimeout(() => {
+        setShowDetails(false);
+        setIsSidebarVisible(true);
+      }, 300);
+    } else {
+      setShowDetails(false);
+      setIsSidebarVisible(true);
+    }
+  };
+
+
+  const [dateColumns, setDateColumns] = useState([]); // 일자별로
+
+
+  /**
+   * 로케이션을 클릭했을 때 해당 로케이션에 있는 물품(상품) 목록을 불러오는 API 호출 메서드
+   */
+  const handleSelectedData = async (locationId) => {
+
+    setLoading(true); // Start loading products
+    setSelectedFloor(1);
+    setModalTableData([]); // Clear any existing data
+    setLocationProducts([]); // Clear previous products
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        // If no token, redirect to signIn
+        router.push("/signIn");
+        return;
+      }
+
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/products?locationId=${locationId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -872,220 +947,55 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
         const apiConnection = await response.json();
         const products = apiConnection.result;
 
-        // Extract only the required columns
-        const formattedData = products.map((product) => ({
-          hiddenId: product.id,
-          name: product.name,
-          barcode: product.barcode,
-          quantity: product.quantity,
-          locationName: product.locationName || "임시",
-          floorLevel: product.floorLevel,
-          expirationDate: product.expirationDate || "없음",
-          warehouseId: product.warehouseId,
-        }));
+        // Store all products in state
+        setLocationProducts(products);
 
-        // Define the columns
-        const headers = [
-          "식별자",
-          "이름",
-          "바코드(식별번호)",
-          "수량",
-          "적재함",
-          "단(층)수",
-          "유통기한",
-          "창고",
-        ];
-
-        const formattedColumns = [
-          { name: "hiddenId", label: "식별자", options: { display: false } },
-          { name: "name", label: "상품명" },
-          { name: "barcode", label: "바코드" },
-          { name: "quantity", label: "수량" },
-          { name: "locationName", label: "적재함" },
-          { name: "floorLevel", label: "층수" },
-          { name: "expirationDate", label: "유통기한" },
-          { name: "warehouseId", label: "창고" },
-        ];
-
-        // Prepare the data for Handsontable
-        const data = formattedData.map((product) => [
-          product.hiddenId,
-          product.name,
-          product.barcode,
-          product.quantity,
-          product.locationName,
-          product.floorLevel,
-          product.expirationDate,
-          product.warehouseId,
-        ]);
-
-        setColumns(formattedColumns);
-        setTableData(data);
-      } else {
-        //에러
-      }
-    } catch (error) {
-      //에러
-    }
-  };
-
-  // 변동 내역 / 알림함에서 쓰이는 data Table state
-  const [notificationTableData, setNotificationTableData] = useState([]);
-  const [detailedData, setDetailedData] = useState([]); // 모든 변동 사항을 기록한다.
-  const [notificationColumn, setNotificationColumn] = useState([]); // 알림 단위로 변동사항에 대한 칼럼
-
-  // 모든 알림(변동내역)을 가져오는 메서드
-  const getNotificationsAPI = async (businessId) => {
-    try {
-      const response = await fetch(
-        `https://j11a302.p.ssafy.io/api/products/notification?businessId=${businessId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const apiConnection = await response.json();
-        const { productFlowResponseDtos, expirationProductResponseDtos } =
-          apiConnection.result;
-
-        // Combine all notifications
-        const combinedData = [...productFlowResponseDtos];
-
-        // Sort combined data by date
-        const sortedData = combinedData.sort(
-          (a, b) => new Date(a.date) - new Date(b.date)
+        // Filter products by selectedFloor
+        const filteredProducts = products.filter(
+          (product) => product.floorLevel === 1
         );
 
-        // Set the detailed data state
-        setDetailedData(sortedData);
-
-        // Map to formatted data for initial display
-        const formattedData = sortedData.map((item) => ({
-          date: new Date(item.date).toLocaleDateString(),
-          type: item.productFlowType,
-          barcode: item.barcode,
-          name: item.name,
-          quantity: item.quantity,
-          locationName: item.currentLocationName,
-          floorLevel: item.currentFloorLevel,
-          trackingNumber: item.trackingNumber,
+        // Map products to the required format
+        const selectedData = filteredProducts.map((product) => ({
+          hiddenId: product.productId,
+          name: product.productName,
+          barcode: product.barcode,
+          quantity: product.quantity,
+          expirationDate: product.expirationDate || "없음",
         }));
 
-        setNotificationTableData(formattedData);
-
-        setNotificationColumn([
-          { name: "date", label: "날짜" },
-          { name: "type", label: "유형" },
-          { name: "barcode", label: "바코드" },
-          { name: "name", label: "상품명" },
-          { name: "quantity", label: "수량" },
-          { name: "locationName", label: "적재함" },
-          { name: "floorLevel", label: "층수" },
-          { name: "trackingNumber", label: "송장번호" },
-        ]);
+        setModalTableData(selectedData);
       } else {
-        //에러
+        // Handle error
       }
     } catch (error) {
-      //에러
+      // Handle error
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Helper function to map English terms to Korean
-  const mapTypeToKorean = (type) => {
-    switch (type) {
-      case "IMPORT":
-        return "입고";
-      case "EXPORT":
-        return "출고";
-      case "FLOW":
-        return "이동";
-      default:
-        return type; // Fallback to original if no match
-    }
-  };
+  /**
+   *  층을 선택했을 때에 해당 로케이션 데이터 중에서 선택된 층의 물품 목록을 보여주는 메서드
+   */
+  const handleFloorSelection = (floorLevel) => {
+    setSelectedFloor(floorLevel);
 
-  const [dateColumns, setDateColumns] = useState([]); // 일자별로
+    // Filter products by selectedFloor
+    const filteredProducts = locationProducts.filter(
+      (product) => product.floorLevel === floorLevel
+    );
 
-  // 모든 변동 내역을 날짜별로 묶어 알림으로 바꾸는 함수
-  const showUniqueDates = async () => {
-    // Group data by date and type
-    const groupedData = detailedData.reduce((acc, item) => {
-      const dateKey = new Date(item.date).toLocaleDateString();
-      const typeKey = item.productFlowType; // Use the mapping function here
-      const key = `${dateKey}-${typeKey}`;
-
-      if (!acc[key]) {
-        acc[key] = {
-          date: dateKey,
-          type: typeKey,
-          count: 0,
-        };
-      }
-
-      acc[key].count += 1;
-      return acc;
-    }, {});
-
-    // Format grouped data for table display
-    const formattedData = Object.values(groupedData).map((entry) => ({
-      date: entry.date,
-      type: entry.type,
-      count: entry.count,
+    // Map products to the required format
+    const selectedData = filteredProducts.map((product) => ({
+      hiddenId: product.productId,
+      name: product.productName,
+      barcode: product.barcode,
+      quantity: product.quantity,
+      expirationDate: product.expirationDate || "없음",
     }));
 
-    setNotificationTableData(formattedData);
-    setDateColumns([
-      { name: "date", label: "날짜" },
-      { name: "type", label: "유형" },
-      { name: "count", label: "수량" },
-    ]);
-  };
-
-  // 현재 상자의 재고 목록을 불러오는 함수
-  const handleSelectedData = (rectName, selectedFloor) => {
-    const selectedData = tableData
-      .filter(
-        (product) =>
-          product[4] === rectName &&
-          product[5] === selectedFloor &&
-          product[7] === parseInt(WHId)
-      ) // 같은 위치에 있는 상품만 출력
-      .map((product) => ({
-        hiddenId: product[0],
-        name: product[1],
-        barcode: product[2],
-        quantity: product[3],
-        expirationDate: product[6] || "없음",
-      }));
-
     setModalTableData(selectedData);
-  };
-
-  // Extract fill percentage from RGBA color
-  const extractFillPercentage = (rgbaString) => {
-    const matches = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-
-    if (matches) {
-      const red = parseInt(matches[1], 10);
-      const green = parseInt(matches[2], 10);
-
-      // Calculate the percentage using both red and green components
-      // Both red and green start at a higher value and decrease to 0 as the fill increases
-      const redPercentage = (27 - red) / 27;
-      const greenPercentage = (177 - green) / 177;
-
-      // The fill percentage is determined by averaging the percentage contribution from red and green
-      const fillPercentage = ((redPercentage + greenPercentage) / 2) * 100;
-
-      return fillPercentage.toFixed(1);
-    }
-
-    return "0.0"; // Default to 0% if unable to parse
   };
 
   /**
@@ -1096,15 +1006,13 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true); // Start loading
-        await getWarehouseAPI(WHId); // 창고 정보를 불러온다.
-        //재고 목록과 알림 내역을 불러온다.
-        await productGetAPI(businessId);
-        await getNotificationsAPI(businessId);
+        setLoading(true);
+        await getStoreStructureAPI();
+        await getNotificationsAPI();
       } catch (error) {
-        //에러
+        // Handle error
       } finally {
-        setLoading(false); // End loading
+        setLoading(false);
       }
     };
     fetchData();
@@ -1121,6 +1029,20 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
 
     centerCanvas();
   }, [CANVAS_SIZE, VIEWPORT_WIDTH, VIEWPORT_HEIGHT]);
+
+  // 영문을 한글로 바꿔주는 작업
+  const mapTypeToKorean = (type) => {
+    switch (type) {
+      case "IMPORT":
+        return "입고";
+      case "EXPORT":
+        return "출고";
+      case "FLOW":
+        return "이동";
+      default:
+        return type; // Fallback to original if no match
+    }
+  };
 
   /**
    * 프린트 옵션
@@ -1223,6 +1145,105 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
     },
   };
 
+  // Button click handler for Inventory (재고목록)
+  const handleInventoryClick = () => {
+    if (isSidebarVisible && showDetails) {
+      // If inventory is already showing, close the sidebar
+      setIsSidebarVisible(false);
+    } else if (isSidebarVisible && !showDetails) {
+      // If sidebar is open but showing a different content, close it and update content
+      setIsSidebarVisible(false); // Close sidebar
+      setTimeout(() => {
+        setShowDetails(true);
+        setNewContentToShow("inventory"); // Update content to Inventory
+        setIsSidebarVisible(true); // Reopen sidebar
+      }, 300); // Add slight delay to ensure smooth closing before reopening
+    } else {
+      // If sidebar is closed, update content and open it
+      setNewContentToShow("inventory"); // Set content to Inventory
+      setShowDetails(true);
+      setIsSidebarVisible(true); // Open sidebar
+    }
+  };
+
+  // Handle notification click
+  const handleNotificationClick = async (notificationId, notificationType) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signIn");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `https://j11a302.p.ssafy.io/api/product-flows/batch?notificationId=${notificationId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const apiConnection = await response.json();
+        const productFlows = apiConnection.result;
+
+        // Highlight related locations
+        const locationIds = productFlows.map(
+          (flow) => flow.presentLocationId.toString()
+        );
+        setHoveredLocations(locationIds);
+
+        // Prepare detailed notification data
+        const detailedData = productFlows.map((flow) => ({
+          productName: flow.productName,
+          barcode: flow.barcode,
+          quantity: flow.quantity,
+          previousLocationName:
+            flow.previousLocationName === "00-00"
+              ? "임시"
+              : flow.previousLocationName,
+          previousFloorLevel:
+            flow.previousFloorLevel === -1 ? "임시" : flow.previousFloorLevel,
+          presentLocationName:
+            flow.presentLocationName === "00-00"
+              ? "임시"
+              : flow.presentLocationName,
+          presentFloorLevel:
+            flow.presentFloorLevel === -1 ? "임시" : flow.presentFloorLevel,
+          productFlowType: mapEnumToKorean(flow.productFlowTypeEnum),
+          storeName: flow.storeName,
+        }));
+
+        setDetailedNotificationData(detailedData);
+        setSelectedNotificationTitle(
+          `${mapEnumToKorean(notificationType)} 상세 내역`
+        );
+
+        setLoading(false);
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+    }
+  };
+
+  // Effect to handle sidebar content switching when sidebar is closed
+  useEffect(() => {
+    if (!isSidebarVisible && pendingContentUpdate) {
+      // Once sidebar is closed, update content and reopen it
+      setTimeout(() => {
+        setContentVisible(newContentToShow === "inventory");
+        setPendingContentUpdate(false);
+        setIsSidebarVisible(true); // Reopen sidebar
+      }, 300); // Delay for smooth transition
+    }
+  }, [isSidebarVisible, pendingContentUpdate, newContentToShow, showDetails]);
+
   return (
     <div className={classes.navigationContainer}>
       <Stage
@@ -1248,7 +1269,13 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
               y={rect.y}
               width={rect.width}
               height={rect.height}
-              fill={rect.fill}
+              fill={
+                rect.type === "entrance"
+                  ? "green"
+                  : rect.type === "exit"
+                    ? "red"
+                    : rect.fill
+              }
               shapeProps={rect}
               isHovered={hoveredLocations.includes(rect.id)} // Pass hover state
               isSelected={rect.id === selectedLocationTransform}
@@ -1256,7 +1283,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                 setSelectedLocationTransform(rect.id);
                 setSelectedLocation(rect);
                 setSelectedFloor(1);
-                handleSelectedData(rect.name, selectedFloor);
+                handleSelectedData(rect.id);
               }}
               onChange={(newAttrs) => {
                 const rects = locations.slice();
@@ -1268,16 +1295,48 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
         </Layer>
       </Stage>
       <div className={classes.buttonContainer}>
-        <Button round onClick={handleZoomIn} style={{ color: "#7D4A1A" }}>
+        <Button
+          justIcon
+          round
+          onClick={handleZoomIn}
+          style={{ backgroundColor: "#31a5c8" }}
+        >
           <ZoomInIcon className={classes.icons} />
         </Button>
-        <Button onClick={handleZoomOut} style={{ color: "#7D4A1A" }}>
+        <Button
+          justIcon
+          round
+          onClick={handleZoomOut}
+          style={{ backgroundColor: "#ADAAA5" }}
+        >
           <ZoomOutIcon className={classes.icons} />
+        </Button>
+        {/* This button will be appear at Mobile Screen to control the showing RightSidebar */}
+        <Button
+          justIcon
+          round
+          className={classes.toggleSidebarButton}
+          style={{ backgroundColor: "#b2ddef" }}
+          onClick={handleInventoryClick}
+        >
+          <MenuIcon className={classes.zoomicons} />
+        </Button>
+        {/* This button will be appear at Mobile Screen to control the showing RightSidebar */}
+        <Button
+          justIcon
+          round
+          className={classes.toggleSidebarButton}
+          style={{ backgroundColor: "#999999" }}
+          onClick={handleNotificationClick}
+        >
+          <LightbulbIcon className={classes.zoomicons} />
         </Button>
       </div>
       {/* left Sidebar */}
-      <div className={classes.leftSidebar}>
-        <hr />
+      <div
+        className={`${classes.leftSidebar} ${isSidebarVisible ? classes.sidebarVisible : classes.sidebarHidden
+          }`}
+      >
         <div className={classes.leftSidebarContent}>
           <Button
             className={classes.sidebarButton}
@@ -1289,7 +1348,6 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
             className={classes.sidebarButton}
             onClick={() => {
               setShowDetails(false);
-              showUniqueDates();
             }}
           >
             알림함
@@ -1311,12 +1369,12 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                           setSelectedLocation(locations);
                           setSelectedLocationTransform(locations.id);
                           setSelectedFloor(1);
-                          handleSelectedData(locations.name, selectedFloor);
+                          handleSelectedData(locations.id);
                         }}
                         style={{
                           backgroundColor:
                             selectedLocation &&
-                            selectedLocation.id === locations.id
+                              selectedLocation.id === locations.id
                               ? "#f0f0f0" // Highlight color for selected item
                               : "transparent", // Default color for unselected items
                           transition: "background-color 0.3s", // Smooth transition effect
@@ -1334,40 +1392,44 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
         ) : (
           <div className={classes.notification}>
             <h3 className={classes.listTitle}>알림함</h3>
-            <ul className={classes.ulNotificationsList}>
-              {notificationTableData
-                .slice()
-                .reverse()
-                .map(({ date, type }, index) => (
+            {notificationTableData.length > 0 ? (
+              <ul className={classes.ulNotificationsList}>
+                {notificationTableData.map((notification, index) => (
                   <li
                     className={classes.liNotificationsList}
                     key={index}
-                    onClick={() => handleCellClick(date, type)}
+                    onClick={() =>
+                      handleNotificationClick(notification.id, notification.type)
+                    }
                   >
-                    {date.slice(0, -1)} / {mapTypeToKorean(type)}
+                    {notification.date} / {notification.type}
                   </li>
                 ))}
-            </ul>
+              </ul>
+            ) : (
+              <p>알림이 없습니다.</p>
+            )}
           </div>
         )}
       </div>
-      {/* Right Sidebar: Conditional rendering based on selection */}
-      {(selectedLocation ||
-        ModalTableData.length > 0 ||
-        detailedNotificationData.length > 0) && (
+      {/* Right Sidebar */}
+      {(selectedLocation || detailedNotificationData.length > 0) && (
         <div className={classes.rightSidebar}>
           <div className={classes.closeButtonPart}>
             <Button
               className={classes.closeButton}
               onClick={() => {
                 setSelectedLocation(null);
-                setModalTableData([]);
                 setDetailedNotificationData([]);
-                setSelectedType(null);
-                setHoveredLocations([]); // Reset hovered locations
+                setHoveredLocations([]);
+              }}
+              style={{
+                backgroundColor: "#e6f4fa",
+                color: "black",
+                border: "1px solid #ccc",
               }}
             >
-              Close
+              닫기
             </Button>
           </div>
           {showDetails && selectedLocation ? (
@@ -1375,15 +1437,14 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
               <div>
                 <div id="상자 정보" className={classes.infoBox}>
                   <div id="상자 숫자 정보" className={classes.infoBoxNum}>
-                    <h3 style={{ marginTop: 0 }}>
-                      재고함 : {selectedLocation.name}
+                    <h3 className={classes.infoBoxTitle}>
+                      위치: {selectedLocation.name}
                     </h3>
                     <b>가로 : {selectedLocation.width}cm</b>
                     <b>세로 : {selectedLocation.height}cm</b>
                     <b>단수(층) : {selectedLocation.z}단/층</b>
                     <b>
-                      현재 재고율 :{" "}
-                      {extractFillPercentage(selectedLocation.fill)}%{" "}
+                      재고율 : { }%{" "}
                     </b>
                   </div>
                   <div
@@ -1396,36 +1457,28 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                           className={classes.floorBox}
                           key={index + 1}
                           style={{
-                            backgroundColor:
-                              selectedFloor === index + 1
-                                ? "#7D4A1A"
-                                : "transparent",
-                            color:
-                              selectedFloor === index + 1 ? "white" : "#7D4A1A",
+                            backgroundColor: "#e6f4fa",
+                            color: "black",
+                            border: "1px solid #ccc",
+                            "&:hover": {
+                              transform: 'scale(1.05)',
+                              color: 'black',
+                              border: "1px solid #9baab1"
+                            }
                           }}
                           onClick={() => {
-                            setSelectedFloor(
-                              selectedFloor === index + 1 ? null : index + 1
-                            );
-                            handleSelectedData(
-                              selectedLocation.name,
-                              index + 1
-                            );
+                            handleFloorSelection(index + 1);
                           }}
-                          onMouseEnter={(e) => {
-                            e.target.style.backgroundColor =
-                              selectedFloor === index + 1
-                                ? "#7D4A1A"
-                                : "transparent";
-                            e.target.style.border = "2px solid #7D4A1A";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.backgroundColor =
-                              selectedFloor === index + 1
-                                ? "#7D4A1A"
-                                : "transparent";
-                            e.target.style.border = "1px solid black";
-                          }}
+                        // onMouseEnter={(e) => {
+                        //   e.target.style.border = "1px solid #9baab1";
+                        // }}
+                        // onMouseLeave={(e) => {
+                        //   e.target.style.backgroundColor =
+                        //     selectedFloor === index + 1
+                        //       ? "#7D4A1A"
+                        //       : "transparent";
+                        //   e.target.style.border = "1px solid black";
+                        // }}
                         >
                           {index + 1} 단
                         </Button>
@@ -1493,10 +1546,10 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                         <th className={classes.thTypeNotificationTable}>
                           {/* Different headers based on type */}
                           {selectedType === "IMPORT"
-                            ? "입고된 창고"
+                            ? "입고된 매장"
                             : selectedType === "EXPORT"
-                            ? "출고 위치"
-                            : "이동한 위치"}
+                              ? "출고 위치"
+                              : "이동한 위치"}
                         </th>
                       </tr>
                     </thead>
@@ -1531,7 +1584,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                                   {item.currentFloorLevel}층
                                 </span>
                                 <span className={classes.exportStoreTitle}>
-                                  창고 : {item.warehouseTitle}
+                                  매장 : {item.warehouseTitle}
                                 </span>
                               </div>
                             )}
@@ -1543,7 +1596,7 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
                                   {item.currentFloorLevel}층
                                 </span>
                                 <span className={classes.exportStoreTitle}>
-                                  창고 : {item.warehouseTitle}
+                                  매장 : {item.warehouseTitle}
                                 </span>
                               </div>
                             )}
@@ -1579,36 +1632,36 @@ const MyContainerNavigation = ({ WHId, businessId, warehouses }) => {
               columns={
                 detailedNotificationData[0].trackingNumber
                   ? [
-                      "날짜",
-                      "상품명",
-                      "바코드",
-                      "수량",
-                      "적재함",
-                      "층수",
-                      "창고",
-                      "송장번호",
-                    ]
+                    "날짜",
+                    "상품명",
+                    "바코드",
+                    "수량",
+                    "적재함",
+                    "층수",
+                    "매장",
+                    "송장번호",
+                  ]
                   : detailedNotificationData[0].previousLocationName &&
                     detailedNotificationData[0].previousFloorLevel
-                  ? [
+                    ? [
                       "날짜",
                       "상품명",
                       "바코드",
                       "수량",
                       "적재함",
                       "층수",
-                      "창고",
+                      "매장",
                       "이전 적재함",
                       "이전 층수",
                     ]
-                  : [
+                    : [
                       "날짜",
                       "상품명",
                       "바코드",
                       "수량",
                       "적재함",
                       "층수",
-                      "창고",
+                      "매장",
                     ]
               }
               data={detailedNotificationData.map((item) => {
@@ -1671,27 +1724,6 @@ const RectangleTransformer = ({
   // 재고함의 행렬과 높이를 나타내도록 설정한 MainText
   const floorName = `${shapeProps.z}층`;
 
-  // Extract fill percentage from RGBA color
-  const extractFillPercentage = (rgbaString) => {
-    const matches = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-
-    if (matches) {
-      const red = parseInt(matches[1], 10);
-      const green = parseInt(matches[2], 10);
-
-      // Calculate the percentage using both red and green components
-      // Both red and green start at a higher value and decrease to 0 as the fill increases
-      const redPercentage = (27 - red) / 27;
-      const greenPercentage = (177 - green) / 177;
-
-      // The fill percentage is determined by averaging the percentage contribution from red and green
-      const fillPercentage = ((redPercentage + greenPercentage) / 2) * 100;
-
-      return fillPercentage.toFixed(1);
-    }
-
-    return "0.0"; // Default to 0% if unable to parse
-  };
 
   return (
     <React.Fragment>
@@ -1742,7 +1774,7 @@ const RectangleTransformer = ({
         listening={false} // Disable interactions with the text
       />
       <Text
-        text={`${extractFillPercentage(shapeProps.fill)}%`}
+        // text={`${extractFillPercentage(shapeProps.fill)}%`}
         x={shapeProps.x}
         y={shapeProps.y}
         z={shapeProps.z}
