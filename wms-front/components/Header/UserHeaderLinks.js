@@ -1,5 +1,5 @@
 /*eslint-disable*/
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
 import { useRouter } from "next/router"; // Import useRouter
@@ -15,6 +15,7 @@ import IconButton from "@material-ui/core/IconButton";
 // core components
 import CustomDropdown from "/components/CustomDropdown/CustomDropdown.js";
 import Button from "/components/CustomButtons/Button.js";
+import NotificationBell from "./NotificationBell"; // NotificationBell 컴포넌트 추가
 
 import styles from "/styles/jss/nextjs-material-kit/components/headerLinksStyle.js";
 
@@ -22,6 +23,8 @@ const useStyles = makeStyles(styles);
 
 export default function HeaderLinks(props) {
   const router = useRouter();
+  const classes = useStyles();
+
   const handleLogout = () => {
     // Remove the token from local storage
     localStorage.removeItem("token");
@@ -30,12 +33,25 @@ export default function HeaderLinks(props) {
     router.push("/");
   };
 
-  const classes = useStyles();
+    // 상태 정의
+  const [isMobile, setIsMobile] = useState(false);
+
+  // 클라이언트 렌더링 시 화면 크기 감지
+  useEffect(() => {
+    const updateMedia = () => setIsMobile(window.innerWidth <= 960);
+    updateMedia(); // 초기 실행
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", updateMedia);
+    }
+    return () => window.removeEventListener("resize", updateMedia);
+  }, []);
+
   return (
     <List className={classes.list}>
+      <ListItem className={classes.listItem} style={{ display: isMobile ? "none" : "block" }}>
+        <NotificationBell userId={props.userId} /> {/* NotificationBell 추가 */}
+      </ListItem>
       <ListItem className={classes.listItem}>
-        {" "}
-        {/* Correct casing */}
         <Button
           onClick={handleLogout}
           color="transparent"
@@ -69,7 +85,7 @@ export default function HeaderLinks(props) {
           color="transparent"
           className={classes.navLink}
         >
-          창고목록
+          매장목록
         </Button>
       </ListItem>
     </List>

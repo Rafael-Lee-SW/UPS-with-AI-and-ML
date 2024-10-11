@@ -11,10 +11,10 @@ const infoStyle = {
   table: {
     width: '70%',
     borderCollapse: 'collapse',
-    border: '1px solid #ddd',
+    border: '1px solid #ccc',
     '& td': {
       padding: '8px',
-      borderBottom: '1px solid #ddd',
+      borderBottom: '1px solid #ccc',
     },
     '& tr:not(:last-child) td': {
       borderBottom: '1px solid #ccc',

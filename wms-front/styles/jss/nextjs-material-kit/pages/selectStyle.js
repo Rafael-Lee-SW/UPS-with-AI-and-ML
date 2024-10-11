@@ -36,6 +36,7 @@ const selectStyle = (theme) => ({
   cardLink: {
     width: "100%",
     margin: "0 0 0 0",
+    borderRadius: "20px",
   },
   cardHeader: {
     display: "flex",
@@ -235,18 +236,102 @@ const selectStyle = (theme) => ({
       display: "flex",
       flexDirection: "column",
     },
-    cardSelect: {
-
-    },
+    cardSelect: {},
     cardLink: {
-      display: "flex",
+      position: "relative",
       flexDirection: "column",
       height: "450px", // Total height of the card
       width: "300px",
       border: "1px solid #ccc",
-      borderRadius: "8px",
+      borderRadius: "20px",
+      transition: "transform 0.3s ease",
+      transformOrigin: "center",
+      "&:hover": {
+        transform: "scale(1.2)",
+        zIndex: "1200",
+      },
+      "&::before": {
+        content: '""',
+        position: "absolute",
+        top: "-2px",
+        left: "-2px",
+        width: "calc(100% + 4px)",
+        height: "calc(100% + 4px)",
+        borderRadius: "inherit",
+        border: "2px solid transparent",
+        boxSizing: "border-box",
+        transition: "border-color 0.5s ease",
+        pointerEvents: "none",
+      },
+      "&:hover::before": {
+        animation: "$borderRainbow 0.5s forwards",
+      },
     },
-    cardSelect: {
+    "@keyframes borderRainbow": {
+      "0%": { borderColor: "red" },
+      "25%": { borderColor: "yellow" },
+      "50%": { borderColor: "green" },
+      "75%": { borderColor: "blue" },
+      "100%": { borderColor: "black" },
+    },
+
+    actionButtons: {
+      position: "absolute",
+      top: "395px", // Position above the card
+      left: "50%",
+      transform: "translateX(-50%)",
+      display: "flex",
+      gap: "10px",
+      zIndex: 5, // Ensure buttons appear above other elements
+    },
+    actionButtonSee: {
+      backgroundColor: "#ccc",
+      padding: '6px 12px',
+      minWidth: '80px',
+      height: '40px',
+      display: 'flex',
+      alignItems: 'center',
+      '& .MuiSvgIcon-root': {
+        fontSize: '18px',
+      },
+      "&:hover": {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        color: "#ffffff",
+      },
+    },
+    actionButtonEdit: {
+      backgroundColor: "#cce8f4",
+      padding: '6px 12px',
+      minWidth: '80px',
+      height: '40px',
+      display: 'flex',
+      alignItems: 'center',
+      '& .MuiSvgIcon-root': {
+        fontSize: '18px',
+      },
+      "&:hover": {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        color: "#ffffff",
+      },
+    },
+    actionButtonDel: {
+      backgroundColor: "#2f5a69",
+      padding: '6px 12px',
+      minWidth: '80px',
+      height: '40px',
+      display: 'flex',
+      alignItems: 'center',
+      '& .MuiSvgIcon-root': {
+        fontSize: '18px',
+      },
+      "&:hover": {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        color: "#ffffff",
+      },
+    },
+    // Optional: Adjust the card to have a higher z-index when clicked
+    cardLinkClicked: {
+      zIndex: 5,
     },
     imageCard: {
       width: "300px", // Adjusted from the original size
@@ -276,17 +361,17 @@ const selectStyle = (theme) => ({
       position: "relative", // 이미지 포지셔닝을 위해 설정
     },
     plusCardGrid: {
-      width: "30%", // Same size as the image card
+      width: "300px", // Same size as the image card
       marginRight: theme.spacing(2),
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      padding : "0",
+      padding: "0",
     },
     buttonCard: {
       height: "450px",
       border: "2px solid #ccc",
-      width: "100%",
+      width: "300px",
       borderRadius: "20px",
       display: "flex",
       justifyContent: "center",
@@ -300,14 +385,6 @@ const selectStyle = (theme) => ({
       position: "absolute",
       bottom: 0,
       width: "100%",
-    },
-    deleteButton: {
-      position: "absolute",
-      top: 10,
-      right: 10,
-      width: "20px",
-      height: "20px",
-      cursor: "pointer",
     },
     cardBody: {
       display: "flex",
@@ -370,12 +447,14 @@ const selectStyle = (theme) => ({
       },
     },
     pcsContainer: {
+      height: '90px',
       display: "flex",
       flexDirection: "column", // 이미지와 텍스트를 세로로 정렬
       alignItems: "center", // 중앙 정렬
       gap: "5px", // 이미지와 텍스트 사이의 간격
     },
     locationContainer: {
+      height: '90px',
       display: "flex",
       flexDirection: "column", // 이미지와 텍스트를 세로로 정렬
       alignItems: "center", // 중앙 정렬
@@ -422,6 +501,16 @@ const selectStyle = (theme) => ({
     formControl: {
       marginBottom: theme.spacing(2),
     },
+    createButton: {
+      backgroundColor: '#e6f4fa',
+      border: '1px solid #ccc',
+      color: 'black',
+      "&:hover": {
+        transform: 'scale(1.05)',
+        color: 'black',
+        border: "1px solid #9baab1"
+      }
+    }
   },
 });
 

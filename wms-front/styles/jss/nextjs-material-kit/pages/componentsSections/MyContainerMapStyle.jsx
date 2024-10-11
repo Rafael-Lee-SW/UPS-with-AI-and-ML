@@ -1,7 +1,9 @@
 // styles\jss\nextjs-material-kit\pages\componentsSections\MyContainerStyle.jsx
 
+import zIndex from "@material-ui/core/styles/zIndex";
 import { container, title } from "/styles/jss/nextjs-material-kit.js";
 import customCheckboxRadioSwitch from "/styles/jss/nextjs-material-kit/effect/customCheckboxRadioSwitch.js";
+import { colors } from "@material-ui/core";
 
 const basicsStyle = {
   // 해당 컴포넌트 전역 스타일
@@ -30,18 +32,19 @@ const basicsStyle = {
   },
   // 로케이션 생성, 벽 생성 등의 버튼 스타일
   buttonStyle: {
-    backgroundColor: "transparent",
+    backgroundColor: "#e6f4fa",
     width: "50px",
-    color: "#7D4A1A",
+    color: "black",
     marginLeft: "10px",
     marginTop: "30px",
     height: "30px",
-    border: "1px solid #7D4A1A",
+    border: "1px solid #ccc",
     borderRadius: "4px",
     "&:hover": {
       transform: "scale(1.05)",
-      backgroundColor: "#7D4A1A",
-      color: "white",
+      border: "1px solid #9baab1",
+      backgroundColor: "#e6f4fa",
+      color: "black"
     },
   },
   // 어떤 오브젝트(로케이션, 벽)에 따라 달라지는 상단 글씨
@@ -72,13 +75,15 @@ const basicsStyle = {
     marginTop: "20px",
   },
   generateButton: {
-    backgroundColor: "#7D4A1A",
+    backgroundColor: "#e6f4fa",
     fontSize: "15px",
+    color: "black",
+    border: "1px solid #ccc",
     "&:hover": {
       transform: "scale(1.05)",
-      backgroundColor: "transparent",
-      border: "1px solid #7D4A1A",
-      color: "#7D4A1A",
+      backgroundColor: "#e6f4fa",
+      border: "1px solid #9baab1",
+      color: "black",
     },
   },
   // 캔버스 영역
@@ -170,6 +175,7 @@ const basicsStyle = {
     backgroundColor: "white",
     boxShadow: "0 0 5px grey",
     borderRadius: "3px",
+    zIndex : "1500",
   },
   pulse: {
     width: "100%",
@@ -219,7 +225,9 @@ const basicsStyle = {
   },
   ...customCheckboxRadioSwitch,
 
-  //Mobile 환경
+  /**
+   * Mobile 모바일 환경
+   */
   "@media (max-width: 960px)": {
     // 해당 컴포넌트 전역 스타일
     canvasContainer: {
@@ -327,11 +335,7 @@ const basicsStyle = {
       justifyContent: "flex-end",
     },
     zoomicons: {
-      width: "17px",
-      height: "17px",
       color: "#FFFFFF",
-      width: "35px",
-      height: "35px",
     },
 
     // 우측 사이드바

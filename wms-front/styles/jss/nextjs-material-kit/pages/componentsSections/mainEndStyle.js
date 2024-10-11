@@ -10,15 +10,15 @@ const mainEnd = {
     title: {
         fontSize: "30px",
         fontWeight: "bold",
-        color: "#785006",
+        color: "#459ab6",
         paddingBottom: "30px"
     },
     button: {
         width: "200px",
-        backgroundColor: '#FFFFFF', 
-        color: '#8B4513', 
+        backgroundColor: '#e6f4fa', 
+        color: 'black', 
         padding: '10px 20px',
-        border: 'solid 1px #8B4513',
+        border: 'solid 1px #ccc',
         borderRadius: '3px',
         cursor: 'pointer',
         fontSize: '16px',
@@ -27,8 +27,10 @@ const mainEnd = {
         display: 'inline-block',
         transition: 'background-color 0.3s ease', 
         '&:hover': {
-        backgroundColor: '#8B4513', 
-        color: '#FFFFFF', 
+            transform: 'scale(1.05)',
+            color: 'black',
+            border: "1px solid #9baab1"
+
         }
     },
 }

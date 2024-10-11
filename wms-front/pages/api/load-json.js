@@ -8,7 +8,6 @@ export default function handler(req, res) {
 
     fs.readFile(filePath, 'utf8', (err, data) => {
       if (err) {
-        console.error('Error reading JSON data:', err);
         return res.status(500).send('Error reading JSON data');
       }
       res.status(200).json(JSON.parse(data));

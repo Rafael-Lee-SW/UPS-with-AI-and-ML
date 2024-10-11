@@ -1,10 +1,37 @@
-// 사업체 회원가입 추가 필요
-
 import axios from 'axios';
 
 const instance = axios.create({
     baseURL: 'https://j11a302.p.ssafy.io/api/',
 });
+
+instance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token'); 
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// 응답 인터셉터 설정
+instance.interceptors.response.use(
+  response => {
+    const newAccessToken = response.headers['authorization']; 
+    if (newAccessToken) {
+        console.log("새로운 토큰", newAccessToken);
+      localStorage.setItem('token', newAccessToken);
+    }
+    return response;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
 // 유저 조회
 function fetchUser(id) {
     return instance.get(`/users/${id}`)
@@ -12,7 +39,7 @@ function fetchUser(id) {
 
 // 유저 수정
 function editUser(id, data = {}) {
-    return instance.put(`users/${id}`, data)
+    return instance.put(`/users/${id}`, data)
 }
 
 // 사업체 등록
@@ -20,9 +47,29 @@ function createBusiness(id, data = {}) {
     return instance.post(`/businesses?userId=${id}`, data)
 } 
 
+// 디바이스 추가
+function createDevice(data = {}) {
+    return instance.post('/devices', data)
+}
+
+// 디바이스 삭제
+function deleteDevice(deviceId) {
+    return instance.delete(`/devices/${deviceId}`)
+}
+
+// otp 발급
+function createOtpNumber(deviceId) {
+    return instance.get(`/auths/device-otps/${deviceId}`)
+}
+
 // 특정 사업체 조회
 function fetchBusiness(id) {
     return instance.get(`/businesses/${id}`);
+}
+
+// 매장 조회
+function fetchStores() {
+  return instance.get('/stores');
 }
 
 // 사업체 정보 수정
@@ -176,8 +223,28 @@ function fetchExport(businessId) {
 }
 
 // 사업체의 입고, 출고 내역 조회
-function fetchNotifications(businessId) {
-    return instance.get(`products/notification?businessId=${businessId}`)
+function fetchNotifications() {
+    return instance.get('/notifications')
+}
+
+// 방범 알람 조회
+function fetchCrimeNotifications(storeId) {
+    return instance.get(`/notifications?storeId=${storeId}&type=CRIME_PREVENTION`)
+}
+
+// 안읽은 알람 조회
+function fetchUnreadCrimeNotifications() {
+    return instance.get('/notifications?type=CRIME_PREVENTION&isRead=false')
+}
+
+// 알람 읽음 처리 및 업데이트
+function updateCrimeNotifications(data = {}) {
+    return instance.patch('/notifications/batch', data)
+}
+
+// 방범 영상 정보 조회
+function fetchCrimeVideos(storeId) {
+    return instance.get(`/cameras/batch?storeId=${storeId}`)
 }
 
 // 특정 상품 정보 조회
@@ -234,6 +301,10 @@ function fetchFloors(floorId) {
 function fetchLocationFloors(locationId) {
     return instance.get(`/floors?locationId=${locationId}`)
 }
+
+function editNotification(data) {
+    return instance.patch('/notifications/batch', data);
+}
  
 export { 
     instance, 
@@ -283,4 +354,12 @@ export {
     deleteLocation,
     fetchFloors,
     fetchLocationFloors,
+    fetchStores,
+    createDevice,
+    deleteDevice,
+    createOtpNumber,
+    fetchCrimeNotifications,
+    fetchUnreadCrimeNotifications,
+    updateCrimeNotifications,
+    fetchCrimeVideos,
 }   

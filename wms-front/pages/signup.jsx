@@ -20,7 +20,7 @@ const useStyles = makeStyles(() => ({
     textAlign: 'center',
   },
   card: {
-    border: "1px solid #7D4A1A",
+    border: "1px solid #459ab6",
     maxWidth: '400px',
     marginLeft: '60px'
   },
@@ -50,15 +50,21 @@ const useStyles = makeStyles(() => ({
     minWidth: '100px',
     flex: 1,
     '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#7d4a1a', 
+      borderColor: '#459ab6', 
     },
     '& .MuiInputLabel-root.Mui-focused': {
-      color: '#7d4a1a', 
+      color: '#459ab6', 
     },
   },
   button: {
+    border: '1px solid #ccc',
     margin: '8px',
     height: '56px',
+    '&hover': {
+      transform: 'scale(1.05)',
+      color: 'black',
+      border: "1px solid #9baab1"
+    }
   },
   buttonSmall: {
     margin: '8px',
@@ -75,7 +81,7 @@ const useStyles = makeStyles(() => ({
   divider: {
     height: '1px',
     width: '100px',
-    backgroundColor: '#7d4a1a',
+    backgroundColor: '#459ab6',
     margin: 0
   },
   dividerText: {
@@ -124,7 +130,6 @@ export default function SignUp() {
   const [email, setEmail] = useState('');
   const [certificationNumber, setCertificationNumber] = useState('');
   const [name, setName] = useState('');
-  const [nickname, setNickname] = useState('');
   const [emailCheckMessage, setEmailCheckMessage] = useState('');
   const [passwordMessage, setPasswordMessage] = useState('');
   const [showPasswordMessage, setShowPasswordMessage] = useState(false);
@@ -197,16 +202,22 @@ export default function SignUp() {
 
   const handleEmailCheck = async () => {
     try {
-      const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/email-check', { email });
+      const response = await axios.get('https://j11a302.p.ssafy.io/api/users/check-email', { 
+        params: {
+                email: email, 
+            },
+       });
       
-      if (response.data.code === 'SU') { 
+      if (response.data.httpStatus === 200) { 
         setEmailCheckMessage('사용 가능한 이메일입니다.');
         setIsEmailValid(true);
       } else {
+        console.log(response.data)
         setEmailCheckMessage(response.data.message);
         setIsEmailValid(false);
       }
     } catch (error) {
+      console.log(error)
       setEmailCheckMessage('중복된 이메일입니다.');
       setIsEmailValid(false);
     }
@@ -215,16 +226,19 @@ export default function SignUp() {
   const handleSendCertificationEmail = async () => {
     if (isEmailValid) {
       try {
-        const certificationResponse = await axios.post('https://j11a302.p.ssafy.io/api/oauth/email-certification', { email });
+        const certificationResponse = await axios.post('https://j11a302.p.ssafy.io/api/certifications/email-certification', { email });
         
-        if (certificationResponse.data.code === 'SU') {
+        if (certificationResponse.data.httpStatus === 200) {
           setCertificationMessage('인증번호 발송에 성공하였습니다.');
+          setIsCertificationSuccess(true);
           setIsCertificationButtonEnabled(true);
           setTimer(180); 
         } else {
+          console.log(certificationResponse.data)
           setCertificationMessage('메일 전송에 실패했습니다.');
         }
       } catch (error) {
+        console.log(error)
         setCertificationMessage('네트워크 오류가 발생했습니다.');
       }
     } else {
@@ -235,13 +249,12 @@ export default function SignUp() {
   const handleCertification = async () => {
     if (isCertificationButtonEnabled) {
       try {
-        const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/check-certification', {
+        const response = await axios.post('https://j11a302.p.ssafy.io/api/certifications/check-certification', {
           email,
           certificationNumber,
         });
-        const { code } = response.data;
 
-        if (code === 'SU') {
+        if (response.data.statusCode === 1000) {
           setCertificationMessage('이메일이 인증되었습니다.');
           setIsCertificationButtonEnabled(false);
           setIsCertificationSuccess(true);
@@ -261,18 +274,17 @@ export default function SignUp() {
     e.preventDefault();
     if (isFormValid && isEmailValid) {
       try {
-        const response = await axios.post('https://j11a302.p.ssafy.io/api/oauth/sign-up', {
-          email,
-          password,
-          certificationNumber,
-          name,
-          nickname,
+        const response = await axios.post('https://j11a302.p.ssafy.io/api/users/sign-up', {
+          'email': email,
+          'password' : password,
+          'userName' : name,
         });
-        const { message, isSuccess } = handleResponse(response);
+        const message = response.data.message;
+        const success = response.data.success;
 
-        toast[isSuccess ? 'success' : 'error'](isSuccess ? '회원가입이 완료되었습니다. 로그인 후 이용해주세요.' : message);
+        toast[success ? 'success' : 'error'](success ? '회원가입이 완료되었습니다. 로그인 후 이용해주세요.' : message);
 
-        if (isSuccess) {
+        if (success) {
           router.push('/signIn');
         }
       } catch (error) {
@@ -306,7 +318,7 @@ export default function SignUp() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
-                  <Button variant="contained" style={{ backgroundColor: "#7D4A1A", color: "white" }} onClick={handleEmailCheck} className={classes.button}>
+                  <Button variant="contained" style={{ backgroundColor: "#e6f4fa", color: "black" }} onClick={handleEmailCheck} className={classes.button}>
                     이메일 인증
                   </Button>
                 </div>
@@ -327,8 +339,8 @@ export default function SignUp() {
                   <Button
                     variant="contained"
                     style={{
-                      backgroundColor: isEmailValid ? "#7D4A1A" : "#c0c0c0",
-                      color: "white",
+                      backgroundColor: isEmailValid ? "#e6f4fa" : "#c0c0c0",
+                      color: "black",
                     }} 
                     onClick={handleSendCertificationEmail}
                     className={classes.button}
@@ -341,8 +353,8 @@ export default function SignUp() {
                   <Button
                     variant="contained"
                     style={{
-                      backgroundColor: isCertificationButtonEnabled ? "#7D4A1A" : "#c0c0c0",
-                      color: "white"
+                      backgroundColor: isCertificationButtonEnabled ? "#e6f4fa" : "#c0c0c0",
+                      color: "black"
                     }} 
                     onClick={handleCertification}
                     className={classes.buttonSmall}
@@ -392,24 +404,14 @@ export default function SignUp() {
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
-                <TextField
-                  label="닉네임"
-                  type="text"
-                  variant="outlined"
-                  fullWidth
-                  className={classes.textField}
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
-                  required
-                />
                 <Button
                   type="submit"
                   variant="contained"
                   color="primary"
                   className={classes.buttonSmall}
                   style={{
-                    backgroundColor: isFormValid && isEmailValid ? "#7D4A1A" : "#c0c0c0",
-                    color: "white",
+                    backgroundColor: isFormValid && isEmailValid ? "#e6f4fa" : "#c0c0c0",
+                    color: "black",
                     marginTop: '20px'
                   }} 
                   disabled={!isFormValid || !isEmailValid}

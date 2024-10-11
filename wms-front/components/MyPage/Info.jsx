@@ -4,10 +4,10 @@ import styles from "/styles/jss/nextjs-material-kit/pages/componentsSections/inf
 const useStyles = makeStyles(styles)
 
 // 회원정보 랜더링
-export default function Info({ name, email, nickname, roleTypeEnum, businessId, businessName, businessNumber, createdDate }) {
+export default function Info({ name, email, createdDate }) {
     
     const classes = useStyles();
-    const initialUserInfo = { name, email, nickname, roleTypeEnum, businessId, businessName, businessNumber, createdDate } 
+    const initialUserInfo = { name, email, createdDate } 
 
     const formattedDate = initialUserInfo.createdDate ? initialUserInfo.createdDate.substring(0, 10) : '';
 
@@ -22,26 +22,8 @@ export default function Info({ name, email, nickname, roleTypeEnum, businessId, 
                   <td className={classes.valueCell}>{initialUserInfo.name}</td>
                 </tr>
                 <tr>
-                  <td className={classes.labelCell}><strong className={classes.text}>닉네임</strong></td>
-                  <td className={classes.valueCell}>{initialUserInfo.nickname}</td>
-                </tr>
-                <tr>
                   <td className={classes.labelCell}><strong className={classes.text}>이메일</strong></td>
                   <td className={classes.valueCell}>{initialUserInfo.email}</td>
-                </tr>
-                {roleTypeEnum === 'BUSINESS' && (
-                <>
-                <tr>
-                  <td className={classes.labelCell}>
-                    <strong className={classes.text}>사업자 이름</strong>
-                  </td>
-                  <td className={classes.valueCell}>{initialUserInfo.businessName}</td>
-                </tr>
-                <tr>
-                  <td className={classes.labelCell}>
-                    <strong className={classes.text}>사업자 번호</strong>
-                  </td>
-                  <td className={classes.valueCell}>{initialUserInfo.businessNumber}</td>
                 </tr>
                 <tr>
                   <td className={classes.labelCell}>
@@ -49,8 +31,6 @@ export default function Info({ name, email, nickname, roleTypeEnum, businessId, 
                   </td>
                   <td className={classes.valueCell}>{formattedDate}</td>
                 </tr>
-                </>
-              )}
               </tbody>
             </table>
           </div>

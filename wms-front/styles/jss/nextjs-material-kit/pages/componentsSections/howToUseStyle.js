@@ -22,6 +22,7 @@ const howToUse = {
         padding: "50px"
     },
     title: {
+        fontSize: '30px',
         fontWeight: "bold"
     },
     section2Content: {

@@ -14,13 +14,14 @@ export default function HeaderLinks(props) {
   const router = useRouter();  // useRouter 훅 초기화
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   setIsLoggedIn(!!token);
-  // }, []);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     router.push("/");
   };
 
@@ -86,11 +87,11 @@ export default function HeaderLinks(props) {
               color="transparent"
               className={classes.navLink}
             >
-              창고관리
+              매장관리
             </Button>
           </ListItem>
         </>
-      ) : isLoggedIn && isMypage ? (  // 마이페이지일 때 로그아웃과 창고관리 링크만 표시
+      ) : isLoggedIn && isMypage ? (  
         <>
           <ListItem className={classes.listItem}>
             <Button
@@ -107,7 +108,7 @@ export default function HeaderLinks(props) {
               color="transparent"
               className={classes.navLink}
             >
-              창고관리
+              매장관리
             </Button>
           </ListItem>
         </>

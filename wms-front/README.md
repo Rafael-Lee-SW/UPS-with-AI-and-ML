@@ -1,29 +1,14 @@
-# Frontend Readme file
+# Frontend README file
 
 #### **Task**
- 
-	**Web app**
-		PWA를 활용하여 모바일 기기에도 적합하게 볼 수 있도록
-		1차 목표 : 스마트폰 / Web (Web이 아이패드도 커버칠 수 있게?)
-	**refactoring**
-		스파게티 코드로 얽혀있는 코드를 객체 분리
-	**real-time Rendering for user**
-		각 행동이 자연스럽게 이어진다.
-	**ServerSide Rendering**
-		SSR을 활용하여 로딩 시간 단축(현재는 사용X, user/id 부분에서 미리 SSR하는 방법 고려)
-	**Version Upgrade**
-		현재 Next 12 version, 이를 14 version으로 Upgrade
+ Task1. Web-app(PWA)
+ Task2. Version Upgrade
+ Task3. Refactoring
+ Task4. Mobile Enviornment
+ Task5. User Experience Improvement
+ Task6. API connection
+ Task7. Perfection
 
-
-통신 방식에 대해서 고민할 것
-
-현재 Next.js 14 버젼에 대해서 공부하고, 이를 한번에 2단계 이상 뛰어넘어야 하기 때문에 이로 인해 발생할 여러 문제들을 탐구중
-
-AutoML(from Vertex AI in Google Console)로 테스트 데이터를 통해 ML을 돌려보았으나, 유의미하고, 원하는 결과를 얻지 못함.
-
-차라리 직접 Python으로 간단한 ML 모델을 구축하는 것이 더 빠르게 간편해보임.
-
-Many things done it right now, and now our steps are making a mobile environment.
 
 ```
 wms-front
