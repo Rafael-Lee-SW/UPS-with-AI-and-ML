@@ -182,21 +182,8 @@ export default function Login() {
             <CardBody>
               <div className={classes.dividerContainer}>
                 <h3 className={classes.snsText}>
-                  간편 로그인
+                  로그인
                 </h3>
-              </div>
-              <div className={classes.snsButtons}>
-                <button className="sns-button" onClick={() => signInWithProvider('kakao')}>
-                  <img src="/img/kakao-sign-in.png" alt="Kakao Sign In" />
-                </button>
-                <button className="sns-button" onClick={() => signInWithProvider('naver')}>
-                  <img src="/img/naver-sign-in.png" alt="Naver Sign In" />
-                </button>
-              </div>
-              <div className={classes.dividerContainer}>
-                <div className={classes.divider}></div>
-                <p className={classes.dividerText}>또는</p>
-                <div className={classes.divider}></div>
               </div>
               <form onSubmit={handleLogin} className={classes.form}>
                 <TextField
